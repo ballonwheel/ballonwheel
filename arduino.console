@@ -1,0 +1,8 @@
+
+imre@dob01:~/ballonwheel/arduino$ ../../rpi_deb/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino
+
+imre@dob01:~/ballonwheel/arduino$ ../../rpi_deb/arduino-cli upload -v -p /dev/ttyUSB0 --fqbn arduino:avr:nano arduino
+
+
+
+
