@@ -92,20 +92,20 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		while((res = read(fd,&buf[0],1)) < 1); /* returns after 5 chars have been input */
+		for(k=0; k < 3; k++)while((res = read(fd,&buf[k],1)) < 1); /* returns after 5 chars have been input */
 
 		//res = read(fd,&buf[2],1); /* returns after 5 chars have been input */
 		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
-		if(dbg_)
-			printf("%i:%i:<--%0x\n", i, res, buf[0]);
+		//if(res>=0 && ((dbg_)||(buf[0] != chprev)))
+			printf("%i:%i:<--%0x %0x  %0x  %0x\n", i, res, buf[0], buf[1], buf[2], buf[3]);
 		//if(res<0)printf("%s\n", strerror( errno ));
 		
-		//chprev = bufo[0];
-		//bufo[0]++;
-		//if(bufo[0] > 'H')bufo[0]='A';
-		res = write(fd, bufo, 1);
-		if(dbg_)
-			printf("%i:%i:-->%0x\n", i, res, bufo[0]);
+		chprev = bufo[0];
+		bufo[0]++;
+		if(bufo[0] > 'H')bufo[0]='A';
+		res = write(fd, bufo, 4);
+		//if(res>=0 && dbg_)
+			printf("%i:%i:-->%0x %0x  %0x  %0x\n", i, res, bufo[0], bufo[1], bufo[2], bufo[3]);
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);

@@ -20,22 +20,36 @@ volatile unsigned int rxdone;
 ISR(USART_RX_vect)
 {
   *rxp++ = UDR0;  
-  if(rxp>=&rxdata[3]){
-      UCSR0B = 0;
-      rxdone=1;
+  digitalWrite(4, HIGH);
+  digitalWrite(4, LOW);
+  digitalWrite(4, HIGH);
+  if(rxp>&rxdata[3]){
+      //rxdone=1;
+      //UCSR0B = 0;
+      rxp=rxdata;
   }
+  //UCSR0B = (1<<RXCIE0)|(1<<TXCIE0)|(1<<UDRIE0)|(1<<RXEN0)|(1<<TXEN0);
+  UCSR0B = (1<<RXCIE0)|(1<<UDRIE0)|(1<<RXEN0)|(1<<TXEN0);
 }
 
 ISR(USART_UDRE_vect)
 {
   UDR0 = *txp++;  
-  if(txp>&txdata[3]) UCSR0B = (1<<RXCIE0)|(1<<RXEN0);
+  digitalWrite(5, HIGH);
+  digitalWrite(5, LOW);
+  digitalWrite(5, HIGH);
+
+  if(txp>&txdata[3]){
+      //UCSR0B = (1<<RXCIE0)|(1<<RXEN0);
+      txp=txdata;
+  }
+  UCSR0B = (1<<RXCIE0)|(1<<RXEN0);
 }
 
 #if 0
 ISR(USART_TX_vect)
 {
-  if(txp>&txdata[3])UCSR0B = 0;
+//  if(txp>&txdata[3])UCSR0B = 0;
 }
 #endif
 
@@ -43,21 +57,28 @@ ISR(USART_TX_vect)
 void setup() {
   // put your setup code here, to run once:
 
-  
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
   /*Set baud rate */
   UBRR0H = (unsigned char)(0>>8);
   UBRR0L = (unsigned char)0;
   /* double speed, clear data reg empty, */
   UCSR0A = (1<<U2X0);
   /*Enable receiver and transmitter */
-  //UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  UCSR0B = (1<<RXEN0)|(1<<TXEN0);
   /* Set frame format: 8data, 2stop bit */
   //UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 
+  USART_Flush();
 
   memset(txdata, 'A', 4);  
   rxdone = 0;
-
+  memset(rxdata, 'x', 10);
+  rxp=rxdata;
+  txp=txdata;
+  //digitalWrite(4, LOW);
+  //digitalWrite(5, LOW);
+  UCSR0B = (1<<RXCIE0)|(1<<UDRIE0)|(1<<RXEN0)|(1<<TXEN0);
 }
 
 void USART_Flush( void )
@@ -69,18 +90,19 @@ void USART_Flush( void )
 
 void loop() {
 
-  USART_Flush();
-  memset(rxdata, 0, 10);
-  rxp=rxdata;
-  rxdone = 0;
-  txp=txdata;
-  //UCSR0B = (1<<RXCIE0)|(1<<TXCIE0)|(1<<UDRIE0)|(1<<RXEN0)|(1<<TXEN0);
-  UCSR0B = (1<<RXCIE0)|(1<<UDRIE0)|(1<<RXEN0)|(1<<TXEN0);
-  delay(5000);
-  while(!rxdone)
-	;
-  memcpy(txdata, rxdata, 4);
-  
+  //digitalWrite(4, HIGH);
+  //digitalWrite(5, HIGH);
+  //    digitalWrite(4, HIGH);
+  //    digitalWrite(4, LOW);
+  //    digitalWrite(4, HIGH);
+  //delay(5000);
+  //while(!rxdone)
+  //;
+
+  //if(rxdone){
+  //    memcpy(txdata, rxdata, 4);
+  //    rxdone = 0;
+  //}
   
 
 }
