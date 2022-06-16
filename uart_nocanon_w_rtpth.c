@@ -1,4 +1,4 @@
- 
+
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,7 +12,6 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/mman.h>
 
 
@@ -22,10 +21,6 @@
 
 #include <time.h>
 #include <poll.h>
-
-
-#include <errno.h>
-extern int errno ;
 
 #define BAUDRATE B2000000
 #define MODEMDEVICE "/dev/ttyUSB0"
@@ -40,88 +35,33 @@ int fd,c, res;
 struct termios oldtio,newtio;
 char buf[255];
 char bufo[4] = "ABCD";
-char chprev;
-int i,j, k;
-int dbg_;
-
-struct timespec begin, end;
-long seconds;
-long nanoseconds;
-double elapsed;
-
+int i;
 
 void *thread_func(void *data)
 {
         /* Do RT specific stuff here */
  	printf("Do RT specific stuff here\n");
 
-
-        fd = open(MODEMDEVICE, O_RDWR | O_NOCTTY );
-        if (fd <0) {perror(MODEMDEVICE); exit(-1); }
-        tcgetattr(fd,&oldtio); /* save current port settings */
-        bzero(&newtio, sizeof(newtio));
-        newtio.c_cflag = BAUDRATE /*| CRTSCTS*/ | CS8 | CLOCAL | CREAD;
-        newtio.c_iflag = IGNPAR;
-        newtio.c_oflag = 0;
-        /* set input mode (non−canonical, no echo,...) */
-        newtio.c_lflag = 0;
-        newtio.c_cc[VTIME] = 0; /* inter−character timer unused */
-        newtio.c_cc[VMIN] = 1; /* blocking read until 5 chars received */
-        tcflush(fd, TCIFLUSH);
-        tcsetattr(fd,TCSANOW,&newtio);
-        /* setserial lowlatency */
-        //ioctl(fd, TIOCGSERIAL, &serial);
-        //serial.flags |= ASYNC_LOW_LATENCY;
-        //ioctl(fd, TIOCSSERIAL, &serial);
-	
-	fcntl(fd, F_SETFL, FNDELAY);
-
 	write(fd, bufo, 4);
-	clock_gettime(CLOCK_REALTIME, &begin);
-
 	while (1) { /* loop for input */
-		dbg_=!(i++%1000);
-		if(dbg_){
-			clock_gettime(CLOCK_REALTIME, &end);
-    			seconds = end.tv_sec - begin.tv_sec;
-			nanoseconds = end.tv_nsec - begin.tv_nsec;
-    			elapsed = seconds + nanoseconds*1e-9;
-
-			printf("Time measured: %.6f seconds.\n", elapsed);
-
-			clock_gettime(CLOCK_REALTIME, &begin);
-
-		}
-		for(k=0; k < 3; k++)while((res = read(fd,&buf[k],1)) < 1); /* returns after 5 chars have been input */
-
-		//res = read(fd,&buf[2],1); /* returns after 5 chars have been input */
-		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
-		//if(res>=0 && ((dbg_)||(buf[0] != chprev)))
-			printf("%i:%i:<--%0x %0x  %0x  %0x\n", i, res, buf[0], buf[1], buf[2], buf[3]);
-		//if(res<0)printf("%s\n", strerror( errno ));
-		
-		chprev = bufo[0];
-		bufo[0]++;
-		if(bufo[0] > 'H')bufo[0]='A';
+		i++;
+		res = read(fd,buf,255); /* returns after 5 chars have been input */
+		printf("%i:%i:<--%0x %0x  %0x  %0x\n", i, res, buf[0], buf[1], buf[2], buf[3]);
 		res = write(fd, bufo, 4);
-		//if(res>=0 && dbg_)
-			printf("%i:%i:-->%0x %0x  %0x  %0x\n", i, res, bufo[0], bufo[1], bufo[2], bufo[3]);
+		printf("%i:%i:-->%0x %0x  %0x  %0x\n", i, res bufo[0], bufo[1], bufo[2], bufo[3]);
 	}
 
-	tcsetattr(fd,TCSANOW,&oldtio);
 
         return NULL;
 }
 
 int main(void)
 {
-
-#if 0
 	fd = open(MODEMDEVICE, O_RDWR | O_NOCTTY );
-	if (fd <0) {perror(MODEMDEVICE); exit(-1); }
+	if (fd <0) {perror(MODEMDEVICE); exit(−1); }
 	tcgetattr(fd,&oldtio); /* save current port settings */
 	bzero(&newtio, sizeof(newtio));
-	newtio.c_cflag = BAUDRATE /*| CRTSCTS*/ | CS8 | CLOCAL | CREAD;
+	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
 	newtio.c_iflag = IGNPAR;
 	newtio.c_oflag = 0;
 	/* set input mode (non−canonical, no echo,...) */
@@ -130,12 +70,6 @@ int main(void)
 	newtio.c_cc[VMIN] = 4; /* blocking read until 5 chars received */
 	tcflush(fd, TCIFLUSH);
 	tcsetattr(fd,TCSANOW,&newtio);
-	/* setserial lowlatency */
-	ioctl(fd, TIOCGSERIAL, &serial);
-	serial.flags |= ASYNC_LOW_LATENCY;
-	ioctl(fd, TIOCSSERIAL, &serial);
-
-#endif
 
 
         /* Lock memory */
@@ -189,7 +123,7 @@ int main(void)
 	while(1)
 	{
 		//nanosleep((const struct timespec[]){{0, 1000000000L}}, NULL);
-		sleep(5);
+		sleep(0.5);
 		printf(".");
 	}
 
@@ -200,7 +134,7 @@ int main(void)
 
 out:
 
-	//tcsetattr(fd,TCSANOW,&oldtio);
+	tcsetattr(fd,TCSANOW,&oldtio);
 
         return ret;
 }

@@ -21,6 +21,7 @@ ISR(USART_RX_vect)
 {
   *rxp++ = UDR0;  
   if(rxp>=&rxdata[3]){
+      UCSR0B = 0;
       rxdone=1;
   }
 }

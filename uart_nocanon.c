@@ -19,7 +19,7 @@ struct termios oldtio,newtio;
 char buf[255];
 char bufo[4] = "ABCD";
 	fd = open(MODEMDEVICE, O_RDWR | O_NOCTTY );
-	if (fd <0) {perror(MODEMDEVICE); exit(−1); }
+	if (fd <0) {perror(MODEMDEVICE); exit(-1); }
 	tcgetattr(fd,&oldtio); /* save current port settings */
 	bzero(&newtio, sizeof(newtio));
 	newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
@@ -36,7 +36,7 @@ char bufo[4] = "ABCD";
 		res = read(fd,buf,255); /* returns after 5 chars have been input */
 		printf("%i:%i:<--%0x %0x  %0x  %0x\n", i, res, buf[0], buf[1], buf[2], buf[3]);
 		res = write(fd, bufo, 4);
-		printf("%i:%i:-->%0x %0x  %0x  %0x\n", i, res bufo[0], bufo[1], bufo[2], bufo[3]);
+		printf("%i:%i:-->%0x %0x  %0x  %0x\n", i, res, bufo[0], bufo[1], bufo[2], bufo[3]);
 	}
 	tcsetattr(fd,TCSANOW,&oldtio);
 }
