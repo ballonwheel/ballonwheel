@@ -354,14 +354,14 @@ void loop() {
           theta = 90.0*2.0*PI/360.0;
           clark();
           park();
+          Serial.write(wm);          
+          Serial.write(acc);   //T=acc*jrot       
+          Tset=Serial.read();
           pidT();
           ipark();
           iclark();
           //getwm(); timer kell, ami integralja a theta-t
           //timer ami kirakj a pwm-et
-          Serial.write(wm);          
-          wmset=Serial.read();
-          pidwm();
         }
       break;
       default:
