@@ -39,7 +39,7 @@ int ret;
 int fd,c, res;
 struct termios oldtio,newtio;
 char buf[255];
-char bufo[4] = "ABCD";
+char bufo[6] = "ABCD\n";
 char chprev;
 int i,j, k;
 int dbg_;
@@ -66,7 +66,7 @@ void *thread_func(void *data)
         /* set input mode (non−canonical, no echo,...) */
         newtio.c_lflag = 0;
         newtio.c_cc[VTIME] = 0; /* inter−character timer unused */
-        newtio.c_cc[VMIN] = 1; /* blocking read until 5 chars received */
+        newtio.c_cc[VMIN] = 8; /* blocking read until 5 chars received */
         tcflush(fd, TCIFLUSH);
         tcsetattr(fd,TCSANOW,&newtio);
         /* setserial lowlatency */
@@ -76,11 +76,11 @@ void *thread_func(void *data)
 	
 	fcntl(fd, F_SETFL, FNDELAY);
 
-	write(fd, bufo, 4);
+	write(fd, bufo, 5);
 	clock_gettime(CLOCK_REALTIME, &begin);
 
 	while (1) { /* loop for input */
-		dbg_=!(i++%1000);
+		dbg_=!(i++%1001);
 		if(dbg_){
 			clock_gettime(CLOCK_REALTIME, &end);
     			seconds = end.tv_sec - begin.tv_sec;
@@ -92,20 +92,22 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		while((res = read(fd,&buf[0],1)) < 1); /* returns after 5 chars have been input */
+		while((res = read(fd,&buf[0],8)) < 8); /* returns after 5 chars have been input */
 
 		//res = read(fd,&buf[2],1); /* returns after 5 chars have been input */
 		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
-		if(dbg_)
-			printf("%i:%i:<--%0x\n", i, res, buf[0]);
+		if(dbg_){
+			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
+		}
 		//if(res<0)printf("%s\n", strerror( errno ));
 		
-		//chprev = bufo[0];
-		//bufo[0]++;
-		//if(bufo[0] > 'H')bufo[0]='A';
-		res = write(fd, bufo, 1);
+		chprev = bufo[0];
+		bufo[0]++;
+		if(bufo[0] > 'H')bufo[0]='A';
+		res = write(fd, bufo, 5);
 		if(dbg_)
-			printf("%i:%i:-->%0x\n", i, res, bufo[0]);
+			printf("%i:%i:-->%0x%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3], bufo[4]);
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);

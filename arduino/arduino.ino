@@ -65,7 +65,8 @@ typedef union {
 binaryFloat wm, aam;
 float wmlast;
 float tdiff, tdifftmp;
-
+volatile byte AAAA[5]="AAAA";
+volatile byte BBBB[5]="BBBB";
 void DRVchk(void);
 
 
@@ -86,10 +87,16 @@ void serialEvent() {
     char inChar = (char)Serial.read();
     // add it to the inputString:
     inputString += inChar;
+ memcpy(&AAAA[0],&inputString[0],4);
+
     // if the incoming character is a newline, set a flag so the main loop can
     // do something about it:
     if (inChar == '\n') {
       stringComplete = true;
+      if(__run__){
+	memcpy(&AAAA[0],&inputString[0],4);
+        stringComplete = 0;
+      }
     }
   }
 }
@@ -179,7 +186,7 @@ void setup() {
   noInterrupts(); // Protect from a scheduler and prevent transactionBegin  
 
   //Serial.begin(9600);
-  Serial.begin(115200);
+  Serial.begin(2000000);
   Serial.flush();
   inputString.reserve(200);
 
@@ -321,16 +328,20 @@ void ipark(void)
 
 void _pidT(void)
 {
+  //vd = id_req-id_meas * kp + integrator;
   vd = id * 1.2345;
   vq = iq * 1.2345;
 }
 
+
 void loop() {
     //digitalWrite(??, i = i ? 0 : 1); 
     //Serial.print(".");
-    if(stringComplete){
-      Serial.println(inputString);
-      switch(stringChk()){
+    //if(stringComplete){
+    //  Serial.println(inputString);
+    //switch(stringChk()){
+    {
+      switch(CMDRUN){
       case CMDINFO:
         Serial.println("GetHelp");
         i = OSCCAL;
@@ -353,7 +364,7 @@ void loop() {
         DRVchk();
       break;
       case CMDRUN:
-        Serial.println("RUN");
+        //Serial.println("RUN");
         __run__ = 1;
         while(1){        
           adcPin=0;
@@ -373,16 +384,19 @@ void loop() {
           wmlast = wm.floatingPoint;
           tdiff=0;
 
-          Serial.write(wm.binary, 4);          
-          Serial.write(aam.binary,4);   //T=aam*jrot       
+          //Serial.write(wm.binary, 4);          
+          //Serial.write(aam.binary,4);   //T=aam*jrot
+	  Serial.write(AAAA,4);
+	  Serial.write(BBBB,4);       
           
           clark();
           park();
           _pidT();
           ipark();
           iclark();
-          while(timer1cnt<TPERIODE)//until here serial read shuld be happened
-            ;
+         // while(timer1cnt<TPERIODE)//until here serial read shuld be happened
+         //   ;
+	delayMicroseconds(2000);
         }
       break;
       default:
