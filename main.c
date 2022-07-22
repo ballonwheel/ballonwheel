@@ -1,3 +1,8 @@
+//imre@thinkpad:~/ballonwheel$ eval "$(ssh-agent -s)"
+//Agent pid 1298
+//imre@thinkpad:~/ballonwheel$ ssh-add ../.ssh/id_ed25519.rsa
+//Enter passphrase for ../.ssh/id_ed25519.rsa: 
+//Identity added: ../.ssh/id_ed25519.rsa (dobany.hu@gmail.com)
  
 
 #include <sys/types.h>
@@ -27,7 +32,7 @@
 #include <errno.h>
 extern int errno ;
 
-#define BAUDRATE B2000000
+#define BAUDRATE B9600
 #define MODEMDEVICE "/dev/ttyUSB0"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
@@ -39,7 +44,7 @@ int ret;
 int fd,c, res;
 struct termios oldtio,newtio;
 char buf[255];
-char bufo[6] = "ABCD\n";
+char bufo[8] = "ABCDEFG\n";
 char chprev;
 int i,j, k;
 int dbg_;
@@ -76,7 +81,7 @@ void *thread_func(void *data)
 	
 	fcntl(fd, F_SETFL, FNDELAY);
 
-	write(fd, bufo, 5);
+	//write(fd, bufo, 8);
 	clock_gettime(CLOCK_REALTIME, &begin);
 
 	while (1) { /* loop for input */
@@ -92,11 +97,12 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
+		write(fd, bufo, 8);
 		while((res = read(fd,&buf[0],8)) < 8); /* returns after 5 chars have been input */
 
 		//res = read(fd,&buf[2],1); /* returns after 5 chars have been input */
 		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
-		if(dbg_){
+		if(dbg_ || 1){
 			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
 			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
 		}
@@ -105,9 +111,10 @@ void *thread_func(void *data)
 		chprev = bufo[0];
 		bufo[0]++;
 		if(bufo[0] > 'H')bufo[0]='A';
-		res = write(fd, bufo, 5);
+		//res = write(fd, bufo, 5);
 		if(dbg_)
 			printf("%i:%i:-->%0x%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3], bufo[4]);
+		sleep(1);
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);

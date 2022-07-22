@@ -7,6 +7,11 @@
 //https://www.ti.com/lit/ug/slvu974/slvu974.pdf
 //https://www.ti.com/tool/BOOSTXL-DRV8301#tech-docs
 
+//../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino
+//../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino
+
+
+
 
 #include <SPI.h>
 #define SPICSPOSP2 2
@@ -386,8 +391,8 @@ void loop() {
 
           //Serial.write(wm.binary, 4);          
           //Serial.write(aam.binary,4);   //T=aam*jrot
-	  Serial.write(AAAA,4);
-	  Serial.write(BBBB,4);       
+	  Serial.write((uint8_t*)&AAAA[0],4);
+	  Serial.write((uint8_t*)&BBBB[0],4);       
           
           clark();
           park();
