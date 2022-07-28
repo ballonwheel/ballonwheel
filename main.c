@@ -3,6 +3,15 @@
 //imre@thinkpad:~/ballonwheel$ ssh-add ../.ssh/id_ed25519.rsa
 //Enter passphrase for ../.ssh/id_ed25519.rsa: 
 //Identity added: ../.ssh/id_ed25519.rsa (dobany.hu@gmail.com)
+
+//imre@imiEee:~/ballonwheel$ git remote set-url origin git@github.com:ballonwheel/ballonwheel.git
+
+
+//imre@imiEee:~/bow$ tar -xf arduino-cli_0.24.0_Linux_64bit.tar.gz
+
+//../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
+//../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
+
  
 
 #include <sys/types.h>

@@ -7,8 +7,10 @@
 //https://www.ti.com/lit/ug/slvu974/slvu974.pdf
 //https://www.ti.com/tool/BOOSTXL-DRV8301#tech-docs
 
-//../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino
-//../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino
+//imre@imiEee:~/bow$ tar -xf arduino-cli_0.24.0_Linux_64bit.tar.gz 
+
+//../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
+//../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
 
 
 
