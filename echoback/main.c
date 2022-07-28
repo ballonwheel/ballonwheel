@@ -29,8 +29,8 @@ int main() {
    	int cnt=0;
 	unsigned char  sdata=0, rdata;
 
-	dev.filename = "/dev/ttyUSB0";
-	dev.rate = B2000000;
+	dev.filename = "/dev/ttyUSB1";
+	dev.rate = B9600;
 
 	rc = uart_start(&dev, false);
 	if (rc) {

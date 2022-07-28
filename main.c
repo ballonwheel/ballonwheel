@@ -33,7 +33,7 @@
 extern int errno ;
 
 #define BAUDRATE B9600
-#define MODEMDEVICE "/dev/ttyUSB0"
+#define MODEMDEVICE "/dev/ttyUSB1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 
@@ -44,7 +44,7 @@ int ret;
 int fd,c, res;
 struct termios oldtio,newtio;
 char buf[255];
-char bufo[8] = "ABCDEFG\n";
+char bufo[20] = "ABCDEFGH\r\nIJK";
 char chprev;
 int i,j, k;
 int dbg_;
@@ -53,25 +53,24 @@ struct timespec begin, end;
 long seconds;
 long nanoseconds;
 double elapsed;
-
+int rxok;
 
 void *thread_func(void *data)
 {
         /* Do RT specific stuff here */
  	printf("Do RT specific stuff here\n");
 
-
         fd = open(MODEMDEVICE, O_RDWR | O_NOCTTY );
         if (fd <0) {perror(MODEMDEVICE); exit(-1); }
         tcgetattr(fd,&oldtio); /* save current port settings */
         bzero(&newtio, sizeof(newtio));
-        newtio.c_cflag = BAUDRATE /*| CRTSCTS*/ | CS8 | CLOCAL | CREAD;
+        newtio.c_cflag = BAUDRATE /*| CRTSCTS*/ | CS8 /*| CLOCAL*/ | CREAD;
         newtio.c_iflag = IGNPAR;
-        newtio.c_oflag = 0;
+        //newtio.c_oflag = 0;
         /* set input mode (non−canonical, no echo,...) */
         newtio.c_lflag = 0;
         newtio.c_cc[VTIME] = 0; /* inter−character timer unused */
-        newtio.c_cc[VMIN] = 8; /* blocking read until 5 chars received */
+        newtio.c_cc[VMIN] = 1; /* blocking read until 5 chars received */
         tcflush(fd, TCIFLUSH);
         tcsetattr(fd,TCSANOW,&newtio);
         /* setserial lowlatency */
@@ -79,14 +78,15 @@ void *thread_func(void *data)
         //serial.flags |= ASYNC_LOW_LATENCY;
         //ioctl(fd, TIOCSSERIAL, &serial);
 	
-	fcntl(fd, F_SETFL, FNDELAY);
+	//fcntl(fd, F_SETFL, FNDELAY);----> ezzel itt esszel...nem ertem mit csinal
 
 	//write(fd, bufo, 8);
 	clock_gettime(CLOCK_REALTIME, &begin);
 
 	while (1) { /* loop for input */
-		dbg_=!(i++%1001);
-		if(dbg_){
+		dbg_=!(i++%100);
+		if(dbg_)
+		{
 			clock_gettime(CLOCK_REALTIME, &end);
     			seconds = end.tv_sec - begin.tv_sec;
 			nanoseconds = end.tv_nsec - begin.tv_nsec;
@@ -97,24 +97,60 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		write(fd, bufo, 8);
-		while((res = read(fd,&buf[0],8)) < 8); /* returns after 5 chars have been input */
+		write(fd, bufo, 10);
+		if(dbg_)printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
+		memset(buf, 0x00, 10);
+                for(j = 0; j < 10 ; j++)
+                	res = read(fd,&buf[j],1);
+		if(dbg_)printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+                if(dbg_)printf("%i:%i:<--%0x%0x%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7],buf[8],buf[9]);
 
-		//res = read(fd,&buf[2],1); /* returns after 5 chars have been input */
+
+
+                //chprev = bufo[0];
+                //bufo[0]++;
+                //if(bufo[0] > 'H')bufo[0]='A';
+                //res = write(fd, bufo, 5);
+                //if(dbg_)
+                //        printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
+
+#if 0
+		do{
+			memset(buf, 0x00, 10);
+			for(j = 0,rxok=0; j < 9 ; j++){
+				res = read(fd,&buf[j],1); /* returns after 5 chars have been input */
+			}
+			if(buf[8] != '\n'){
+				printf("no n  \n");
+				while(buf[0] != '\n'){
+					printf("flush\n");
+					read(fd, &buf[0], 1);
+				}
+			}
+			else
+				rxok=1;
+		}
+		while(!rxok);
+		//if(dbg_)
+		{
+            	      printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+                      printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
+		}
+#endif
+		//	printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
+
+		
+
+		//res = read(fd,&buf[0],1); /* returns after 5 chars have been input */
 		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
-		if(dbg_ || 1){
-			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
-			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
+		//if(dbg_)
+		{
+		//	printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+		//	printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
 		}
 		//if(res<0)printf("%s\n", strerror( errno ));
-		
-		chprev = bufo[0];
-		bufo[0]++;
-		if(bufo[0] > 'H')bufo[0]='A';
-		//res = write(fd, bufo, 5);
-		if(dbg_)
-			printf("%i:%i:-->%0x%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3], bufo[4]);
-		sleep(1);
+
+		//sleep(1);
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);
