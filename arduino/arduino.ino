@@ -1,61 +1,21 @@
 
 
-//https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
-//chapter 18.11
-//https://content.arduino.cc/assets/NanoV3.3_sch.pdf
-//https://www.ti.com/lit/ds/symlink/drv8301.pdf
-//https://www.ti.com/lit/ug/slvu974/slvu974.pdf
-//https://www.ti.com/tool/BOOSTXL-DRV8301#tech-docs
 
-//imre@imiEee:~/bow$ tar -xf arduino-cli_0.24.0_Linux_64bit.tar.gz 
-
-//../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
-//../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
-
-
-
-
-#include <SPI.h>
-#define SPICSPOSP2 2
-#define PWMCP3 3
-#define DRVENP4 4
-#define PWMAP5
-#define DBGP6DAC0A 6
-#define DBGP7 7
-
-#define SPICSDRVP8 8
-#define PWMBP9 9
-#define DBGP10DAC1B 10
-//#define 11 mosi 
-//#define 12 miso
-#define SPICKP13 13
 
 #define TPERIODE (float)(100e-6)
 #define T1 1000
 
-#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
+#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
 
-
+int i, __run__, info;
 String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
-
+volatile byte datas[20];
 #define ADC_CH 3
 volatile uint8_t adcPin=0;
 volatile uint8_t data[ADC_CH];
-volatile uint8_t spicnt=0;
-volatile uint8_t dataSPI0;
-volatile uint8_t dataSPI1;
-volatile int i=0,j=0;
-volatile int sensorValue = 0;        // value read from the pot
-volatile int outputValue = 0;        // value output to the PWM (analog out)
-volatile uint16_t result;
 volatile uint8_t serialgo=0;
-volatile char get[50];
-volatile char *getp = get;
-volatile int __run__;
-volatile int drvansw;
 
-volatile int timer1cnt = 0;
 
 float ia=1.1, ib=2.3, ic=0.3;
 float iA, iB;
@@ -72,221 +32,53 @@ typedef union {
 binaryFloat wm, aam;
 float wmlast;
 float tdiff, tdifftmp;
-volatile byte AAAA[5]="AAAA";
-volatile byte BBBB[5]="BBBB";
-void DRVchk(void);
 
 
-/**************************************************************************************************/
-/* INT timer1 */
-/**************************************************************************************************/
-#if 0
-ISR (TIMER1_OVF_vect)
-{
-  timer1cnt++;
-}
-#endif
-
-/**************************************************************************************************/
-/* INT serial */
-/**************************************************************************************************/
-void serialEvent() {
-#if 0
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
- memcpy(&AAAA[0],&inputString[0],4);
-
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-      if(__run__){
-	memcpy(&AAAA[0],&inputString[0],4);
-        stringComplete = 0;
-      }
-    }
-  }
-#else
 
 
-#endif
-}
 
-
-/**************************************************************************************************/
-/* INT ADC */
-/**************************************************************************************************/
-#if 0
 ISR (ADC_vect)
 {
-  //digitalWrite(DBG8, HIGH); 
-
+  //digitalWrite(DBG8, HIGH);
   data[adcPin] = ADCH;
   ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
-  if(__run__){
-    if(adcPin == 1){
-      DRVreg();
-      digitalWrite(SPICSPOSP2, LOW); //CS_
-      spicnt=0;
-      SPDR = 0x03;//SPIstart
-    }
-    if(adcPin == 3){
-      SPCR = 0;  //disable SPI
-      digitalWrite(SPICSPOSP2, HIGH); //CS_
-    }
-  
-    if(adcPin==ADC_CH){//fent ++
-      ADCSRA  =  0;
-      serialgo=1;
-    }
-  }
-  //digitalWrite(DBG7, LOW); 
-}
-#endif
-
-/**************************************************************************************************/
-/* INT SPI */
-/**************************************************************************************************/
-#if 0
-ISR(SPI_STC_vect)
-{
-  if(!__run__){
-    if(!spicnt){
-      dataSPI1=SPDR;
-      spicnt=1;
-      SPDR = 0xc8; //0b 0 0010 11111 00 1 0 00  / 0x17c8
-    }
-    else{
-      dataSPI0=SPDR;
-      SPCR = 0;  //disable SPI
-      digitalWrite(SPICSDRVP8, HIGH); //CS_
-      drvansw = 1;
-    }  
-  }
-  else{
-    if(!spicnt){
-      //dataSPI1=SPDR;
-      posnowMSB=SPDR;
-      spicnt=1;
-      SPDR = 0xff;
-    }
-    else{
-      //dataSPI0=SPDR;
-      posnowLSB=SPDR;
-    }
+  //digitalWrite(DBG7, LOW);
+  if(adcPin==ADC_CH){//fent ++
+    ADCSRA  =  0;
+    serialgo=1;
   }
 }
-#endif
 
-/**************************************************************************************************/
-/* INT  */
-/**************************************************************************************************/
 
-/**************************************************************************************************/
-/* SETUP */
-/**************************************************************************************************/
-void DRVreg(void)
-{
-  //SPCR = _BV(SPIE)|_BV(SPE) | _BV(MSTR);//freq cpu/2
-  //SPCR = _BV(SPIE)|_BV(SPE)| _BV(CPOL) | _BV(MSTR) | _BV(SPR0) | _BV(SPR1);
-  //SPCR = _BV(SPIE)|_BV(SPE)| _BV(CPHA) | _BV(MSTR); // ez jo
-  SPCR = _BV(SPE)| _BV(CPHA) | _BV(MSTR); // ez jo
-  //SPCR = _BV(SPIE)|_BV(SPE)| _BV(CPOL)| _BV(CPHA) | _BV(MSTR);
-  //SPSR |= _BV(SPI2X);
-  
-}
+
 void setup() {
-
-  uint8_t sreg = SREG;
-  noInterrupts(); // Protect from a scheduler and prevent transactionBegin  
-
-  //Serial.begin(9600);
-  Serial.begin(2000000);
-  Serial.flush();
+  // initialize serial:
+  Serial.begin(9600);
+  // reserve 200 bytes for the inputString:
   inputString.reserve(200);
 
-
-
-  /*************************/
+ /*************************/
   /* ADC */
   /*************************/
   ADMUX   = bit (REFS0) | (adcPin & 7) | bit(ADLAR);
-  ADCSRB  = 0; 
+  ADCSRB  = 0;
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);
   ADCSRA  =  0;
 
-
-  /*************************/
-  /* PWM */
-  /*************************/
-  //pinMode(6, OUTPUT);D6 OC0A --> DAC0A
-  //pinMode(5, OUTPUT);D5 OC0B --> PWMA
-  DDRD |= bit(DDD5)|bit(DDD6);  //output
-  TCCR0A = _BV(COM0A0) | _BV(COM0A1) | _BV(COM0B0) | _BV(COM0B1) | _BV(WGM00);
-  //TCCR0B = ((TCCR0B & 0b11110000) | 0x01); // set prescaler to 1
-  TCCR0B = _BV(CS00);// set prescaler to 1
   
-  //pinMode(9, OUTPUT);B1 OC1A --> PWMB
-  //pinMode(10, OUTPUT);B2 OC1B --> DAC1B (and the timer used as a timer for scheduling)
-  DDRB |= _BV(DDB1) | _BV(DDB2);  //output
-  TIMSK1 = _BV(TOIE1); //--> timer1 ovf TIMER1_OVF interrupt at BOTTOM
-  TCCR1A = _BV(COM1A0) | _BV(COM1A1) | _BV(COM1B0) | _BV(COM1B1) | _BV(WGM10);
-  TCCR1B = _BV(CS10);// set prescaler to 1
-  
-
-  //pinMode(3, OUTPUT);D3 OC2B  --> PWMC
-  //pinMode(11, OUTPUT);B3 OC2A ---> MOSI
-  DDRD |= bit(DDD3);
-  //DDRB |= bit(DDB3);
-  //TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
-  TCCR2A = _BV(COM2B1) | _BV(WGM20);
-  TCCR2B = _BV(CS20);//presclare to 1
- 
-
-  OCR0A = 50; //DAC
-  OCR0B = 60; //PWMA
-  OCR1A = 30; //PWMB
-  OCR1B = 40; //DAC & timer1ISR(BOTTOM)
-  //OCR2A = 10; --> MOSI
-  OCR2B = 20; //PWMC
-
- 
-
- 
-
-  /*************************/
-  /* SPI */
-  /* MOSI B3 out */
-  /* MISO B4 in */
-  /* CK   B5 out */
-  /* CS1  B0 out DRV8301*/
-  /* cs2  D2 out ASM pos sensor*/
-  /* EN   D4 DRV8301
-  /*************************/
-
-  //SPI.begin();
-  DDRB |= _BV(DDB0)|_BV(DDB3)|_BV(DDB5);  //output
-  //DRV8301 CPOL=1, CPHA=0
-  DRVreg();
-  pinMode(SPICSPOSP2, OUTPUT);
-  pinMode(SPICSDRVP8, OUTPUT);
-  pinMode(DRVENP4, OUTPUT);
-  digitalWrite(DRVENP4, HIGH);
-  __run__ = 0;
-
-
-  /*************************/
-  /* debug */ 
-  /*************************/
-  pinMode(DBGP7, OUTPUT);
-  
-
-
-  SREG = sreg;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**************************************************************************************************/
 /* LOOP */
@@ -313,7 +105,6 @@ void printHEX(uint8_t n)
     Serial.print(" ");
     Serial.println();
 }
-
 
 #define INSQRT3 0.57735026919
 #define SQRT3 1.73205080757
@@ -351,150 +142,68 @@ void _pidT(void)
   vq = iq * 1.2345;
 }
 
+/***************************************************************/
+
+
 
 void loop() {
-    //digitalWrite(??, i = i ? 0 : 1); 
-    //Serial.print(".");
-    //if(stringComplete){
-    //  Serial.println(inputString);
-    //switch(stringChk()){
-    {
-      switch(CMDRUN){
-      case CMDINFO:
+  if (stringComplete) {
+    Serial.write((uint8_t*)&datas[0],10);
+    inputString = "";
+    stringComplete = false;
+  }
+
+
+  if(__run__){
+    //ADC
+    adcPin=0;
+    serialgo = 0;
+    ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);//enable ADC
+    //digitalWrite(DBGP7, LOW);
+    while(!serialgo)
+      ;
+    //digitalWrite(DBGP7, HIGH);
+  
+    tdifftmp = tdiff;
+    posnow=(float)((uint16_t)(posnowMSB<<8)+(uint16_t)(posnowLSB));
+    wm.floatingPoint=(posnow-poslast)/((float)tdifftmp*T1);
+    aam.floatingPoint=(wm.floatingPoint-wmlast)/((float)tdifftmp*T1);
+    poslast=posnow;
+    wmlast = wm.floatingPoint;
+    tdiff=0;
+    clark();
+    park();
+    _pidT();
+    ipark();
+    iclark();
+  }
+  else if(info){
         Serial.println("GetHelp");
         i = OSCCAL;
-        Serial.write(i); 
+        Serial.write(i);
         i = CLKPR;
-        Serial.write(i); 
-      break;  
-      case CMDSETDRV:
-        drvansw = 0;
-        Serial.println("SetDRV");
-        DRVreg();
-        digitalWrite(SPICSDRVP8, LOW); //CS_
-        spicnt=0;
-        SPDR = 0x17; //0b 0 0010 11111 00 1 0 00  / 0x17c8
-        while(!drvansw)
-          ;
-        DRVchk();
-      break;
-      case CMDGETDRV:
-        DRVchk();
-      break;
-      case CMDRUN:
-        //Serial.println("RUN");
-        __run__ = 1;
-        while(1){        
-          adcPin=0;
-          serialgo = 0;
-          ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);//enable ADC
-          digitalWrite(DBGP7, LOW); 
-          while(!serialgo)
-            ;
-          digitalWrite(DBGP7, HIGH); 
-          timer1cnt=0;
-          
-          tdifftmp = tdiff;
-          posnow=(float)((uint16_t)(posnowMSB<<8)+(uint16_t)(posnowLSB));
-          wm.floatingPoint=(posnow-poslast)/((float)tdifftmp*T1);
-          aam.floatingPoint=(wm.floatingPoint-wmlast)/((float)tdifftmp*T1);
-          poslast=posnow;
-          wmlast = wm.floatingPoint;
-          tdiff=0;
-
-          //Serial.write(wm.binary, 4);          
-          //Serial.write(aam.binary,4);   //T=aam*jrot
-	  Serial.write((uint8_t*)&AAAA[0],4);
-	  Serial.write((uint8_t*)&BBBB[0],4);       
-          
-          clark();
-          park();
-          _pidT();
-          ipark();
-          iclark();
-         // while(timer1cnt<TPERIODE)//until here serial read shuld be happened
-         //   ;
-	delayMicroseconds(2000);
-        }
-      break;
-      default:
-        Serial.println("unknown command");
-      break;
-      }
-      
-      //clear the string:
-      inputString = "";
-      stringComplete = false;
-      Serial.flush();
-    }
-    //digitalWrite(4, LOW); 
-
-
-
-}
-
-
-void DRVchk(void)
-{
-  //while(1)
-  {
-          drvansw = 0;
-          Serial.println("get0");
-          DRVreg();
-          digitalWrite(SPICSDRVP8, LOW); //CS_
-          spicnt=0;
-          SPDR = 0x80; //0b 1 000 0xxx
-          while(!drvansw)
-            ;
-          printHEX(dataSPI1);
-          printHEX(dataSPI0);
-          Serial.println("-----");
-   delayMicroseconds(2000);
-  
-          drvansw = 0;
-          Serial.println("get1");
-          DRVreg();
-          digitalWrite(SPICSDRVP8, LOW); //CS_
-          spicnt=0;
-          SPDR = 0x88; //0b 1 000 1xxx
-          while(!drvansw)
-            ;
-          printHEX(dataSPI1);
-          printHEX(dataSPI0);
-          Serial.println("-----");
-   delayMicroseconds(2000);
-  
-  
-          drvansw = 0;
-          //Serial.println("SetDRV");
-          Serial.println("get2");
-          DRVreg();
-          digitalWrite(SPICSDRVP8, LOW); //CS_
-          spicnt=0;
-          //SPDR = 0x17; //0b 1 0010 11111 00 1 0 00  / 0x17c8
-          SPDR = 0x90; //0b 1 0010 
-          while(!drvansw)
-            ;
-          printHEX(dataSPI1);
-          printHEX(dataSPI0);
-          Serial.println("-----");
-  
-   delayMicroseconds(2000);
-   #if 1       
-          drvansw = 0;
-          Serial.println("Get3");
-          DRVreg();
-          digitalWrite(SPICSDRVP8, LOW); //CS_
-          spicnt=0;
-          SPDR = 0x98; //0b 1 0011
-          while(!drvansw)
-            ;
-          printHEX(dataSPI1);
-          printHEX(dataSPI0);
-          Serial.println("***");
-  
-   delayMicroseconds(2000);
-  #endif
+        Serial.write(i);
   }
 }
- 
+
+/*
+  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
+  routine is run between each time loop() runs, so using delay inside loop can
+  delay response. Multiple bytes of data may be available.
+*/
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+      memcpy(&datas[0], (uint8_t*)&inputString[0], 10);
+    }
+    //if(inChar[0] == 'i' && inChar[1] == '\n')info = 1;
+    //if(inChar[0] == 'r' && inChar[1] == '\n')__run__ = 1;
+  }
+}

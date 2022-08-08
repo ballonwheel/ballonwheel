@@ -64,6 +64,34 @@ long nanoseconds;
 double elapsed;
 int rxok;
 
+
+#if 0
+//https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
+size_t TimeoutRead (int port, void*buf, size_t size, int mlsec_timeout)
+{
+    struct pollfd fd = { .fd = port, .events = POLLIN };
+
+    size_t      bytesread = 0;
+
+    while (poll (&fd, 1, mlsec_timeout) == 1)
+    {
+        int chunksize = read (port, buf + bytesread, size);
+        if (chunksize == -1)
+            return -1;
+
+        bytesread += chunksize;
+        size -= chunksize;
+
+        if (size == 0)
+            return bytesread;
+    }
+
+    // TODO: IsTimeout = true;
+    return bytesread;
+}
+#endif
+
+
 void *thread_func(void *data)
 {
         /* Do RT specific stuff here */
@@ -89,6 +117,19 @@ void *thread_func(void *data)
 	
 	//fcntl(fd, F_SETFL, FNDELAY);----> ezzel itt esszel...nem ertem mit csinal
 
+	//select() vagy poll() --> read(), hogy legyen TO
+	//https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
+
+
+	//scanf("%10s",command);
+	//write(fd, command, 10);
+	//memset(buf, 0x00, 10);
+	//while(bufj
+        //res = read(fd,&buf[j],1);
+
+
+
+
 	//write(fd, bufo, 8);
 	clock_gettime(CLOCK_REALTIME, &begin);
 
@@ -107,12 +148,15 @@ void *thread_func(void *data)
 
 		}
 		write(fd, bufo, 10);
-		if(dbg_)printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
+		//if(dbg_)
+			printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
 		memset(buf, 0x00, 10);
                 for(j = 0; j < 10 ; j++)
                 	res = read(fd,&buf[j],1);
-		if(dbg_)printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
-                if(dbg_)printf("%i:%i:<--%0x%0x%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7],buf[8],buf[9]);
+		//if(dbg_)
+			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+                //if(dbg_)
+			printf("%i:%i:<--%0x%0x%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7],buf[8],buf[9]);
 
 
 
