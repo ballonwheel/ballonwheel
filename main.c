@@ -46,6 +46,12 @@ extern int errno ;
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 
+
+const char command_list = {"set", "get", "info"};
+
+
+
+
 struct sched_param param;
 pthread_attr_t attr;
 pthread_t thread;
@@ -64,8 +70,20 @@ long nanoseconds;
 double elapsed;
 int rxok;
 
+char command[32];
 
-#if 0
+
+
+int getcmd(char *input)
+{
+	for(){
+		if(!r=strcmpi(command_list[i], input))return r;
+	}
+	return -1;
+}
+
+
+#if 1
 //https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
 size_t TimeoutRead (int port, void*buf, size_t size, int mlsec_timeout)
 {
@@ -87,7 +105,7 @@ size_t TimeoutRead (int port, void*buf, size_t size, int mlsec_timeout)
     }
 
     // TODO: IsTimeout = true;
-    return bytesread;
+    return bytesread = 99;
 }
 #endif
 
@@ -121,11 +139,14 @@ void *thread_func(void *data)
 	//https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
 
 
-	//scanf("%10s",command);
-	//write(fd, command, 10);
-	//memset(buf, 0x00, 10);
-	//while(bufj
-        //res = read(fd,&buf[j],1);
+	scanf("%10s",command);
+	//printf("%s",command);
+	p = getcmd(command);
+    	memset(buf, 0x00, 10);
+	write(fd, p, 10);
+        res=TimeoutRead (fd, &buf[0], 10, 100);
+
+	
 
 
 
@@ -147,16 +168,26 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		write(fd, bufo, 10);
+		res = write(fd, bufo, 10);
 		//if(dbg_)
 			printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
 		memset(buf, 0x00, 10);
-                for(j = 0; j < 10 ; j++)
-                	res = read(fd,&buf[j],1);
+		//res=read(fd,&buf[0],10);
+                //for(j = 0; j < 10 ; j++)
+                //	res = read(fd,&buf[j],1);
+		res=TimeoutRead (fd, &buf[0], 10, 100);
+		if(res > 0 && res < 20)
+		{
+
 		//if(dbg_)
 			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
                 //if(dbg_)
 			printf("%i:%i:<--%0x%0x%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7],buf[8],buf[9]);
+		}
+		else{
+			printf("TimoutRead  TO is just happened\r\n");
+		}	
+		 tcflush(fd, TCIFLUSH);
 
 
 
