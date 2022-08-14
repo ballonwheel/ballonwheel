@@ -35,7 +35,7 @@ ISR(USART_UDRE_vect)
   digitalWrite(5, HIGH);
   digitalWrite(5, LOW);
   digitalWrite(5, HIGH);
-  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0)*/ | bit(ADPS1) /*| bit(ADPS2)*/;//enable ADC
 }
 
 #if 0
@@ -56,7 +56,7 @@ void setup() {
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);
   //ADCSRA  =  0;
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) | bit(ADPS0) | bit(ADPS1) | bit(ADPS2); //enable ADC 16mhz/128div
-  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*|                bit(ADPS1) | bit(ADPS2)*/; //enable ADC
+  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) |                bit(ADPS1)/* | bit(ADPS2)*/; //enable ADC
 
 
   /*Set baud rate */

@@ -41,7 +41,7 @@
 #include <errno.h>
 extern int errno ;
 
-#define BAUDRATE B2000000
+#define BAUDRATE B9600
 #define MODEMDEVICE "/dev/ttyUSB0"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
@@ -60,7 +60,6 @@ int fd,c, res;
 struct termios oldtio,newtio;
 char buf[255];
 char bufo[20] = "ABCDEFGH\r\nIJK";
-char ref;
 char chprev;
 int i,j, k;
 int dbg_;
@@ -147,7 +146,7 @@ void *thread_func(void *data)
 	clock_gettime(CLOCK_REALTIME, &begin);
 
 	while (1) { /* loop for input */
-		dbg_=!(i++%1000);
+		dbg_=!(i++%100);
 		if(dbg_)
 		{
 			clock_gettime(CLOCK_REALTIME, &end);
@@ -160,16 +159,73 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
+		res = write(fd, bufo, 10);
+		//if(dbg_)
+			printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
 		memset(buf, 0x00, 10);
-		while((res=read(fd,&buf[0],1)) < 1)
-			;
-		if(dbg_)
-			printf("%i:<--%0x\n", res, buf[0]);
-		if(ref != buf[0]){printf("error %i:<--%0x\n", res, buf[0]); ref = buf[0];}
-		if(ref =='9'){ref='0';}
-		else ref++;
+		//res=read(fd,&buf[0],10);
+                //for(j = 0; j < 10 ; j++)
+                //	res = read(fd,&buf[j],1);
+		res=TimeoutRead (fd, &buf[0], 10, 100);
+		if(res > 0 && res < 20)
+		{
+
+		//if(dbg_)
+			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+                //if(dbg_)
+			printf("%i:%i:<--%0x%0x%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7],buf[8],buf[9]);
+		}
+		else{
+			printf("TimoutRead  TO is just happened\r\n");
+		}	
+		 tcflush(fd, TCIFLUSH);
+
+
+
+                //chprev = bufo[0];
+                //bufo[0]++;
+                //if(bufo[0] > 'H')bufo[0]='A';
+                //res = write(fd, bufo, 5);
+                //if(dbg_)
+                //        printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
+
+#if 0
+		do{
+			memset(buf, 0x00, 10);
+			for(j = 0,rxok=0; j < 9 ; j++){
+				res = read(fd,&buf[j],1); /* returns after 5 chars have been input */
+			}
+			if(buf[8] != '\n'){
+				printf("no n  \n");
+				while(buf[0] != '\n'){
+					printf("flush\n");
+					read(fd, &buf[0], 1);
+				}
+			}
+			else
+				rxok=1;
+		}
+		while(!rxok);
+		//if(dbg_)
+		{
+            	      printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+                      printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
+		}
+#endif
+		//	printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
 
 		
+
+		//res = read(fd,&buf[0],1); /* returns after 5 chars have been input */
+		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
+		//if(dbg_)
+		{
+		//	printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
+		//	printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
+		}
+		//if(res<0)printf("%s\n", strerror( errno ));
+
+		//sleep(1);
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);
