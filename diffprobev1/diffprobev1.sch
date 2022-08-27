@@ -1,0 +1,412 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Amplifier_Operational:TL072 U?
+U 1 1 6309F944
+P 3650 2350
+F 0 "U?" H 3650 2717 50  0000 C CNN
+F 1 "TL072" H 3650 2626 50  0000 C CNN
+F 2 "" H 3650 2350 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 3650 2350 50  0001 C CNN
+	1    3650 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TL072 U?
+U 1 1 630A1406
+P 4900 2350
+F 0 "U?" H 4900 1983 50  0000 C CNN
+F 1 "TL072" H 4900 2074 50  0000 C CNN
+F 2 "" H 4900 2350 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 4900 2350 50  0001 C CNN
+	1    4900 2350
+	-1   0    0    1   
+$EndComp
+$Comp
+L Amplifier_Operational:LF356 U?
+U 1 1 630A391D
+P 7050 2350
+F 0 "U?" H 7394 2396 50  0000 L CNN
+F 1 "LF356" H 7394 2305 50  0000 L CNN
+F 2 "" H 7100 2400 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/lf357.pdf" H 7200 2500 50  0001 C CNN
+	1    7050 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TL082 U?
+U 1 1 630A462B
+P 9150 2350
+F 0 "U?" H 9150 2717 50  0000 C CNN
+F 1 "TL082" H 9150 2626 50  0000 C CNN
+F 2 "" H 9150 2350 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tl081.pdf" H 9150 2350 50  0001 C CNN
+	1    9150 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630A6D1D
+P 2000 1450
+F 0 "R?" H 2070 1496 50  0000 L CNN
+F 1 "R" H 2070 1405 50  0000 L CNN
+F 2 "" V 1930 1450 50  0001 C CNN
+F 3 "~" H 2000 1450 50  0001 C CNN
+	1    2000 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630A82C0
+P 2350 1450
+F 0 "R?" H 2420 1496 50  0000 L CNN
+F 1 "R" H 2420 1405 50  0000 L CNN
+F 2 "" V 2280 1450 50  0001 C CNN
+F 3 "~" H 2350 1450 50  0001 C CNN
+	1    2350 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630A9A8C
+P 2750 1400
+F 0 "R?" H 2820 1446 50  0000 L CNN
+F 1 "R" H 2820 1355 50  0000 L CNN
+F 2 "" V 2680 1400 50  0001 C CNN
+F 3 "~" H 2750 1400 50  0001 C CNN
+	1    2750 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AA518
+P 3100 1450
+F 0 "R?" H 3170 1496 50  0000 L CNN
+F 1 "R" H 3170 1405 50  0000 L CNN
+F 2 "" V 3030 1450 50  0001 C CNN
+F 3 "~" H 3100 1450 50  0001 C CNN
+	1    3100 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AAEF0
+P 3400 1400
+F 0 "R?" H 3470 1446 50  0000 L CNN
+F 1 "R" H 3470 1355 50  0000 L CNN
+F 2 "" V 3330 1400 50  0001 C CNN
+F 3 "~" H 3400 1400 50  0001 C CNN
+	1    3400 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AB96F
+P 3650 1450
+F 0 "R?" H 3720 1496 50  0000 L CNN
+F 1 "R" H 3720 1405 50  0000 L CNN
+F 2 "" V 3580 1450 50  0001 C CNN
+F 3 "~" H 3650 1450 50  0001 C CNN
+	1    3650 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AC2CD
+P 3950 1400
+F 0 "R?" H 4020 1446 50  0000 L CNN
+F 1 "R" H 4020 1355 50  0000 L CNN
+F 2 "" V 3880 1400 50  0001 C CNN
+F 3 "~" H 3950 1400 50  0001 C CNN
+	1    3950 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630ACC24
+P 4250 1350
+F 0 "R?" H 4320 1396 50  0000 L CNN
+F 1 "R" H 4320 1305 50  0000 L CNN
+F 2 "" V 4180 1350 50  0001 C CNN
+F 3 "~" H 4250 1350 50  0001 C CNN
+	1    4250 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AD5D2
+P 4550 1400
+F 0 "R?" H 4620 1446 50  0000 L CNN
+F 1 "R" H 4620 1355 50  0000 L CNN
+F 2 "" V 4480 1400 50  0001 C CNN
+F 3 "~" H 4550 1400 50  0001 C CNN
+	1    4550 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630ADEAD
+P 4850 1350
+F 0 "R?" H 4920 1396 50  0000 L CNN
+F 1 "R" H 4920 1305 50  0000 L CNN
+F 2 "" V 4780 1350 50  0001 C CNN
+F 3 "~" H 4850 1350 50  0001 C CNN
+	1    4850 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AE662
+P 5250 1350
+F 0 "R?" H 5320 1396 50  0000 L CNN
+F 1 "R" H 5320 1305 50  0000 L CNN
+F 2 "" V 5180 1350 50  0001 C CNN
+F 3 "~" H 5250 1350 50  0001 C CNN
+	1    5250 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AEF7D
+P 5600 1350
+F 0 "R?" H 5670 1396 50  0000 L CNN
+F 1 "R" H 5670 1305 50  0000 L CNN
+F 2 "" V 5530 1350 50  0001 C CNN
+F 3 "~" H 5600 1350 50  0001 C CNN
+	1    5600 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 630AF819
+P 5950 1400
+F 0 "R?" H 6020 1446 50  0000 L CNN
+F 1 "R" H 6020 1355 50  0000 L CNN
+F 2 "" V 5880 1400 50  0001 C CNN
+F 3 "~" H 5950 1400 50  0001 C CNN
+	1    5950 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B03A3
+P 2000 850
+F 0 "C?" H 2115 896 50  0000 L CNN
+F 1 "C" H 2115 805 50  0000 L CNN
+F 2 "" H 2038 700 50  0001 C CNN
+F 3 "~" H 2000 850 50  0001 C CNN
+	1    2000 850 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B104C
+P 2300 800
+F 0 "C?" H 2415 846 50  0000 L CNN
+F 1 "C" H 2415 755 50  0000 L CNN
+F 2 "" H 2338 650 50  0001 C CNN
+F 3 "~" H 2300 800 50  0001 C CNN
+	1    2300 800 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B2160
+P 2650 800
+F 0 "C?" H 2765 846 50  0000 L CNN
+F 1 "C" H 2765 755 50  0000 L CNN
+F 2 "" H 2688 650 50  0001 C CNN
+F 3 "~" H 2650 800 50  0001 C CNN
+	1    2650 800 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B2D3F
+P 3100 800
+F 0 "C?" H 3215 846 50  0000 L CNN
+F 1 "C" H 3215 755 50  0000 L CNN
+F 2 "" H 3138 650 50  0001 C CNN
+F 3 "~" H 3100 800 50  0001 C CNN
+	1    3100 800 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B3787
+P 3400 750
+F 0 "C?" H 3515 796 50  0000 L CNN
+F 1 "C" H 3515 705 50  0000 L CNN
+F 2 "" H 3438 600 50  0001 C CNN
+F 3 "~" H 3400 750 50  0001 C CNN
+	1    3400 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B42E5
+P 3800 800
+F 0 "C?" H 3915 846 50  0000 L CNN
+F 1 "C" H 3915 755 50  0000 L CNN
+F 2 "" H 3838 650 50  0001 C CNN
+F 3 "~" H 3800 800 50  0001 C CNN
+	1    3800 800 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B4DEA
+P 4150 800
+F 0 "C?" H 4265 846 50  0000 L CNN
+F 1 "C" H 4265 755 50  0000 L CNN
+F 2 "" H 4188 650 50  0001 C CNN
+F 3 "~" H 4150 800 50  0001 C CNN
+	1    4150 800 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 630B57E3
+P 4550 750
+F 0 "C?" H 4665 796 50  0000 L CNN
+F 1 "C" H 4665 705 50  0000 L CNN
+F 2 "" H 4588 600 50  0001 C CNN
+F 3 "~" H 4550 750 50  0001 C CNN
+	1    4550 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C?
+U 1 1 630B686F
+P 5250 750
+F 0 "C?" H 5368 796 50  0000 L CNN
+F 1 "CP" H 5368 705 50  0000 L CNN
+F 2 "" H 5288 600 50  0001 C CNN
+F 3 "~" H 5250 750 50  0001 C CNN
+	1    5250 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C?
+U 1 1 630B73DD
+P 5650 750
+F 0 "C?" H 5768 796 50  0000 L CNN
+F 1 "CP" H 5768 705 50  0000 L CNN
+F 2 "" H 5688 600 50  0001 C CNN
+F 3 "~" H 5650 750 50  0001 C CNN
+	1    5650 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D_Zener D?
+U 1 1 630B85C1
+P 6600 950
+F 0 "D?" H 6600 1167 50  0000 C CNN
+F 1 "D_Zener" H 6600 1076 50  0000 C CNN
+F 2 "" H 6600 950 50  0001 C CNN
+F 3 "~" H 6600 950 50  0001 C CNN
+	1    6600 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D_Zener D?
+U 1 1 630B92C3
+P 7150 900
+F 0 "D?" H 7150 1117 50  0000 C CNN
+F 1 "D_Zener" H 7150 1026 50  0000 C CNN
+F 2 "" H 7150 900 50  0001 C CNN
+F 3 "~" H 7150 900 50  0001 C CNN
+	1    7150 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 630BA155
+P 7900 950
+F 0 "D?" H 7900 1167 50  0000 C CNN
+F 1 "D" H 7900 1076 50  0000 C CNN
+F 2 "" H 7900 950 50  0001 C CNN
+F 3 "~" H 7900 950 50  0001 C CNN
+	1    7900 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 630BAD89
+P 7900 1200
+F 0 "D?" H 7900 1417 50  0000 C CNN
+F 1 "D" H 7900 1326 50  0000 C CNN
+F 2 "" H 7900 1200 50  0001 C CNN
+F 3 "~" H 7900 1200 50  0001 C CNN
+	1    7900 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 630BB8FC
+P 8350 950
+F 0 "D?" H 8350 1167 50  0000 C CNN
+F 1 "D" H 8350 1076 50  0000 C CNN
+F 2 "" H 8350 950 50  0001 C CNN
+F 3 "~" H 8350 950 50  0001 C CNN
+	1    8350 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 630BC719
+P 8350 1200
+F 0 "D?" H 8350 1417 50  0000 C CNN
+F 1 "D" H 8350 1326 50  0000 C CNN
+F 2 "" H 8350 1200 50  0001 C CNN
+F 3 "~" H 8350 1200 50  0001 C CNN
+	1    8350 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 630BD439
+P 8800 900
+F 0 "D?" H 8800 1117 50  0000 C CNN
+F 1 "D" H 8800 1026 50  0000 C CNN
+F 2 "" H 8800 900 50  0001 C CNN
+F 3 "~" H 8800 900 50  0001 C CNN
+	1    8800 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 630BE27D
+P 8800 1200
+F 0 "D?" H 8800 1417 50  0000 C CNN
+F 1 "D" H 8800 1326 50  0000 C CNN
+F 2 "" H 8800 1200 50  0001 C CNN
+F 3 "~" H 8800 1200 50  0001 C CNN
+	1    8800 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:Q_PNP_EBC Q?
+U 1 1 630BF1F1
+P 9750 1950
+F 0 "Q?" H 9940 1996 50  0000 L CNN
+F 1 "Q_PNP_EBC" H 9940 1905 50  0000 L CNN
+F 2 "" H 9950 2050 50  0001 C CNN
+F 3 "~" H 9750 1950 50  0001 C CNN
+	1    9750 1950
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
