@@ -11,7 +11,24 @@
 #define ADC_CH 4
 volatile uint8_t adcPin=0;
 volatile uint8_t data;
+volatile uint8_t datarx;
 volatile uint8_t serialgo=0;
+volatile uint8_t adcDone;
+//ISR_NOBLOCK
+ISR(TIMER0_COMPA_vect)
+{
+  adcDone++;
+  if(adcDone == 50){
+    UCSR0B = 0;
+    ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+  }
+  digitalWrite(4, LOW);
+  digitalWrite(4, HIGH);
+  digitalWrite(4, LOW);
+
+	//TIFR0 &= ~(1 << OCF0A);		// lower flag
+}
+
 
 
 ISR (ADC_vect)
@@ -23,27 +40,44 @@ ISR (ADC_vect)
   ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
   if(adcPin>=ADC_CH)adcPin = 0;
   ADCSRA = 0;
-  UCSR0B = bit (UDRIE0) | bit(TXEN0);
+  adcDone = 0;
+  UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
   digitalWrite(7, LOW);
   digitalWrite(7, HIGH);
+  //digitalWrite(7, LOW);
+
 }
 
 ISR(USART_UDRE_vect)
 {
   UDR0 = data;
-  UCSR0B = 0;  
+  UCSR0B = bit(TXEN0) | bit(TXCIE0);  
   digitalWrite(5, HIGH);
   digitalWrite(5, LOW);
   digitalWrite(5, HIGH);
-  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
 }
 
-#if 0
+
+ISR(UART_RX_vect)
+{
+
+  datarx = UDR0;
+  UCSR0B = 0;
+  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+  digitalWrite(2, LOW);
+  digitalWrite(2, HIGH);
+  digitalWrite(2, LOW);
+
+}
+
+
+
 ISR(USART_TX_vect)
 {
-//  if(txp>&txdata[3])UCSR0B = 0;
+  UCSR0B = bit(RXEN0) | bit(RXCIE0);
+
 }
-#endif
 
 
 
@@ -84,6 +118,31 @@ void setup() {
 
   pinMode(7, OUTPUT);
   pinMode(5, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(4, OUTPUT);
+
+
+
+
+
+  pinMode(3, OUTPUT);
+  pinMode(11, OUTPUT);
+  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
+  TCCR2B = _BV(CS21) | _BV(CS20);;
+  OCR2A = 50;
+  OCR2B = 50;
+
+
+
+  //CLKPR = (1 << CLKPCE) + (0b111);	// System clk prescaler to 1/128
+  TCCR0B = bit(CS22)| bit(CS20);
+  OCR2A = 255;	// output when counter gets to 255
+  TCCR0A = bit(COM0A0);
+  TIMSK0 = (1 << OCIE0A);		
+  
+
+
+
 
   
 }
@@ -93,6 +152,9 @@ void setup() {
 /* LOOP */
 /**************************************************************************************************/
 void loop() {
+  OCR2A = datarx;
+  OCR2B = datarx;
+
 }
 
 

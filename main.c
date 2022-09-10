@@ -168,7 +168,9 @@ void *thread_func(void *data)
 		if(ref != buf[0]){printf("error %i:<--%0x\n", res, buf[0]); ref = buf[0];}
 		if(ref =='9'){ref='0';}
 		else ref++;
-
+		
+		bufo[0]=50;
+		write(fd, &bufo[0],1);
 		
 	}
 
