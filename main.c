@@ -64,7 +64,8 @@ char ref;
 char chprev;
 int i,j, k;
 int dbg_;
-
+int inta=1, intb=0;
+float floata=1.0, floatb=1.0;
 struct timespec begin, end;
 long seconds;
 long nanoseconds;
@@ -140,7 +141,7 @@ void *thread_func(void *data)
 
 	
 
-
+	printf("int:%i ",inta+intb);
 
 
 	//write(fd, bufo, 8);

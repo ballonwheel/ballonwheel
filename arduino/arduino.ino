@@ -2,6 +2,8 @@
 
 
 //https://www.ftdichip.com/Support/Knowledgebase/index.html?an232beffectbuffsizeandlatency.htm
+//https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
+
 
 #define TPERIODE (float)(100e-6)
 #define T1 1000
@@ -18,8 +20,10 @@ volatile uint8_t adcDone;
 ISR(TIMER0_COMPA_vect)
 {
   adcDone++;
-  if(adcDone == 50){
-    UCSR0B = 0;
+  if(adcDone == 1){
+    //UCSR0B = 0;
+    //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
     ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
   }
   digitalWrite(4, LOW);
@@ -59,7 +63,7 @@ ISR(USART_UDRE_vect)
 }
 
 
-ISR(UART_RX_vect)
+ISR(USART_RX_vect)
 {
 
   datarx = UDR0;
@@ -116,6 +120,10 @@ void setup() {
 
   USART_Flush();
 
+  //UCSR0B =  bit(RXEN0) | bit(RXCIE0) |  bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
+
+
   pinMode(7, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(2, OUTPUT);
@@ -135,7 +143,7 @@ void setup() {
 
 
   //CLKPR = (1 << CLKPCE) + (0b111);	// System clk prescaler to 1/128
-  TCCR0B = bit(CS22)| bit(CS20);
+  TCCR0B = /*bit(CS22) |*/ bit(CS21) | bit(CS20);
   OCR2A = 255;	// output when counter gets to 255
   TCCR0A = bit(COM0A0);
   TIMSK0 = (1 << OCIE0A);		
