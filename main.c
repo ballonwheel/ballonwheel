@@ -42,7 +42,7 @@
 extern int errno ;
 
 #define BAUDRATE B2000000
-#define MODEMDEVICE "/dev/ttyUSB0"
+#define MODEMDEVICE "/dev/ttyUSB1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 
@@ -164,11 +164,11 @@ void *thread_func(void *data)
 		memset(buf, 0x00, 10);
 		while((res=read(fd,&buf[0],1)) < 1)
 			;
-		if(dbg_)
+		//if(dbg_)
 			printf("%i:<--%0x\n", res, buf[0]);
-		if(ref != buf[0]){printf("error %i:<--%0x\n", res, buf[0]); ref = buf[0];}
-		if(ref =='9'){ref='0';}
-		else ref++;
+		//if(ref != buf[0]){printf("error %i:<--%0x\n", res, buf[0]); ref = buf[0];}
+		//if(ref =='9'){ref='0';}
+		//else ref++;
 		
 		bufo[0]=50;
 		write(fd, &bufo[0],1);
