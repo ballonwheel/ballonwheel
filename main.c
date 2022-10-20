@@ -147,6 +147,16 @@ void *thread_func(void *data)
 	//write(fd, bufo, 8);
 	clock_gettime(CLOCK_REALTIME, &begin);
 
+/*
+ez a verzio:
+timer inditja ADCt
+ADC inditja tx-et
+tx inditja rx-et
+
+ez jol megy, de szkoppal be kell huzni a min idokre....
+*/
+
+
 	while (1) { /* loop for input */
 		dbg_=!(i++%1000);
 		if(dbg_)

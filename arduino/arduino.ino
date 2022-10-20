@@ -3,10 +3,35 @@
 
 //https://www.ftdichip.com/Support/Knowledgebase/index.html?an232beffectbuffsizeandlatency.htm
 //https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
+/*
+Arduino nano CLI
+https://github.com/arduino/arduino-cli
+https://arduino.github.io/arduino-cli/0.21/commands/arduino-cli/
 
-//../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
-//../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
-
+  551 mkdir rpi_deb
+  552 cd rpi_deb
+https://github.com/arduino/arduino-cli/releases
+  553 wget https://github.com/arduino/arduino-cli/releases/download/0.22.0/arduino-cli_0.22.0_Linux_64bit.tar.gz
+Kicsomagol ide
+  554  ./arduino-cli
+  555  ./arduino-cli config init
+  556  ./arduino-cli sketch new blink
+  557  nano blink/blink.ino
+  558  ./arduino-cli core update-index
+  559  ./arduino-cli board list    //→nem ismerte fel a nano-t
+  560  ./arduino-cli board listall
+  562  ./arduino-cli core search nano
+  564  ./arduino-cli core install arduino:avr   // →  avr telepites
+  565  ./arduino-cli core update-index
+  566  ./arduino-cli board list   //→ most se latja
+  567  ./arduino-cli board listall   
+  570  sudo chmod 777 /dev/ttyUSB0    //→ ez kell
+  571  ./arduino-cli board list   //most se latja
+  577  ./arduino-cli compile --verbose --fqbn arduino:avr:nano blink   //forditani azert lehet
+  582  ./arduino-cli upload -v -p /dev/ttyUSB0 --fqbn arduino:avr:nano blink  // azt irjak azert letolti es tenyleg !!!
+../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
+../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
+*/
 
 
 /* ripped from http://aquaticus.info/pwm-sine-wave */
@@ -48,7 +73,14 @@ uint8_t  sine_wave[256] = {
 
 
 
+/*
+ez a verzio:
+timer inditja ADCt
+ADC inditja tx-et
+tx inditja rx-et
 
+ez jol megy, de szkoppal be kell huzni a min idokre....
+*/
 
 
 #define TPERIODE (float)(100e-6)
