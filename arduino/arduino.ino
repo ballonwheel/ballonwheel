@@ -119,7 +119,7 @@ ISR(TIMER0_COMPA_vect)
 {
   adcDone++;
   if(adcDone == 1){
-    //UCSR0B = 0;
+    UCSR0B = 0;
     //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
 
     ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
@@ -295,7 +295,7 @@ void setup() {
 
   //CLKPR = (1 << CLKPCE) + (0b111);	// System clk prescaler to 1/128
   TCCR0B = /*bit(CS22) |*/ bit(CS21) | bit(CS20);
-  OCR2A = 255;	// output when counter gets to 255
+  //OCR2A = 255;	// output when counter gets to 255
   TCCR0A = bit(COM0A0);
   TIMSK0 = (1 << OCIE0A);		
   
