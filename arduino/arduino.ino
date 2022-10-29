@@ -75,13 +75,31 @@ uint8_t  sine_wave[256] = {
 
 /*
 ez a verzio:
-timer1 pwm deadtime-al https://sites.google.com/site/greenmechatroniks/code-garage/pwm-with-dead-time
+timer0a
+timer0b
+timer1a
+timer1b
+timer2a
+timer2b
+spi en
+adc0
+adc1
+adc2
+...
+ac7
 
-timer2 inditja ADCt
-ADC inditja tx-et
-tx inditja rx-et
+interrupts
+t2a adc0 ad1 
 
-ez jol megy, de szkoppal be kell huzni a min idokre....
+loop
+current loop 
+ protection
+ pid
+ pwm-t0a t0b t1a no deadtime, mert 3 pwm mode van, 
+    de ez mukodik  deadtime-al https://sites.google.com/site/greenmechatroniks/code-garage/pwm-with-dead-time
+     csak az a gond, hogy csak a timer1 nak van ICR regisztere, tehat nem allithato a felbontasa a tobbinek
+
+
 */
 
 
@@ -100,22 +118,19 @@ volatile uint8_t adcDone;
 uint8_t k;
 
 
-/****** PWM deadtime ***********/
-// The bit resolution of the PWM
-#define PWM_resolution 8
-// Set the deadtime in microseconds
-const float T_DeadTime = 4.0f;
- 
-// Conversion factor employed in PWM_mu (uint8_t)
-float A = 0.0f;
-// DeatTime converted to the bit range, i.e., 0-255 or 0-1023
-float deadTime_bits = 0.0f;
-/****************/
+//interrupt order
+//timer2
+//timer1
+//timer0
+//spi
+//rx
+//tx
+//adc	
 
 
 
 //ISR_NOBLOCK
-ISR(TIMER0_COMPA_vect)
+ISR(TIMER2_COMPA_vect)
 {
   adcDone++;
   if(adcDone == 1){
@@ -132,6 +147,40 @@ ISR(TIMER0_COMPA_vect)
 }
 
 
+ISR(USART_UDRE_vect)
+{
+  UDR0 = data;
+  UCSR0B = bit(TXEN0) | bit(TXCIE0);  
+  digitalWrite(5, HIGH);
+  digitalWrite(5, LOW);
+  digitalWrite(5, HIGH);
+  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+}
+
+ISR(SPI_STC_vect)
+{
+
+
+} 
+
+ISR(USART_RX_vect)
+{
+
+  datarx = UDR0;
+  UCSR0B = 0;
+  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+  digitalWrite(2, LOW);
+  digitalWrite(2, HIGH);
+  digitalWrite(2, LOW);
+
+}
+
+
+ISR(USART_TX_vect)
+{
+  UCSR0B = bit(RXEN0) | bit(RXCIE0);
+
+}
 
 ISR (ADC_vect)
 {
@@ -150,87 +199,7 @@ ISR (ADC_vect)
 
 }
 
-ISR(USART_UDRE_vect)
-{
-  UDR0 = data;
-  UCSR0B = bit(TXEN0) | bit(TXCIE0);  
-  digitalWrite(5, HIGH);
-  digitalWrite(5, LOW);
-  digitalWrite(5, HIGH);
-  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
-}
 
-
-ISR(USART_RX_vect)
-{
-
-  datarx = UDR0;
-  UCSR0B = 0;
-  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
-  digitalWrite(2, LOW);
-  digitalWrite(2, HIGH);
-  digitalWrite(2, LOW);
-
-}
-
-
-
-ISR(USART_TX_vect)
-{
-  UCSR0B = bit(RXEN0) | bit(RXCIE0);
-
-}
-
-
-void PWM_mu(uint8_t mu)
-{
-	//--------------------------
-	// This function can be called anytime
-	// to change the duty cycle (mu) of the 
-	// PWM. The mu variable is in percents,
-	// i.e., from 0 to 100% hence the saturator.
-	//--------------------------
-
-	// Apply saturations
-	if (mu > 100)
-	{
-		mu = 100;
-	}
-
-	// set the PWM duty cycle for the first output
-	OCR1A = (float)(100 - mu) * A - deadTime_bits;
-
-	// set the PWM duty cycle for the second output
-	OCR1B = OCR1A + deadTime_bits;	    
-}
-
-
-void PWM_Init(void)
-{	
-	// Will hold the bit range
-	float PWM_bits = 0.0f;
-
-	// Set OC1A and OC1B as outputs
-	TCCR1A |= (1 << COM1A1)|(1 << COM1B1);
-	// Set OC1A as non inverted and OC1B as inverted
-	TCCR1A |= (0 << COM1A0)|(1 << COM1B0);
-    
-	// set the PWM mode
-	TCCR1A |= (0 << WGM10)|(0 << WGM11);
-	TCCR1B |= (0 << WGM12)|(1 << WGM13);
-    
-	//START the timer with no prescaler
-	TCCR1B |= (1 << CS10);
-
-	// Calculate the bit range from 0 to (2^bit - 1)
-	PWM_bits = pow(2, PWM_resolution) - 1.0f;
-	// Conversion made now to save calculations later
-	A = PWM_bits / 100.0f;
-	// Set TOP to PWM_bits (a range)
-	ICR1 = PWM_bits;
-	// Set the deadTime as a bit range (e.g. 0~255, 0~1023, etc.)
-	deadTime_bits = T_DeadTime * (F_CPU/1000000);
-}
 
 
 void setup() {
@@ -279,27 +248,39 @@ void setup() {
 
 
 
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  //TCC0RA = _BV(COM0A1) | _BV(COM0B1) | _BV(WGM20);
+  TCCR0A = _BV(COM0A1) | _BV(COM0B1) | _BV(WGM20) | _BV(COM0B0);
+  TCCR0B = /*_BV(CS21) | */_BV(CS20);
+  OCR0A = 128-1;
+  OCR0B = 128;
+ 
 
-  /*
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  //TCC1RA = _BV(COM1A1) | _BV(COM1B1) | _BV(WGM20);
+  TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(WGM20) | _BV(COM1B0);
+  TCCR1B = /*_BV(CS21) | */_BV(CS20);
+  OCR1A = 128-1;
+  OCR1B = 128;
+
+ 
+
   pinMode(3, OUTPUT);
   pinMode(11, OUTPUT);
-  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
-  TCCR2B = _BV(CS21) | _BV(CS20);;
-  OCR2A = 50;
-  OCR2B = 50;
-  */
-  //Set OC1A and 0C1B as PWM outputs
-  DDRB |= (1 << DDB1)|(1 << DDB2);
-  PWM_Init();
+  //TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
+  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
+  TCCR2B = /*_BV(CS21) | */_BV(CS20);
+  OCR2A = 128-1;
+  OCR2B = 128;
+
 
 
   //CLKPR = (1 << CLKPCE) + (0b111);	// System clk prescaler to 1/128
-  TCCR0B = /*bit(CS22) |*/ bit(CS21) | bit(CS20);
-  //OCR2A = 255;	// output when counter gets to 255
-  TCCR0A = bit(COM0A0);
-  TIMSK0 = (1 << OCIE0A);		
-  
-
+  //TCCR2B = /*bit(CS22) |*/ bit(CS21) | bit(CS20);
+  //TCCR2A = bit(COM0A0);
+  TIMSK2 = (1 << OCIE2A);		
 
 
 
@@ -313,7 +294,7 @@ void setup() {
 void loop() {
   //OCR2A = sine_wave[k++];
   //OCR2B = sine_wave[k++];
-  PWM_mu(25);
+
 }
 
 
