@@ -269,17 +269,11 @@ void setup() {
 
   pinMode(3, OUTPUT);
   pinMode(11, OUTPUT);
-  //TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
   TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
   TCCR2B = /*_BV(CS21) | */_BV(CS20);
   OCR2A = 128-1;
   OCR2B = 128;
-
-
-
-  //CLKPR = (1 << CLKPCE) + (0b111);	// System clk prescaler to 1/128
-  //TCCR2B = /*bit(CS22) |*/ bit(CS21) | bit(CS20);
-  //TCCR2A = bit(COM0A0);
+  
   TIMSK2 = (1 << OCIE2A);		
 
 
