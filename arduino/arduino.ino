@@ -266,16 +266,23 @@ void setup() {
   OCR1B = 128;
 
  
-
+#if 0
   pinMode(3, OUTPUT);
   pinMode(11, OUTPUT);
   TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
   TCCR2B = /*_BV(CS21) | */_BV(CS20);
   OCR2A = 128-1;
   OCR2B = 128;
-  
   TIMSK2 = (1 << OCIE2A);		
-
+#else
+  pinMode(3, OUTPUT);
+  //spi-->pinMode(11, OUTPUT);
+  TCCR2A = _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
+  TCCR2B = /*_BV(CS21) | */_BV(CS20);
+  OCR2A = 128-1;
+  //OCR2B = 128;
+  TIMSK2 = (1 << OCIE2A);
+#endif
 
 
   
@@ -286,9 +293,12 @@ void setup() {
 /* LOOP */
 /**************************************************************************************************/
 void loop() {
-  //OCR2A = sine_wave[k++];
+  OCR0A = sine_wave[k++];
+  OCR0B = sine_wave[k++];
+  OCR1A = sine_wave[k++];
+  OCR1B = sine_wave[k++];
+  OCR2A = sine_wave[k++];
   //OCR2B = sine_wave[k++];
-
 }
 
 
