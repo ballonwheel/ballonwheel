@@ -1,6 +1,5 @@
 
 
-
 //https://www.ftdichip.com/Support/Knowledgebase/index.html?an232beffectbuffsizeandlatency.htm
 //https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
 /*
@@ -102,7 +101,8 @@ current loop
 
 */
 
-
+#undef __PWM6__
+#define __PWM3__
 #define TPERIODE (float)(100e-6)
 #define T1 1000
 
@@ -130,8 +130,10 @@ uint8_t k;
 
 
 //ISR_NOBLOCK
-ISR(TIMER2_COMPA_vect)
+//ISR(TIMER0_COMPA_vect)
+ISR(TIMER2_OVF_vect)
 {
+#if 1
   adcDone++;
   if(adcDone == 1){
     UCSR0B = 0;
@@ -139,6 +141,7 @@ ISR(TIMER2_COMPA_vect)
 
     ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
   }
+#endif
   digitalWrite(4, LOW);
   digitalWrite(4, HIGH);
   digitalWrite(4, LOW);
@@ -188,11 +191,11 @@ ISR (ADC_vect)
   data = ADCH;
   //if(data=='9')data='0';
   //else data++;
-  // ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
+  //ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
   if(adcPin>=ADC_CH)adcPin = 0;
   ADCSRA = 0;
   adcDone = 0;
-  UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+  //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
   digitalWrite(7, LOW);
   digitalWrite(7, HIGH);
   //digitalWrite(7, LOW);
@@ -247,44 +250,56 @@ void setup() {
   pinMode(4, OUTPUT);
 
 
+#if defined(__PWM6__)
+  //32Khz
+  //dead time 1% --> 32usec/255=122nsec
 
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  //TCC0RA = _BV(COM0A1) | _BV(COM0B1) | _BV(WGM20);
-  TCCR0A = _BV(COM0A1) | _BV(COM0B1) | _BV(WGM20) | _BV(COM0B0);
-  TCCR0B = /*_BV(CS21) | */_BV(CS20);
+  TCCR0A = _BV(COM0A0) | _BV(COM0A1) | _BV(COM0B1) | _BV(WGM00) | _BV(COM0B0);
+  TCCR0B = _BV(CS00);
   OCR0A = 128-1;
   OCR0B = 128;
- 
 
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
-  //TCC1RA = _BV(COM1A1) | _BV(COM1B1) | _BV(WGM20);
-  TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(WGM20) | _BV(COM1B0);
-  TCCR1B = /*_BV(CS21) | */_BV(CS20);
+  TCCR1A = _BV(COM0A0) | _BV(COM1A1) | _BV(COM1B1) | _BV(WGM10) | _BV(COM1B0);
+  TCCR1B = _BV(CS10);
   OCR1A = 128-1;
   OCR1B = 128;
 
- 
-#if 0
   pinMode(3, OUTPUT);
   pinMode(11, OUTPUT);
-  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
-  TCCR2B = /*_BV(CS21) | */_BV(CS20);
+  TCCR2A = _BV(COM0A0) | _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
+  TCCR2B = _BV(CS20);
   OCR2A = 128-1;
   OCR2B = 128;
-  TIMSK2 = (1 << OCIE2A);		
-#else
-  pinMode(3, OUTPUT);
-  //spi-->pinMode(11, OUTPUT);
-  TCCR2A = _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
-  TCCR2B = /*_BV(CS21) | */_BV(CS20);
-  OCR2A = 128-1;
-  //OCR2B = 128;
-  TIMSK2 = (1 << OCIE2A);
+#endif 
+		
+#if defined __PWM3__
+  // 16khz only on T0, T1 but not on T2
+  CLKPR = _BV(CLKPCE);
+  CLKPR = _BV(CLKPS0);//16Mhz div 2
+
+  pinMode(5, OUTPUT);//OC0B
+  pinMode(6, OUTPUT);//OC0A
+  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(COM0B0);
+  TCCR0B = _BV(CS00);
+  //TIMSK0 = _BV(OCIE1A);
+  OCR0A = 128-1;
+  OCR0B = 128;
+
+  pinMode(9, OUTPUT);//OC1A
+  //pinMode(10, OUTPUT);//OC1B
+  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(COM1A0);
+  TCCR1B = _BV(CS10);
+  OCR1A = 128-1;
+  //OCR1B = 128;
 #endif
 
-
+  //timer2 for scheduling
+  TCCR2B = _BV(CS21);
+  TIMSK2 = _BV(TOIE2);
   
 }
 
@@ -293,12 +308,28 @@ void setup() {
 /* LOOP */
 /**************************************************************************************************/
 void loop() {
+
+#if defined __PWM3__
   OCR0A = sine_wave[k++];
-  OCR0B = sine_wave[k++];
-  OCR1A = sine_wave[k++];
-  OCR1B = sine_wave[k++];
-  OCR2A = sine_wave[k++];
-  //OCR2B = sine_wave[k++];
+  
+  OCR0B = sine_wave[k];
+  
+  OCR1A = sine_wave[k];
+  
+  delay(4);
+#endif
+
+
+#if defined __PWM6__
+  OCR0A = sine_wave[k++];
+  OCR0B = sine_wave[k];
+  OCR1A = sine_wave[k];
+  OCR1B = sine_wave[k];
+  OCR2A = sine_wave[k];
+  OCR2B = sine_wave[k];
+  delay(2000);
+#endif
+
 }
 
 
