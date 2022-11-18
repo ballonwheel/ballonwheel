@@ -33,8 +33,8 @@ Kicsomagol ide
 */
 
 
+#if 0
 /* ripped from http://aquaticus.info/pwm-sine-wave */
-
 uint8_t  sine_wave[256] = {
   0x80, 0x83, 0x86, 0x89, 0x8C, 0x90, 0x93, 0x96,
   0x99, 0x9C, 0x9F, 0xA2, 0xA5, 0xA8, 0xAB, 0xAE,
@@ -69,8 +69,547 @@ uint8_t  sine_wave[256] = {
   0x4F, 0x52, 0x55, 0x58, 0x5B, 0x5E, 0x61, 0x64,
   0x67, 0x6A, 0x6D, 0x70, 0x74, 0x77, 0x7A, 0x7D
 };
+#endif
+
+#if 1
+  #if 0
+        #include <iostream>
+        #include <math.h>
+        using namespace std;
+        int s, i;
+        double x;
+        int main()
+        {
+            cout<<"Hello World\r\n";
+            while(x<=6.28){
+                //printf("%i 1. %lf\r\n", i, sin(x));
+                //printf("%i 2. %lf\r\n", i, sin(x)*127.0);
+                //printf("%i 3. %i\r\n", i++, (int)(sin(x)*127.0));
+                printf("%i,\r\n", (int)(sin(x)*127.0));
+                x+=6.28/255.0;
+            }
+            return 0;
+        }
+  #endif
+  #if 1
+int8_t  sine_wave[256] = {
+0,
+
+3,
+
+6,
+
+9,
+
+12,
+
+15,
+
+18,
+
+21,
+
+24,
+
+27,
+
+30,
+
+33,
+
+36,
+
+39,
+
+42,
+
+45,
+
+48,
+
+51,
+
+54,
+
+57,
+
+60,
+
+62,
+
+65,
+
+68,
+
+70,
+
+73,
+
+75,
+
+78,
+
+80,
+
+83,
+
+85,
+
+87,
+
+90,
+
+92,
+
+94,
+
+96,
+
+98,
+
+100,
+
+102,
+
+104,
+
+105,
+
+107,
+
+109,
+
+110,
+
+112,
+
+113,
+
+115,
+
+116,
+
+117,
+
+118,
+
+119,
+
+120,
+
+121,
+
+122,
+
+123,
+
+124,
+
+124,
+
+125,
+
+125,
+
+126,
+
+126,
+
+126,
+
+126,
+
+126,
+
+126,
+
+126,
+
+126,
+
+126,
+
+126,
+
+125,
+
+125,
+
+124,
+
+124,
+
+123,
+
+123,
+
+122,
+
+121,
+
+120,
+
+119,
+
+118,
+
+117,
+
+115,
+
+114,
+
+113,
+
+111,
+
+110,
+
+108,
+
+106,
+
+105,
+
+103,
+
+101,
+
+99,
+
+97,
+
+95,
+
+93,
+
+91,
+
+89,
+
+86,
+
+84,
+
+82,
+
+79,
+
+77,
+
+74,
+
+72,
+
+69,
+
+66,
+
+64,
+
+61,
+
+58,
+
+56,
+
+53,
+
+50,
+
+47,
+
+44,
+
+41,
+
+38,
+
+35,
+
+32,
+
+29,
+
+26,
+
+23,
+
+20,
+
+17,
+
+14,
+
+11,
+
+8,
+
+4,
+
+1,
+
+-1,
+
+-4,
+
+-7,
+
+-10,
+
+-13,
+
+-16,
+
+-20,
+
+-23,
+
+-26,
+
+-29,
+
+-32,
+
+-35,
+
+-38,
+
+-41,
+
+-44,
+
+-47,
+
+-50,
+
+-52,
+
+-55,
+
+-58,
+
+-61,
+
+-63,
+
+-66,
+
+-69,
+
+-71,
+
+-74,
+
+-76,
+
+-79,
+
+-81,
+
+-84,
+
+-86,
+
+-88,
+
+-90,
+
+-93,
+
+-95,
+
+-97,
+
+-99,
+
+-101,
+
+-103,
+
+-104,
+
+-106,
+
+-108,
+
+-109,
+
+-111,
+
+-112,
+
+-114,
+
+-115,
+
+-116,
+
+-118,
+
+-119,
+
+-120,
+
+-121,
+
+-122,
+
+-122,
+
+-123,
+
+-124,
+
+-124,
+
+-125,
+
+-125,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-126,
+
+-125,
+
+-125,
+
+-124,
+
+-124,
+
+-123,
+
+-122,
+
+-121,
+
+-120,
+
+-119,
+
+-118,
+
+-117,
+
+-116,
+
+-115,
+
+-113,
+
+-112,
+
+-110,
+
+-109,
+
+-107,
+
+-106,
+
+-104,
+
+-102,
+
+-100,
+
+-98,
+
+-96,
+
+-94,
+
+-92,
+
+-90,
+
+-88,
+
+-85,
+
+-83,
+
+-81,
+
+-78,
+
+-76,
+
+-73,
+
+-71,
+
+-68,
+
+-65,
+
+-63,
+
+-60,
+
+-57,
+
+-54,
+
+-52,
+
+-49,
+
+-46,
+
+-43,
+
+-40,
+
+-37,
+
+-34,
+
+-31,
+
+-28,
+
+-25,
+
+-22,
+
+-19,
+
+-16,
+
+-12,
+
+-9,
+
+-6,
+
+-3
+
+};
+ #endif
 
 
+
+
+#endif
 
 /*
 ez a verzio:
@@ -101,6 +640,8 @@ current loop
 
 */
 
+#include <SPI.h>
+
 #undef __PWM6__
 #define __PWM3__
 #define TPERIODE (float)(100e-6)
@@ -114,9 +655,11 @@ volatile uint8_t data;
 volatile uint8_t datarx;
 volatile uint8_t serialgo=0;
 volatile uint8_t adcDone;
+volatile uint8_t spicnt, dataSPI1, dataSPI0;
 
-uint8_t k;
-
+uint8_t k,t2=0, tPWM=0;
+double m;
+uint8_t um, vcc, u;
 
 //interrupt order
 //timer2
@@ -131,22 +674,54 @@ uint8_t k;
 
 //ISR_NOBLOCK
 //ISR(TIMER0_COMPA_vect)
-ISR(TIMER2_OVF_vect)
+ISR(TIMER1_OVF_vect)
+//ISR(TIMER2_OVF_vect)
 {
-#if 1
-  adcDone++;
-  if(adcDone == 1){
-    UCSR0B = 0;
-    //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
 
-    ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+  if(++tPWM==100){
+    k++;
+    tPWM=0;
   }
-#endif
-  digitalWrite(4, LOW);
-  digitalWrite(4, HIGH);
-  digitalWrite(4, LOW);
+  
+  
+  if(t2++==1)
+  {
 
-	//TIFR0 &= ~(1 << OCF0A);		// lower flag
+  
+    adcDone++;
+    if(adcDone == 1){
+      UCSR0B = 0;
+      //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+  
+      ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+    }
+
+    t2=0;
+    m = 20;
+    um = 20;
+    u = 1;
+    vcc=6;
+    
+    OCR0A = 255;
+    OCR0B = 255;
+    OCR1A = 255;
+    //OCR0A = (uint8_t) (5.0/100.0 * ((double)sine_wave[k]));
+    //OCR0B = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+(255/3))&0xff]));
+    //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
+    //u/(vcc/2)*sin[k]+
+    
+    //OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
+    //OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
+    //OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
+    
+      
+    digitalWrite(4, LOW);
+    digitalWrite(4, HIGH);
+    digitalWrite(4, LOW);
+
+	  //TIFR0 &= ~(1 << OCF0A);		// lower flag
+  }
+
 }
 
 
@@ -162,7 +737,26 @@ ISR(USART_UDRE_vect)
 
 ISR(SPI_STC_vect)
 {
+   if(!spicnt){
+      dataSPI1=SPDR;
+      spicnt=1;
+      SPDR = 0xff;
 
+//  digitalWrite(2, LOW); //CS_
+  //digitalWrite(2, HIGH); //CS_
+
+
+
+    }
+    else{
+      dataSPI0=SPDR;
+      SPCR = 0;  //disable SPI
+      digitalWrite(2, LOW); //CS_
+
+     UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
+
+    }
 
 } 
 
@@ -172,9 +766,9 @@ ISR(USART_RX_vect)
   datarx = UDR0;
   UCSR0B = 0;
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
-  digitalWrite(2, LOW);
-  digitalWrite(2, HIGH);
-  digitalWrite(2, LOW);
+  digitalWrite(3, LOW);
+  digitalWrite(3, HIGH);
+  digitalWrite(3, LOW);
 
 }
 
@@ -187,19 +781,36 @@ ISR(USART_TX_vect)
 
 ISR (ADC_vect)
 {
-  digitalWrite(7, HIGH);
+  digitalWrite(7, LOW);
+
   data = ADCH;
+
+#if 1
   //if(data=='9')data='0';
   //else data++;
-  //ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
-  if(adcPin>=ADC_CH)adcPin = 0;
-  ADCSRA = 0;
-  adcDone = 0;
-  //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
-  digitalWrite(7, LOW);
-  digitalWrite(7, HIGH);
-  //digitalWrite(7, LOW);
+  ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
 
+
+  if(adcPin>=ADC_CH){
+    adcPin = 0;
+    ADCSRA = 0;
+    adcDone = 0;
+
+    SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//enable SPI
+      digitalWrite(2, HIGH); //CS_
+      //digitalWrite(2, LOW);
+      spicnt=0;
+      SPDR = 0x03;//SPIstart
+
+
+
+  }
+  //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+#endif
+
+  //digitalWrite(7, LOW);
+  //digitalWrite(7, LOW);
+  digitalWrite(7, HIGH);
 }
 
 
@@ -214,7 +825,7 @@ void setup() {
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);
   //ADCSRA  =  0;
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) | bit(ADPS0) | bit(ADPS1) | bit(ADPS2); //enable ADC 16mhz/128div
-  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*|                bit(ADPS1) | bit(ADPS2)*/; //enable ADC
+  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit(ADSC); //enable ADC
 
 
   /*Set baud rate */
@@ -245,11 +856,11 @@ void setup() {
 
 
   pinMode(7, OUTPUT);
-  pinMode(5, OUTPUT);
   pinMode(2, OUTPUT);
   pinMode(4, OUTPUT);
+  pinMode(3, OUTPUT);
 
-
+  
 #if defined(__PWM6__)
   //32Khz
   //dead time 1% --> 32usec/255=122nsec
@@ -278,28 +889,43 @@ void setup() {
 		
 #if defined __PWM3__
   // 16khz only on T0, T1 but not on T2
-  CLKPR = _BV(CLKPCE);
-  CLKPR = _BV(CLKPS0);//16Mhz div 2
+  //CLKPR = _BV(CLKPCE);
+  //CLKPR = _BV(CLKPS0);//16Mhz div 2
 
   pinMode(5, OUTPUT);//OC0B
   pinMode(6, OUTPUT);//OC0A
-  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(COM0B0);
+  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(WGM01) | _BV(COM0B0);
   TCCR0B = _BV(CS00);
-  //TIMSK0 = _BV(OCIE1A);
   OCR0A = 128-1;
   OCR0B = 128;
 
   pinMode(9, OUTPUT);//OC1A
   //pinMode(10, OUTPUT);//OC1B
-  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(COM1A0);
+  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(WGM11) | _BV(COM1A0);
   TCCR1B = _BV(CS10);
+  TIMSK1 = _BV(TOV1);
   OCR1A = 128-1;
   //OCR1B = 128;
 #endif
 
   //timer2 for scheduling
-  TCCR2B = _BV(CS21);
-  TIMSK2 = _BV(TOIE2);
+  //TCCR2B = _BV(CS21);
+  //TIMSK2 = _BV(TOIE2);
+
+ /*************************/
+  /* SPI */
+  /* MOSI B3 out */
+  /* MISO B4 in */
+  /* CK   B5 out */
+  /* CS   B0 out */
+  /*************************/
+
+  SPI.begin();
+
+  DDRB |= _BV(DDB0)|_BV(DDB3)|_BV(DDB5);  //output
+  SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//freq cpu/2
+  SPSR |= _BV(SPI2X);
+
   
 }
 
@@ -308,16 +934,6 @@ void setup() {
 /* LOOP */
 /**************************************************************************************************/
 void loop() {
-
-#if defined __PWM3__
-  OCR0A = sine_wave[k++];
-  
-  OCR0B = sine_wave[k];
-  
-  OCR1A = sine_wave[k];
-  
-  delay(4);
-#endif
 
 
 #if defined __PWM6__
