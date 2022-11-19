@@ -60,9 +60,9 @@ int fd,c, res;
 struct termios oldtio,newtio;
 char buf[255];
 char bufo[20] = "ABCDEFGH\r\nIJK";
-char ref;
+char ref, ref_last;
 char chprev;
-int i,j, k;
+int i,j, k, m;
 int dbg_;
 int inta=1, intb=0;
 float floata=1.0, floatb=1.0;
@@ -166,7 +166,7 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 			nanoseconds = end.tv_nsec - begin.tv_nsec;
     			elapsed = seconds + nanoseconds*1e-9;
 
-			printf("Time measured: %.6f seconds.\n", elapsed);
+			printf("%err:%i. Time measured: %.6f seconds.\n", m, elapsed);
 
 			clock_gettime(CLOCK_REALTIME, &begin);
 
@@ -175,12 +175,12 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 		while((res=read(fd,&buf[0],1)) < 1)
 			;
 		//if(dbg_)
-			printf("%i:<--%0x\n", res, buf[0]);
-		//if(ref != buf[0]){printf("error %i:<--%0x\n", res, buf[0]); ref = buf[0];}
-		//if(ref =='9'){ref='0';}
-		//else ref++;
-		
-		bufo[0]=50;
+		//	printf("%i.  %i:<--%02x %02x %02x\n", m++, res, buf[0], ref, ref_last);
+		if(ref != buf[0]){printf("x");m++;}
+		ref_last = ref;
+		ref++;
+		if(ref >'9' || ref < '0'){ref='0';}
+		bufo[0]=ref;
 		write(fd, &bufo[0],1);
 		
 	}

@@ -651,15 +651,15 @@ current loop
 
 #define ADC_CH 2
 volatile uint8_t adcPin=0;
-volatile uint8_t data;
-volatile uint8_t datarx;
+volatile uint8_t dataADC;
+volatile uint8_t datarx, datatx;
 volatile uint8_t serialgo=0;
 volatile uint8_t adcDone;
 volatile uint8_t spicnt, dataSPI1, dataSPI0;
 
-uint8_t k,t2=0, tPWM=0;
-double m;
-uint8_t um, vcc, u;
+volatile uint8_t k,t2=0, tPWM=0, tSINE=0, tTX=0, tSPEED=0;
+volatile double m;
+volatile uint8_t um, vcc, u;
 
 //interrupt order
 //timer2
@@ -674,52 +674,75 @@ uint8_t um, vcc, u;
 
 //ISR_NOBLOCK
 //ISR(TIMER0_COMPA_vect)
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
 //ISR(TIMER2_OVF_vect)
 {
 
-  if(++tPWM==100){
-    k++;
-    tPWM=0;
-  }
-  
-  
-  if(t2++==1)
-  {
+  //milyen gyakran fusson le
+  if(t2++==0){//mindig
+  //if(t2++==1){//minden 2.
+    t2 = 0;
 
-  
+    //open loop SINE freki
+    if(++tSINE==100){
+      k++;
+      tSINE=0;
+    }
+
+    //PWM compare value update
+    if(tPWM++==1){ //minden 2. --> 4khz
+      tPWM = 0;
+      m = 20;
+      um = 20;
+      u = 1;
+      vcc=6;
+    
+      OCR0A = 255;
+      OCR0B = 255;
+      OCR1A = 255;
+      //OCR0A = (uint8_t) (5.0/100.0 * ((double)sine_wave[k]));
+      //OCR0B = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+(255/3))&0xff]));
+      //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
+      //u/(vcc/2)*sin[k]+
+    
+      //OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
+      //OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
+      //OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
+
+
+      //digitalWrite(4, LOW);
+      //digitalWrite(4, HIGH);
+      //digitalWrite(4, LOW);
+
+
+
+    }
+    //else //second order hold
+      
+
+
+
+    //if(tSPEED++==4)
+    {
+      datatx=datarx;
+
+    }
+
+
+
+    //ADC csak akkor, ha DONE volt es ne inditson ra veletlen se
+    //ADC fogja inditani az SPIt
+    //SPI inditja a tx-et minden ms-ben
     adcDone++;
     if(adcDone == 1){
-      UCSR0B = 0;
-      //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
-  
+      //loop-ot: ADC-PWM-SPI-TX-RX
       ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
     }
 
-    t2=0;
-    m = 20;
-    um = 20;
-    u = 1;
-    vcc=6;
-    
-    OCR0A = 255;
-    OCR0B = 255;
-    OCR1A = 255;
-    //OCR0A = (uint8_t) (5.0/100.0 * ((double)sine_wave[k]));
-    //OCR0B = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+(255/3))&0xff]));
-    //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
-    //u/(vcc/2)*sin[k]+
-    
-    //OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
-    //OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
-    //OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
-    
-      
-    digitalWrite(4, LOW);
-    digitalWrite(4, HIGH);
-    digitalWrite(4, LOW);
-
-	  //TIFR0 &= ~(1 << OCF0A);		// lower flag
+    //digitalWrite(4, LOW);
+    //digitalWrite(4, HIGH);
+    //digitalWrite(4, LOW);
+    //TIFR0 &= ~(1 << OCF0A);		// lower flag
   }
 
 }
@@ -727,12 +750,11 @@ ISR(TIMER1_OVF_vect)
 
 ISR(USART_UDRE_vect)
 {
-  UDR0 = data;
+  UDR0 = datatx;
   UCSR0B = bit(TXEN0) | bit(TXCIE0);  
-  digitalWrite(5, HIGH);
-  digitalWrite(5, LOW);
-  digitalWrite(5, HIGH);
-  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+
+  //digitalWrite(4, LOW);
+  //digitalWrite(4, HIGH);
 }
 
 ISR(SPI_STC_vect)
@@ -742,19 +764,23 @@ ISR(SPI_STC_vect)
       spicnt=1;
       SPDR = 0xff;
 
-//  digitalWrite(2, LOW); //CS_
-  //digitalWrite(2, HIGH); //CS_
-
-
-
+      //digitalWrite(2, LOW); //CS_
+      //digitalWrite(2, HIGH); //CS_
     }
     else{
       dataSPI0=SPDR;
       SPCR = 0;  //disable SPI
       digitalWrite(2, LOW); //CS_
 
-     UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+      
+      //minden 6. utan TX es RX, 1khz
+      if(tTX++==6){
+        tTX=0;
+        UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
 
+        //digitalWrite(4, HIGH);
+        //digitalWrite(4, LOW);
+      }
 
     }
 
@@ -762,28 +788,32 @@ ISR(SPI_STC_vect)
 
 ISR(USART_RX_vect)
 {
-
   datarx = UDR0;
   UCSR0B = 0;
-  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
-  digitalWrite(3, LOW);
+
   digitalWrite(3, HIGH);
   digitalWrite(3, LOW);
-
 }
 
 
 ISR(USART_TX_vect)
 {
   UCSR0B = bit(RXEN0) | bit(RXCIE0);
+  digitalWrite(4, LOW);
+  digitalWrite(4, HIGH);
+
 
 }
 
+
+//ADC CH0 CH1
+//8.5khz, 118usec
+//delta CH0-CH1 = 22usec
 ISR (ADC_vect)
 {
   digitalWrite(7, LOW);
 
-  data = ADCH;
+  dataADC = ADCH;
 
 #if 1
   //if(data=='9')data='0';
@@ -801,11 +831,8 @@ ISR (ADC_vect)
       //digitalWrite(2, LOW);
       spicnt=0;
       SPDR = 0x03;//SPIstart
-
-
-
   }
-  //UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
 #endif
 
   //digitalWrite(7, LOW);
@@ -842,10 +869,8 @@ void setup() {
   //UBRR0 = 51;
   //UCSR0A = (0<<U2X0);
 
-
-
   /*Enable receiver and transmitter */
- // UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  // UCSR0B = (1<<RXEN0)|(1<<TXEN0);
   /* Set frame format: 8data, 2stop bit */
   //UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 
@@ -887,8 +912,30 @@ void setup() {
   OCR2B = 128;
 #endif 
 		
-#if defined __PWM3__
+#if defined __PWM3_16KHZ___
   // 16khz only on T0, T1 but not on T2
+  CLKPR = _BV(CLKPCE);
+  CLKPR = _BV(CLKPS0);//16Mhz div 2
+
+  pinMode(5, OUTPUT);//OC0B
+  pinMode(6, OUTPUT);//OC0A
+  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00)  | _BV(COM0B0);
+  TCCR0B = _BV(CS00);
+  OCR0A = 128-1;
+  OCR0B = 128;
+
+  pinMode(9, OUTPUT);//OC1A
+  //pinMode(10, OUTPUT);//OC1B
+  TCCR1A = _BV(COM1A1) | _BV(WGM10)  | _BV(COM1A0);
+  TCCR1B = _BV(CS10);
+  TIMSK1 = _BV(TOV1);
+  OCR1A = 128-1;
+  //OCR1B = 128;
+#endif
+#if defined __PWM3__
+  //8khz
+
+
   //CLKPR = _BV(CLKPCE);
   //CLKPR = _BV(CLKPS0);//16Mhz div 2
 
