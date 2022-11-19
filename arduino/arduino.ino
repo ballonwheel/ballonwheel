@@ -660,6 +660,7 @@ volatile uint8_t spicnt, dataSPI1, dataSPI0;
 volatile uint8_t k,t2=0, tPWM=0, tSINE=0, tTX=0, tSPEED=0;
 volatile double m;
 volatile uint8_t um, vcc, u;
+volatile uint8_t readyUART, timeoutUART;
 
 //interrupt order
 //timer2
@@ -697,17 +698,17 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       u = 1;
       vcc=6;
     
-      OCR0A = 255;
-      OCR0B = 255;
-      OCR1A = 255;
+      //OCR0A = 255;
+      //OCR0B = 255;
+      //OCR1A = 255;
       //OCR0A = (uint8_t) (5.0/100.0 * ((double)sine_wave[k]));
       //OCR0B = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+(255/3))&0xff]));
       //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
       //u/(vcc/2)*sin[k]+
     
-      //OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
-      //OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
-      //OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
+      OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
+      OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
+      OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
 
 
       //digitalWrite(4, LOW);
@@ -739,9 +740,9 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
     }
 
-    //digitalWrite(4, LOW);
-    //digitalWrite(4, HIGH);
-    //digitalWrite(4, LOW);
+    
+    digitalWrite(4, HIGH);
+    digitalWrite(4, LOW);
     //TIFR0 &= ~(1 << OCF0A);		// lower flag
   }
 
@@ -774,13 +775,21 @@ ISR(SPI_STC_vect)
 
       
       //minden 6. utan TX es RX, 1khz
-      if(tTX++==6){
+      if(readyUART && tTX++==6){
         tTX=0;
+        readyUART = 0;
+        timeoutUART = 0; 
         UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
 
         //digitalWrite(4, HIGH);
         //digitalWrite(4, LOW);
       }
+      if(!readyUART && timeoutUART++ == 100){
+        UCSR0B = 0;
+        readyUART = 1;
+        timeoutUART = 0;
+      }
+      
 
     }
 
@@ -790,6 +799,7 @@ ISR(USART_RX_vect)
 {
   datarx = UDR0;
   UCSR0B = 0;
+  readyUART = 1;
 
   digitalWrite(3, HIGH);
   digitalWrite(3, LOW);
@@ -799,8 +809,8 @@ ISR(USART_RX_vect)
 ISR(USART_TX_vect)
 {
   UCSR0B = bit(RXEN0) | bit(RXCIE0);
-  digitalWrite(4, LOW);
-  digitalWrite(4, HIGH);
+  //digitalWrite(4, LOW);
+  //digitalWrite(4, HIGH);
 
 
 }
@@ -878,6 +888,7 @@ void setup() {
 
   //UCSR0B =  bit(RXEN0) | bit(RXCIE0) |  bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
 
+  readyUART = 1;
 
 
   pinMode(7, OUTPUT);

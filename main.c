@@ -42,7 +42,7 @@
 extern int errno ;
 
 #define BAUDRATE B2000000
-#define MODEMDEVICE "/dev/ttyUSB1"
+#define MODEMDEVICE "/dev/ttyUSB0"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 
@@ -158,7 +158,7 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 
 
 	while (1) { /* loop for input */
-		dbg_=!(i++%1000);
+		dbg_=!(i++%10000);
 		if(dbg_)
 		{
 			clock_gettime(CLOCK_REALTIME, &end);
@@ -166,7 +166,7 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 			nanoseconds = end.tv_nsec - begin.tv_nsec;
     			elapsed = seconds + nanoseconds*1e-9;
 
-			printf("%err:%i. Time measured: %.6f seconds.\n", m, elapsed);
+			printf("err:%i /Time measured: %.6f seconds.\n", m, elapsed);
 
 			clock_gettime(CLOCK_REALTIME, &begin);
 
@@ -176,9 +176,9 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 			;
 		//if(dbg_)
 		//	printf("%i.  %i:<--%02x %02x %02x\n", m++, res, buf[0], ref, ref_last);
-		if(ref != buf[0]){printf("x");m++;}
-		ref_last = ref;
-		ref++;
+		if(ref != buf[0]){m++;}
+		//ref_last = ref;
+		if(buf[0] == ref)ref++;
 		if(ref >'9' || ref < '0'){ref='0';}
 		bufo[0]=ref;
 		write(fd, &bufo[0],1);
