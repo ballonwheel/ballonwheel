@@ -775,7 +775,7 @@ ISR(SPI_STC_vect)
 
       
       //minden 6. utan TX es RX, 1khz
-      if(readyUART && tTX++==6){
+      if(readyUART && tTX++==3){
         tTX=0;
         readyUART = 0;
         timeoutUART = 0; 
