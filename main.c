@@ -190,7 +190,7 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
         return NULL;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
 
 #if 0
