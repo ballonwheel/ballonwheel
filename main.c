@@ -17,6 +17,8 @@
 //sudo apt-get install libgsl-dev
 
 
+#define __DEBUG_v0_1__
+#undef __SIM__
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -45,8 +47,7 @@
 #include <errno.h>
 extern int errno ;
 
-//#include <complex.h>
-//#
+#include 
 
 
 #define BAUDRATE B2000000
@@ -118,6 +119,8 @@ void *thread_func(void *data)
         /* Do RT specific stuff here */
  	printf("Do RT specific stuff here\n");
 
+
+#ifdef __SIM__
         fd = open(MODEMDEVICE, O_RDWR | O_NOCTTY );
         if (fd <0) {perror(MODEMDEVICE); exit(-1); }
         tcgetattr(fd,&oldtio); /* save current port settings */
@@ -149,12 +152,15 @@ void *thread_func(void *data)
 	//write(fd, p, 10);
         //res=TimeoutRead (fd, &buf[0], 10, 100);
 
-
-
-	printf("int:%i ",inta+intb);
-
-
 	//write(fd, bufo, 8);
+
+
+#else
+
+
+#endif
+
+
 	clock_gettime(CLOCK_REALTIME, &begin);
 
 /*
@@ -168,6 +174,7 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 
 
 	while (1) { /* loop for input */
+#ifdef __DEBUG_v0_1__
 		dbg_=!(i++%10000);
 		if(dbg_)
 		{
@@ -181,9 +188,25 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
+#endif
+
+		/* read */
 		memset(buf, 0x00, 10);
 		while((res=read(fd,&buf[0],1)) < 1)
 			;
+
+
+
+
+		/*  compute */
+		//buf - input
+		//bufo - output
+		//bufx - reference
+		//bufe - error
+		bufe[0] = buf[0] - bufx[0]);
+		bufo[0] = bufe[0] * kp + bufe[0] * ki * timediff; 
+
+#ifdef __DEBUG_v1_0__
 		//if(dbg_)
 		//	printf("%i.  %i:<--%02x %02x %02x\n", m++, res, buf[0], ref, ref_last);
 		if(ref != buf[0]){m++;}
@@ -191,6 +214,11 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 		if(buf[0] == ref)ref++;
 		if(ref >'9' || ref < '0'){ref='0';}
 		bufo[0]=ref;
+#endif
+
+
+
+		/* write */
 		write(fd, &bufo[0],1);
 
 	}
