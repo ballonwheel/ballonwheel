@@ -12,7 +12,11 @@
 //../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
 //../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
 
- 
+//scientific lib
+//https://www.gnu.org/software/gsl/
+//sudo apt-get install libgsl-dev
+
+
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -40,6 +44,10 @@
 
 #include <errno.h>
 extern int errno ;
+
+//#include <complex.h>
+//#
+
 
 #define BAUDRATE B2000000
 #define MODEMDEVICE "/dev/ttyUSB1"
@@ -74,6 +82,8 @@ int rxok;
 
 char command[32];
 
+
+char str1[50];
 
 
 #if  1
@@ -121,7 +131,7 @@ void *thread_func(void *data)
         newtio.c_cc[VMIN] = 1; /* blocking read until 5 chars received */
         tcflush(fd, TCIFLUSH);
         tcsetattr(fd,TCSANOW,&newtio);
-        
+
 	/* #setserial /dev/ttyUSB1 low_latency */
         //ioctl(fd, TIOCGSERIAL, &serial);
         //serial.flags |= ASYNC_LOW_LATENCY;
@@ -139,7 +149,7 @@ void *thread_func(void *data)
 	//write(fd, p, 10);
         //res=TimeoutRead (fd, &buf[0], 10, 100);
 
-	
+
 
 	printf("int:%i ",inta+intb);
 
@@ -182,7 +192,7 @@ ez jol megy, de szkoppal be kell huzni a min idokre....
 		if(ref >'9' || ref < '0'){ref='0';}
 		bufo[0]=ref;
 		write(fd, &bufo[0],1);
-		
+
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);
@@ -266,8 +276,11 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 		//nanosleep((const struct timespec[]){{0, 1000000000L}}, NULL);
-		sleep(5);
-		printf(".");
+		sleep(1);
+		printf(">>");
+		scanf("%10s",str1);
+		//printf("\r\n%s\r\n",str1);
+
 	}
 
         /* Join the thread and wait until it is done */
