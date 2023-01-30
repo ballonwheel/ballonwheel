@@ -33,7 +33,551 @@ Kicsomagol ide
 */
 
 
-#if 0
+#ifdef __SPI__
+#include <SPI.h>
+#endif
+
+#undef __OL__
+#define __BLDC6STEP__
+#undef __PWM6__
+#define __PWM3__
+
+#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
+
+#define ADC_CH 2
+volatile uint8_t adcPin=0;
+volatile uint8_t dataADC;
+volatile uint8_t datarx, datatx;
+volatile uint8_t serialgo=0;
+volatile uint8_t adcDone;
+#ifdef __SPI__
+volatile uint8_t spicnt, dataSPI1, dataSPI0;
+#endif
+volatile uint8_t readyUART, timeoutUART, t2, tPWM, tTX, tSPEED;
+
+#ifdef __OL__
+volatile uint8_t k, tSINE=0;
+volatile double m;
+volatile uint8_t um, vcc, u;
+int8_t  sine_wave[];
+uint8_t  sine_wave[];
+#endif
+
+#ifdef __BLDC6STEP__
+volatile unsigned int bldc_step;
+volatile unsigned int bldcduty;
+#endif
+
+
+/***********************
+interrupts
+***********************/
+//ISR_NOBLOCK
+//ISR(TIMER0_COMPA_vect)
+ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
+//ISR(TIMER2_OVF_vect)
+{
+
+  //milyen gyakran fusson le
+  if(t2++==0){//mindig
+  //if(t2++==1){//minden 2.
+    t2 = 0;
+
+#ifdef __OL__
+    //open loop SINE freki
+    if(++tSINE==100){
+      k++;
+      tSINE=0;
+    }
+
+    //PWM compare value update
+    if(tPWM++==1){ //minden 2. --> 4khz
+      tPWM = 0;
+      m = 20;
+      um = 20;
+      u = 1;
+      vcc=6;
+    
+      //OCR0A = 255;
+      //OCR0B = 255;
+      //OCR1A = 255;
+      //OCR0A = (uint8_t) (5.0/100.0 * ((double)sine_wave[k]));
+      //OCR0B = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+(255/3))&0xff]));
+      //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
+      //u/(vcc/2)*sin[k]+
+    
+      OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
+      OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
+      OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
+
+
+      //digitalWrite(4, LOW);
+      //digitalWrite(4, HIGH);
+      //digitalWrite(4, LOW);
+
+
+
+    }
+    //else //second order hold
+      
+#endif //__OL__
+
+
+
+
+    //
+    //if(tSPEED++==4)
+    {
+      datatx=datarx;
+
+    }
+
+
+#ifdef __BLDC6STEP__
+    //       C B A CH CL BH BL AH AL
+    //1.  5  1 0 1 0  0  0  1  1  0
+    //2.  3  1 0 0 1  0  0  1  0  0
+    //3.  6  1 1 0 1  0  0  0  0  1
+    //4.  2  0 1 0 0  0  1  0  0  1
+    //5.  3  0 1 1 0  1  1  0  0  0
+    //6.  1  0 0 1 0  1  0  0  1  0
+
+    
+    switch(bldc_step){
+    case 5://step1.
+	digitalWrite(11, HIGH);
+	OCR0A = 128+bldcduty;
+        
+        digitalWrite(12, HIGH);
+	OCR0B = 128-bldcduty;
+  
+	digitalWrite(13, LOW);
+	OCR1A = 0;
+    break;
+
+    case 3://step2.
+        digitalWrite(11, LOW);
+        OCR0A = 0;
+
+        digitalWrite(12, HIGH);
+        OCR0B = 128-bldcduty;
+
+        digitalWrite(13, HIGH);
+        OCR1A = 128+bldcduty;
+    break;
+
+
+    default:
+    break;
+    }
+
+
+#endif
+
+
+
+    //ADC csak akkor, ha DONE volt es ne inditson ra veletlen se
+    //ADC fogja inditani az SPIt
+    //SPI inditja a tx-et minden ms-ben
+    adcDone++;
+    if(adcDone == 1){
+      //loop-ot: ADC-PWM-SPI-TX-RX
+      ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
+    }
+
+   //digitalWrite(4, HIGH);
+    //digitalWrite(4, LOW);
+    //TIFR0 &= ~(1 << OCF0A);		// lower flag
+  }
+
+}
+
+
+ISR(USART_UDRE_vect)
+{
+  UDR0 = datatx;
+  UCSR0B = bit(TXEN0) | bit(TXCIE0);  
+
+  //digitalWrite(4, LOW);
+  //digitalWrite(4, HIGH);
+}
+
+#ifdef __SPI__
+ISR(SPI_STC_vect)
+{
+   if(!spicnt){
+      dataSPI1=SPDR;
+      spicnt=1;
+      SPDR = 0xff;
+
+      //digitalWrite(2, LOW); //CS_
+      //digitalWrite(2, HIGH); //CS_
+    }
+    else{
+      dataSPI0=SPDR;
+      SPCR = 0;  //disable SPI
+      digitalWrite(2, LOW); //CS_
+
+      
+      //minden 6. utan TX es RX, 1khz
+      if(readyUART && tTX++==3){
+        tTX=0;
+        readyUART = 0;
+        timeoutUART = 0; 
+        UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
+        //digitalWrite(4, HIGH);
+        //digitalWrite(4, LOW);
+      }
+      if(!readyUART && timeoutUART++ == 100){
+        UCSR0B = 0;
+        readyUART = 1;
+        timeoutUART = 0;
+      }
+      
+
+    }
+
+} 
+#endif
+
+ISR(USART_RX_vect)
+{
+  datarx = UDR0;
+  UCSR0B = 0;
+  readyUART = 1;
+
+  digitalWrite(3, HIGH);
+  digitalWrite(3, LOW);
+}
+
+
+ISR(USART_TX_vect)
+{
+  UCSR0B = bit(RXEN0) | bit(RXCIE0);
+  //digitalWrite(4, LOW);
+  //digitalWrite(4, HIGH);
+
+
+}
+
+
+//ADC CH0 CH1
+//8.5khz, 118usec
+//delta CH0-CH1 = 22usec
+ISR (ADC_vect)
+{
+  digitalWrite(7, LOW);
+
+  dataADC = ADCH;
+
+
+  //if(data=='9')data='0';
+  //else data++;
+  ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
+
+
+  if(adcPin>=ADC_CH){
+    adcPin = 0;
+    ADCSRA = 0;
+    adcDone = 0;
+#ifdef __SPI__
+    SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//enable SPI
+      //digitalWrite(2, HIGH); //CS_
+      //digitalWrite(2, LOW);
+      spicnt=0;
+      SPDR = 0x03;//SPIstart
+#endif
+  }
+
+
+    //minden 6. utan TX es RX, 1khz
+    if(readyUART && tTX++==3){
+      tTX=0;
+      readyUART = 0;
+      timeoutUART = 0;
+      UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
+      //digitalWrite(4, HIGH);
+      //digitalWrite(4, LOW);
+    }
+    if(!readyUART && timeoutUART++ == 100){
+      UCSR0B = 0;
+      readyUART = 1;
+      timeoutUART = 0;
+    }
+
+  //digitalWrite(7, HIGH);
+}
+
+
+ISR (PCINT0_vect){
+  bldc_step = PIND & 7;              // Read and save hall effect sensors status (PINB: read from PORTB which is arduino pins 8..13)
+  //bldc_move();                       // Move the BLDC motor
+}
+
+
+
+
+void setup() {
+  /*************************/
+  /* ADC */
+  /*************************/
+  ADMUX   = bit (REFS0) | (adcPin & 7) | bit(ADLAR);
+  ADCSRB  = 0;
+  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);
+  //ADCSRA  =  0;
+  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) | bit(ADPS0) | bit(ADPS1) | bit(ADPS2); //enable ADC 16mhz/128div
+  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit(ADSC); //enable ADC
+
+
+  /*Set baud rate */
+  UBRR0H = (unsigned char)(0>>8);
+  UBRR0L = (unsigned char)0;
+  /* double speed, clear data reg empty, */
+  UCSR0A = (1<<U2X0);
+
+  //baud 9600
+  //UBRR0 = 103;
+  //UCSR0A = (0<<U2X0);
+
+  //baud 19200
+  //UBRR0 = 51;
+  //UCSR0A = (0<<U2X0);
+
+  /*Enable receiver and transmitter */
+  // UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  /* Set frame format: 8data, 2stop bit */
+  //UCSR0C = (1<<USBS0)|(3<<UCSZ00);
+
+  USART_Flush();
+
+  //UCSR0B =  bit(RXEN0) | bit(RXCIE0) |  bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
+
+  readyUART = 1;
+
+
+  /****************************
+   * pins
+b00 d0 RX
+d01 d1 TX
+d02 d2                    <--HALL_A
+d03 d3 2APWM              <--HALL_B
+d04 d4                    <--HALL_C
+d05 d5 0APWM -->PWM_A
+d06 d6 0BPWM -->PWM_B
+d07 d7       -->debug
+d08 b0       -->SPI_CS
+d09 b1 1APWM -->PWM_C
+d10 b2 1BPWM -->debug DAC
+d11 b3 2BPWM -->SPI_MOSI -->ENA
+d12 b4       <--SPI_MISO -->ENB
+d13 b5       -->SPI_CK   -->ENC
+a00 c0
+a01 
+a02
+a03
+a04
+a05 c5
+
+
+   
+  *****************************/
+
+
+  //pinMode(2, OUTPUT);
+  //pinMode(3, OUTPUT);
+  //pinMode(4, OUTPUT);
+  //pinMode(5, OUTPUT);
+  //pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  //pinMode(8, OUTPUT);
+  //pinMode(9, OUTPUT);
+  //pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+
+
+
+
+
+  
+#if defined(__PWM6__)
+  //32Khz
+  //dead time 1% --> 32usec/255=122nsec
+
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  TCCR0A = _BV(COM0A0) | _BV(COM0A1) | _BV(COM0B1) | _BV(WGM00) | _BV(COM0B0);
+  TCCR0B = _BV(CS00);
+  OCR0A = 128-1;
+  OCR0B = 128;
+
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  TCCR1A = _BV(COM0A0) | _BV(COM1A1) | _BV(COM1B1) | _BV(WGM10) | _BV(COM1B0);
+  TCCR1B = _BV(CS10);
+  OCR1A = 128-1;
+  OCR1B = 128;
+
+  pinMode(3, OUTPUT);
+  pinMode(11, OUTPUT);
+  TCCR2A = _BV(COM0A0) | _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
+  TCCR2B = _BV(CS20);
+  OCR2A = 128-1;
+  OCR2B = 128;
+#endif 
+		
+#if defined __PWM3_16KHZ___
+  // 16khz only on T0, T1 but not on T2
+  CLKPR = _BV(CLKPCE);
+  CLKPR = _BV(CLKPS0);//16Mhz div 2
+
+  pinMode(5, OUTPUT);//OC0B
+  pinMode(6, OUTPUT);//OC0A
+  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00)  | _BV(COM0B0);
+  TCCR0B = _BV(CS00);
+  OCR0A = 128-1;
+  OCR0B = 128;
+
+  pinMode(9, OUTPUT);//OC1A
+  //pinMode(10, OUTPUT);//OC1B
+  TCCR1A = _BV(COM1A1) | _BV(WGM10)  | _BV(COM1A0);
+  TCCR1B = _BV(CS10);
+  TIMSK1 = _BV(TOV1);
+  OCR1A = 128-1;
+  //OCR1B = 128;
+#endif
+#if defined __PWM3__
+  //8khz
+/*
+ pwm-t0a t0b t1a no deadtime, mert 3 pwm mode van, 
+    de ez mukodik  deadtime-al https://sites.google.com/site/greenmechatroniks/code-garage/pwm-with-dead-time
+     csak az a gond, hogy csak a timer1 nak van ICR regisztere, tehat nem allithato a felbontasa a tobbinek
+*/
+
+
+  //CLKPR = _BV(CLKPCE);
+  //CLKPR = _BV(CLKPS0);//16Mhz div 2
+
+  pinMode(5, OUTPUT);//OC0B
+  pinMode(6, OUTPUT);//OC0A
+  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(WGM01) | _BV(COM0B0);
+  TCCR0B = _BV(CS00);
+  OCR0A = 128-1;
+  OCR0B = 128;
+
+  pinMode(9, OUTPUT);//OC1A
+  //pinMode(10, OUTPUT);//OC1B
+  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(WGM11) | _BV(COM1A0);
+  TCCR1B = _BV(CS10);
+  TIMSK1 = _BV(TOV1);
+  OCR1A = 128-1;
+  //OCR1B = 128;
+#endif
+
+  //timer2 for scheduling
+  //TCCR2B = _BV(CS21);
+  //TIMSK2 = _BV(TOIE2);
+
+
+  /**************************
+  HALL cells external interrupts
+  **************************/
+  PCICR  = 1;                        // Enable pin change interrupt for pins 2,3,4
+  PCMSK0 = 0b00011100;                       // Enable pin change interrupt for pins 2,3,4
+
+ 
+
+#ifdef __SPI__
+ /*************************/
+  /* SPI */
+  /* MOSI B3 out */
+  /* MISO B4 in */
+  /* CK   B5 out */
+  /* CS   B0 out */
+  /*************************/
+
+  SPI.begin();
+
+  DDRB |= _BV(DDB0)|_BV(DDB3)|_BV(DDB5);  //output
+  SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//freq cpu/2
+  SPSR |= _BV(SPI2X);
+#endif
+  
+}
+
+
+/**************************************************************************************************/
+/* LOOP */
+/**************************************************************************************************/
+void loop() {
+
+
+#if defined __PWM6__
+  OCR0A = sine_wave[k++];
+  OCR0B = sine_wave[k];
+  OCR1A = sine_wave[k];
+  OCR1B = sine_wave[k];
+  OCR2A = sine_wave[k];
+  OCR2B = sine_wave[k];
+  delay(2000);
+#endif
+
+}
+
+
+
+void USART_Flush( void )
+{
+  unsigned char dummy;
+  while ( UCSR0A & (1<<RXC0) )
+    dummy = UDR0;
+}
+
+
+
+/*
+
+An effect that is not immediately obvious is the way the size of the USB total packet request has on the smoothness of data flow. When a read request is sent to USB, the USB host controller will continue to read 64 byte packets until one of the following conditions is met:
+
+1.	It has read the requested size (default is 4 Kbytes).  
+	
+
+2.	It has received a packet shorter than 64 bytes from the chip.  
+	
+
+3.	It has been cancelled.  
+	
+
+While the host controller is waiting for one of the above conditions to occur, NO data is received by our driver and hence the user's application. The data, if there is any, is only finally transferred after one of the above conditions has occurred.
+
+Normally condition 3 will not occur so we will look at cases 1 and 2. If 64 byte packets are continually sent back to the host, then it will continue to read the data to match the block size requested before it sends the block back to the driver. If a small amount of data is sent, or the data is sent slowly, then the latency timer will take over and send a short packet back to the host which will terminate the read request. The data that has been read so far is then passed on to the users application via the FTDI driver. This shows a relationship between the latency timer, the data rate and when the data will become available to the user. A condition can occur where if data is passed into the FTDI chip at such a rate as to avoid the latency timer timing out, it can take a long time between receiving data blocks. This occurs because the host controller will see 64 byte packets at the point just before the end of the latency period and will therefore continue to read the data until it reaches the block size before it is passed back to the user's application.
+
+The rate that causes this will be:
+
+62 / Latency Timer bytes/Second
+
+(2 bytes per 64 byte packet are used for status)
+
+
+For the default values: -
+
+62 / 0.016 ~= 3875 bytes /second ~= 38.75 KBaud
+
+Therefore if data is received at a rate of 3875 bytes per second (38.75 KBaud) or faster, then the data will be subject to delays based on the requested USB block length. If data is received at a slower rate, then there will be less than 62 bytes (64 including our 2 status bytes) available after 16 milliseconds. Therefore a short packet will occur, thus terminating the USB request and passing the data back. At the limit condition of 38.75 KBaud it will take approximately 1.06 seconds between data buffers into the users application (assuming a 4Kbyte USB block request buffer size).
+
+To get around this you can either increase the latency timer or reduce the USB block request. Reducing the USB block request is the preferred method though a balance between the 2 may be sought for optimum system response.
+
+
+*/
+
+
+#if __OL__
+
+
+ #if 0
 /* ripped from http://aquaticus.info/pwm-sine-wave */
 uint8_t  sine_wave[256] = {
   0x80, 0x83, 0x86, 0x89, 0x8C, 0x90, 0x93, 0x96,
@@ -69,9 +613,8 @@ uint8_t  sine_wave[256] = {
   0x4F, 0x52, 0x55, 0x58, 0x5B, 0x5E, 0x61, 0x64,
   0x67, 0x6A, 0x6D, 0x70, 0x74, 0x77, 0x7A, 0x7D
 };
-#endif
+ #endif
 
-#if 1
   #if 0
         #include <iostream>
         #include <math.h>
@@ -609,445 +1152,5 @@ int8_t  sine_wave[256] = {
 
 
 
-#endif
+#endif //__OL__
 
-/*
-ez a verzio:
-timer0a
-timer0b
-timer1a
-timer1b
-timer2a
-timer2b
-spi en
-adc0
-adc1
-adc2
-...
-ac7
-
-interrupts
-t2a adc0 ad1 
-
-loop
-current loop 
- protection
- pid
- pwm-t0a t0b t1a no deadtime, mert 3 pwm mode van, 
-    de ez mukodik  deadtime-al https://sites.google.com/site/greenmechatroniks/code-garage/pwm-with-dead-time
-     csak az a gond, hogy csak a timer1 nak van ICR regisztere, tehat nem allithato a felbontasa a tobbinek
-
-
-*/
-
-#include <SPI.h>
-
-#undef __PWM6__
-#define __PWM3__
-#define TPERIODE (float)(100e-6)
-#define T1 1000
-
-#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
-
-#define ADC_CH 2
-volatile uint8_t adcPin=0;
-volatile uint8_t dataADC;
-volatile uint8_t datarx, datatx;
-volatile uint8_t serialgo=0;
-volatile uint8_t adcDone;
-volatile uint8_t spicnt, dataSPI1, dataSPI0;
-
-volatile uint8_t k,t2=0, tPWM=0, tSINE=0, tTX=0, tSPEED=0;
-volatile double m;
-volatile uint8_t um, vcc, u;
-volatile uint8_t readyUART, timeoutUART;
-
-//interrupt order
-//timer2
-//timer1
-//timer0
-//spi
-//rx
-//tx
-//adc	
-
-
-
-//ISR_NOBLOCK
-//ISR(TIMER0_COMPA_vect)
-ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
-//ISR(TIMER2_OVF_vect)
-{
-
-  //milyen gyakran fusson le
-  if(t2++==0){//mindig
-  //if(t2++==1){//minden 2.
-    t2 = 0;
-
-    //open loop SINE freki
-    if(++tSINE==100){
-      k++;
-      tSINE=0;
-    }
-
-    //PWM compare value update
-    if(tPWM++==1){ //minden 2. --> 4khz
-      tPWM = 0;
-      m = 20;
-      um = 20;
-      u = 1;
-      vcc=6;
-    
-      //OCR0A = 255;
-      //OCR0B = 255;
-      //OCR1A = 255;
-      //OCR0A = (uint8_t) (5.0/100.0 * ((double)sine_wave[k]));
-      //OCR0B = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+(255/3))&0xff]));
-      //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
-      //u/(vcc/2)*sin[k]+
-    
-      OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
-      OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
-      OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
-
-
-      //digitalWrite(4, LOW);
-      //digitalWrite(4, HIGH);
-      //digitalWrite(4, LOW);
-
-
-
-    }
-    //else //second order hold
-      
-
-
-
-    //if(tSPEED++==4)
-    {
-      datatx=datarx;
-
-    }
-
-
-
-    //ADC csak akkor, ha DONE volt es ne inditson ra veletlen se
-    //ADC fogja inditani az SPIt
-    //SPI inditja a tx-et minden ms-ben
-    adcDone++;
-    if(adcDone == 1){
-      //loop-ot: ADC-PWM-SPI-TX-RX
-      ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
-    }
-
-    
-    digitalWrite(4, HIGH);
-    digitalWrite(4, LOW);
-    //TIFR0 &= ~(1 << OCF0A);		// lower flag
-  }
-
-}
-
-
-ISR(USART_UDRE_vect)
-{
-  UDR0 = datatx;
-  UCSR0B = bit(TXEN0) | bit(TXCIE0);  
-
-  //digitalWrite(4, LOW);
-  //digitalWrite(4, HIGH);
-}
-
-ISR(SPI_STC_vect)
-{
-   if(!spicnt){
-      dataSPI1=SPDR;
-      spicnt=1;
-      SPDR = 0xff;
-
-      //digitalWrite(2, LOW); //CS_
-      //digitalWrite(2, HIGH); //CS_
-    }
-    else{
-      dataSPI0=SPDR;
-      SPCR = 0;  //disable SPI
-      digitalWrite(2, LOW); //CS_
-
-      
-      //minden 6. utan TX es RX, 1khz
-      if(readyUART && tTX++==3){
-        tTX=0;
-        readyUART = 0;
-        timeoutUART = 0; 
-        UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
-
-        //digitalWrite(4, HIGH);
-        //digitalWrite(4, LOW);
-      }
-      if(!readyUART && timeoutUART++ == 100){
-        UCSR0B = 0;
-        readyUART = 1;
-        timeoutUART = 0;
-      }
-      
-
-    }
-
-} 
-
-ISR(USART_RX_vect)
-{
-  datarx = UDR0;
-  UCSR0B = 0;
-  readyUART = 1;
-
-  digitalWrite(3, HIGH);
-  digitalWrite(3, LOW);
-}
-
-
-ISR(USART_TX_vect)
-{
-  UCSR0B = bit(RXEN0) | bit(RXCIE0);
-  //digitalWrite(4, LOW);
-  //digitalWrite(4, HIGH);
-
-
-}
-
-
-//ADC CH0 CH1
-//8.5khz, 118usec
-//delta CH0-CH1 = 22usec
-ISR (ADC_vect)
-{
-  digitalWrite(7, LOW);
-
-  dataADC = ADCH;
-
-#if 1
-  //if(data=='9')data='0';
-  //else data++;
-  ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
-
-
-  if(adcPin>=ADC_CH){
-    adcPin = 0;
-    ADCSRA = 0;
-    adcDone = 0;
-
-    SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//enable SPI
-      digitalWrite(2, HIGH); //CS_
-      //digitalWrite(2, LOW);
-      spicnt=0;
-      SPDR = 0x03;//SPIstart
-  }
-
-#endif
-
-  //digitalWrite(7, LOW);
-  //digitalWrite(7, LOW);
-  digitalWrite(7, HIGH);
-}
-
-
-
-
-void setup() {
-  /*************************/
-  /* ADC */
-  /*************************/
-  ADMUX   = bit (REFS0) | (adcPin & 7) | bit(ADLAR);
-  ADCSRB  = 0;
-  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC);
-  //ADCSRA  =  0;
-  //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) | bit(ADPS0) | bit(ADPS1) | bit(ADPS2); //enable ADC 16mhz/128div
-  ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit(ADSC); //enable ADC
-
-
-  /*Set baud rate */
-  UBRR0H = (unsigned char)(0>>8);
-  UBRR0L = (unsigned char)0;
-  /* double speed, clear data reg empty, */
-  UCSR0A = (1<<U2X0);
-
-  //baud 9600
-  //UBRR0 = 103;
-  //UCSR0A = (0<<U2X0);
-
-  //baud 19200
-  //UBRR0 = 51;
-  //UCSR0A = (0<<U2X0);
-
-  /*Enable receiver and transmitter */
-  // UCSR0B = (1<<RXEN0)|(1<<TXEN0);
-  /* Set frame format: 8data, 2stop bit */
-  //UCSR0C = (1<<USBS0)|(3<<UCSZ00);
-
-  USART_Flush();
-
-  //UCSR0B =  bit(RXEN0) | bit(RXCIE0) |  bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
-
-  readyUART = 1;
-
-
-  pinMode(7, OUTPUT);
-  pinMode(2, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(3, OUTPUT);
-
-  
-#if defined(__PWM6__)
-  //32Khz
-  //dead time 1% --> 32usec/255=122nsec
-
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  TCCR0A = _BV(COM0A0) | _BV(COM0A1) | _BV(COM0B1) | _BV(WGM00) | _BV(COM0B0);
-  TCCR0B = _BV(CS00);
-  OCR0A = 128-1;
-  OCR0B = 128;
-
-  pinMode(9, OUTPUT);
-  pinMode(10, OUTPUT);
-  TCCR1A = _BV(COM0A0) | _BV(COM1A1) | _BV(COM1B1) | _BV(WGM10) | _BV(COM1B0);
-  TCCR1B = _BV(CS10);
-  OCR1A = 128-1;
-  OCR1B = 128;
-
-  pinMode(3, OUTPUT);
-  pinMode(11, OUTPUT);
-  TCCR2A = _BV(COM0A0) | _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20) | _BV(COM2B0);
-  TCCR2B = _BV(CS20);
-  OCR2A = 128-1;
-  OCR2B = 128;
-#endif 
-		
-#if defined __PWM3_16KHZ___
-  // 16khz only on T0, T1 but not on T2
-  CLKPR = _BV(CLKPCE);
-  CLKPR = _BV(CLKPS0);//16Mhz div 2
-
-  pinMode(5, OUTPUT);//OC0B
-  pinMode(6, OUTPUT);//OC0A
-  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00)  | _BV(COM0B0);
-  TCCR0B = _BV(CS00);
-  OCR0A = 128-1;
-  OCR0B = 128;
-
-  pinMode(9, OUTPUT);//OC1A
-  //pinMode(10, OUTPUT);//OC1B
-  TCCR1A = _BV(COM1A1) | _BV(WGM10)  | _BV(COM1A0);
-  TCCR1B = _BV(CS10);
-  TIMSK1 = _BV(TOV1);
-  OCR1A = 128-1;
-  //OCR1B = 128;
-#endif
-#if defined __PWM3__
-  //8khz
-
-
-  //CLKPR = _BV(CLKPCE);
-  //CLKPR = _BV(CLKPS0);//16Mhz div 2
-
-  pinMode(5, OUTPUT);//OC0B
-  pinMode(6, OUTPUT);//OC0A
-  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(WGM01) | _BV(COM0B0);
-  TCCR0B = _BV(CS00);
-  OCR0A = 128-1;
-  OCR0B = 128;
-
-  pinMode(9, OUTPUT);//OC1A
-  //pinMode(10, OUTPUT);//OC1B
-  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(WGM11) | _BV(COM1A0);
-  TCCR1B = _BV(CS10);
-  TIMSK1 = _BV(TOV1);
-  OCR1A = 128-1;
-  //OCR1B = 128;
-#endif
-
-  //timer2 for scheduling
-  //TCCR2B = _BV(CS21);
-  //TIMSK2 = _BV(TOIE2);
-
- /*************************/
-  /* SPI */
-  /* MOSI B3 out */
-  /* MISO B4 in */
-  /* CK   B5 out */
-  /* CS   B0 out */
-  /*************************/
-
-  SPI.begin();
-
-  DDRB |= _BV(DDB0)|_BV(DDB3)|_BV(DDB5);  //output
-  SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//freq cpu/2
-  SPSR |= _BV(SPI2X);
-
-  
-}
-
-
-/**************************************************************************************************/
-/* LOOP */
-/**************************************************************************************************/
-void loop() {
-
-
-#if defined __PWM6__
-  OCR0A = sine_wave[k++];
-  OCR0B = sine_wave[k];
-  OCR1A = sine_wave[k];
-  OCR1B = sine_wave[k];
-  OCR2A = sine_wave[k];
-  OCR2B = sine_wave[k];
-  delay(2000);
-#endif
-
-}
-
-
-
-void USART_Flush( void )
-{
-  unsigned char dummy;
-  while ( UCSR0A & (1<<RXC0) )
-    dummy = UDR0;
-}
-
-
-
-/*
-
-An effect that is not immediately obvious is the way the size of the USB total packet request has on the smoothness of data flow. When a read request is sent to USB, the USB host controller will continue to read 64 byte packets until one of the following conditions is met:
-
-1.	It has read the requested size (default is 4 Kbytes).  
-	
-
-2.	It has received a packet shorter than 64 bytes from the chip.  
-	
-
-3.	It has been cancelled.  
-	
-
-While the host controller is waiting for one of the above conditions to occur, NO data is received by our driver and hence the user's application. The data, if there is any, is only finally transferred after one of the above conditions has occurred.
-
-Normally condition 3 will not occur so we will look at cases 1 and 2. If 64 byte packets are continually sent back to the host, then it will continue to read the data to match the block size requested before it sends the block back to the driver. If a small amount of data is sent, or the data is sent slowly, then the latency timer will take over and send a short packet back to the host which will terminate the read request. The data that has been read so far is then passed on to the users application via the FTDI driver. This shows a relationship between the latency timer, the data rate and when the data will become available to the user. A condition can occur where if data is passed into the FTDI chip at such a rate as to avoid the latency timer timing out, it can take a long time between receiving data blocks. This occurs because the host controller will see 64 byte packets at the point just before the end of the latency period and will therefore continue to read the data until it reaches the block size before it is passed back to the user's application.
-
-The rate that causes this will be:
-
-62 / Latency Timer bytes/Second
-
-(2 bytes per 64 byte packet are used for status)
-
-
-For the default values: -
-
-62 / 0.016 ~= 3875 bytes /second ~= 38.75 KBaud
-
-Therefore if data is received at a rate of 3875 bytes per second (38.75 KBaud) or faster, then the data will be subject to delays based on the requested USB block length. If data is received at a slower rate, then there will be less than 62 bytes (64 including our 2 status bytes) available after 16 milliseconds. Therefore a short packet will occur, thus terminating the USB request and passing the data back. At the limit condition of 38.75 KBaud it will take approximately 1.06 seconds between data buffers into the users application (assuming a 4Kbyte USB block request buffer size).
-
-To get around this you can either increase the latency timer or reduce the USB block request. Reducing the USB block request is the preferred method though a balance between the 2 may be sought for optimum system response.
-
-
-*/
