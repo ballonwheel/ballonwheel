@@ -32,37 +32,8 @@ Kicsomagol ide
 ../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
 */
 
-#define __OL__
-#undef __BLDC6STEP__
-#undef __PWM6__
-#define __PWM3__
-#undef __SPI__
 
-#ifdef __SPI__
-#include <SPI.h>
-#endif
-
-#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
-
-#define ADC_CH 2
-volatile uint8_t adcPin=0;
-volatile uint8_t dataADC;
-volatile uint8_t datarx, datatx;
-volatile uint8_t serialgo=0;
-volatile uint8_t adcDone;
-#ifdef __SPI__
-volatile uint8_t spicnt, dataSPI1, dataSPI0;
-#endif
-volatile uint8_t readyUART, timeoutUART, t2, tPWM, tTX, tSPEED;
-
-#ifdef __OL__
-volatile uint8_t k, tSINE=0;
-volatile double m;
-volatile uint8_t um, vcc, u;
-#endif
-
-#ifdef __OL__
- #if 0
+#if 0
 /* ripped from http://aquaticus.info/pwm-sine-wave */
 uint8_t  sine_wave[256] = {
   0x80, 0x83, 0x86, 0x89, 0x8C, 0x90, 0x93, 0x96,
@@ -98,8 +69,9 @@ uint8_t  sine_wave[256] = {
   0x4F, 0x52, 0x55, 0x58, 0x5B, 0x5E, 0x61, 0x64,
   0x67, 0x6A, 0x6D, 0x70, 0x74, 0x77, 0x7A, 0x7D
 };
- #endif
+#endif
 
+#if 1
   #if 0
         #include <iostream>
         #include <math.h>
@@ -633,17 +605,74 @@ int8_t  sine_wave[256] = {
 
 };
  #endif
-#endif //__OL__
 
 
-#ifdef __BLDC6STEP__
-volatile unsigned int bldc_step;
-volatile unsigned int bldcduty;
+
+
 #endif
 
-/***********************
+/*
+ez a verzio:
+timer0a
+timer0b
+timer1a
+timer1b
+timer2a
+timer2b
+spi en
+adc0
+adc1
+adc2
+...
+ac7
+
 interrupts
-***********************/
+t2a adc0 ad1 
+
+loop
+current loop 
+ protection
+ pid
+ pwm-t0a t0b t1a no deadtime, mert 3 pwm mode van, 
+    de ez mukodik  deadtime-al https://sites.google.com/site/greenmechatroniks/code-garage/pwm-with-dead-time
+     csak az a gond, hogy csak a timer1 nak van ICR regisztere, tehat nem allithato a felbontasa a tobbinek
+
+
+*/
+
+#include <SPI.h>
+
+#undef __PWM6__
+#define __PWM3__
+#define TPERIODE (float)(100e-6)
+#define T1 1000
+
+#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
+
+#define ADC_CH 2
+volatile uint8_t adcPin=0;
+volatile uint8_t dataADC;
+volatile uint8_t datarx, datatx;
+volatile uint8_t serialgo=0;
+volatile uint8_t adcDone;
+volatile uint8_t spicnt, dataSPI1, dataSPI0;
+
+volatile uint8_t k,t2=0, tPWM=0, tSINE=0, tTX=0, tSPEED=0;
+volatile double m;
+volatile uint8_t um, vcc, u;
+volatile uint8_t readyUART, timeoutUART;
+
+//interrupt order
+//timer2
+//timer1
+//timer0
+//spi
+//rx
+//tx
+//adc	
+
+
+
 //ISR_NOBLOCK
 //ISR(TIMER0_COMPA_vect)
 ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
@@ -655,14 +684,10 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
   //if(t2++==1){//minden 2.
     t2 = 0;
 
-#ifdef __OL__
     //open loop SINE freki
-    if(++tSINE==5){
+    if(++tSINE==100){
       k++;
       tSINE=0;
-      digitalWrite(4, LOW);
-      digitalWrite(4, HIGH);
-      digitalWrite(4, LOW);
     }
 
     //PWM compare value update
@@ -671,7 +696,7 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       m = 20;
       um = 20;
       u = 1;
-      vcc=80;
+      vcc=6;
     
       //OCR0A = 255;
       //OCR0B = 255;
@@ -686,65 +711,23 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
 
 
+      //digitalWrite(4, LOW);
+      //digitalWrite(4, HIGH);
+      //digitalWrite(4, LOW);
 
 
 
     }
     //else //second order hold
       
-#endif //__OL__
 
 
 
-
-    //
     //if(tSPEED++==4)
     {
       datatx=datarx;
 
     }
-
-
-#ifdef __BLDC6STEP__
-    //       C B A CH CL BH BL AH AL
-    //1.  5  1 0 1 0  0  0  1  1  0
-    //2.  3  1 0 0 1  0  0  1  0  0
-    //3.  6  1 1 0 1  0  0  0  0  1
-    //4.  2  0 1 0 0  0  1  0  0  1
-    //5.  3  0 1 1 0  1  1  0  0  0
-    //6.  1  0 0 1 0  1  0  0  1  0
-
-    
-    switch(bldc_step){
-    case 5://step1.
-	digitalWrite(11, HIGH);
-	OCR0A = 128+bldcduty;
-        
-        digitalWrite(12, HIGH);
-	OCR0B = 128-bldcduty;
-  
-	digitalWrite(13, LOW);
-	OCR1A = 0;
-    break;
-
-    case 3://step2.
-        digitalWrite(11, LOW);
-        OCR0A = 0;
-
-        digitalWrite(12, HIGH);
-        OCR0B = 128-bldcduty;
-
-        digitalWrite(13, HIGH);
-        OCR1A = 128+bldcduty;
-    break;
-
-
-    default:
-    break;
-    }
-
-
-#endif
 
 
 
@@ -757,8 +740,9 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*| bit(ADPS0) | bit(ADPS1) | bit(ADPS2)*/;//enable ADC
     }
 
-   //digitalWrite(4, HIGH);
-    //digitalWrite(4, LOW);
+    
+    digitalWrite(4, HIGH);
+    digitalWrite(4, LOW);
     //TIFR0 &= ~(1 << OCF0A);		// lower flag
   }
 
@@ -774,7 +758,6 @@ ISR(USART_UDRE_vect)
   //digitalWrite(4, HIGH);
 }
 
-#ifdef __SPI__
 ISR(SPI_STC_vect)
 {
    if(!spicnt){
@@ -811,7 +794,6 @@ ISR(SPI_STC_vect)
     }
 
 } 
-#endif
 
 ISR(USART_RX_vect)
 {
@@ -843,7 +825,7 @@ ISR (ADC_vect)
 
   dataADC = ADCH;
 
-
+#if 1
   //if(data=='9')data='0';
   //else data++;
   ADMUX = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
@@ -853,41 +835,21 @@ ISR (ADC_vect)
     adcPin = 0;
     ADCSRA = 0;
     adcDone = 0;
-#ifdef __SPI__
+
     SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//enable SPI
-      //digitalWrite(2, HIGH); //CS_
+      digitalWrite(2, HIGH); //CS_
       //digitalWrite(2, LOW);
       spicnt=0;
       SPDR = 0x03;//SPIstart
-#endif
   }
 
-
-    //minden 6. utan TX es RX, 1khz
-    if(readyUART && tTX++==3){
-      tTX=0;
-      readyUART = 0;
-      timeoutUART = 0;
-      UCSR0B = bit (UDRIE0) | bit(TXEN0) | bit (TXCIE0);
-
-      //digitalWrite(4, HIGH);
-      //digitalWrite(4, LOW);
-    }
-    if(!readyUART && timeoutUART++ == 100){
-      UCSR0B = 0;
-      readyUART = 1;
-      timeoutUART = 0;
-    }
-
-  //digitalWrite(7, HIGH);
-}
-
-#ifdef __BLDC6STEP__
-ISR (PCINT0_vect){
-  bldc_step = PIND & 7;              // Read and save hall effect sensors status (PINB: read from PORTB which is arduino pins 8..13)
-  //bldc_move();                       // Move the BLDC motor
-}
 #endif
+
+  //digitalWrite(7, LOW);
+  //digitalWrite(7, LOW);
+  digitalWrite(7, HIGH);
+}
+
 
 
 
@@ -929,50 +891,10 @@ void setup() {
   readyUART = 1;
 
 
-  /****************************
-   * pins
-b00 d0 RX
-d01 d1 TX
-d02 d2                    <--HALL_A
-d03 d3 2APWM              <--HALL_B
-d04 d4                    <--HALL_C
-d05 d5 0APWM -->PWM_A
-d06 d6 0BPWM -->PWM_B
-d07 d7       -->debug
-d08 b0       -->SPI_CS
-d09 b1 1APWM -->PWM_C
-d10 b2 1BPWM -->debug DAC
-d11 b3 2BPWM -->SPI_MOSI -->ENA
-d12 b4       <--SPI_MISO -->ENB
-d13 b5       -->SPI_CK   -->ENC
-a00 c0
-a01 
-a02
-a03
-a04
-a05 c5
-
-
-   
-  *****************************/
-
-
-  //pinMode(2, OUTPUT);
-  //pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  //pinMode(5, OUTPUT);
-  //pinMode(6, OUTPUT);
   pinMode(7, OUTPUT);
-  //pinMode(8, OUTPUT);
-  //pinMode(9, OUTPUT);
-  //pinMode(10, OUTPUT);
-  //pinMode(11, OUTPUT);
-  //pinMode(12, OUTPUT);
-  //pinMode(13, OUTPUT);
-
-
-
-
+  pinMode(2, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(3, OUTPUT);
 
   
 #if defined(__PWM6__)
@@ -1023,11 +945,6 @@ a05 c5
 #endif
 #if defined __PWM3__
   //8khz
-/*
- pwm-t0a t0b t1a no deadtime, mert 3 pwm mode van, 
-    de ez mukodik  deadtime-al https://sites.google.com/site/greenmechatroniks/code-garage/pwm-with-dead-time
-     csak az a gond, hogy csak a timer1 nak van ICR regisztere, tehat nem allithato a felbontasa a tobbinek
-*/
 
 
   //CLKPR = _BV(CLKPCE);
@@ -1037,15 +954,15 @@ a05 c5
   pinMode(6, OUTPUT);//OC0A
   TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(WGM01) | _BV(COM0B0);
   TCCR0B = _BV(CS00);
-  OCR0A = 0;
-  OCR0B = 0;
+  OCR0A = 128-1;
+  OCR0B = 128;
 
   pinMode(9, OUTPUT);//OC1A
   //pinMode(10, OUTPUT);//OC1B
   TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(WGM11) | _BV(COM1A0);
   TCCR1B = _BV(CS10);
   TIMSK1 = _BV(TOV1);
-  OCR1A = 0;
+  OCR1A = 128-1;
   //OCR1B = 128;
 #endif
 
@@ -1053,17 +970,6 @@ a05 c5
   //TCCR2B = _BV(CS21);
   //TIMSK2 = _BV(TOIE2);
 
-
-#ifdef __BLDC6STEP__
-  /**************************
-  HALL cells external interrupts
-  **************************/
-  PCICR  = 1;                        // Enable pin change interrupt for pins 2,3,4
-  PCMSK0 = 0b00011100;                       // Enable pin change interrupt for pins 2,3,4
-#endif
- 
-
-#ifdef __SPI__
  /*************************/
   /* SPI */
   /* MOSI B3 out */
@@ -1077,7 +983,7 @@ a05 c5
   DDRB |= _BV(DDB0)|_BV(DDB3)|_BV(DDB5);  //output
   SPCR = _BV(SPIE)|_BV(SPE)|_BV(MSTR);//freq cpu/2
   SPSR |= _BV(SPI2X);
-#endif
+
   
 }
 
@@ -1145,5 +1051,3 @@ To get around this you can either increase the latency timer or reduce the USB b
 
 
 */
-
-
