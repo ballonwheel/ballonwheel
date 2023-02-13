@@ -657,7 +657,7 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
 
 #ifdef __OL__
     //open loop SINE freki
-    if(++tSINE==5){
+    if(++tSINE==7){
       k++;
       tSINE=0;
       digitalWrite(4, LOW);
@@ -670,8 +670,8 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       tPWM = 0;
       m = 20;
       um = 20;
-      u = 1;
-      vcc=80;
+      u = 2;
+      vcc=24;
     
       //OCR0A = 255;
       //OCR0B = 255;
@@ -681,10 +681,12 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
       //OCR1A = (uint8_t) (5.0/100.0 * ((double)sine_wave[(k+2*(255/3))&0xff]));
       //u/(vcc/2)*sin[k]+
     
-      OCR0A = (int8_t)((((int16_t)u*sine_wave[k])/(vcc/2))+127);
-      OCR0B = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
-      OCR1A = (int8_t)((((int16_t)u*sine_wave[(k+(uint8_t)(255/3*2))&0xff])/(vcc/2))+127);
-
+      OCR0A = (uint8_t)((((int16_t)u*sine_wave[(uint8_t) k])/(vcc/2))+127);
+      OCR0B = (uint8_t)((((int16_t)u*sine_wave[(uint8_t)(k-(uint8_t)(255/3))&0xff])/(vcc/2))+127);
+      OCR1A = (uint8_t)((((int16_t)u*sine_wave[(uint8_t)(k+(uint8_t)(255/3))&0xff])/(vcc/2))+127);
+	//OCR0A = k;
+	//OCR0B = k;
+	//OCR1A = k;
 
 
 
@@ -1030,19 +1032,19 @@ a05 c5
 */
 
 
-  //CLKPR = _BV(CLKPCE);
-  //CLKPR = _BV(CLKPS0);//16Mhz div 2
+  CLKPR = _BV(CLKPCE);
+  CLKPR = _BV(CLKPS1);//8Mhz div 4
 
   pinMode(5, OUTPUT);//OC0B
   pinMode(6, OUTPUT);//OC0A
-  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(WGM01) | _BV(COM0B0);
+  TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(COM0B1) | _BV(WGM00) | _BV(COM0B0);
   TCCR0B = _BV(CS00);
   OCR0A = 0;
   OCR0B = 0;
 
   pinMode(9, OUTPUT);//OC1A
   //pinMode(10, OUTPUT);//OC1B
-  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(WGM11) | _BV(COM1A0);
+  TCCR1A = _BV(COM1A1) | _BV(WGM10) | _BV(COM1A0);
   TCCR1B = _BV(CS10);
   TIMSK1 = _BV(TOV1);
   OCR1A = 0;
