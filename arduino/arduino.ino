@@ -59,6 +59,14 @@ volatile uint8_t readyUART, timeoutUART, t2, tPWM, tTX, tSPEED;
 volatile uint8_t k, tSINE=0;
 volatile double m;
 volatile uint8_t um, vcc, u;
+
+volatile uint16_t t3;
+volatile uint8_t speed_we;
+volatile double theta;
+volatile double fixdt_2pi = 255.0/6.28;
+#define __TS__ (1.0/8000.0)
+volatile double sampletime = (double)__TS__;
+volatile double npp = 46;
 #endif
 
 #ifdef __OL__
@@ -651,14 +659,25 @@ ISR(TIMER1_OVF_vect) //PWM periode vege, 8khz
 {
 
   //milyen gyakran fusson le
-  if(t2++==0){//mindig
+  if(t2++==0){//mindig 8khz - 125usec
   //if(t2++==1){//minden 2.
     t2 = 0;
 
 #ifdef __OL__
+    //ramp
+    if(t3++==800 && speed_we != 100){
+	t3 = 0;
+	speed_we++;
+    }
+    if(speed_we > 100)speed_we=100;
+//speed_we = 100;
+
+    theta = theta + (double)speed_we*sampletime*fixdt_2pi;
+    k = (uint8_t)theta;
+
     //open loop SINE freki
     if(++tSINE==7){
-      k++;
+      //k++;
       tSINE=0;
       digitalWrite(4, LOW);
       digitalWrite(4, HIGH);
