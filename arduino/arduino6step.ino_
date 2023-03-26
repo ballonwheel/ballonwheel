@@ -1,68 +1,277 @@
-//https://simple-circuit.com/arduino-sensorless-bldc-motor-controller-esc/
-// Arduino sensored BLDC (brushless DC) motor control code
+
+
+
+
+
+/*
+ * CD-ROM Sensored BLDC motor control using Arduino.
+ * This is a free software with NO WARRANTY.
+ * https://simple-circuit.com/
+ */
+ /* d0
+  * d1
+  * d2
+  * d3
+  * d4
+  * d5
+  * d6
+  * d7
+  * b0 8
+  * b1 9
+  * b2 10
+  * b3
+  * b4
+  * b5
+  */
+#define CW_ 0
+#define CCW_ 1
+volatile unsigned int dir=CW_;
+  
+byte bldc_step, motor_speed;
  
-byte motor_speed, bldc_step, pwm_pin = 2;
 void setup() {
-  DDRD  |= 0xFC;                     // Configure pins 2, 3, 4, 5, 6 and 7 as outputs
-  PCICR  = 1;                        // Enable pin change interrupt for pins 8 to 13
-  PCMSK0 = 7;                        // Enable pin change interrupt for pins 8, 9 and 10
-  // Timer2 configuration
+  DDRD  |= 0x1C;           // Configure pins 2, 3 and 4 as outputs
+//pinMode(5, INPUT_PULLUP);
+//pinMode(6, INPUT_PULLUP);
+//pinMode(7, INPUT_PULLUP);  
+//  PORTD  = 0xe0;
+  PORTD  = 0x00;
+ 
+  DDRB  |= 0x0E;           // Configure pins 9, 10 and 11 as outputs
+  PORTB  = 0x31;
+
+pinMode(12, OUTPUT);  
+  
+  
+  
+  // Timer1 module setting: set clock source to clkI/O / 1 ( prescaling)
+  TCCR1A = 0;
+  TCCR1B = 0x02;
+  // Timer2 module setting: set clock source to clkI/O / 1 ( prescaling)
   TCCR2A = 0;
-  TCCR2B = 2;                        // Timer2 prescaler = 1/8 (Timer2 clock = 2MHz)
-  TCNT2  = 0;                        // Timer2 preload value = 0
+  TCCR2B = 0x02;
   // ADC module configuration
   ADMUX  = 0x60;                     // Configure ADC module and select channel 0
   ADCSRA = 0x84;                     // Enable ADC module with 16 division factor (ADC clock = 1MHz)
+  // Pin change interrupt configuration
+  PCICR  = 4;                        // Enable pin change interrupt for pins 0 to 7
+  PCMSK2 = 0xE0;                     // Enable pin change interrupt for pins 5, 6 and 7
   // BLDC motor first move
-  bldc_step = PINB & 7;              // Read hall effect sensors status (PINB: read from PORTB which is arduino pins 8..13)
-  bldc_move();                       // Move the BLDC motor (first move)
+  bldc_step = (PIND >> 5) & 7;       // Read hall effect sensors status (PIND: read from PORTD which is arduino pins 0..7)
+  bldc_move();                      
+ // Move the BLDC motor (first move)
 }
-ISR (PCINT0_vect){
-  bldc_step = PINB & 7;              // Read and save hall effect sensors status (PINB: read from PORTB which is arduino pins 8..13)
-  bldc_move();                       // Move the BLDC motor
+ 
+ISR (PCINT2_vect){
+  bldc_step = (PIND >> 5) & 7;       // Read hall effect sensors status (PIND: read from PORTD which is arduino pins 0..7)
+  bldc_move();                      
+ // Move the BLDC motor
 }
-void bldc_move(){                    // BLDC motor move function according to hall effect sensors status
-  switch(bldc_step){
-    case 1:
-      PORTD = 0x48;
-      pwm_pin = 2;
-      break;
-    case 2:
-      PORTD = 0x24;
-      pwm_pin = 4;
-      break;
-    case 3:
-      PORTD = 0x60;
-      pwm_pin = 4;
-      break;
-    case 4:
-      PORTD = 0x90;
-      pwm_pin = 6;
-      break;
-    case 5:
-      PORTD = 0x18;
-      pwm_pin = 2;
-      break;
-    case 6:
-      PORTD = 0x84;
-      pwm_pin = 6;
-      break;
-    default:
-      PORTD = 0;
-      break;
-  }
+ 
+void bldc_move(){        // BLDC motor commutation function
+  if(dir == CW_)
+    switch(bldc_step){
+      case 1:
+        AH_CL();
+        break;
+      case 2:
+        BH_AL();
+        break;
+      case 3:
+        BH_CL();
+        break;
+      case 4:
+        CH_BL();
+        break;
+      case 5:
+        AH_BL();
+        break;
+      case 6:
+        CH_AL();
+        break;
+      default:
+        //PORTD = 0xe0;
+        break;
+    }
+  else
+    switch(bldc_step){
+      case 1:
+        AL_CH();
+        break;
+      case 2:
+        BL_AH();
+        break;
+      case 3:
+        BL_CH();
+        break;
+      case 4:
+        CL_BH();
+        break;
+      case 5:
+        AL_BH();
+        break;
+      case 6:
+        CL_AH();
+        break;
+      default:
+        //PORTD = 0xe0;
+        break;
+    }
 }
+
+
+ unsigned int save1;
+ unsigned int save2;
+ unsigned int save3;
 void loop() {
   ADCSRA |= 1 << ADSC;               // Start conversion
   while(ADCSRA & 0x40);              // Wait for conversion complete
   motor_speed = ADCH;                // Read ADC data (8 bits)
-  // Software PWM
-  if(motor_speed < 250){
-    while(TCNT2 < motor_speed) ;
-    digitalWrite(pwm_pin, LOW);
+  
+  if(motor_speed > 130) {
+    dir = CCW_;
+    motor_speed -= 130;
+    motor_speed *= 2;
   }
-  if(motor_speed > 0){
-    while(TCNT2 >= motor_speed) ;
-    digitalWrite(pwm_pin, HIGH);
+  else if (motor_speed < 124){
+    dir = CW_;
+    motor_speed ++;//ha 0
+    motor_speed = 255 - motor_speed;
+    motor_speed *= 2;
+
+  }  
+  else{
+    motor_speed = 0;
+    save1 = TCCR1A;
+    save2 = TCCR2A;
+    save3 = PORTD;
   }
+
+      
+    
+  
+  
+  SET_PWM_DUTY(motor_speed);
+}
+ 
+void AH_BL(){
+  PORTD &= ~0x10;
+//  PORTD |=  0x08;
+  PORTD |=  0x0c;
+
+  TCCR1A =  0x81;         //
+  TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
+}
+void AH_CL(){
+
+  digitalWrite(12, HIGH);
+  digitalWrite(12, LOW);
+  
+  PORTD &= ~0x08;
+//  PORTD |=  0x10;
+  PORTD |=  0x14;
+
+  TCCR1A =  0x81;         //
+  TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
+}
+void BH_CL(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x10;
+  PORTD |=  0x18;
+
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
+}
+void BH_AL(){
+  PORTD &= ~0x10;
+//  PORTD |=  0x04;
+  PORTD |=  0x0c;
+
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
+}
+void CH_AL(){
+  PORTD &= ~0x08;
+//  PORTD |=  0x04;
+  PORTD |=  0x14;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+void CH_BL(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x08;
+  PORTD |=  0x18;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+
+
+/**/
+//ccw
+
+void AL_BH(){
+  PORTD &= ~0x10;
+  PORTD |=  0x0c;
+
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)  
+
+}
+void AL_CH(){
+
+  digitalWrite(12, HIGH);
+  digitalWrite(12, LOW);
+  
+  PORTD &= ~0x08;
+//  PORTD |=  0x10;
+  PORTD |=  0x14;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+void BL_CH(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x10;
+  PORTD |=  0x18;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+void BL_AH(){
+  PORTD &= ~0x10;
+//  PORTD |=  0x04;
+  PORTD |=  0x0c;
+
+
+  TCCR1A =  0x81;         //
+  TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
+
+}
+void CL_AH(){
+  PORTD &= ~0x08;
+//  PORTD |=  0x04;
+  PORTD |=  0x14;
+
+
+  TCCR1A =  0x81;         //
+  TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
+
+}
+void CL_BH(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x08;
+  PORTD |=  0x18;
+
+
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
+}
+ 
+void SET_PWM_DUTY(byte duty){
+  OCR1A  = duty;
+  // Set pin 9  PWM duty cycle
+  OCR1B  = duty;                   // Set pin 10 PWM duty cycle
+  OCR2A  = duty;                   // Set pin 11 PWM duty cycle
 }
