@@ -1,54 +1,70 @@
 
 
 clear
+
+/*here the bow initialization */
+
+
+/* here the UART rx-tx ini*/
 warning('off')
 
- position_str="0"
- fd1=mopen('/home/imre/bow_pos','w')
- position_str=mputl(position_str, fd1)
- mclose(fd1)
-
- motor_str ="0"
- fd2=mopen('/home/imre/bow_motor','w') 
- mputl(motor_str, fd2)
- //mclose(fd2)
+POSITION='/home/imre/ballonwheel/bash_solution/tmp/bow_pos'
+MOTOR='/home/imre/ballonwheel/bash_solution/tmp/bow_motor'
  
-position=0 
-i=0
-j=0
+position=0; 
+i=0;
+j=0;
 
+deletefile(POSITION);
+
+/* here starting the rx-tx loop */
+/* start with this script runing, then 'uart_rxtx.sh' from bash*/
 while 1
- j=j+1
+ j=j+1;
  
- [fd3, err3]=mopen('/home/imre/bow_pos','r')
- //disp(fd3)
- //disp(err3,"err3")
- position_str=mgetl(fd3,1)
- mclose(fd3)
+ err3=-2;
+ while err3 ~= 0
+  [fd3, err3]=mopen(POSITION,'r');
+  /*disp("xxxxxxxxxxxxxxxxx",fd3)*/
+  /*disp(err3,"err3")*/
+ end
+ position_str=mgetl(fd3,1);
+ mclose(fd3);
+ deletefile(POSITION);
 
- //disp(position_str)
- //disp(isempty(position_str), "isempty")
+ //disp(position_str);
+ //disp(isempty(position_str), "isempty");
  if(isempty(position_str)==%F) then
-   position=strtod(position_str)
+   position=strtod(position_str);
  else
-   disp(j, i,"position_str false")
-   i=i+1   
+   disp(j, i,"position_str false");
+   i=i+1;   
  end
  
- motor = position
- //disp(motor)
- motor_str=string(motor)
- //disp(motor_str)
+
+ /* here the bow control algorithm /*
 
 
- fd4=mopen('/home/imre/bow_motor','w') 
- mputl(motor_str, fd4)
- mclose(fd4)
+ motor = position;
+
+
+ disp(motor);
+ */ end of bow control */
+
+ /*create file of 'bow_motor', that will be sent by bash*/
+ //disp(motor);
+ motor_str=string(motor);
+ disp(motor_str);
+
+
+ fd4=mopen(MOTOR,'w'); 
+ mputl(motor_str, fd4);
+ mclose(fd4);
   
- sleep(20)
+ //sleep(20); no sleep, but need to be finished before next sent by arduino (10msec)  !!!!
  
 end
 
-mclose(fd2)
+mclose(fd2);
 
 
