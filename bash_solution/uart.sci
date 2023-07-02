@@ -245,6 +245,8 @@ MOTOR='/home/imre/ballonwheel/bash_solution/tmp/bow_motor'
 position=0; 
 i=0;
 j=0;
+motor = 0;
+motor_last = 0;
 
 deletefile(POSITION);
 
@@ -263,7 +265,7 @@ while 1
  mclose(fd3);
  deletefile(POSITION);
 
- //disp(position_str);
+ //disp(position_str, "positon");
  //disp(isempty(position_str), "isempty");
  if(isempty(position_str)==%F) then
    position=strtod(position_str);
@@ -274,18 +276,24 @@ while 1
  
 
  /* here the bow control algorithm */
-
-
  motor = position;
 
+ //disp(motor)
+ //disp(motor_last)
+ //disp("most")
+ if(motor ~=  motor_last+1) then
+   disp("************************************** error *************************************");
+ end
+ motor_last = motor;
 
- disp(motor);
+
+ //disp(motor);
  /* eof bow control */
 
  /*create file of 'bow_motor', that will be sent by bash*/
  //disp(motor);
  motor_str=string(motor);
- disp(motor_str);
+ //disp(motor_str, "motor");
 
 
  fd4=mopen(MOTOR,'w'); 
