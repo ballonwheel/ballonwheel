@@ -30,8 +30,7 @@ Kicsomagol ide
   566  ./arduino-cli board list   //→ most se latja
   567  ./arduino-cli board listall
   570  sudo chmod 777 /dev/ttyUSB0    //→ ez kell
-  571  ./arduino-cli board list   //most se latja
-  577  ./arduino-cli compile --verbose --fqbn arduino:avr:nano blink   //forditani azert lehet
+  571  ./arduino-cli board list   //most se latja  577  ./arduino-cli compile --verbose --fqbn arduino:avr:nano blink   //forditani azert lehet
   582  ./arduino-cli upload -v -p /dev/ttyUSB0 --fqbn arduino:avr:nano blink  // azt irjak azert letolti es tenyleg !!!
 ../../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
 ../../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
@@ -53,13 +52,13 @@ volatile byte bldc_step, motor_speedADC, motor_speed;
 
 volatile uint8_t adcPin=0;
 volatile uint8_t dataadc;
-volatile uint8_t data[4];
+volatile uint8_t data[5];
 volatile uint8_t *datap;
-volatile uint8_t datarx[4];
+volatile uint8_t datarx[5];
 volatile uint8_t *datarxp;
 volatile uint8_t serialgo=0;
-volatile uint8_t scheduler;
-
+volatile uint16_t scheduler;
+//String dataStr="250\n";
 
 volatile uint8_t *pos1 = &data[0];
 volatile uint8_t *pos2 = &data[1];
@@ -67,6 +66,10 @@ volatile uint8_t *pos3 = &data[2];
 volatile uint8_t *velw = &data[3];//velocity wheel
 volatile uint8_t tick, tick_last;
 
+//volatile uint8_t adctrig;
+
+#define ADCMSEC 10
+#define ADCTXTRIG (5*ADCMSEC)
 ISR (ADC_vect)
 {
   //digitalWrite(3, LOW);
@@ -78,6 +81,7 @@ ISR (ADC_vect)
   ADMUX   = bit (REFS0) | (adcPin++ & 7) | bit(ADLAR);
   if(adcPin > 1)adcPin=0;
 
+  //100usec, 10khz
 
   if(++scheduler == 16){
     *pos1 = dataadc;
@@ -88,13 +92,33 @@ ISR (ADC_vect)
     *pos2 = dataadc;
   }
 
-  if(scheduler == 50){
+
+  if(scheduler == ADCTXTRIG-ADCMSEC)
+    UCSR0B = 0;
+
+
+  if(scheduler == ADCTXTRIG){
     scheduler = 0;
+    //adctrig=1;
 
     *pos3 = dataadc;
 
-    UCSR0B = bit(TXEN0) | bit(UDRIE0);
+   //data[0] = '2';
+   //data[1] = '5';
+   //data[2] = '0';
+   //data[3] = '\n';
+   //data[4] = 0;
 
+   data[0] = datarx[0];
+   data[1] = datarx[1];
+   data[2] = datarx[2];
+   data[3] = '\n';
+   data[4] = 0;
+   datap = data;
+   datarxp = datarx;
+
+    UCSR0B = bit(TXEN0) | bit(UDRIE0);
+  
   }
 
   
@@ -102,11 +126,13 @@ ISR (ADC_vect)
   //digitalWrite(3, HIGH);
 }
 
+#if 1 
 ISR(USART_UDRE_vect)
 {
   UDR0 = *datap++;
-  if(datap > data+4){
-        UCSR0B = bit(TXEN0) | bit (TXCIE0);
+  if(datap > &data[4])
+  {
+        UCSR0B = bit(TXEN0) | bit (TXCIE0) | bit(RXEN0) | bit(RXCIE0);
         datap = data;
   }
 
@@ -118,11 +144,11 @@ ISR(USART_UDRE_vect)
 
 ISR(USART_TX_vect)
 {
-  datarxp = datarx;
+  //datarxp = datarx;
   UCSR0B = bit(RXEN0) | bit(RXCIE0);
 
-  //digitalWrite(5, LOW);
-  //digitalWrite(5, HIGH);
+  //digitalWrite(4, LOW);
+  //digitalWrite(4, HIGH);
 
 
 }
@@ -130,13 +156,13 @@ ISR(USART_TX_vect)
 ISR(USART_RX_vect)
 {
   *datarxp++ = UDR0;
-  if(datarxp > &datarx[3])
+  if(datarxp > &datarx[4])
     UCSR0B = 0;
 
-  //digitalWrite(6, HIGH);
-  //digitalWrite(6, LOW);
+  digitalWrite(4, HIGH);
+  digitalWrite(4, LOW);
 }
-
+#endif
 
 ISR (PCINT2_vect){
   bldc_step = (PIND >> 5) & 7;       // Read hall effect sensors status (PIND: read from PORTD which is arduino pins 0..7)
@@ -144,8 +170,8 @@ ISR (PCINT2_vect){
 
   *velw = tick - tick_last;
   tick_last = tick;
-  digitalWrite(12, HIGH);
-  digitalWrite(12, LOW);
+  //digitalWrite(12, HIGH);
+  //digitalWrite(12, LOW);
 
 }
 
@@ -248,18 +274,14 @@ void setup() {
   ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) | bit(ADPS0) | bit(ADPS1) | bit(ADPS2); //enable ADC 16mhz/128div
   //ADCSRA  =  bit (ADEN) | bit (ADIE) | bit (ADIF) | bit (ADATE) | bit (ADSC) /*|                bit(ADPS1) | bit(ADPS2)*/; //enable ADC
 
-  datap = data;
-
-
-
 
   /*Set baud rate */
   //Serial.begin(115200);
 
-  UBRR0H = (unsigned char)(0>>8);
-  UBRR0L = (unsigned char)0;
+  //UBRR0H = (unsigned char)(0>>8);
+  //UBRR0L = (unsigned char)0;
   /* double speed, clear data reg empty, */
-  UCSR0A = (1<<U2X0);
+  //UCSR0A = (1<<U2X0);
 
   //baud 9600
   //UBRR0 = 103;
@@ -268,16 +290,26 @@ void setup() {
  //baud 19200
   //UBRR0 = 51;
   //UCSR0A = (0<<U2X0);
- /*Enable receiver and transmitter */
- // UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  /*Enable receiver and transmitter */
+  // UCSR0B = (1<<RXEN0)|(1<<TXEN0);
   /* Set frame format: 8data, 2stop bit */
   //UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 
-  USART_Flush();
+  //baud 115200
+  UCSR0A = (1<<U2X0);
+  UBRR0 = 16;
+
+
+  //USART_Flush();
 
   datap = data;
 
 
+  data[0] = '0';
+   data[1] = '0';
+   data[2] = '0';
+   data[3] = '\n';
+   data[4] = 0;
 
 
 
@@ -306,6 +338,12 @@ void setup() {
  
 
 void loop() {
+
+
+  //if(adctrig){
+  //  Serial.print(dataStr);
+  //  adctrig=0;
+  //}
 
   //motor_speed=motor_speedADC;
   if(motor_speed > 130) {

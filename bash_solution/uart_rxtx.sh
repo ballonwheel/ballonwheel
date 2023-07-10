@@ -9,11 +9,11 @@
 
 # sudo mount -t tmpfs -o size=512M,mode=1777 bowtmp ./tmp/
 
-
+#toarduino="000\n"
 UART="/dev/ttyUSB1"
 
 ((num=0))
-while ((i++)); read -r fromarduino
+while ((i++)); read -r fromarduino # a read /n ig olvas!!
 do
   ((num++))
   read -r toarduino < ./tmp/bow_motor
