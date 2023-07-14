@@ -69,7 +69,7 @@ volatile uint8_t tick, tick_last;
 //volatile uint8_t adctrig;
 
 #define ADCMSEC 10
-#define ADCTXTRIG (5*ADCMSEC)
+#define ADCTXTRIG (20*ADCMSEC)
 ISR (ADC_vect)
 {
   //digitalWrite(3, LOW);
@@ -82,15 +82,16 @@ ISR (ADC_vect)
   if(adcPin > 1)adcPin=0;
 
   //100usec, 10khz
+  scheduler++;
 
-  if(++scheduler == 16){
-    *pos1 = dataadc;
-  }
+  //if(scheduler == 16){
+  //  *pos1 = dataadc;
+  //}
 
 
-  if(scheduler == 33){
-    *pos2 = dataadc;
-  }
+  //if(scheduler == 33){
+  //  *pos2 = dataadc;
+  //}
 
 
   if(scheduler == ADCTXTRIG-ADCMSEC)
@@ -102,20 +103,25 @@ ISR (ADC_vect)
     //adctrig=1;
 
     *pos3 = dataadc;
-
-   //data[0] = '2';
-   //data[1] = '5';
-   //data[2] = '0';
+   
+   data[0] = '0';
+   data[1] = '0';
+   data[2] = '1';
    //data[3] = '\n';
    //data[4] = 0;
 
-   data[0] = datarx[0];
-   data[1] = datarx[1];
-   data[2] = datarx[2];
+   //data[0] = datarx[0];
+   //data[1] = datarx[1];
+   //data[2] = datarx[2];
    data[3] = '\n';
    data[4] = 0;
    datap = data;
    datarxp = datarx;
+   datarx[0]=0;
+   datarx[1]=0;
+   datarx[2]=0;
+   datarx[3]=0;
+   datarx[4]=0;
 
     UCSR0B = bit(TXEN0) | bit(UDRIE0);
   
@@ -159,8 +165,8 @@ ISR(USART_RX_vect)
   if(datarxp > &datarx[4])
     UCSR0B = 0;
 
-  digitalWrite(4, HIGH);
-  digitalWrite(4, LOW);
+  //digitalWrite(4, HIGH);
+  //digitalWrite(4, LOW);
 }
 #endif
 

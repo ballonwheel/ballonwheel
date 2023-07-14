@@ -12,7 +12,7 @@
 //../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
 //../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
 
- 
+//sudo nice --20 ./a.out
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -41,13 +41,13 @@
 #include <errno.h>
 extern int errno ;
 
-#define BAUDRATE B9600
+#define BAUDRATE B115200
 #define MODEMDEVICE "/dev/ttyUSB1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 
 
-const char command_list = {"set", "get", "info"};
+
 
 
 
@@ -57,9 +57,13 @@ pthread_attr_t attr;
 pthread_t thread;
 int ret;
 int fd,c, res;
+FILE* fd_pos; 
+FILE* fd_motor;
 struct termios oldtio,newtio;
 char buf[255];
-char bufo[20] = "ABCDEFGH\r\nIJK";
+char bufo[20] = "XYZ01234901234567890";
+char bufo_last[20]="000\n";
+char ref;
 char chprev;
 int i,j, k;
 int dbg_;
@@ -71,19 +75,11 @@ double elapsed;
 int rxok;
 
 char command[32];
+float pos, pos0, pos1, pos2, vel, vel1, vel2, acc, velw;
+float distance;
+int wait;
 
-
-
-int getcmd(char *input)
-{
-	for(){
-		if(!r=strcmpi(command_list[i], input))return r;
-	}
-	return -1;
-}
-
-
-#if 1
+#if  1
 //https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
 size_t TimeoutRead (int port, void*buf, size_t size, int mlsec_timeout)
 {
@@ -109,9 +105,23 @@ size_t TimeoutRead (int port, void*buf, size_t size, int mlsec_timeout)
 }
 #endif
 
+int chk(void)
+{
+int r=-1;
+  if(buf[0]==bufo[0])
+    if(buf[1]==bufo[1])
+      if(buf[2]==bufo[2])
+	r=0; 
+ return r;
+}
 
 void *thread_func(void *data)
 {
+
+	//https://tldp.org/HOWTO/RTLinux-HOWTO-4.html
+	//pthread_make_periodic_np(pthread_self(), gethrtime(), 1000000);
+        //nekem ez itt tokmindegy, mert while(1) van, az arduino idozit, tehat tonkre van vagva az rt a linux oldalrol nezve
+
         /* Do RT specific stuff here */
  	printf("Do RT specific stuff here\n");
 
@@ -128,33 +138,29 @@ void *thread_func(void *data)
         newtio.c_cc[VMIN] = 1; /* blocking read until 5 chars received */
         tcflush(fd, TCIFLUSH);
         tcsetattr(fd,TCSANOW,&newtio);
-        /* setserial lowlatency */
+        
+	/* #setserial /dev/ttyUSB1 low_latency */
         //ioctl(fd, TIOCGSERIAL, &serial);
         //serial.flags |= ASYNC_LOW_LATENCY;
         //ioctl(fd, TIOCSSERIAL, &serial);
-	
-	//fcntl(fd, F_SETFL, FNDELAY);----> ezzel itt esszel...nem ertem mit csinal
+	//avagy
+	fcntl(fd, F_SETFL, FNDELAY);
+
 
 	//select() vagy poll() --> read(), hogy legyen TO
 	//https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
-
-	memset(buf, 0x00, 10);
-	scanf("%10s",buf);
-	write(fd, buf, 10);
-        res=TimeoutRead (fd, &buf[0], 10, 100);
-
-	switch(){
-	case 
-	
-
-
-
+	//scanf("%10s",command);
+	//printf("%s",command);
+	//p = getcmd(command);
+    	//memset(buf, 0x00, 10);
+	//write(fd, p, 10);
+        //res=TimeoutRead (fd, &buf[0], 10, 100);
 
 	//write(fd, bufo, 8);
 	clock_gettime(CLOCK_REALTIME, &begin);
 
 	while (1) { /* loop for input */
-		dbg_=!(i++%100);
+		dbg_=!(i++%1000);
 		if(dbg_)
 		{
 			clock_gettime(CLOCK_REALTIME, &end);
@@ -167,73 +173,54 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		res = write(fd, bufo, 10);
-		//if(dbg_)
-			printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
-		memset(buf, 0x00, 10);
-		//res=read(fd,&buf[0],10);
-                //for(j = 0; j < 10 ; j++)
-                //	res = read(fd,&buf[j],1);
-		res=TimeoutRead (fd, &buf[0], 10, 100);
-		if(res > 0 && res < 20)
-		{
+		memset(buf, 0x00, 5);
+		while((res=read(fd,&buf[0],5)) < 5)
+			;
+		if((dbg_) || (chk()))
+			printf("%i.%i:<--%02x %02x %02x %02x\n", i,res, (u_int8_t)buf[0], (u_int8_t)buf[1], (u_int8_t)buf[2], (u_int8_t)buf[3]);
+		//if(buf[0] =! 'A')printf("err 'A'\n");
+             	//if(buf[1] =! 'B')printf("err 'B'\n");
+             	//if(buf[2] =! 'C')printf("err 'C'\n");
+             	//if(buf[3] =! 'D')printf("err 'D'\n");
+		buf[3]='\n';
+		buf[4]=0;
+		//sleep(0.005);
 
-		//if(dbg_)
-			printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
-                //if(dbg_)
-			printf("%i:%i:<--%0x%0x%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7],buf[8],buf[9]);
+
+        	/*file oepn*/
+        	fd_pos=fopen("./tmp/bow_pos","w+");
+        	if(fd_pos == NULL){
+          	  perror("Open bow_pos Failed\r\n");
+        	}
+		fprintf(fd_pos, "%s", buf);
+		fclose(fd_pos);
+
+		wait=1;
+		while(wait){
+		  memset(bufo, 0x00, 5);
+	          fd_motor=fopen("./tmp/bow_motor","r");
+                  if(fd_motor == NULL){
+                    perror("Open bow_motor Failed\r\n");
+                  }
+                  if(res=fread(bufo,1, 4,fd_motor) > 0)
+			wait = 0;
+		  else
+			printf("x");
+                  //bufo[0]='0';
+                  //bufo[1]='0';
+                  //bufo[2]='0';
+                  bufo[3]='\n';
+                  bufo[4]=0;
+		  //strcpy(bufo_last, bufo);
+		  fclose(fd_motor);
 		}
-		else{
-			printf("TimoutRead  TO is just happened\r\n");
-		}	
-		 tcflush(fd, TCIFLUSH);
+
+		if(dbg_)
+			printf("%i.%i:-->%02x %02x %02x %02x\n", i,res, (u_int8_t)bufo[0], (u_int8_t)bufo[1], (u_int8_t)bufo[2], (u_int8_t)bufo[3]);
+		write(fd, &bufo[0], 5);
 
 
 
-                //chprev = bufo[0];
-                //bufo[0]++;
-                //if(bufo[0] > 'H')bufo[0]='A';
-                //res = write(fd, bufo, 5);
-                //if(dbg_)
-                //        printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
-
-#if 0
-		do{
-			memset(buf, 0x00, 10);
-			for(j = 0,rxok=0; j < 9 ; j++){
-				res = read(fd,&buf[j],1); /* returns after 5 chars have been input */
-			}
-			if(buf[8] != '\n'){
-				printf("no n  \n");
-				while(buf[0] != '\n'){
-					printf("flush\n");
-					read(fd, &buf[0], 1);
-				}
-			}
-			else
-				rxok=1;
-		}
-		while(!rxok);
-		//if(dbg_)
-		{
-            	      printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
-                      printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
-		}
-#endif
-		//	printf("%i:%i:-->%0x%0x%0x%0x\n", i, res, bufo[0],bufo[1],bufo[2],bufo[3]);
-
-		
-
-		//res = read(fd,&buf[0],1); /* returns after 5 chars have been input */
-		//res = read(fd,&buf[3],1); /* returns after 5 chars have been input */
-		//if(dbg_)
-		{
-		//	printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[0],buf[1],buf[2],buf[3]);
-		//	printf("%i:%i:<--%0x%0x%0x%0x\n", i, res, buf[4],buf[5],buf[6],buf[7]);
-		}
-		//if(res<0)printf("%s\n", strerror( errno ));
-
-		//sleep(1);
 	}
 
 	tcsetattr(fd,TCSANOW,&oldtio);
@@ -335,3 +322,7 @@ out:
 
 
 
+u_int8_t postable[256]=
+{
+
+};

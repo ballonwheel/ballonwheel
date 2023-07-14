@@ -1,5 +1,13 @@
 
 
+//#apt-get install scilab-cli
+//#scilab-cli
+//#exec('/home/imre/ballonwheel/bash_solution/uart.sci')
+//#ctrl-c
+//#abort
+//#exit
+
+
 clear
 
 /*here the bow initialization */
@@ -243,10 +251,11 @@ POSITION='/home/imre/ballonwheel/bash_solution/tmp/bow_pos'
 MOTOR='/home/imre/ballonwheel/bash_solution/tmp/bow_motor'
  
 position=0; 
+position_last=0;
 i=0;
 j=0;
-motor = 0;
-motor_last = 0;
+motor = 1;
+motor_last = 1;
 
 deletefile(POSITION);
 
@@ -273,16 +282,23 @@ while 1
    disp(j, i,"position_str false");
    i=i+1;   
  end
- 
+ //if(position == "Nan") then
+   position = position_last;
+ //end
+ position_last = position;
 
  /* here the bow control algorithm */
  motor = position;
 
- //disp(motor)
- //disp(motor_last)
- //disp("most")
- if(motor ~=  motor_last+1) then
-   disp("************************************** error *************************************");
+ disp(motor)
+ disp(motor_last)
+ disp("most", j)
+ //if(motor ~=  motor_last) then
+ //  disp("************************************** error *************************************");
+ //end
+ motor = motor + 1;
+ if(motor > 250) then
+   motor=1;
  end
  motor_last = motor;
 
@@ -292,12 +308,11 @@ while 1
 
  /*create file of 'bow_motor', that will be sent by bash*/
  //disp(motor);
- motor_str=string(motor);
+ //motor_str=string(motor);
  //disp(motor_str, "motor");
-
-
  fd4=mopen(MOTOR,'w'); 
- mputl(motor_str, fd4);
+ //mputl(motor_str, fd4);
+ mfprintf(fd4, "%03d", motor);
  mclose(fd4);
   
  //sleep(20); no sleep, but need to be finished before next sent by arduino (10msec)  !!!!
