@@ -104,15 +104,15 @@ ISR (ADC_vect)
 
     *pos3 = dataadc;
    
-   data[0] = '0';
-   data[1] = '0';
-   data[2] = '1';
+   //data[0] = '0';
+   //data[1] = '0';
+   //data[2] = '1';
    //data[3] = '\n';
    //data[4] = 0;
 
-   //data[0] = datarx[0];
-   //data[1] = datarx[1];
-   //data[2] = datarx[2];
+   data[0] = datarx[0];
+   data[1] = datarx[1];
+   data[2] = datarx[2];
    data[3] = '\n';
    data[4] = 0;
    datap = data;

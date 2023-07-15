@@ -181,7 +181,7 @@ void *thread_func(void *data)
                 while((res=read(fd,&buf[2],1)) < 1)
                         ;
 
-		if((dbg_) || (chk()))
+		//if((dbg_) /*|| (chk())*/)
 			printf("%i.%i:<--%02x %02x %02x %02x\n", i,res, (u_int8_t)buf[0], (u_int8_t)buf[1], (u_int8_t)buf[2], (u_int8_t)buf[3]);
 		//if(buf[0] =! 'A')printf("err 'A'\n");
              	//if(buf[1] =! 'B')printf("err 'B'\n");
@@ -220,7 +220,7 @@ void *thread_func(void *data)
 		  fclose(fd_motor);
 		}
 
-		if(dbg_)
+		//if(dbg_)
 			printf("%i.%i:-->%02x %02x %02x %02x\n", i,res, (u_int8_t)bufo[0], (u_int8_t)bufo[1], (u_int8_t)bufo[2], (u_int8_t)bufo[3]);
 		write(fd, &bufo[0], 3);
 
