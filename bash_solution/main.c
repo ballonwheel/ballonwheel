@@ -42,7 +42,7 @@
 extern int errno ;
 
 #define BAUDRATE B115200
-#define MODEMDEVICE "/dev/ttyUSB1"
+#define MODEMDEVICE "/dev/ttyUSB0"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 

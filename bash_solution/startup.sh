@@ -1,5 +1,8 @@
 
 
+
+set -x #echo on
+
 #meg kell keresni, hogy hol van az arduino
 #[  405.999319] usb 1-1.1: FTDI USB Serial Device converter now attached to ttyUSB1
 
@@ -7,7 +10,7 @@
 
 #UART=/dev/ttyUSB+$UARTNUM
 
-UART="/dev/ttyUSB1"
+UART="/dev/ttyUSB0"
 
 eval "$(chmod 777 $UART)"
 eval "$(setserial $UART low_latency)"
