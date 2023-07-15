@@ -69,7 +69,7 @@ volatile uint8_t tick, tick_last;
 //volatile uint8_t adctrig;
 
 #define ADCMSEC 10
-#define ADCTXTRIG (20*ADCMSEC)
+#define ADCTXTRIG (3*ADCMSEC)
 ISR (ADC_vect)
 {
   //digitalWrite(3, LOW);
@@ -120,7 +120,7 @@ ISR (ADC_vect)
    datarx[0]=0;
    datarx[1]=0;
    datarx[2]=0;
-   datarx[3]=0;
+   datarx[3]='\n';
    datarx[4]=0;
 
     UCSR0B = bit(TXEN0) | bit(UDRIE0);
@@ -136,7 +136,7 @@ ISR (ADC_vect)
 ISR(USART_UDRE_vect)
 {
   UDR0 = *datap++;
-  if(datap > &data[4])
+  if(datap > &data[2])
   {
         UCSR0B = bit(TXEN0) | bit (TXCIE0) | bit(RXEN0) | bit(RXCIE0);
         datap = data;
@@ -162,7 +162,7 @@ ISR(USART_TX_vect)
 ISR(USART_RX_vect)
 {
   *datarxp++ = UDR0;
-  if(datarxp > &datarx[4])
+  if(datarxp > &datarx[2])
     UCSR0B = 0;
 
   //digitalWrite(4, HIGH);

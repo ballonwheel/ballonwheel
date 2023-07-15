@@ -173,9 +173,14 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		memset(buf, 0x00, 5);
-		while((res=read(fd,&buf[0],5)) < 5)
+		memset(buf, 0x00, 3);
+		while((res=read(fd,&buf[0],1)) < 1)
 			;
+                while((res=read(fd,&buf[1],1)) < 1)
+                        ;
+                while((res=read(fd,&buf[2],1)) < 1)
+                        ;
+
 		if((dbg_) || (chk()))
 			printf("%i.%i:<--%02x %02x %02x %02x\n", i,res, (u_int8_t)buf[0], (u_int8_t)buf[1], (u_int8_t)buf[2], (u_int8_t)buf[3]);
 		//if(buf[0] =! 'A')printf("err 'A'\n");
@@ -197,7 +202,7 @@ void *thread_func(void *data)
 
 		wait=1;
 		while(wait){
-		  memset(bufo, 0x00, 5);
+		  memset(bufo, 0x00, 3);
 	          fd_motor=fopen("./tmp/bow_motor","r");
                   if(fd_motor == NULL){
                     perror("Open bow_motor Failed\r\n");
@@ -217,7 +222,7 @@ void *thread_func(void *data)
 
 		if(dbg_)
 			printf("%i.%i:-->%02x %02x %02x %02x\n", i,res, (u_int8_t)bufo[0], (u_int8_t)bufo[1], (u_int8_t)bufo[2], (u_int8_t)bufo[3]);
-		write(fd, &bufo[0], 5);
+		write(fd, &bufo[0], 3);
 
 
 

@@ -15,8 +15,8 @@ eval "$(stty 115200 < $UART)"
 
 mount -t tmpfs -o size=512M,mode=1777 bowtmp ./tmp/
 
-echo "000" >  ./tmp/bow_pos
-echo "000" >  ./tmp/bow_motor
+echo "001" >  ./tmp/bow_pos
+echo "001" >  ./tmp/bow_motor
 
 chown -R imre ./tmp
 chgrp -R imre ./tmp
