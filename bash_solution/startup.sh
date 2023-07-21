@@ -16,6 +16,13 @@ eval "$(chmod 777 $UART)"
 eval "$(setserial $UART low_latency)"
 eval "$(stty 115200 < $UART)"
 
+
+
+#ket fajl van a RAMban
+#kezdetben mindkettoben 001
+#bow_pos   <-- UART
+#bow_motor --> UART
+umount ./tmp
 mount -t tmpfs -o size=512M,mode=1777 bowtmp ./tmp/
 
 echo "001" >  ./tmp/bow_pos
@@ -25,4 +32,5 @@ chown -R imre ./tmp
 chgrp -R imre ./tmp
 chmod 666 ./tmp/bow_pos
 chmod 666 ./tmp/bow_motor
+
 

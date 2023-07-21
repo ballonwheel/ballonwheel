@@ -77,8 +77,8 @@ int rxok;
 char command[32];
 float pos, pos0, pos1, pos2, vel, vel1, vel2, acc, velw;
 float distance;
-int wait;
-
+unsigned int wait, file_bow_motor;
+unsigned int huha, uartgetcnt;
 #if  1
 //https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
 size_t TimeoutRead (int port, void*buf, size_t size, int mlsec_timeout)
@@ -173,24 +173,31 @@ void *thread_func(void *data)
 			clock_gettime(CLOCK_REALTIME, &begin);
 
 		}
-		memset(buf, 0x00, 3);
+		memset(buf, 0x00, 5);
 		while((res=read(fd,&buf[0],1)) < 1)
 			;
                 while((res=read(fd,&buf[1],1)) < 1)
                         ;
                 while((res=read(fd,&buf[2],1)) < 1)
                         ;
+		//tcflush(fd, TCIFLUSH);//hat ez semmit nem segit
+		//uartgetcnt=0;
+		//huha=0;
+		//while(huha++<1000){
+		//	if((res=read(fd,&buf[uartgetcnt],1))<1){
+		//		uartgetcnt++;
+		//	}
+		//	if(uartgetcnt>=2)uartgetcnt=0;
+		//}
 
 		//if((dbg_) /*|| (chk())*/)
-			printf("%i.%i:<--%02x %02x %02x %02x\n", i,res, (u_int8_t)buf[0], (u_int8_t)buf[1], (u_int8_t)buf[2], (u_int8_t)buf[3]);
+		//	printf("%i.%i:<--%02x %02x %02x %02x\n", i,res, (u_int8_t)buf[0], (u_int8_t)buf[1], (u_int8_t)buf[2], (u_int8_t)buf[3]);
 		//if(buf[0] =! 'A')printf("err 'A'\n");
              	//if(buf[1] =! 'B')printf("err 'B'\n");
              	//if(buf[2] =! 'C')printf("err 'C'\n");
              	//if(buf[3] =! 'D')printf("err 'D'\n");
 		buf[3]='\n';
 		buf[4]=0;
-		//sleep(0.005);
-
 
         	/*file oepn*/
         	fd_pos=fopen("./tmp/bow_pos","w+");
@@ -200,29 +207,41 @@ void *thread_func(void *data)
 		fprintf(fd_pos, "%s", buf);
 		fclose(fd_pos);
 
-		wait=1;
-		while(wait){
-		  memset(bufo, 0x00, 3);
-	          fd_motor=fopen("./tmp/bow_motor","r");
-                  if(fd_motor == NULL){
-                    perror("Open bow_motor Failed\r\n");
-                  }
-                  if(res=fread(bufo,1, 4,fd_motor) > 0)
+
+
+		usleep(1000);
+
+
+		wait=500;
+		file_bow_motor = 0;
+		while(wait--){
+		  if(access("./tmp/bow_motor", F_OK) == 0) {
+		    memset(bufo, 0x00, 3);
+	            fd_motor=fopen("./tmp/bow_motor","r");
+                    if(fd_motor < 0){
+                      printf("Open bow_motor Failed\r\n");
+                    }
+                    if(res=fread(bufo,1, 4,fd_motor) > 0){
 			wait = 0;
-		  else
-			printf("x");
-                  //bufo[0]='0';
-                  //bufo[1]='0';
-                  //bufo[2]='0';
-                  bufo[3]='\n';
-                  bufo[4]=0;
-		  //strcpy(bufo_last, bufo);
-		  fclose(fd_motor);
+			file_bow_motor = 1;
+		    }
+		    //else
+			//printf("x");
+               	    fclose(fd_motor);
+		  }
+		  //else
+		  //	printf("y");
 		}
+		if(file_bow_motor)remove("./tmp/bow_motor");
+                //bufo[0]='0';
+                //bufo[1]='0';
+                //bufo[2]='0';
+                bufo[3]='\n';
+                bufo[4]=0;
 
 		//if(dbg_)
-			printf("%i.%i:-->%02x %02x %02x %02x\n", i,res, (u_int8_t)bufo[0], (u_int8_t)bufo[1], (u_int8_t)bufo[2], (u_int8_t)bufo[3]);
-		write(fd, &bufo[0], 3);
+		//	printf("%i.%i:-->%02x %02x %02x %02x\n", i,res, (u_int8_t)bufo[0], (u_int8_t)bufo[1], (u_int8_t)bufo[2], (u_int8_t)bufo[3]);
+		if(file_bow_motor)write(fd, &bufo[0], 3);
 
 
 

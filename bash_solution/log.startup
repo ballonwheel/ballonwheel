@@ -1,0 +1,16 @@
+Fri 21 Jul 11:09:09 BST 2023
+++ UART=/dev/ttyUSB0
++++ chmod 777 /dev/ttyUSB0
+++ eval ''
++++ setserial /dev/ttyUSB0 low_latency
+++ eval ''
++++ stty 115200
+++ eval ''
+++ umount ./tmp
+++ mount -t tmpfs -o size=512M,mode=1777 bowtmp ./tmp/
+++ echo 001
+++ echo 001
+++ chown -R imre ./tmp
+++ chgrp -R imre ./tmp
+++ chmod 666 ./tmp/bow_pos
+++ chmod 666 ./tmp/bow_motor

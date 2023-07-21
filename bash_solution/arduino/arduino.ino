@@ -69,7 +69,7 @@ volatile uint8_t tick, tick_last;
 //volatile uint8_t adctrig;
 
 #define ADCMSEC 10
-#define ADCTXTRIG (3*ADCMSEC)
+#define ADCTXTRIG (10*ADCMSEC)
 ISR (ADC_vect)
 {
   //digitalWrite(3, LOW);
@@ -110,6 +110,7 @@ ISR (ADC_vect)
    //data[3] = '\n';
    //data[4] = 0;
 
+   
    data[0] = datarx[0];
    data[1] = datarx[1];
    data[2] = datarx[2];

@@ -8,11 +8,15 @@ position=1;
 motor=1;
 motor_last=1;
 positionStr="000\n";
+i=0;
+j=0;
 
 while(1) #1
-  positionStr="255"
+  positionStr="255";
+ # two=2;
+ #while(two)
   while(fdin < 0) #2
-    disp(":");
+    #disp(':');
     fdin = fopen ("./tmp/bow_pos", "r");
     if(fdin != -1)
       if((result = fgetl (fdin))  != -1)
@@ -20,39 +24,59 @@ while(1) #1
         fclose(fdin);
         #fflush(fdin);
         delete("./tmp/bow_pos");
-        disp(";");
+        #disp(";");
       endif
-      disp(".")
+      #disp(".")
      endif
-    disp("positionstr");
-    disp(positionStr);
+    #disp("positionstr");
+    #disp(positionStr);
     position=str2num(positionStr);
-   endwhile
+  endwhile
   fdin=-1;
 
-  disp("position");
-  disp(position);
-  if(position != motor)
+  #disp("position");
+  #disp(position);
+  #if(position ==  motor-1)
+   if((position != motor-1) && (motor != 1 ))
    disp("cnt error");
+   j=j+1;
+   disp(i);
+   disp(j);
    disp(position);
    disp(motor);
    disp("---");
+   #position=motor-1;
+   error=1;
+  # two=0;
+  else
+  # two=two-1;
+   error=0;
   endif
-  motor = position+1;
+  #motor = position+1;
+ #endwhile
 
-  if(motor>250)
+  pause(0.0008);
+
+
+ #if(error==0)
+  motor=motor+1;
+
+  if((motor>250) || (motor < 1))
    motor = 1;
   endif
-  disp("motor: ");
-  disp(motor);
+  #disp("motor: ");
+  #disp(motor);
   motorStr=sprintf("%03ui\n",motor); 
 
- fdout=fopen("./tmp/bow_motor", "w+")
- fputs(fdout,motorStr)
- fclose(fdout)
- #fflush(fdout);
+  fdout=fopen("./tmp/bow_motor", "w+");
+  fputs(fdout,motorStr);
+  fclose(fdout);
+  #fflush(fdout);
+ #endif
 
- disp("loop end");
+ i=i+1;
+ #disp(i);
+ #disp("--loop end--");
 
 endwhile #2
 
