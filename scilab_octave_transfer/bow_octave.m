@@ -1,7 +1,32 @@
 
+# not a function file:
+1;
 
+
+function [Q, M, rk] = fullrf(A)
+    #//[Q,M,rk]=fullrf(A)
+    #//Full rank factorization : A=Q.M
+    #//with range(Q)=range(A) and ker(M)=ker(A),
+    #//Q full column rank , M full row rank
+    #// rk = rank(A) = #columns(Q) = #rows(M)
+    #//F.D.
+    #//!
+    [U,s,V]=svd(A);
+    rk=rank(A);
+    sq=sqrt(s);
+    Q=U*sq;M=sq*V';
+    Q=Q(:,1:rk);M=M(1:rk,:);
+endfunction
+
+
+
+#https://wiki.octave.org/Control_package
+#https://wiki.octave.org/Category:Octave_Forge
+#https://gnu-octave.github.io/packages/
 
 clear
+pkg load control
+pkg load signal
 
 #/*here the bow initialization */
 #    //global g;
@@ -52,7 +77,7 @@ clear
 
 
 #    //radius of ball as a sphere
-    global rbf;
+#    global rbf;
     rbf=30e-3;
 #    //disp(rbf, "rbf=")
 
@@ -98,6 +123,7 @@ alfa2=(Iw*rb^2+Ib*rw^2)/((rw+rb)*nev);
 beta2=(Ib*rw*(ku*km+rv*Ra))/(Ra*(rw+rb)*nev);
 gamma2=(Ib*rw*km)/(Ra*(rw+rb)*nev);
 
+disp("------- continous --------");
 
 A=[-betaw, 0, alfaw;
 -beta2, 0, alfa2;
@@ -108,15 +134,35 @@ B=[gammaw; gamma2; 0];
 C = [0, 0, 1;];
 
 D = [0;];
+disp("A")
+disp(A);
+disp("B")
+disp(B);
+disp("C")
+disp(C);
+disp("D")
+disp(D);
 
 
 #// Check contollability
 AB = [B, A*B, A*A*B;];
-rank(AB);
-eig(AB);#spec(AB);
+disp("AB")
+disp(AB);
 
-BoW_ss = syslin('c', A,B,C);
+rAB=rank(AB);
+disp("rank AB")
+disp(rAB);
+
+eAB=eig(AB);#spec(AB);
+disp("eigen AB")
+disp(eAB);
+
+BoW_ss = ss(A,B,C,D);
+disp("BoW_ss");
+disp(BoW_ss);
 BoW_tf = ss2tf(BoW_ss);
+disp("BoW_tf");
+disp(BoW_tf);
 #//disp(BoW_tf_manual); //checking both tf equal
 #//scf(1); clf(1);
 #//bode(BoW_tf)
@@ -126,11 +172,25 @@ BoW_tf = ss2tf(BoW_ss);
 #//plzr(BoW_tf);
 #//zpk(BoW_tf);
 
-BoW_ssd=dscr(BoW_ss, 0.02);
-F=BoW_ssd(2);
-g=BoW_ssd(3);
-c=BoW_ssd(4);
-d=BoW_ssd(5);
+disp("------- discrete --------");
+Ts=0.02;
+disp("Ts");
+disp(Ts);
+BoW_ssd=c2d(BoW_ss, Ts);
+F=BoW_ssd.a;
+g=BoW_ssd.b;
+c=BoW_ssd.c;
+d=BoW_ssd.d;
+disp("Bow_ssd");
+display(BoW_ssd);
+disp("F");
+disp(F);
+disp("g");
+disp(g);
+disp("c");
+disp(c);
+disp("d");
+disp(d);
 
 
 #/*
@@ -148,6 +208,7 @@ d=BoW_ssd(5);
 #*/
 
 
+disp("------- LQ reglator --------");
 
 #//**************************************************************
 #// LQ project --> K
@@ -171,57 +232,126 @@ R = 0.25;
 #//R = 1
 
 Q = diag([q1, q2,q3]);
-Big = sysdiag(Q,R);             #  //create big common Q R matrix
+Big = blkdiag(Q,R);             #  //create big common Q R matrix
 #// Now we calculate C1 and D12
 nstates = 3;
 #// full rank factirazition : egy matrixot tobb matrix szorzatara bontok: a tenyezok rangja azonos legyen az eredeti matrix rangjaval
+# https://www.mathworks.com/matlabcentral/fileexchange/19197-full-rank-factorization
 [w,wp] = fullrf(Big);
 C1=wp(:,1:nstates); #// kivalasztjuk az osszes sort es az 1->nstates oszlopokat
-D12=wp(:,$:$);   #//[C1,D12]'*[C1,D12]=Big //$ means last element: mindegyik sor utolso eleme-->oszlop matrix
+#D12=wp(:,$:$);   #//[C1,D12]'*[C1,D12]=Big //$ means last element: mindegyik sor utolso eleme-->oszlop matrix
+D12=wp(:,end);   #//[C1,D12]'*[C1,D12]=Big //$ means last element: mindegyik sor utolso eleme-->oszlop matrix
 
-P = syslin('c',A,B,C1,D12);   #   // The plant (continuous-time)
-[K,X] = lqr(P);
-spec(A+B*K);                   #                  // check stability
+disp("A");
+disp(A);
+disp("B");
+disp(B);
+disp("C1");
+disp(C1);
+disp("D12");
+disp(D12);
 
-Pd = syslin('d',F,g,C1,D12);    # // The plant (continuous-time)
-[Kd,X] = lqr(Pd);
-spec(F+g*Kd);                    #                        // check stability
+#P = syslin('c',A,B,C1,D12);   #   // The plant (continuous-time)
+P = ss(A,B,C1,D12);   #   // The plant (continuous-time)
+disp("P");
+display(P);
+[K,X] = lqr(P, Q, R);
+K=-K;
+disp("K");
+disp(K);
+disp("X");
+disp(X);
+
+#spec(A+B*K);                   #                  // check stability
+eABK=eig(A+B*K);                   #                  // check stability
+disp("eABK");
+disp(eABK);
+
+#Pd = syslin('d',F,g,C1,D12);    # // The plant (continuous-time)
+Pd = ss(F,g,C1,D12, Ts);    # // The plant (continuous-time)
+disp("Pd");
+display(Pd);
+[Kd,Xd] = lqr(Pd, Q, R);
+Kd=-Kd;
+disp("Kd");
+disp(Kd);
+disp("Xd");
+disp(Xd);
+eABKd=eig(F+g*Kd);                    #                        // check stability
+disp("eABKd");
+disp(eABKd);
 
 
+disp("---------- estimator ---------");
 #//**************************************************************
 #// estimator discrete
 #//**************************************************************
 #//same LQ metode and q used
 
 FT = F';
+disp("FT");
+disp(FT);
 
 cT = c';
+disp("cT");
+disp(cT);
 
 FTcT = [cT, FT * cT, FT *FT * cT];
+disp("FTcT");
+disp(FTcT);
 
-rank(FTcT);
-spec(FTcT);
+rFTcT=rank(FTcT);
+disp("rFTcT");
+disp(rFTcT);
+
+eFTcT=eig(FTcT);
+disp("eFTcT");
+disp(eFTcT);
+
 
 #// LQ project for estimator
 #//Q = diag([131.3122540004697,2.05175396875734,0.009118906527810399])           // comes from maxima
 #//R = 0.25
 
-Big_est = sysdiag(Q,R);           #       //create big common Q R matrix
+#Big_est = sysdiag(Q,R);           #       //create big common Q R matrix
+Big_est = blkdiag(Q,R);           #       //create big common Q R matrix
 #// Now we calculate C1 and D12
 #//nstates = 3;
 #// full rank factirazition : egy matrixot tobb matrix szorzatara bontok: a tenyezok rangja azonos legyen az eredeti matrix rangjaval
 [w_est, wp_est] = fullrf(Big_est);
 c1_est = wp_est(:,1:nstates); #// kivalasztjuk az osszes sort es az 1->nstates oszlopokat
-d12_est = wp_est(:,$:$);   #//[C1,D12]'*[C1,D12]=Big //$ means last element: mindegyik sor utolso eleme-->oszlop matrix
+d12_est = wp_est(:,end);   #//[C1,D12]'*[C1,D12]=Big //$ means last element: mindegyik sor utolso eleme-->oszlop matrix
 
-P_est = syslin('d',FT,cT,c1_est, d12_est);     #  // The plant (continuous-time)
-[K_estd,X_estd] = lqr(P_est);
-spec(FT+cT*K_estd);                             #         // check stability
+disp("FT");
+disp(FT);
+disp("cT");
+disp(cT);
+disp("c1_est");
+disp(c1_est);
+disp("d12_est");
+disp(d12_est);
+P_est = ss(FT,cT,c1_est, d12_est, Ts);     #  // The plant (continuous-time)
+display(P_est);
+[K_estd,X_estd] = lqr(P_est, Q, R);
+disp("K_estd");
+disp(K_estd);
+disp("X_estd");
+disp(X_estd);
 
+eFTcTKestd=eig(FT+cT*K_estd);                             #         // check stability
+disp("eFTcTKestd");
+disp(eFTcTKestd);
 
+disp("---- estiamtor in feedback ----");
 Gd = -K_estd';
 Fd = F - Gd * c;
 Hd = g;
+disp("Gd");
+disp(Gd);
+disp("Fd");
+disp(Fd);
+disp("Hd");
+disp(Hd);
 
 
 
@@ -302,7 +432,7 @@ while(1) #1
   endif
   #disp("motor: ");
   #disp(motor);
-  motorStr=sprintf("%03ui\n",motor); 
+  motorStr=sprintf("%03ui\n",motor);
 
   fdout=fopen("./tmp/bow_motor", "w+");
   fputs(fdout,motorStr);
@@ -316,5 +446,7 @@ while(1) #1
 
 endwhile #2
 
-}#
+#}
+
+
 
