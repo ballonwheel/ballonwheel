@@ -377,14 +377,6 @@ positionStr="000\n";
 i=0;
 j=0;
 
-Uk=0; //+-24V
-Uk_inverter = 0; //int → 255=-24V; 127=24V; 
-sum=0;
-sum_zn1=0;
-Interpolation = [x y;x y, …..];
-
-
-
 while(1) #1
   positionStr="255";
  # two=2;
@@ -429,25 +421,9 @@ while(1) #1
   #motor = position+1;
  #endwhile
 
-
- #--------------------------
   pause(0.0008);
 
-  Xpos = ADC*interpolation * %pi / 360;
-  sum = Gd * Xpos + Fd * sum_zn1 + Hd * Uk;
-  sum_zn1 = sum;
-  Uk = sum_zn1 * Kd;
 
-  Uk_inverter = max(Uk, 24);
-  Uk_inverter = (Uk + 24) * 127 / 24; 
-
-
-
-
-
- #--------------------------
-
- 
  #if(error==0)
   motor=motor+1;
 

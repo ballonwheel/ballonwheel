@@ -256,7 +256,6 @@ P = ss(A,B,C1,D12);   #   // The plant (continuous-time)
 disp("P");
 display(P);
 [K,X] = lqr(P, Q, R);
-K=-K;
 disp("K");
 disp(K);
 disp("X");
@@ -333,6 +332,7 @@ disp(d12_est);
 P_est = ss(FT,cT,c1_est, d12_est, Ts);     #  // The plant (continuous-time)
 display(P_est);
 [K_estd,X_estd] = lqr(P_est, Q, R);
+K_estd=-K_estd;
 disp("K_estd");
 disp(K_estd);
 disp("X_estd");
@@ -365,6 +365,57 @@ disp(Hd);
 #//4,08 6,07  296  220  --> 1.3409
 
 #/* ---------- EOF bow ini ----------------------------------- */
+
+x = [0;#ww
+  0;#w2
+  0.4];#fi2
+u = 0;
+sum_zn1=[0;0;0];
+i=0;
+while i<500
+   i=i+1;
+   disp(i)
+
+   #controller
+   #u=Kd*x;
+
+   #controller+estimator
+   sum_zn1=Fd*sum_zn1+Gd*x(3)+Hd*u;
+   u=Kd*sum_zn1;
+   if(u>24)
+       u=24;
+   end
+   if(u<-24)
+       u=-24;
+   end
+   disp("u")
+   disp(u)
+
+
+   xp=F*x+g*u;
+   x=xp;
+   disp("x")
+   disp(x)
+   #y=C*x+D*u;
+   #disp("y")
+   #disp(y)
+
+  meas.values(i,1)=x(3);
+  meas.values(i,2)=u;
+  meas.time(i,1)=(i-1)*0.02;
+endwhile
+
+subplot(2,1,1)
+plot(meas.time, meas.values(1:end,1),'b');
+hold on;
+subplot(2,1,2)
+plot(meas.time, meas.values(1:end,2),'b');
+#waitfor(10000)
+pause(20)
+#measAll=[meas.time meas.values];
+#csvwrite('./meas4_values.csv',meas.values)
+#csvwrite('./meas4_time.csv',meas.time)
+#csvwrite('./mAll.csv',measAll)
 
 
 #{

@@ -431,7 +431,7 @@ while(1) #1
 
 
  #--------------------------
-  pause(0.0008);
+  #pause(0.0008);
 
   Xpos = ADC*interpolation * %pi / 360;
   sum = Gd * Xpos + Fd * sum_zn1 + Hd * Uk;
