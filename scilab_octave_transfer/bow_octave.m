@@ -76,25 +76,34 @@ pkg load signal
 #    //disp(mb, "mb=")
 
 
-#    //radius of ball as a sphere
-#    global rbf;
-    rbf=30e-3;
-#    //disp(rbf, "rbf=")
+#//radius of ball as a sphere
+rbf=30e-3;
+#//disp(rbf, "rbf=")
 
-#    //radius of circle of ball ON EDGE
-#    global rb;
-    edge=30e-3;
-    rb=sqrt(rbf^2-(edge/2)^2);
-#    //disp(rb, "rb=")
+#radius of circle of ball ON EDGE
+edge=30e-3;
+rb=sqrt(rbf^2-(edge/2)^2);
+#//disp(rb, "rb=")
 
-#    global Ib;
-    Ib=(2/5) * mb * rbf^2;
-#    //disp(Ib, "Ib=")
+Ib=(2/5) * mb * rbf^2;
+
+vdc=24;#[V]
+drive_cwmax=255;#+24V
+drive_zero=127;#0V
+drive_ccwmax=0;#-24V
+posx=[24;40;64;100;130;160;190;210;245];#[ADC8bit]
+posx_min=24;#[ADC8bit]
+posx_max=245;#[ADC8bit]
+posy=[-17;-15;-10;-5;0;5;10;15;17];#[fok]
 
 
-#//**************************************************************
-#//PI controller design
-#//**************************************************************
+
+
+
+
+#**************************************************************
+#PI controller design
+#**************************************************************
 #//the motor a PIT1 system
 #//s=poly(0,'s');
 #//Big_gamma = km/(ku*km+Ra*rv);
@@ -111,10 +120,10 @@ pkg load signal
 #//K_PID_DCmotorLoad=0.6351
 #//Ti_PID_DCmotorLoad=0.01
 
-#//**************************************************************
-#//BoW system - space state equations
-#//**************************************************************
-#//the system below calculated with Maxima --> file: Bow.mc
+#**************************************************************
+#BoW system - space state equations
+#**************************************************************
+#the system below calculated with Maxima --> file: Bow.mc
 nev=(Ib*Iw+mb*rb^2*Iw+mb*rw^2*Ib);
 alfaw=(Ib*rw*mb*g)/nev;
 betaw=(Ib+mb*rb^2)*(ku*km+rv*Ra)/(Ra*nev);
@@ -210,10 +219,10 @@ disp(d);
 
 disp("------- LQ reglator --------");
 
-#//**************************************************************
-#// LQ project --> K
-#//**************************************************************
-#//the system below calculated with Maxima --> file: Bow.mc
+#**************************************************************
+# LQ project --> K
+#**************************************************************
+#the system below calculated with Maxima --> file: Bow.mc
 
 #//omegaw suly
 q1 = 0.009118906527810399;
@@ -282,10 +291,10 @@ disp(eABKd);
 
 
 disp("---------- estimator ---------");
-#//**************************************************************
-#// estimator discrete
-#//**************************************************************
-#//same LQ metode and q used
+#**************************************************************
+# estimator discrete
+#**************************************************************
+#same LQ metode and q used
 
 FT = F';
 disp("FT");
@@ -364,15 +373,26 @@ disp(Hd);
 #//2,91 4,28  205  159  --> 1.2893
 #//4,08 6,07  296  220  --> 1.3409
 
-#/* ---------- EOF bow ini ----------------------------------- */
+
+
 
 x = [0;#ww
   0;#w2
-  0.4];#fi2
+  0];#fi2
 u = 0;
 sum_zn1=[0;0;0];
-i=0;
-while i<500
+
+
+#/* ---------- EOF bow ini ----------------------------------- */
+
+
+
+simulation=0;
+
+if(simulation==1)
+ x(3)=0.4;
+ i=0;
+ while i<500
    i=i+1;
    disp(i)
 
@@ -403,36 +423,59 @@ while i<500
   meas.values(i,1)=x(3);
   meas.values(i,2)=u;
   meas.time(i,1)=(i-1)*0.02;
-endwhile
+ endwhile
 
-subplot(2,1,1)
-plot(meas.time, meas.values(1:end,1),'b');
-hold on;
-subplot(2,1,2)
-plot(meas.time, meas.values(1:end,2),'b');
-#waitfor(10000)
-pause(20)
-#measAll=[meas.time meas.values];
-#csvwrite('./meas4_values.csv',meas.values)
-#csvwrite('./meas4_time.csv',meas.time)
-#csvwrite('./mAll.csv',measAll)
+ subplot(2,1,1)
+ plot(meas.time, meas.values(1:end,1),'b');
+ hold on;
+ subplot(2,1,2)
+ plot(meas.time, meas.values(1:end,2),'b');
+ #waitfor(10000)
+ pause(20)#xwindow copy to document
+ #measAll=[meas.time meas.values];
+ #csvwrite('./meas4_values.csv',meas.values)
+ #csvwrite('./meas4_time.csv',meas.time)
+ #csvwrite('./mAll.csv',measAll)
+endif
 
 
-#{
 
-fdin=-1;
-position=1;
-motor=1;
-motor_last=1;
-positionStr="000\n";
-i=0;
-j=0;
+#--------------------------------------------------------------------------------------------------#
 
-while(1) #1
+
+#setup
+vdc=24;#[V]
+drive_cwmax=255;#+24V
+drive_zero=127;#0V
+drive_ccwmax=0;#-24V
+posx=[24;40;64;100;130;160;190;210;245];#[mm]
+posx_min=24;#[mm]
+posx_max=245;#[mm]
+posy=[-17;-15;-10;-5;0;5;10;15;17];#[fok]
+
+
+realsetup=1;
+
+if(realsetup==1)
+
+ fdin=-1;
+ position=1;
+ motor=1;
+ motor_last=1;
+ positionStr="000\n";
+ i=0;
+ j=0;
+ u = 0;
+ sum_zn1=[0;0;0];
+ test = 0;#set for debug
+
+ while(1) #0-----------------------------------------------------0
+
+  #get ADC
   positionStr="255";
- # two=2;
- #while(two)
-  while(fdin < 0) #2
+  #two=2;#getting twice
+  #while(two) #--------------------------------------------------1
+   while(fdin < 0) #2------------------------------------------->2
     #disp(':');
     fdin = fopen ("./tmp/bow_pos", "r");
     if(fdin != -1)
@@ -448,56 +491,93 @@ while(1) #1
     #disp("positionstr");
     #disp(positionStr);
     position=str2num(positionStr);
-  endwhile
-  fdin=-1;
+   endwhile #<-----------------------------------------------------2
+   fdin=-1;
 
-  #disp("position");
-  #disp(position);
-  #if(position ==  motor-1)
-   if((position != motor-1) && (motor != 1 ))
-   disp("cnt error");
-   j=j+1;
-   disp(i);
-   disp(j);
-   disp(position);
-   disp(motor);
-   disp("---");
-   #position=motor-1;
-   error=1;
-  # two=0;
+   #disp("position");
+   #disp(position);
+   if(test==1)
+    #if(position ==  motor-1)
+    if((position != motor-1) && (motor != 1 ))
+     disp("cnt error");
+     j=j+1;
+     disp(i);
+     disp(j);
+     disp(position);
+     disp(motor);
+     disp("---");
+     #position=motor-1;
+     error=1;
+     #two=0;
+    else
+     #two=two-1;
+     error=0;
+    endif
+    #motor = position+1;
+   endif
+  #endwhile #-----------------------------------------------------1
+
+
+
+
+  #control loop
+  if(test==1)
+   pause(0.0008);
   else
-  # two=two-1;
-   error=0;
+   #position in [ADC8bit] --> x(3)[radian]
+   if(position > 245)
+     position = 245;
+   endif
+   if(position < 24)
+     position = 24;
+   endif
+   x(3) = 2 * pi * ((interp1(posx,posy,position)) / 360);
+
+   #controller+estimator
+   sum_zn1=Fd*sum_zn1+Gd*x(3)+Hd*u;
+   u=Kd*sum_zn1;
+   if(u>vdc)
+       u=vdc;
+   end
+   if(u<-vdc)
+       u=-vdc;
+   end
   endif
-  #motor = position+1;
- #endwhile
-
-  pause(0.0008);
 
 
- #if(error==0)
-  motor=motor+1;
-
-  if((motor>250) || (motor < 1))
-   motor = 1;
+  #scale for drive
+  #if(error==0)
+   if(test == 1)
+     motor=motor+1;
+   else
+     motor = (vdc + u) * drive_zero/vdc;
+   endif
   endif
-  #disp("motor: ");
-  #disp(motor);
-  motorStr=sprintf("%03ui\n",motor);
 
-  fdout=fopen("./tmp/bow_motor", "w+");
-  fputs(fdout,motorStr);
-  fclose(fdout);
-  #fflush(fdout);
- #endif
+   #safe
+   if((motor>250) || (motor < 1))
+    motor = 1;
+   endif
+   #disp("motor: ");
+   #disp(motor);
 
- i=i+1;
- #disp(i);
- #disp("--loop end--");
+   #send back
+   motorStr=sprintf("%03ui\n",motor);
 
-endwhile #2
+   fdout=fopen("./tmp/bow_motor", "w+");
+   fputs(fdout,motorStr);
+   fclose(fdout);
+   #fflush(fdout);
+  #endif
 
-#}
+  i=i+1;
+  #disp(i);
+  #disp("--loop end--");
+
+ endwhile #-------------------------------------------------------0
+
+endif
+
 
 
 
