@@ -1,9 +1,9 @@
 #!/bin/bash
 
-
+echo "run"
 date &> log.run
-#echo on
-#set -x &>> log.run
+echo on
+set -x &>> log.run
 
 #http://comfilewiki.co.kr/en/doku.php?id=comfilepi:improving_real-time_performance:index
 #sudo apt install cpufrequtils
@@ -28,7 +28,7 @@ cpufreq-set -g performance &>> log.run
 #frame: [frame id][char1 char2 char3]
 #ahol minden adat uint8_t
 date &> log.startup
-./startup.sh &>> log.startup
+./startup.sh $1 $2 &>> log.startup
 
 #octave ciklus:
 #var amig nincs bow_pos
@@ -42,7 +42,7 @@ date &> log.startup
 #ciklus vege
 sleep 1
 date &> log.octave
-#(nice --20 octave bow_octave.m &>> log.octave) &
+#??(nice --20 octave bow_octave.m &>> log.octave) &
 nice --20 octave bow_octave.m &
 pid_octave=$!
 

@@ -1,7 +1,11 @@
 
 
 
-set -x #echo on
+set -x
+#echo on
+echo startup
+echo $1
+echo $2
 
 #meg kell keresni, hogy hol van az arduino
 #[  405.999319] usb 1-1.1: FTDI USB Serial Device converter now attached to ttyUSB1
@@ -10,11 +14,18 @@ set -x #echo on
 
 #UART=/dev/ttyUSB+$UARTNUM
 
-UART="/dev/ttyUSB0"
+#UART="/dev/ttyUSB0"
+UART="/dev/ttyUSB$2"
 
-eval "$(chmod 777 $UART)"
-eval "$(setserial $UART low_latency)"
-eval "$(stty 115200 < $UART)"
+chmod 777 $UART
+if [ "$1" == "ftdi" ]
+  then
+    setserial -v $UART low_latency
+    stty 115200 < $UART
+    echo "ftdi setting"
+  else
+    echo "ch340 do nothing"
+fi
 
 
 
