@@ -1,3 +1,4 @@
-Fri 21 Jul 11:09:09 BST 2023
-pid 4810's current affinity list: 0-3
-pid 4810's new affinity list: 3
+Wed  6 Sep 19:05:49 BST 2023
+./run.sh: line 10: cpufreq-set: command not found
+pid 2614's current affinity list: 0-3
+pid 2614's new affinity list: 3
