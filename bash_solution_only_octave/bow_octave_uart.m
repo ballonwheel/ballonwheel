@@ -97,14 +97,14 @@ rb=sqrt(rbf^2-(edge/2)^2);
 
 Ib=(2/5) * mb * rbf^2;
 
-vdc=24;#[V]
-drive_cwmax=255;#+24V
-drive_zero=127;#0V
-drive_ccwmax=0;#-24V
+vdc=24.0;#[V]
+drive_cwmax=255.0;#+24V
+drive_zero=127.0;#0V
+drive_ccwmax=0.0;#-24V
 posx=[0;24;40;64;100;130;160;190;210;245;255];#[ADC8bit]
 posx_min=24;#[ADC8bit]
 posx_max=245;#[ADC8bit]
-posy=[-17;-17;-15;-10;-5;0;5;10;15;17;17];#[fok]
+posy=[-16.0;-17.0;-15.0;-10.0;-5.0;0.0;5.0;10.0;15.0;17.0;18.0];#[fok]
 
 
 
@@ -192,7 +192,7 @@ disp(BoW_tf);
 #//zpk(BoW_tf);
 
 disp("------- discrete --------");
-Ts=0.02;
+Ts=0.03;
 disp("Ts");
 disp(Ts);
 BoW_ssd=c2d(BoW_ss, Ts);
@@ -386,11 +386,11 @@ disp(Hd);
 
 
 
-x = [0;#ww
-  0;#w2
-  0];#fi2
-u = 0;
-sum_zn1=[0;0;0];
+x = [0.0;#ww
+  0.0;#w2
+  0.0];#fi2
+u = 0.0;
+sum_zn1=[0.0;0.0;0.0];
 
 
 #/* ---------- EOF bow ini ----------------------------------- */
@@ -456,16 +456,8 @@ endif
 
 #setup
 i = 0;
-vdc=24;#[V]
-drive_cwmax=255;#+24V
-drive_zero=127;#0V
-drive_ccwmax=0;#-24V
-posx=[24;40;64;100;130;160;190;210;245];#[mm]
-posx_min=24;#[mm]
-posx_max=245;#[mm]
-posy=[-17;-15;-10;-5;0;5;10;15;17];#[fok]
-out=[int8(0) int8(0) int8(0) int8(0)];
-twopi=2*pi;
+two_pi=2.0*pi;
+out=[uint8(0) uint8(0) uint8(0)];
 
 realsetup=1;
 
@@ -474,7 +466,9 @@ if(realsetup==1)
 
  while( 1)
   i = i+1;
-  val = srl_read(s, 4);
+  flushinput(s);
+  val = srl_read(s, 3);
+  #val = fread(s, 3);
   #val(1) - frame
   #val(2) - adc
 
@@ -483,36 +477,42 @@ if(realsetup==1)
   if(val(1) != out(1))
    disp("frame error");
    disp(i);
-   disp(val(1));
-   disp(out(1));
-   disp(val(2));
-   disp(out(2));
+
+   disp(val);
+   disp(out);
+
   endif
 
 
   #control loop
   #position in [ADC8bit] --> x(3)[radian]
-  x(3) = twopi * (interp1(posx,posy,val(2))) / 360;
+  x(3) = two_pi * interp1(posx,posy,double(val(2))) / 360.0;
+  disp(x(3));
 
   #controller+estimator
   sum_zn1=Fd*sum_zn1+Gd*x(3)+Hd*u;
   u=Kd*sum_zn1;
+  disp(u);
   if(u>vdc)
       u=vdc;
   endif
   if(u<-vdc)
       u=-vdc;
   endif
-
+  disp(u);
 
 
   #scale for drive
-  out(2) = int8((vdc + u) * drive_zero/vdc);
-  #disp("motor: ");
-  #disp(motor);
+  out(2) = uint8((vdc + u) * drive_zero/vdc);
+  disp("motor: ");
+  disp(out(2));
 
-  out(1) = out(1) + 1;
-  #srl_write(s, out(1:4));
-  fwrite(s, out(1:4));
+  if(out(1) == 255)
+   out(1) = 0;
+  else
+   out(1) = out(1) + 1;
+  endif
+  #srl_write(s, out(1:3));
+  fwrite(s, out(1:3));
  endwhile
 endif
