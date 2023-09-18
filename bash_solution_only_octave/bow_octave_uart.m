@@ -7,6 +7,7 @@
 1;
 
 
+
 function [Q, M, rk] = fullrf(A)
     #//[Q,M,rk]=fullrf(A)
     #//Full rank factorization : A=Q.M
@@ -32,13 +33,15 @@ clear
 pkg load control
 pkg load signal
 pkg load instrument-control
+CTRL_SPACESTATE = 1;
+CTRL_PID = 2;
 s = serial("/dev/ttyUSB0", 115200);
 
-
-
-
-
 #/*here the bow initialization */
+Ts=0.02;
+#controller = CTRL_SPACESTATE;
+controller = CTRL_PID;
+
 #    //global g;
     g=9.81;
 #    //disp(g,"g=");
@@ -104,7 +107,7 @@ drive_ccwmax=0.0;#-24V
 posx=[0;24;40;64;100;130;160;190;210;245;255];#[ADC8bit]
 posx_min=24;#[ADC8bit]
 posx_max=245;#[ADC8bit]
-posy=[-16.0;-17.0;-15.0;-10.0;-5.0;0.0;5.0;10.0;15.0;17.0;18.0];#[fok]
+posy=[-18.0;-17.0;-15.0;-10.0;-5.0;0.0;5.0;10.0;15.0;17.0;18.0];#[fok]
 
 
 
@@ -129,6 +132,53 @@ posy=[-16.0;-17.0;-15.0;-10.0;-5.0;0.0;5.0;10.0;15.0;17.0;18.0];#[fok]
 #//bode(G)
 #//K_PID_DCmotorLoad=0.6351
 #//Ti_PID_DCmotorLoad=0.01
+
+if(Ts == 0.02)
+  pidKp = 534;
+  pidKi = 5.14e+03;
+  pidKd = 12.1;
+elseif(Ts == 0.03)
+  pidKp = 759;
+  pidKi = 5.96e+03;
+  pidKd = 18.5;
+elseif(Ts == 0.04)
+  pidKp = 613;
+  pidKi = 4.60e+03;
+  pidKd = 17.3;
+elseif(Ts == 0.05)
+  pidKp = 559;
+  pidKi = 4.38e+03;
+  pidKd = 17.7;
+elseif(Ts == 0.06)
+  pidKp = 532;
+  pidKi = 4.01e+03;
+  pidKd = 17.4;
+elseif(Ts == 0.07)
+  pidKp = 500;
+  pidKi = 3.65e+03;
+  pidKd = 17.1;
+elseif(Ts == 0.08)
+  pidKp = 465;
+  pidKi = 3.28e+03;
+  pidKd = 16.5;
+elseif(Ts == 0.09)
+  pidKp = 411;
+  pidKi = 2.61e+03;
+  pidKd = 16.2;
+elseif(Ts == 0.10)
+  pidKp = 369;
+  pidKi = 2.14e+03;
+  pidKd = 15.9;
+else
+  pidKp = 534;
+  pidKi = 5.14e+03;
+  pidKd = 12.1;
+endif
+
+
+
+
+
 
 #**************************************************************
 #BoW system - space state equations
@@ -192,7 +242,6 @@ disp(BoW_tf);
 #//zpk(BoW_tf);
 
 disp("------- discrete --------");
-Ts=0.03;
 disp("Ts");
 disp(Ts);
 BoW_ssd=c2d(BoW_ss, Ts);
@@ -383,23 +432,19 @@ disp(Hd);
 #//2,91 4,28  205  159  --> 1.2893
 #//4,08 6,07  296  220  --> 1.3409
 
-
-
-
-x = [0.0;#ww
-  0.0;#w2
-  0.0];#fi2
-u = 0.0;
-sum_zn1=[0.0;0.0;0.0];
-
-
 #/* ---------- EOF bow ini ----------------------------------- */
 
 
 
 simulation=0;
-
 if(simulation==1)
+
+ x = [0.0;#ww
+      0.0;#w2
+      0.0];#fi2
+ u = 0.0;
+ sum_zn1=[0.0;0.0;0.0];
+
  x(3)=0.4;
  i=0;
  while i<500
@@ -455,16 +500,40 @@ endif
 
 
 #setup
-i = 0;
-two_pi=2.0*pi;
-out=[uint8(0) uint8(0) uint8(0)];
-
+loop=0;
 realsetup=1;
-
 if(realsetup==1)
+ while(1)#-------------------------------------------------------------------------------------retry
 
+ pause(5); # mainly for retry bec.of windup
+ disp("new loop start");
+ loop=loop+1;#only for info
+ disp(loop)
 
- while( 1)
+ x = [0.0;#ww
+   0.0;#w2
+   0.0];#fi2
+ u = 0.0;
+ sum_zn1=[0.0;0.0;0.0];
+
+ i = 0;
+ two_pi=2.0*pi;
+ out=[uint8(0) uint8(0) uint8(Ts*1000)];
+ u_sum=0;
+ CONTROLRANGE_DEGREE = 13;
+ CONTROLRANGE = CONTROLRANGE_DEGREE*2*pi/360;
+ TO = 5*1/Ts;
+ timeout = 0;
+
+ #PID
+ sum_p = 0;
+ sum_i = 0;
+ sum_d = 0;
+ error = 0;
+ error_zn1 = 0;
+
+ run = 1;
+ while(run)#----------------------------------------------------------------------antiwindup check
   i = i+1;
   flushinput(s);
   val = srl_read(s, 3);
@@ -474,7 +543,7 @@ if(realsetup==1)
 
   #check frame id
   #if(val(1) != out(1) || val(2) != out(2))
-  if(val(1) != out(1))
+  if(val(1) != out(1))					#todo!! do somethig 
    disp("frame error");
    disp(i);
 
@@ -487,25 +556,57 @@ if(realsetup==1)
   #control loop
   #position in [ADC8bit] --> x(3)[radian]
   x(3) = two_pi * interp1(posx,posy,double(val(2))) / 360.0;
-  disp(x(3));
+  #disp(x(3));
 
-  #controller+estimator
-  sum_zn1=Fd*sum_zn1+Gd*x(3)+Hd*u;
-  u=Kd*sum_zn1;
-  disp(u);
+  if(controller == CTRL_SPACESTATE)
+   #controller+estimator
+   sum_zn1=Fd*sum_zn1+Gd*x(3)+Hd*u_sum;
+   u_sum=Kd*sum_zn1;
+   #disp(u_sum);
+   u = u_sum;
+  else #controller == CTRL_PID
+   #disp("PId");
+   #u =   error   * (pidKp + (     integrator    ) + pidKd * (derivative    ))
+   #u = (0 - x(3) * (pidKp + (pidKi * (Ts * 1/(z-1))) + pidKd * (1 / Ts * (z-1)))
+   error_zn1 = error;
+   #error = 0 - x(3);
+   error = x(3);
+   sum_p = pidKp * error;
+   #disp(sum_p);
+   #sum_i = sum_i + pidKi*Ts*error;		#backward
+   #sum_i = sum_i + pidKi*Ts*error_zn1;		#forward
+   sum_i = sum_i + pidKi*Ts*(error+error_zn1)/2;	#trapezoid, bilinear
+   #disp(sum_i);
+   sum_d = pidKd * (error - error_zn1)/Ts;
+   #disp(sum_d);
+   u = sum_p + sum_i + sum_d;
+  endif
+
+
   if(u>vdc)
       u=vdc;
   endif
   if(u<-vdc)
       u=-vdc;
   endif
-  disp(u);
+  #disp(u);
+
+
+
+  #safety check
+  #ha szelso helyzetben van >5sec-ig es a motor forg mint az orult, akkor antiwindup kell
+  if((abs(x(3)) > CONTROLRANGE) && (abs(u) == vdc))
+     timeout=timeout+1;
+  endif
+  if(timeout > TO)
+    run = 0;
+  endif
 
 
   #scale for drive
   out(2) = uint8((vdc + u) * drive_zero/vdc);
-  disp("motor: ");
-  disp(out(2));
+  #disp("motor: ");
+  #disp(out(2));
 
   if(out(1) == 255)
    out(1) = 0;
@@ -514,5 +615,6 @@ if(realsetup==1)
   endif
   #srl_write(s, out(1:3));
   fwrite(s, out(1:3));
- endwhile
+ endwhile#--------------------------------------------------------------------------------------antiwindup
+endwhile #-------------------------------------------------------------------------------------------retry
 endif

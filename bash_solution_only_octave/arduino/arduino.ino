@@ -1,4 +1,4 @@
-
+	
 
 //https://www.ftdichip.com/Support/Knowledgebase/index.html?an232beffectbuffsizeandlatency.htm
 //https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
@@ -33,7 +33,7 @@ Kicsomagol ide
   571  ./arduino-cli board list   //most se latja  577  ./arduino-cli compile --verbose --fqbn arduino:avr:nano blink   //forditani azert lehet
   582  ./arduino-cli upload -v -p /dev/ttyUSB0 --fqbn arduino:avr:nano blink  // azt irjak azert letolti es tenyleg !!!
 ../../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
-../../../bow/arduino-cli upload -v -p /dev/ttyUSB1 --fqbn arduino:avr:nano arduino.ino
+../../../bow/arduino-cli upload -v -p /dev/ttyUSB0 --fqbn arduino:avr:nano arduino.ino
 */
 
 
@@ -45,7 +45,7 @@ Kicsomagol ide
 #define CCW_ 1
 volatile unsigned int dir=CW_;
   
-volatile byte bldc_step, motor_speedADC, motor_speed;
+volatile byte bldc_step, motor_speedADC, motor_speed, motor_voltage;
 
 #define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
 
@@ -59,6 +59,7 @@ volatile uint8_t *datarxp;
 volatile uint8_t serialgo=0;
 volatile uint16_t scheduler;
 //String dataStr="250\n";
+volatile uint8_t to_cnt=0;
 
 //volatile uint8_t *pos1 = &data[0];
 //volatile uint8_t *pos2 = &data[1];
@@ -69,7 +70,8 @@ volatile uint8_t tick, tick_last;
 //volatile uint8_t adctrig;
 
 #define ADCMSEC 10
-#define ADCTXTRIG (30*ADCMSEC)
+#define ADCTXTRIG (20*ADCMSEC)
+volatile uint16_t Ts=19*ADCMSEC;
 ISR (ADC_vect)
 {
   //digitalWrite(3, LOW);
@@ -87,49 +89,46 @@ ISR (ADC_vect)
   //if(scheduler == 16){
   //  *pos1 = dataadc;
   //}
-
-
-  //if(scheduler == 33){
+  //else if(scheduler == 33){
   //  *pos2 = dataadc;
   //}
+  //if(scheduler == ADCTXTRIG){    <------ezt hasznald akkor, ha def-fel kell a Ts
+  if(scheduler == Ts){
+      if((UCSR0B & bit(RXEN0))){//timeout, handled in loop()
+        if(to_cnt < 10)to_cnt++;
+      }
+      else
+        to_cnt = 0;
 
+      scheduler = 0;
+      //adctrig=1;
 
-  if(scheduler == ADCTXTRIG-ADCMSEC)
-    UCSR0B = 0;
-
-
-  if(scheduler == ADCTXTRIG){
-    scheduler = 0;
-    //adctrig=1;
-
-    *pos3 = dataadc;
+      *pos3 = dataadc;
        
-   //data[0] = '0';
-   //data[1] = '0';
-   //data[2] = '1';
-   //data[3] = '\n';
-   //data[4] = 0;
+      //data[0] = '0';
+      //data[1] = '0';
+      //data[2] = '1';
+      //data[3] = '\n';
+      //data[4] = 0;
 
    
-   data[0] = datarx[0];
-   //data[1] = datarx[1];
-   data[2] = datarx[2];
-   data[3] = '\n';
-   data[4] = 0;
-   datap = data;
-   datarxp = datarx;
-   //datarx[0]=0;
-   //datarx[1]=0; ne torold, mert kiolvassa a loop()
-   //datarx[2]=0;
-   //datarx[3]='\n';
-   //datarx[4]=0;
+      data[0] = datarx[0];
+      //data[1] = datarx[1];
+      data[2] = datarx[2];
+      data[3] = '\n';
+      data[4] = 0;
+      datap = data;
+      datarxp = datarx;
+      //datarx[0]=0;
+      //datarx[1]=0; ne torold, mert kiolvassa a loop()
+      //datarx[2]=0;
+      //datarx[3]='\n';
+      //datarx[4]=0;
 
-    UCSR0B = bit(TXEN0) | bit(UDRIE0);
+      UCSR0B = bit(TXEN0) | bit(UDRIE0);
   
   }
-
-  
-  
+ 
   //digitalWrite(3, HIGH);
 }
 
@@ -319,16 +318,16 @@ void setup() {
    data[3] = '\n';
    data[4] = 0;
 
-
+   datarx[1] = 127;//uart frame , motor fesz 0V
 
 
 
   // Timer1 module setting: set clock source to clkI/O / 1 ( prescaling)
   TCCR1A = 0;
-  TCCR1B = 0x02;
+  TCCR1B = 0x01;
   // Timer2 module setting: set clock source to clkI/O / 1 ( prescaling)
   TCCR2A = 0;
-  TCCR2B = 0x02;
+  TCCR2B = 0x01;
 
  // Pin change interrupt configuration
   PCICR  = 4;                        // Enable pin change interrupt for pins 0 to 7
@@ -353,18 +352,38 @@ void loop() {
   //  adctrig=0;
   //}
 
-  //motor_speed=motor_speedADC;
-  motor_speed = datarx[1];
-  if(motor_speed > 130) {
-    dir = CCW_;
-    motor_speed -= 130;
-    motor_speed *= 2;
+
+
+
+  //-----  set Ts from rx and check TO -----
+  if(datarx[2] >= 20 && datarx[2] <=100 && to_cnt < 10){ //10* nem jott rx
+	Ts = datarx[2]*ADCMSEC;
   }
-  else if (motor_speed < 124){
+  else{							//hibas Ts vagy timeout
+	Ts = 19*ADCMSEC;				//default Ts 
+  }
+
+
+
+  //----- set Ts from rx or default  ------
+  //motor_voltage=motor_speedADC;
+  if(Ts != 19*ADCMSEC)					//ha nem default Ts, akkor hasznalja az rx motorfeszultseget
+	motor_voltage = datarx[1];
+  else
+	motor_voltage = 127;				//0V
+  
+
+
+  //-----  re-scale the input motor-voltage as motor_speed -----
+  //input voltage [0:-24V] [] [127:0V] [255:24V]
+  //output motor speed: [dir] [0:0V] [255:24V]
+  if(motor_voltage > 130) {
+    dir = CCW_;
+    motor_speed = (motor_voltage - 130)*2;
+  }
+  else if (motor_voltage < 124){
     dir = CW_;
-    motor_speed ++;//ha 0
-    motor_speed = 255 - motor_speed;
-    motor_speed *= 2;
+    motor_speed = (124-(motor_voltage + 1))*2;		//+1, ha 0;
     //velw = 0;
 
   }  
@@ -374,6 +393,9 @@ void loop() {
     save2 = TCCR2A;
     save3 = PORTD;
   }
+  //max speed test
+  //motor_speed = 255;
+  //dir = CW_;
  
   SET_PWM_DUTY(motor_speed);
   
