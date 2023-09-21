@@ -22,6 +22,15 @@ cpufreq-set -g performance &>> log.run
 #This will prevent Linux from allocating the 4th core to most process, interrupt handlers, and kernel threads. Reboot for the change to take effect.
 
 
+
+umount ./tmp
+mount -t tmpfs -o size=512M,mode=1777 bowtmp ./tmp/
+#touch ./tmp/bow_motor
+chown -R imre ./tmp
+chgrp -R imre ./tmp
+chmod 666 ./tmp/bow_motor
+
+
 #octave ciklus:
 date &> log.octave
 #(nice --20 octave bow_octave.m &>> log.octave) &

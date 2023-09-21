@@ -39,8 +39,8 @@ s = serial("/dev/ttyUSB0", 115200);
 
 #/*here the bow initialization */
 Ts=0.02;
-#controller = CTRL_SPACESTATE;
-controller = CTRL_PID;
+controller = CTRL_SPACESTATE;
+#controller = CTRL_PID;
 
 #    //global g;
     g=9.81;
@@ -132,11 +132,17 @@ posy=[-18.0;-17.0;-15.0;-10.0;-5.0;0.0;5.0;10.0;15.0;17.0;18.0];#[fok]
 #//bode(G)
 #//K_PID_DCmotorLoad=0.6351
 #//Ti_PID_DCmotorLoad=0.01
-
+if(controller == CTRL_PID)
+ Ts=0.02
+ disp("Ts overwritten, toher settings to do");
+endif
 if(Ts == 0.02)
-  pidKp = 534;
-  pidKi = 5.14e+03;
-  pidKd = 12.1;
+  #pidKp = 534;
+  #pidKi = 5.14e+03;
+  #pidKd = 12.1;
+  pidKp = 72.7;
+  pidKi = 259;
+  pidKd = 5.09;
 elseif(Ts == 0.03)
   pidKp = 759;
   pidKi = 5.96e+03;
@@ -447,6 +453,7 @@ if(simulation==1)
 
  x(3)=0.4;
  i=0;
+
  while i<500
    i=i+1;
    disp(i)
@@ -529,8 +536,11 @@ if(realsetup==1)
  sum_p = 0;
  sum_i = 0;
  sum_d = 0;
- error = 0;
+ error_ = 0;
  error_zn1 = 0;
+
+ fdout=fopen("./tmp/bow_dispout", "w");
+ filepointer = 1;
 
  run = 1;
  while(run)#----------------------------------------------------------------------antiwindup check
@@ -566,18 +576,18 @@ if(realsetup==1)
    u = u_sum;
   else #controller == CTRL_PID
    #disp("PId");
-   #u =   error   * (pidKp + (     integrator    ) + pidKd * (derivative    ))
+   #u =   error_   * (pidKp + (     integrator    ) + pidKd * (derivative    ))
    #u = (0 - x(3) * (pidKp + (pidKi * (Ts * 1/(z-1))) + pidKd * (1 / Ts * (z-1)))
-   error_zn1 = error;
-   #error = 0 - x(3);
-   error = x(3);
-   sum_p = pidKp * error;
+   error_zn1 = error_;
+   error_ = 0 - x(3);
+   #error_ = x(3);
+   sum_p = pidKp * error_;
    #disp(sum_p);
-   #sum_i = sum_i + pidKi*Ts*error;		#backward
-   #sum_i = sum_i + pidKi*Ts*error_zn1;		#forward
-   sum_i = sum_i + pidKi*Ts*(error+error_zn1)/2;	#trapezoid, bilinear
+   #sum_i = sum_i + pidKi*Ts*error_;		#backward
+   sum_i = sum_i + pidKi*Ts*error_zn1;		#forward
+   #sum_i = sum_i + pidKi*Ts*(error+error_zn1)/2;	#trapezoid, bilinear
    #disp(sum_i);
-   sum_d = pidKd * (error - error_zn1)/Ts;
+   sum_d = pidKd * (error_ - error_zn1)/Ts;
    #disp(sum_d);
    u = sum_p + sum_i + sum_d;
   endif
@@ -590,7 +600,6 @@ if(realsetup==1)
       u=-vdc;
   endif
   #disp(u);
-
 
 
   #safety check
@@ -615,6 +624,18 @@ if(realsetup==1)
   endif
   #srl_write(s, out(1:3));
   fwrite(s, out(1:3));
+
+
+  fwrite(fdout,val(2));
+  fwrite(fdout,u);
+  fflush(fdout);
+  if(filepointer > 1000)
+   filepointer = 1;
+   frewind(fdout);
+  endif
+  filepointer = filepointer + 1;
+
  endwhile#--------------------------------------------------------------------------------------antiwindup
+  fclose(fdout);
 endwhile #-------------------------------------------------------------------------------------------retry
 endif
