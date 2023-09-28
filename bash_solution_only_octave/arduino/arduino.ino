@@ -210,22 +210,22 @@ void bldc_move(){        // BLDC motor commutation function
   else
     switch(bldc_step){
       case 1:
-        AL_CH();
+        CH_AL();//AL_CH();
         break;
       case 2:
-        BL_AH();
+        AH_BL();//BL_AH();
         break;
       case 3:
-        BL_CH();
+        CH_BL();//BL_CH();
         break;
       case 4:
-        CL_BH();
+        BH_CL();//CL_BH();
         break;
       case 5:
-        AL_BH();
+        BH_AL();//AL_BH();
         break;
       case 6:
-        CL_AH();
+        AH_CL();//CL_AH();
         break;
       default:
         //PORTD = 0xe0;
@@ -394,7 +394,7 @@ void loop() {
     save3 = PORTD;
   }
   //max speed test
-  //motor_speed = 255;
+  //motor_speed = 127;
   //dir = CW_;
  
   SET_PWM_DUTY(motor_speed);
