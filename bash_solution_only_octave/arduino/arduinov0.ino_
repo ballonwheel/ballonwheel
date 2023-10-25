@@ -45,8 +45,8 @@ Kicsomagol ide
 #define CCW_ 1
 volatile unsigned int dir=CW_;
   
-volatile byte bldc_step, bldc_stepLast, motor_speedADC, motor_speed, motor_voltage;
-volatile uint32_t sixStepPeriodeCnt, sixStepPeriodeHalf;
+volatile byte bldc_step, motor_speedADC, motor_speed, motor_voltage;
+
 #define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.
 
 
@@ -65,7 +65,7 @@ volatile uint8_t to_cnt=0;
 //volatile uint8_t *pos2 = &data[1];
 volatile uint8_t *pos3 = &data[1];
 //volatile uint8_t *velw = &data[3];//velocity wheel
-volatile uint32_t tick, tick_last, step, tickBLDC; 
+volatile uint8_t tick, tick_last;
 
 //volatile uint8_t adctrig;
 
@@ -76,8 +76,7 @@ ISR (ADC_vect)
 {
   //digitalWrite(3, LOW);
 
-  tick++; //100usec max 25600usec, 25.6msec, 300rpm/60*23polpair=115hz=8.7msec / 0.1msec ~= 100 -> 60/100=1fok kb
-  tickBLDC++;
+  tick++;
 
   if(adcPin)dataadc = ADCH;
   else motor_speedADC=ADCH;
@@ -86,16 +85,6 @@ ISR (ADC_vect)
 
   //100usec, 10khz
   scheduler++;
-
-
-   if(step & dir == CCW_){
-    if(sixStepPeriodeCnt++ >= sixStepPeriodeHalf){
-	bldc_move();
-        step = 0;
-    }
-   }
-
-
 
   //if(scheduler == 16){
   //  *pos1 = dataadc;
@@ -183,130 +172,67 @@ ISR(USART_RX_vect)
 #endif
 
 ISR (PCINT2_vect){
-  bldc_stepLast = bldc_step;
   bldc_step = (PIND >> 5) & 7;       // Read hall effect sensors status (PIND: read from PORTD which is arduino pins 0..7)
-  if(dir == CW_)bldc_move();                      
-
-  sixStepPeriodeCnt = 0;
-  sixStepPeriodeHalf = tickBLDC / 2;
-  step=1;
-  tickBLDC=0;
-
+  bldc_move();                      
 
   //*velw = tick - tick_last;
   tick_last = tick;
   //digitalWrite(12, HIGH);
   //digitalWrite(12, LOW);
+
 }
 
-#if 0
 void bldc_move(){        // BLDC motor commutation function
-   if(dir == CW_){
-     switch(bldc_step){
-       case 4:
-         AH_BL();
-         break;
-       case 5:
-         CH_BL();
-         break;
-       case 6:
-         CH_AL();
-         break;
-       case 2:
-         BH_AL();
-         break;
-       case 3:
-         BH_CL();
-         break;
-       case 1:
-         AH_CL();
-         break;
-       default:
-         //PORTD = 0xe0;
-         break;
-     }
-   }
-   else{//CCW_
-     switch(bldc_step){
-       case 4:
-         BH_CL();
-         break;
-       case 1:
-         BH_AL();
-         break;
-       case 3:
-         CH_AL();
-         break;
-       case 2:
-         CH_BL();
-         break;
-       case 6:
-         AH_BL();
-         break;
-       case 5:
-         AH_CL();
-         break;
-       default:
-         //PORTD = 0xe0;
-         break;
-     }
-   }
-}
-#else
-
-void bldc_move(){        // BLDC motor commutation function
-  if(dir == CW_){
+  if(dir == CW_)
     switch(bldc_step){
-      case 5:
-        CH_BL();//CH_AL();
-        break;
-      case 3:
-        AH_CL();//AH_BL();
-        break;
       case 1:
-        AH_BL();//CH_BL();
-        break;
-      case 6:
-        BH_AL();//BH_CL();
-        break;
-      case 4:
-        CH_AL();//BH_AL();
-        break;
-      case 2:
-        BH_CL();//AH_CL();
-        break;
-      default:
-        //PORTD = 0xe0;
-        break;
-    }
-  }
-  else{//CCW_
-    switch(bldc_step){
-      case 5:
-        BH_AL();
-        break;
-      case 4:
-        BH_CL();
-        break;
-      case 6:
         AH_CL();
         break;
       case 2:
-        AH_BL();
+        BH_AL();
         break;
       case 3:
+        BH_CL();
+        break;
+      case 4:
         CH_BL();
         break;
-      case 1:
+      case 5:
+        AH_BL();
+        break;
+      case 6:
         CH_AL();
         break;
       default:
         //PORTD = 0xe0;
         break;
     }
-  }
+  else
+    switch(bldc_step){
+      case 1:
+        CH_AL();//AL_CH();
+        break;
+      case 2:
+        AH_BL();//BL_AH();
+        break;
+      case 3:
+        CH_BL();//BL_CH();
+        break;
+      case 4:
+        BH_CL();//CL_BH();
+        break;
+      case 5:
+        BH_AL();//AL_BH();
+        break;
+      case 6:
+        AH_CL();//CL_AH();
+        break;
+      default:
+        //PORTD = 0xe0;
+        break;
+    }
 }
-#endif
+
 /************************************************************
 *
 ************************************************************/
@@ -410,18 +336,7 @@ void setup() {
   bldc_step = (PIND >> 5) & 7;       // Read hall effect sensors status (PIND: read from PORTD which is arduino pins 0..7)
   bldc_move();                      
  // Move the BLDC motor (first move)
-//vectors checking
-//BH_CL(); // 001 1??????????????????????????????????????
-//BH_AL(); // 011 3
-//CH_AL(); // 010 2
-//CH_BL(); // 110 6
-//AH_CL(); // 101 5
-//AH_BL(); // 100 4
-
-
-
-
-
+  
 }
 
  unsigned int save1;
@@ -451,11 +366,11 @@ void loop() {
 
 
   //----- set Ts from rx or default  ------
-  //motor_voltage=motor_speedADC;
-  if(Ts != 19*ADCMSEC)					//ha nem default Ts, akkor hasznalja az rx motorfeszultseget
-	motor_voltage = datarx[1];
-  else
-	motor_voltage = 127;				//0V
+  motor_voltage=motor_speedADC;
+  //if(Ts != 19*ADCMSEC)					//ha nem default Ts, akkor hasznalja az rx motorfeszultseget
+//	motor_voltage = datarx[1];
+  //else
+//	motor_voltage = 127;				//0V
   
 
 
@@ -479,12 +394,9 @@ void loop() {
     save3 = PORTD;
   }
   //max speed test
-  //motor_speed = 150;
-  //dir = CCW_;
-  
+  //motor_speed = 127;
+  //dir = CW_;
  
-  //if inverted pwm
-  motor_speed = 255 - motor_speed;
   SET_PWM_DUTY(motor_speed);
   
 }
@@ -499,95 +411,118 @@ void USART_Flush( void )
 
 
 void AH_BL(){
-
-  TCCR1A =  0;         //
-  TCCR2A =  0;            // Turn Bpin10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
-  PORTD &= ~0x10;   //csak azt torold, amit kell, no transient
-  PORTD |=  0x0c;   //Cpin4:0 Bpin3:1 Apin2:1
-  PORTB &= ~0x0c;
-  PORTB |= 0x02;	  // Apin9:high 
-  TCCR1A =  0x21;         //
-  TCCR2A =  0;            // Turn Bpin10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
-}
-
-void AH_CL(){
-
-  //digitalWrite(12, HIGH);
-  //digitalWrite(12, LOW);
-  
-//  PORTD &= ~0x08;
-//  PORTD |=  0x14;	//Cpin4:1 Bpin3:0 Apin2:1
-
-  TCCR1A =  0;            // Turn Cpin11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
-  TCCR2A =  0x81;         //
-  PORTB &= ~0x0c;
-  PORTB |= 0x02;	  
-
- PORTD &= ~0x08;
- PORTD |=  0x14;       //Cpin4:1 Bpin3:0 Apin2:1
-
-
-}
-
-void BH_CL(){
-//  PORTD &= ~0x04;
-//  PORTD |=  0x18;
-
-  TCCR1A =  0;            // Turn Cpin11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
-  TCCR2A =  0x81;         //
-  PORTB &= ~0x0a;
-  PORTB |= 0x04;      
-
-  PORTD &= ~0x04;
-  PORTD |=  0x18;
-
-
-}
-
-void BH_AL(){
-  //PORTD &= ~0x10;
-  //PORTD |=  0x0c;
+  PORTD &= ~0x10;
+//  PORTD |=  0x08;
+  PORTD |=  0x0c;
 
   TCCR1A =  0x81;         //
   TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
-  PORTB &= ~0x0a;
-  PORTB |= 0x04;
+}
+void AH_CL(){
 
+  digitalWrite(12, HIGH);
+  digitalWrite(12, LOW);
+  
+  PORTD &= ~0x08;
+//  PORTD |=  0x10;
+  PORTD |=  0x14;
+
+  TCCR1A =  0x81;         //
+  TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
+}
+void BH_CL(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x10;
+  PORTD |=  0x18;
+
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
+}
+void BH_AL(){
+  PORTD &= ~0x10;
+//  PORTD |=  0x04;
+  PORTD |=  0x0c;
+
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
+}
+void CH_AL(){
+  PORTD &= ~0x08;
+//  PORTD |=  0x04;
+  PORTD |=  0x14;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+void CH_BL(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x08;
+  PORTD |=  0x18;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+
+
+/**/
+//ccw
+
+void AL_BH(){
   PORTD &= ~0x10;
   PORTD |=  0x0c;
 
-
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)  
 
 }
-void CH_AL(){
-  //PORTD &= ~0x08;
-  //PORTD |=  0x14;
+void AL_CH(){
+
+  digitalWrite(12, HIGH);
+  digitalWrite(12, LOW);
+  
+  PORTD &= ~0x08;
+//  PORTD |=  0x10;
+  PORTD |=  0x14;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+void BL_CH(){
+  PORTD &= ~0x04;
+//  PORTD |=  0x10;
+  PORTD |=  0x18;
+
+  TCCR1A =  0;            // Turn pin 11 (OC2A) PWM ON (pin 9 & pin 10 OFF)
+  TCCR2A =  0x81;         //
+}
+void BL_AH(){
+  PORTD &= ~0x10;
+//  PORTD |=  0x04;
+  PORTD |=  0x0c;
+
 
   TCCR1A =  0x81;         //
   TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
-  PORTB &= ~0x06;
-  PORTB |= 0x08;
 
-  PORTD &= ~0x08;
-  PORTD |=  0x14;
 }
+void CL_AH(){
+  PORTD &= ~0x08;
+//  PORTD |=  0x04;
+  PORTD |=  0x14;
 
 
-void CH_BL(){
-//  PORTD &= ~0x04;
-//  PORTD |=  0x18;
+  TCCR1A =  0x81;         //
+  TCCR2A =  0;            // Turn pin 9 (OC1A) PWM ON (pin 10 & pin 11 OFF)
 
-  TCCR1A =  0x21;         //
-  TCCR2A =  0;            // Turn Bpin10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
-
-
-  PORTB &= ~0x06;
-  PORTB |= 0x08;          // Cpin11:high
-
+}
+void CL_BH(){
   PORTD &= ~0x04;
+//  PORTD |=  0x08;
   PORTD |=  0x18;
 
 
+  TCCR1A =  0x21;         //
+  TCCR2A =  0;            // Turn pin 10 (OC1B) PWM ON (pin 9 & pin 11 OFF)
 }
  
 void SET_PWM_DUTY(byte duty){
