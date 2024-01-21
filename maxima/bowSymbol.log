@@ -1,0 +1,740 @@
+
+Maxima 5.44.0 http://maxima.sourceforge.net
+using Lisp GNU Common Lisp (GCL) GCL 2.6.12
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+(%i1) batch("bowSymbol.mc")
+
+read and interpret /home/imre/ballonwheel/maxima/bowSymbol.mc
+(%i2) print("hello world")
+hello world 
+(%o2)                             hello world
+(%i3) acp:omega2^2*(rw+rb)
+                                     2
+(%o3)                          omega2  (rw + rb)
+(%i4) atg:beta2*(rw+rb)
+(%o4)                           beta2 (rw + rb)
+(%i5) eq2:mb*g*cos(fi2)-N = mb*acp
+                                                2
+(%o5)              cos(fi2) g mb - N = mb omega2  (rw + rb)
+(%i6) eq4:mb*g*sin(fi2)+s = mb*atg
+(%o6)               s + sin(fi2) g mb = beta2 mb (rw + rb)
+(%i7) eq5:s*rb = thetab*betab
+(%o7)                         rb s = betab thetab
+(%i8) Mm:(km*(Ua-ku*omegaw))/Ra
+                              km (Ua - ku omegaw)
+(%o8)                         -------------------
+                                      Ra
+(%i9) Ms:rv*omegaw
+(%o9)                              omegaw rv
+(%i10) eq6:Mm-Ms+(-s)*rw = thetaw*betaw
+                                  km (Ua - ku omegaw)
+(%o10)     (- rw s) - omegaw rv + ------------------- = betaw thetaw
+                                          Ra
+(%i11) vbc_m:[(rw+rb)*omega2,0,0]
+(%i12) vp_m:[rw*omegaw,0,0]
+(%i13) omegab_m:[0,0,omegab]
+(%i14) rb_m:[0,rb,0]
+(%i15) load("vect")
+(%i16) eq7_0:vbc_m = vp_m+omegab_m ~ rb_m
+(%o16) [omega2 (rw + rb), 0, 0] = [omegaw rw, 0, 0]
+                                                  + [0, 0, omegab] ~ [0, rb, 0]
+(%i17) eq7_1:express(%)
+(%o17)     [omega2 (rw + rb), 0, 0] = [omegaw rw - omegab rb, 0, 0]
+(%i18) vbc:vbc_m[1]
+(%i19) vbc
+(%o19)                         omega2 (rw + rb)
+(%i20) eq7_11:(rw+rb)*omega2 = rw*omegaw-rb*omegab
+(%o20)             omega2 (rw + rb) = omegaw rw - omegab rb
+(%i21) eq7:(rw+rb)*beta2 = rw*betaw-rb*betab
+(%o21)               beta2 (rw + rb) = betaw rw - betab rb
+(%i22) eq8:s <= mu*N
+(%o22)                             s <= N mu
+(%i23) algsys([eq4,eq5,eq6,eq7],[betab,s,betaw,beta2])
+(%o23) [[betab = - (Ra sin(fi2) g mb rb thetaw
+ + (Ra mb omegaw rb rv + (km ku mb omegaw - Ua km mb) rb) rw)
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+s = - (Ra sin(fi2) g mb thetab thetaw + (Ra mb omegaw rv + km ku mb omegaw
+                                              2                   2
+ - Ua km mb) rw thetab)/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+betaw = ((Ra sin(fi2) g mb rw - Ra omegaw rv - km ku omegaw + Ua km) thetab
+                  2                                     2
+ - Ra mb omegaw rb  rv + (Ua km mb - km ku mb omegaw) rb )
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+                            2                              2
+beta2 = (Ra sin(fi2) g mb rb  thetaw + (Ra sin(fi2) g mb rw
+ + ((- Ra omegaw rv) - km ku omegaw + Ua km) rw) thetab)
+                                    2              3
+/(((Ra rw + Ra rb) thetab + Ra mb rb  rw + Ra mb rb ) thetaw
+            3              2
+ + (Ra mb rw  + Ra mb rb rw ) thetab)]]
+(%i24) %th(1)[1]
+(%o24) [betab = - (Ra sin(fi2) g mb rb thetaw
+ + (Ra mb omegaw rb rv + (km ku mb omegaw - Ua km mb) rb) rw)
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+s = - (Ra sin(fi2) g mb thetab thetaw + (Ra mb omegaw rv + km ku mb omegaw
+                                              2                   2
+ - Ua km mb) rw thetab)/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+betaw = ((Ra sin(fi2) g mb rw - Ra omegaw rv - km ku omegaw + Ua km) thetab
+                  2                                     2
+ - Ra mb omegaw rb  rv + (Ua km mb - km ku mb omegaw) rb )
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+                            2                              2
+beta2 = (Ra sin(fi2) g mb rb  thetaw + (Ra sin(fi2) g mb rw
+ + ((- Ra omegaw rv) - km ku omegaw + Ua km) rw) thetab)
+                                    2              3
+/(((Ra rw + Ra rb) thetab + Ra mb rb  rw + Ra mb rb ) thetaw
+            3              2
+ + (Ra mb rw  + Ra mb rb rw ) thetab)]
+(%i25) betab_newton:%th(1)[1]
+(%o25) betab = - (Ra sin(fi2) g mb rb thetaw
+ + (Ra mb omegaw rb rv + (km ku mb omegaw - Ua km mb) rb) rw)
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab)
+(%i26) s:%th(2)[2]
+(%o26) s = - (Ra sin(fi2) g mb thetab thetaw
+ + (Ra mb omegaw rv + km ku mb omegaw - Ua km mb) rw thetab)
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab)
+(%i27) betaw_newton:%th(3)[3]
+(%o27) betaw = ((Ra sin(fi2) g mb rw - Ra omegaw rv - km ku omegaw + Ua km)
+                         2                                     2
+ thetab - Ra mb omegaw rb  rv + (Ua km mb - km ku mb omegaw) rb )
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab)
+(%i28) beta2_newton:%th(4)[4]
+                                   2
+(%o28) beta2 = (Ra sin(fi2) g mb rb  thetaw
+                       2
+ + (Ra sin(fi2) g mb rw  + ((- Ra omegaw rv) - km ku omegaw + Ua km) rw)
+                                            2              3
+ thetab)/(((Ra rw + Ra rb) thetab + Ra mb rb  rw + Ra mb rb ) thetaw
+            3              2
+ + (Ra mb rw  + Ra mb rb rw ) thetab)
+(%i29) betaw_check:(Ra*thetab*rw*mb*g*sin(fi2)
+                   -(thetab+mb*rb^2)*(km*ku+rv*Ra)*omegaw
+                   +(thetab+mb*rb^2)*km*Ua)
+                   /(Ra*(thetab*thetaw+mb*rb^2*thetaw+mb*thetab*rw^2))
+                                                 2                          2
+(%o29) ((- omegaw (Ra rv + km ku) (thetab + mb rb )) + Ua km (thetab + mb rb )
+                                                         2
+ + Ra sin(fi2) g mb rw thetab)/(Ra (thetab thetaw + mb rb  thetaw
+        2
+ + mb rw  thetab))
+(%i30) betaw_0:betaw_check-betaw_newton
+                                                 2                          2
+(%o30) ((- omegaw (Ra rv + km ku) (thetab + mb rb )) + Ua km (thetab + mb rb )
+                                                         2
+ + Ra sin(fi2) g mb rw thetab)/(Ra (thetab thetaw + mb rb  thetaw
+        2                                                              2
+ + mb rw  thetab)) - betaw = ((- omegaw (Ra rv + km ku) (thetab + mb rb ))
+                        2
+ + Ua km (thetab + mb rb ) + Ra sin(fi2) g mb rw thetab)
+                           2               2
+/(Ra (thetab thetaw + mb rb  thetaw + mb rw  thetab))
+ - ((Ra sin(fi2) g mb rw - Ra omegaw rv - km ku omegaw + Ua km) thetab
+                  2                                     2
+ - Ra mb omegaw rb  rv + (Ua km mb - km ku mb omegaw) rb )
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab)
+(%i31) expand(betaw_0)
+                     Ra sin(fi2) g mb rw thetab
+(%o31) ------------------------------------------------------
+                                  2                  2
+       Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                    Ra omegaw rv thetab
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                    km ku omegaw thetab
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                        Ua km thetab
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                    Ra mb omegaw rb  rv
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                      2
+                    km ku mb omegaw rb
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                        Ua km mb rb
+ + ------------------------------------------------------ - betaw = 0
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+(%i32) print("----------Lagrange -----------------")
+----------Lagrange ----------------- 
+(%o32)               ----------Lagrange -----------------
+(%i33) Tw:(1/2)*thetaw*omegaw^2
+                                      2
+                                omegaw  thetaw
+(%o33)                          --------------
+                                      2
+(%i34) algsys([eq7_11],[omegab])
+                            (omegaw - omega2) rw - omega2 rb
+(%o34)           [[omegab = --------------------------------]]
+                                           rb
+(%i35) %th(1)[1]
+                            (omegaw - omega2) rw - omega2 rb
+(%o35)            [omegab = --------------------------------]
+                                           rb
+(%i36) omegab:%th(1)[1]
+                            (omegaw - omega2) rw - omega2 rb
+(%o36)             omegab = --------------------------------
+                                           rb
+(%i37) vb:(rw+rb)*omega2
+(%o37)                         omega2 (rw + rb)
+(%i38) Tb:(1/2)*thetab*omegab^2+(1/2)*mb*vb^2
+             2                   2          2
+       omegab  thetab   mb omega2  (rw + rb)
+(%o38) -------------- + --------------------- = 
+             2                    2
+                                               2                   2          2
+             ((omegaw - omega2) rw - omega2 rb)  thetab   mb omega2  (rw + rb)
+             ------------------------------------------ + ---------------------
+                                   2                                2
+                               2 rb
+(%i39) Uw:0
+(%o39)                                 0
+(%i40) Ub:mb*g*(rw+rb)*cos(fi2)
+(%o40)                      cos(fi2) g mb (rw + rb)
+(%i41) L:(Tw+Tb)-(Uw+Ub)
+             2                2                   2          2
+       omegaw  thetaw   omegab  thetab   mb omega2  (rw + rb)
+(%o41) -------------- + -------------- + ---------------------
+             2                2                    2
+                                   2
+                             omegaw  thetaw
+ - cos(fi2) g mb (rw + rb) = --------------
+                                   2
+                                     2                   2          2
+   ((omegaw - omega2) rw - omega2 rb)  thetab   mb omega2  (rw + rb)
+ + ------------------------------------------ + ---------------------
+                         2                                2
+                     2 rb
+ - cos(fi2) g mb (rw + rb)
+(%i42) L_manual:(1/2)*thetaw*omegaw^2+(((1/2)*thetab*1)/rb^2)
+                                      *(rw*omegaw-(rw+rb)*omega2)^2
+                                     +(1/2)*mb*(rw+rb)^2*omega2^2
+                                     +(-mb)*g*(rw+rb)*cos(fi2)
+             2                                        2
+       omegaw  thetaw   (omegaw rw - omega2 (rw + rb))  thetab
+(%o42) -------------- + --------------------------------------
+             2                              2
+                                        2 rb
+                                         2          2
+                                mb omega2  (rw + rb)
+                              + --------------------- - cos(fi2) g mb (rw + rb)
+                                          2
+(%i43) L_0:L_manual-L
+                                     2                2
+       (omegaw rw - omega2 (rw + rb))  thetab   omegab  thetab
+(%o43) -------------------------------------- - -------------- = 
+                           2                          2
+                       2 rb
+                              2
+(omegaw rw - omega2 (rw + rb))  thetab
+--------------------------------------
+                    2
+                2 rb
+                                     2
+   ((omegaw - omega2) rw - omega2 rb)  thetab
+ - ------------------------------------------
+                         2
+                     2 rb
+(%i44) expand(L_0)
+             2   2                          2                2   2
+       omegaw  rw  thetab   omega2 omegaw rw  thetab   omega2  rw  thetab
+(%o44) ------------------ - ------------------------ + ------------------
+                 2                      2                        2
+             2 rb                     rb                     2 rb
+                                   2                   2
+   omega2 omegaw rw thetab   omega2  rw thetab   omegab  thetab
+ - ----------------------- + ----------------- - --------------
+             rb                     rb                 2
+         2
+   omega2  thetab
+ + -------------- = 0
+         2
+(%i45) print("------ Lagrange derivative --------")
+------ Lagrange derivative -------- 
+(%o45)                ------ Lagrange derivative --------
+(%i46) fiw:fiw(t)
+(%o46)                              fiw(t)
+(%i47) fi2:fi2(t)
+(%o47)                              fi2(t)
+(%i48) fib:fib(t)
+(%o48)                              fib(t)
+(%i49) omegaw:diff(fiw,t)
+                                  d
+(%o49)                            -- (fiw(t))
+                                  dt
+(%i50) omega2:diff(fi2,t)
+                                  d
+(%o50)                            -- (fi2(t))
+                                  dt
+(%i51) omegab:diff(fib,t)
+                                  d
+(%o51)                            -- (fib(t))
+                                  dt
+(%i52) betab:diff(diff(fib,t),t)
+                                  2
+                                 d
+(%o52)                           --- (fib(t))
+                                   2
+                                 dt
+(%i53) beta2:diff(diff(fi2,t),t)
+                                  2
+                                 d
+(%o53)                           --- (fi2(t))
+                                   2
+                                 dt
+(%i54) betaw:diff(diff(fiw,t),t)
+                                  2
+                                 d
+(%o54)                           --- (fiw(t))
+                                   2
+                                 dt
+(%i55) eq7_diff:(rw+rb)*omega2 = rw*omegaw-rb*omegab
+                    d                  d                  d
+(%o55)   (rw + rb) (-- (fi2(t))) = rw (-- (fiw(t))) - rb (-- (fib(t)))
+                    dt                 dt                 dt
+(%i56) algsys([eq7_diff],[omegab])
+                           d                             d
+                       rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t)))
+         d                 dt                            dt
+(%o56) [[-- (fib(t)) = ----------------------------------------------]]
+         dt                                  rb
+(%i57) %th(1)[1]
+                           d                             d
+                       rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t)))
+         d                 dt                            dt
+(%o57)  [-- (fib(t)) = ----------------------------------------------]
+         dt                                  rb
+(%i58) omegab_diff:%th(1)[1]
+                           d                             d
+                       rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t)))
+         d                 dt                            dt
+(%o58)   -- (fib(t)) = ----------------------------------------------
+         dt                                  rb
+(%i59) Tw:(1/2)*thetaw*omegaw^2
+                              d           2
+                             (-- (fiw(t)))  thetaw
+                              dt
+(%o59)                       ---------------------
+                                       2
+(%i60) vb:(rw+rb)*omega2
+                                       d
+(%o60)                      (rw + rb) (-- (fi2(t)))
+                                       dt
+(%i61) Tb:(1/2)*thetab*omegab_diff^2+(1/2)*mb*vb^2
+        d           2                      2  d           2
+       (-- (fib(t)))  thetab   mb (rw + rb)  (-- (fi2(t)))
+        dt                                    dt
+(%o61) --------------------- + ---------------------------- = 
+                 2                          2
+     d                             d            2
+(rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t))))  thetab
+     dt                            dt
+--------------------------------------------------------
+                             2
+                         2 rb
+               2  d           2
+   mb (rw + rb)  (-- (fi2(t)))
+                  dt
+ + ----------------------------
+                2
+(%i62) Uw:0
+(%o62)                                 0
+(%i63) Ub:mb*g*(rw+rb)*cos(fi2)
+(%o63)                    g mb (rw + rb) cos(fi2(t))
+(%i64) L:(Tw+Tb)-(Uw+Ub)
+        d           2           d           2
+       (-- (fiw(t)))  thetaw   (-- (fib(t)))  thetab
+        dt                      dt
+(%o64) --------------------- + ---------------------
+                 2                       2
+               2  d           2
+   mb (rw + rb)  (-- (fi2(t)))
+                  dt
+ + ---------------------------- - g mb (rw + rb) cos(fi2(t)) = 
+                2
+ d           2
+(-- (fiw(t)))  thetaw
+ dt
+---------------------
+          2
+        d                             d            2
+   (rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t))))  thetab
+        dt                            dt
+ + --------------------------------------------------------
+                                2
+                            2 rb
+               2  d           2
+   mb (rw + rb)  (-- (fi2(t)))
+                  dt
+ + ---------------------------- - g mb (rw + rb) cos(fi2(t))
+                2
+(%i65) L:part(%,2)
+        d           2
+       (-- (fiw(t)))  thetaw
+        dt
+(%o65) ---------------------
+                 2
+        d                             d            2
+   (rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t))))  thetab
+        dt                            dt
+ + --------------------------------------------------------
+                                2
+                            2 rb
+               2  d           2
+   mb (rw + rb)  (-- (fi2(t)))
+                  dt
+ + ---------------------------- - g mb (rw + rb) cos(fi2(t))
+                2
+(%i66) eqLwa1:diff(L,omegaw)
+        d
+(%o66) (-- (fiw(t))) thetaw
+        dt
+                             d                             d
+                     rw (rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t)))) thetab
+                             dt                            dt
+                   + ----------------------------------------------------------
+                                                  2
+                                                rb
+(%i67) eqLwa2:diff(eqLwa1,t)
+         2
+        d
+(%o67) (--- (fiw(t))) thetaw
+          2
+        dt
+                            2                              2
+                           d                              d
+                   rw (rw (--- (fiw(t))) + ((- rw) - rb) (--- (fi2(t)))) thetab
+                             2                              2
+                           dt                             dt
+                 + ------------------------------------------------------------
+                                                 2
+                                               rb
+(%i68) eqLwb:diff(L,fiw)
+(%o68)                                 0
+(%i69) eqLw:eqLwa2-eqLwb = Mm-Ms
+         2
+        d
+(%o69) (--- (fiw(t))) thetaw
+          2
+        dt
+            2                              2
+           d                              d
+   rw (rw (--- (fiw(t))) + ((- rw) - rb) (--- (fi2(t)))) thetab
+             2                              2
+           dt                             dt
+ + ------------------------------------------------------------ = 
+                                 2
+                               rb
+km (Ua - ku omegaw)
+------------------- - omegaw rv
+        Ra
+(%i70) eqL2_a1:diff(L,omega2)
+                          d                             d
+       ((- rw) - rb) (rw (-- (fiw(t))) + ((- rw) - rb) (-- (fi2(t)))) thetab
+                          dt                            dt
+(%o70) ---------------------------------------------------------------------
+                                          2
+                                        rb
+                                                                2  d
+                                                  + mb (rw + rb)  (-- (fi2(t)))
+                                                                   dt
+(%i71) eqL2_a2:diff(eqL2_a1,t)
+                           2                              2
+                          d                              d
+       ((- rw) - rb) (rw (--- (fiw(t))) + ((- rw) - rb) (--- (fi2(t)))) thetab
+                            2                              2
+                          dt                             dt
+(%o71) -----------------------------------------------------------------------
+                                           2
+                                         rb
+                                                                   2
+                                                               2  d
+                                                 + mb (rw + rb)  (--- (fi2(t)))
+                                                                    2
+                                                                  dt
+(%i72) eqL2_b:diff(L,fi2)
+(%o72)                    g mb (rw + rb) sin(fi2(t))
+(%i73) eqL2:eqL2_a2-eqL2_b = 0
+                           2                              2
+                          d                              d
+       ((- rw) - rb) (rw (--- (fiw(t))) + ((- rw) - rb) (--- (fi2(t)))) thetab
+                            2                              2
+                          dt                             dt
+(%o73) -----------------------------------------------------------------------
+                                           2
+                                         rb
+                                  2
+                              2  d
+                + mb (rw + rb)  (--- (fi2(t))) - g mb (rw + rb) sin(fi2(t)) = 0
+                                   2
+                                 dt
+(%i74) print("--- betaw beta2 kifejez ----")
+--- betaw beta2 kifejez ---- 
+(%o74)                   --- betaw beta2 kifejez ----
+(%i75) solve([eqLw,eqL2],[betaw,beta2])
+          2
+         d
+(%o75) [[--- (fiw(t)(t)) = - (((- Ra g mb rw sin(fi2(t)(t)))
+           2
+         dt
+                    d
+ + (Ra rv + km ku) (-- (fiw(t))) - Ua km) thetab
+                    dt
+            2                 2   d                         2
+ + (Ra mb rb  rv + km ku mb rb ) (-- (fiw(t))) - Ua km mb rb )
+                                  dt
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+ 2
+d                            2
+--- (fi2(t)(t)) = (Ra g mb rb  sin(fi2(t)(t)) thetaw
+  2
+dt
+              2                                          d
+ + (Ra g mb rw  sin(fi2(t)(t)) + ((- Ra rv) - km ku) rw (-- (fiw(t)))
+                                                         dt
+                                                        2              3
+ + Ua km rw) thetab)/(((Ra rw + Ra rb) thetab + Ra mb rb  rw + Ra mb rb )
+                   3              2
+ thetaw + (Ra mb rw  + Ra mb rb rw ) thetab)]]
+(%i76) %th(1)[1]
+         2
+        d
+(%o76) [--- (fiw(t)(t)) = - (((- Ra g mb rw sin(fi2(t)(t)))
+          2
+        dt
+                    d
+ + (Ra rv + km ku) (-- (fiw(t))) - Ua km) thetab
+                    dt
+            2                 2   d                         2
+ + (Ra mb rb  rv + km ku mb rb ) (-- (fiw(t))) - Ua km mb rb )
+                                  dt
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab), 
+ 2
+d                            2
+--- (fi2(t)(t)) = (Ra g mb rb  sin(fi2(t)(t)) thetaw
+  2
+dt
+              2                                          d
+ + (Ra g mb rw  sin(fi2(t)(t)) + ((- Ra rv) - km ku) rw (-- (fiw(t)))
+                                                         dt
+                                                        2              3
+ + Ua km rw) thetab)/(((Ra rw + Ra rb) thetab + Ra mb rb  rw + Ra mb rb )
+                   3              2
+ thetaw + (Ra mb rw  + Ra mb rb rw ) thetab)]
+(%i77) betaw_lagrange:%th(1)[1]
+        2
+       d
+(%o77) --- (fiw(t)(t)) = - (((- Ra g mb rw sin(fi2(t)(t)))
+         2
+       dt
+                    d
+ + (Ra rv + km ku) (-- (fiw(t))) - Ua km) thetab
+                    dt
+            2                 2   d                         2
+ + (Ra mb rb  rv + km ku mb rb ) (-- (fiw(t))) - Ua km mb rb )
+                                  dt
+                       2                   2
+/((Ra thetab + Ra mb rb ) thetaw + Ra mb rw  thetab)
+(%i78) beta2_lagrange:%th(2)[2]
+        2
+       d                            2
+(%o78) --- (fi2(t)(t)) = (Ra g mb rb  sin(fi2(t)(t)) thetaw
+         2
+       dt
+              2                                          d
+ + (Ra g mb rw  sin(fi2(t)(t)) + ((- Ra rv) - km ku) rw (-- (fiw(t)))
+                                                         dt
+                                                        2              3
+ + Ua km rw) thetab)/(((Ra rw + Ra rb) thetab + Ra mb rb  rw + Ra mb rb )
+                   3              2
+ thetaw + (Ra mb rw  + Ra mb rb rw ) thetab)
+(%i79) print("-----betaw----")
+-----betaw---- 
+(%o79)                          -----betaw----
+(%i80) expand(betaw_lagrange)
+        2
+       d                            Ra g mb rw sin(fi2(t)(t)) thetab
+(%o80) --- (fiw(t)(t)) = ------------------------------------------------------
+         2                                          2                  2
+       dt                Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                        d
+                 Ra rv (-- (fiw(t))) thetab
+                        dt
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                        d
+                 km ku (-- (fiw(t))) thetab
+                        dt
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                        Ua km thetab
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                         2     d
+                 Ra mb rb  rv (-- (fiw(t)))
+                               dt
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                            2  d
+                 km ku mb rb  (-- (fiw(t)))
+                               dt
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                        Ua km mb rb
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+(%i81) expand(betaw_newton)
+                             Ra sin(fi2) g mb rw thetab
+(%o81) betaw = ------------------------------------------------------
+                                          2                  2
+               Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                    Ra omegaw rv thetab
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                    km ku omegaw thetab
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                        Ua km thetab
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                    Ra mb omegaw rb  rv
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                      2
+                    km ku mb omegaw rb
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                        Ua km mb rb
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+(%i82) expand(betaw_check)
+                     Ra sin(fi2) g mb rw thetab
+(%o82) ------------------------------------------------------
+                                  2                  2
+       Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                    Ra omegaw rv thetab
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                    km ku omegaw thetab
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                        Ua km thetab
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                    Ra mb omegaw rb  rv
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                      2
+                    km ku mb omegaw rb
+ - ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+                                   2
+                        Ua km mb rb
+ + ------------------------------------------------------
+                              2                  2
+   Ra thetab thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+(%i83) print("-----beta2----")
+-----beta2---- 
+(%o83)                          -----beta2----
+(%i84) expand(beta2_lagrange)
+        2
+       d                            2
+(%o84) --- (fi2(t)(t)) = (Ra g mb rb  sin(fi2(t)(t)) thetaw)
+         2
+       dt
+                                                      2
+/(Ra rw thetab thetaw + Ra rb thetab thetaw + Ra mb rb  rw thetaw
+           3                  3                     2
+ + Ra mb rb  thetaw + Ra mb rw  thetab + Ra mb rb rw  thetab)
+              2
+ + (Ra g mb rw  sin(fi2(t)(t)) thetab)/(Ra rw thetab thetaw
+                                 2                     3
+ + Ra rb thetab thetaw + Ra mb rb  rw thetaw + Ra mb rb  thetaw
+           3                     2
+ + Ra mb rw  thetab + Ra mb rb rw  thetab)
+              d
+ - (Ra rv rw (-- (fiw(t))) thetab)/(Ra rw thetab thetaw + Ra rb thetab thetaw
+              dt
+           2                     3                  3
+ + Ra mb rb  rw thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+              2                      d
+ + Ra mb rb rw  thetab) - (km ku rw (-- (fiw(t))) thetab)
+                                     dt
+                                                      2
+/(Ra rw thetab thetaw + Ra rb thetab thetaw + Ra mb rb  rw thetaw
+           3                  3                     2
+ + Ra mb rb  thetaw + Ra mb rw  thetab + Ra mb rb rw  thetab)
+ + (Ua km rw thetab)/(Ra rw thetab thetaw + Ra rb thetab thetaw
+           2                     3                  3
+ + Ra mb rb  rw thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+              2
+ + Ra mb rb rw  thetab)
+(%i85) expand(beta2_newton)
+                                   2
+(%o85) beta2 = (Ra sin(fi2) g mb rb  thetaw)
+                                                      2
+/(Ra rw thetab thetaw + Ra rb thetab thetaw + Ra mb rb  rw thetaw
+           3                  3                     2
+ + Ra mb rb  thetaw + Ra mb rw  thetab + Ra mb rb rw  thetab)
+                       2
+ + (Ra sin(fi2) g mb rw  thetab)/(Ra rw thetab thetaw + Ra rb thetab thetaw
+           2                     3                  3
+ + Ra mb rb  rw thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+              2
+ + Ra mb rb rw  thetab) - (Ra omegaw rv rw thetab)
+                                                      2
+/(Ra rw thetab thetaw + Ra rb thetab thetaw + Ra mb rb  rw thetaw
+           3                  3                     2
+ + Ra mb rb  thetaw + Ra mb rw  thetab + Ra mb rb rw  thetab)
+ - (km ku omegaw rw thetab)/(Ra rw thetab thetaw + Ra rb thetab thetaw
+           2                     3                  3
+ + Ra mb rb  rw thetaw + Ra mb rb  thetaw + Ra mb rw  thetab
+              2
+ + Ra mb rb rw  thetab) + (Ua km rw thetab)
+                                                      2
+/(Ra rw thetab thetaw + Ra rb thetab thetaw + Ra mb rb  rw thetaw
+           3                  3                     2
+ + Ra mb rb  thetaw + Ra mb rw  thetab + Ra mb rb rw  thetab)
+(%o86)            /home/imre/ballonwheel/maxima/bowSymbol.mc

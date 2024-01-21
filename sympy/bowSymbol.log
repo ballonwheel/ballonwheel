@@ -1,0 +1,10 @@
+Hello, World!
+1.13.dev
+Eq(omega2*(rb + rw), -omegab*rb + omegaw*rw)
+ezt kene automatan kifejezni
+Eq(beta2*(rb + rw), -betab*rb + betaw*rw)
+Eq(-N + g*m*cos(fi2), m*omega2**2*(rb + rw))
+Eq(S + g*m*sin(fi2), beta2*m*(rb + rw))
+Eq(S*rb, betab*jb)
+Eq(-FF*omegaw - S*rw + ki*(-ke*omegaw + u)/Ra, betaw*jw)
+[]

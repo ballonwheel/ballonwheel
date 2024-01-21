@@ -1,19 +1,11 @@
 
 
 
-
+echo "a kandos raspberry jelszo iqhomesetup "
 echo "run/stop like this:"
 echo " "
-echo ">sudo ./run.sh [uart] [Ts] [setup]"
+echo ">sudo ./run.sh"
 echo ">sudo ./stop.sh"
-echo " "
-echo "where:"
-echo "[uart] /dev/ttyUSB? --> 0 1 2"
-echo "[Ts] in millisec min. 20 - max 100"
-echo "[setup] 'real' or 'simulation'"
-echo " "
-echo "default:"
-echo "sudo ./run.sh 0 20 real"
 echo " "
 echo "-------------------------- o ---------------------------------"
 echo " "
