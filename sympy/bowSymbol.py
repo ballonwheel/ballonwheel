@@ -26,8 +26,19 @@ print(sympy.__version__)
 
 
 #golyo kinematika
-rw, rb, omega2, omegaw, omegab = symbols('rw rb omega2 omegaw omegab')
+rw, rb, omega2, omegaw, omegab, beta2, betaw, betab = symbols('rw rb omega2 omegaw omegab beta2 betaw betab')
 
+print("kinematika manualis")
+print("vtomegkozep = vtrans + vrot")
+print("vk = vA + wb x rb")
+print(" a kinematika csak a mozgas palyaval foglalkozik")
+print("tehat itt helyvektorok es annak idobeli derivaltjai, sebesseg es gyrosulas jelenik meg")
+print("ero viszont nem, tehat az, hogy mito mozog, gyorsul az itt nem jelenik meg")
+kin1_man = Eq((rw+rb)*omega2, rw*omegaw-omegab*rb)
+print("akkor a fenti a gyorsulasra is igaz")
+beta2_man = (rw*omegaw-omegab*rb)/(rw+rb)
+
+print("kinematika sympy")
 vbc_m = Matrix([[(rw + rb) * omega2], [0], [0]])
 #print(vbc_m[0])
 vp_m = Matrix([[rw * omegaw], [0], [0]])
@@ -36,14 +47,21 @@ rb_m = Matrix([[0], [rb], [0]])
 eq_kin1 = Eq(vbc_m[0], (vp_m + omegab_m.cross(rb_m))[0])
 eq_kin1 = simplify(eq_kin1)
 print(eq_kin1)
-print("ezt kene automatan kifejezni")
+
+print("ezt itt alabb kene automatan kifejezni")
 #Eq(omega2*(rb + rw), -omegab*rb + omegaw*rw)
 beta2, betaw, betab = symbols('beta2 betaw betab')
 eq_kin2 = Eq(beta2*(rb + rw), -betab*rb + betaw*rw)
 print(eq_kin2)
 
-#sol_beta2 = solve(eq_kin2, beta2)
-#print(sol_beta2)
+print("fejezzuk ki betab-t")
+sol_betab_dict = solve([eq_kin2], {betab})
+sol_betab_list = solve(eq_kin2, betab)
+print(sol_betab_list[0])
+print("itt csak manualisan tudom atvinni a dict vagy list tipusbol symbol tipusra") 
+betab = symbols("betab")
+betab = (-beta2*rb - beta2*rw + betaw*rw)/rb
+print(betab)
 
 #golyo dinamika
 m, g, fi2, N, S, jb = symbols('m g fi2 N S jb')
@@ -53,8 +71,35 @@ print(eq_dinb1)
 atg = beta2*(rw+rb)
 eq_dinb2 = Eq(m*g*sin(fi2)+S, m*atg) 
 print(eq_dinb2) 
+
+print("kinematikai egyenlet-betab-->rot.egyenlet-->fejezzuk ki S-et")
 eq_dinb3 = Eq(S * rb, jb * betab) 
-print(eq_dinb3) 
+sol_s = solve(eq_dinb3,S)
+print(sol_s)
+s_ = jb*(-beta2*rb + rw*(-beta2 + betaw))/rb**2
+
+
+print("kerek dinamika")
+Ua, Ra, ke, kT, rv, jw = symbols('Ua, Ra, ke, kT, rv, jw')
+M = kT*(Ua-ke*omega2)/Ra
+FF = omegaw * rv
+
+print("S-et-->kerekDinEgyenlet")
+eq_dinWheel = Eq(M - FF - s_*rw, jw * betaw)
+print(eq_dinWheel)
+
+print("S-et-->golyoDin-atg")
+eq_dinb2_ = Eq(m*g*sin(fi2)+s_, m*atg)
+print(eq_dinb2_)
+
+
+eq_dinWheelMan = Eq((jw+jb*rw*rw/(rb*rb))*betaw-jb*rw/(rb*rb)*(rw+rb)*beta2, kT*(Ua-ke*omega2)/Ra - rv*omegaw)
+print(eq_dinWheelMan)
+
+#????????eq_check1 = eq_dinWheel - eq_dinWheelMan;
+print(eq_check1)
+
+
 
 #kerek dinamika
 u, ke, ki, Ra = symbols('u ke ki Ra')
