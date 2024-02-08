@@ -62,9 +62,38 @@ s: %th(2)[2];
 betaw_newton: %th(3)[3];
 beta2_newton: %th(4)[4];
 
+/* manual ellenorzes */
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
 betaw_check: (Ra*thetab*rw*mb*g*sin(fi2)-(thetab+mb*rb^2)*(km*ku+rv*Ra)*omegaw+(thetab+mb*rb^2)*km*Ua)/(Ra*(thetab*thetaw+mb*rb^2*thetaw+mb*thetab*rw^2));
 betaw_0 : betaw_check - betaw_newton;
+print("************ betaw ellenorezes ***************************");
 expand(betaw_0);
+print("************    vege    ***************************");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+
+/* nem tudom egyszeru resztortekre bontani, de vmit csinal */
+expand(betaw_newton);
+
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+
+
+
+
+
 
 
 
@@ -166,3 +195,61 @@ expand(betaw_check);
 print("-----beta2----");
 expand(beta2_lagrange);
 expand(beta2_newton);
+
+
+
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+
+/* LINEARIZALAS */
+/*    diff(    x ,t) =            f(x)             +  g(x)*Ua */
+/* kifejtve */
+/* 1: diff(omegaw,t) = (AAw*sin(fi2) - BBw*omegaw) + (GGw)*Ua */
+/* 2: diff(omega2,t) = (AA2*sin(fi2) - BBw*omegaw) + (GG2)*Ua */
+/* 3: diff(fi2   ,t) = (     omega2              ) + ( 0 )*Ua */ 
+
+/* ezt nem tudtam maxima-val megcsinalni, csak kezzel */
+AAw: Ib*rw*mb*g/(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw);
+BBw: (Ib*mb*rb*rb)*(ku*km+rv*Ra)/(Ra*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
+GGw: km*(Ib+mb*rb*rb)/(Ra*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
+AA2: (Iw*rb*rb+Ib*rw*rw)/((rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
+BB2: (Ib*rw*(ku*km+rv*Ra))/(Ra*(rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
+GG2: (Ib*rw*km)/(Ra*(rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
+
+/* egyensulyi pont meghatarozasa, ami korul linearizalunk, ott, ahol: */
+/* diff(x,t) = 0 */
+/*  */
+/*  */
+/*  */
+
+
+/* linearizalas utan az alabbi linaris diff egyenlet alakul: */
+/* diff(x,t) = A*x + b*Ua */
+/* A = diff(f,x)|Xe,Ua */
+/* b = diff(g,Ua)|Xe,Ua */
+/* kifejtve */
+  | df1/dww df1/dw2 df1/dfi2 |
+  | df2/dww df2/dw2 df2/dfi2 |
+  | df3/dww df3/dw2 df3/dfi2 |
+
+
+
+
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+print(" ");
+
+
+
+
+
+
+
+
+
+
