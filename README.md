@@ -1,5 +1,5 @@
 
-![bow setup](https://drive.google.com/file/d/1SbojtoAPsziPh_wPwiDQSBB1EkkLj9f4/view?usp=drivesdk) 
+https://drive.google.com/file/d/1SbojtoAPsziPh_wPwiDQSBB1EkkLj9f4/view?usp=drivesdk
 
 
 
