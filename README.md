@@ -1,6 +1,7 @@
 
 
 1, quickstart (iqhomesetup)
+
 $ git clone https://github.com/ballonwheel/ballonwheel
 
 $ cd ballonwheel/bash_solution_only_octave
@@ -11,14 +12,14 @@ $ sudo octave bow_octave_disp.m
 
 $ sudo ./stop.sh
 
-
+ 
 
 2, install for run and development
 $ uname -a
 
 Linux raspberrypi 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 aarch64 GNU/Linux
 
-
+ 
 
 2.1, octave install
 
@@ -32,7 +33,7 @@ $ sudo apt-get install octave-instrument-control
 
 $ sudo apt-get install octave-symbolic
 
-
+ 
 
 2.2, maxima install, 
 
@@ -44,7 +45,7 @@ $ maxima
 
 (%o2)                               5.44.0
 
-
+ 
 
 
 2.3, Arduino nano CLI
