@@ -1,49 +1,47 @@
 
 
-# 1, quickstart (iqhomesetup)
+1, quickstart (iqhomesetup)
 $ git clone https://github.com/ballonwheel/ballonwheel
 $ cd ballonwheel/bash_solution_only_octave
 $ sudo ./run.sh
 $ sudo octave bow_octave_disp.m
 $ sudo ./stop.sh
 
-# 2, install for run and development
+2, install for run and development
 $ uname -a
 Linux raspberrypi 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 aarch64 GNU/Linux
 
-# 2.1, octave install
+2.1, octave install
 $ sudo apt-get install octave
 $ sudo apt-get install octave-control
 $ sudo apt-get install octave-signal
 $ sudo apt-get install octave-instrument-control
 $ sudo apt-get install octave-symbolic
 
-# 2.2, maxima install, 
+2.2, maxima install, 
 $ sudo apt-get install maxima
-
-/* sudo apt-get install maxima */
-/* $ maxima  */
-/* (%i2) version: ?\*autoconf\-version\*; */
-/* (%o2)                               5.44.0 */
+$ maxima
+(%i2) version: ?\*autoconf\-version\*;
+(%o2)                               5.44.0
 
 
-# 2.3, Arduino nano CLI
-# https://github.com/arduino/arduino-cli
-# https://arduino.github.io/arduino-cli/0.21/commands/arduino-cli/
+2.3, Arduino nano CLI
+https://github.com/arduino/arduino-cli
+https://arduino.github.io/arduino-cli/0.21/commands/arduino-cli/
 $ mkdir bow
 $ cd bow
-# https://github.com/arduino/arduino-cli/releases
+https://github.com/arduino/arduino-cli/releases
 $ wget https://github.com/arduino/arduino-cli/releases/download/0.22.0/arduino-cli_0.22.0_Linux_64bit.tar.gz
-# unpack here 
+unpack here 
 $ ./arduino-cli
 $ ./arduino-cli config init
 $ ./arduino-cli sketch new blink
 $ nano blink/blink.ino
 $ ./arduino-cli core update-index
-$ ./arduino-cli board list    //→nem ismerte fel a nano-t
+$ ./arduino-cli board list 
 $ ./arduino-cli board listall
 $ ./arduino-cli core search nano
-$ ./arduino-cli core install arduino:avr   // →  avr telepites
+$ ./arduino-cli core install arduino:avr   
 $ ./arduino-cli core update-index
 $ ./arduino-cli board list   
 $ ./arduino-cli board listall
