@@ -6,7 +6,7 @@
 [video of Ballonwheel performance](https://drive.google.com/file/d/1aYekoKIV0XY-9lRHnn9m6GJVegpmdNTa/view?usp=drivesdk) 
 
 
-1, quickstart (iqhomesetup)
+# 1, quickstart (iqhomesetup)
 
 $ git clone https://github.com/ballonwheel/ballonwheel
 
@@ -20,14 +20,15 @@ $ sudo ./stop.sh
 
  
 
-2, install for run and development
+# 2, install for run and development
+
 $ uname -a
 
 Linux raspberrypi 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 aarch64 GNU/Linux
 
  
 
-2.1, octave install
+## 2.1, octave install
 
 $ sudo apt-get install octave
 
@@ -41,7 +42,7 @@ $ sudo apt-get install octave-symbolic
 
  
 
-2.2, maxima install, 
+## 2.2, maxima install, 
 
 $ sudo apt-get install maxima
 
@@ -54,7 +55,7 @@ $ maxima
  
 
 
-2.3, Arduino nano CLI
+## 2.3, Arduino nano CLI
 
 https://github.com/arduino/arduino-cli
 
