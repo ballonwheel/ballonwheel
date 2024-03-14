@@ -42,7 +42,7 @@ $ sudo apt-get install octave-symbolic
 
  
 
-## 2.2, maxima install, 
+## 2.2, maxima install 
 
 $ sudo apt-get install maxima
 
@@ -53,9 +53,12 @@ $ maxima
 (%o2)                               5.44.0
 
  
+## 2.3, sympy install
 
 
-## 2.3, Arduino nano CLI
+
+
+## 2.4, Arduino nano CLI
 
 https://github.com/arduino/arduino-cli
 
