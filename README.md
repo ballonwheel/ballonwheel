@@ -42,6 +42,22 @@ octave:2> pkg install -forge symbolic
 
 
 
+## 2.2 Scliab install
+
+$ sudo apt-get install scilab
+
+Install command--> atomsInstall("wgserialxcosio")
+
+start xcos and you can use the working files in the folder of wgserialxcosio.
+
+
+
+
+### 2.2.1 wgserialxcosio
+
+https://atoms.scilab.org/toolboxes/wgserialxcosio/16.04.2
+
+
 ## 2.2, maxima install 
 
 $ sudo apt-get install maxima
