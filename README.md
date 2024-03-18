@@ -6,7 +6,7 @@
 [video of Ballonwheel performance](https://drive.google.com/file/d/1aYekoKIV0XY-9lRHnn9m6GJVegpmdNTa/view?usp=drivesdk) 
 
 
-# 1, quickstart (iqhomesetup)
+# 1 quickstart (iqhomesetup)
 
 $ git clone https://github.com/ballonwheel/ballonwheel
 
@@ -20,7 +20,7 @@ $ sudo ./stop.sh
 
  
 
-# 2, install for run and development
+# 2 install for run and development
 
 $ uname -a
 
@@ -28,7 +28,7 @@ Linux raspberrypi 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 a
 
  
 
-## 2.1, octave install
+## 2.1 octave install
 
 $ sudo apt-get install octave octave-signal octave-control octave-instrument-control
 
@@ -46,16 +46,13 @@ octave:2> pkg install -forge symbolic
 
 $ sudo apt-get install scilab
 
-Install command--> atomsInstall("wgserialxcosio")
-
-start xcos and you can use the working files in the folder of wgserialxcosio.
-
-
-
-
 ### 2.2.1 wgserialxcosio
 
 https://atoms.scilab.org/toolboxes/wgserialxcosio/16.04.2
+
+in Scilab Install command--> atomsInstall("wgserialxcosio")
+
+start xcos and you can use the working files in the folder of wgserialxcosio.
 
 
 ## 2.2, maxima install 
