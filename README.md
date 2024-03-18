@@ -30,17 +30,16 @@ Linux raspberrypi 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 a
 
 ## 2.1, octave install
 
-$ sudo apt-get install octave
+$ sudo apt-get install octave octave-signal octave-control octave-instrument-control
 
-$ sudo apt-get install octave-control
+$ octave
 
-$ sudo apt-get install octave-signal
+octave:1> GNU Octave, version 6.2.0
 
-$ sudo apt-get install octave-instrument-control
+https://octave.sourceforge.io/symbolic/
 
-$ sudo apt-get install octave-symbolic
+octave:2> pkg install -forge symbolic
 
- 
 
 ## 2.2, maxima install 
 
