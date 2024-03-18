@@ -41,6 +41,7 @@ https://octave.sourceforge.io/symbolic/
 octave:2> pkg install -forge symbolic
 
 
+
 ## 2.2, maxima install 
 
 $ sudo apt-get install maxima
@@ -54,6 +55,25 @@ $ maxima
  
 ## 2.3, sympy install
 
+$ sudo apt-get install python
+
+$ imre@raspberrypi:~/ballonwheel/sympy $ python
+
+$ Python 3.9.2 (default, Feb 28 2021, 17:03:44)
+
+$ [GCC 10.2.1 20210110] on linux
+
+
+$ sudo apt-get install python3-pip
+
+$ git clone https://github.com/sympy/sympy.git
+
+$ git pull origin master
+
+$ python -m pip install -e .
+
+
+$ python .\bowSymbol.py
 
 
 
