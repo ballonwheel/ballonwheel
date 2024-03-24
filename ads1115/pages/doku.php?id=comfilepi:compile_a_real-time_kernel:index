@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="no-js">
+<head>
+    <meta charset="utf-8" />
+    <title>Compile and Deploy a Real-Time Kernel to the ComfilePi</title>
+    <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+    <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="keywords" content="comfilepi,compile_a_real-time_kernel,index"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/en/lib/exe/opensearch.php" title="COMFILE Technology's Online Documentation Library"/>
+<link rel="start" href="/en/"/>
+<link rel="contents" href="/en/doku.php?id=comfilepi:compile_a_real-time_kernel:index&amp;do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="/en/feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current namespace" href="/en/feed.php?mode=list&amp;ns=comfilepi:compile_a_real-time_kernel"/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="/en/doku.php?do=export_xhtml&amp;id=comfilepi:compile_a_real-time_kernel:index"/>
+<link rel="canonical" href="http://comfilewiki.co.kr/en/doku.php?id=comfilepi:compile_a_real-time_kernel:index"/>
+<link rel="stylesheet" type="text/css" href="/en/lib/exe/css.php?t=comfile&amp;tseed=50a459413788396d863f73621d80f6a0"/>
+<!--[if gte IE 9]><!-->
+<script type="text/javascript">/*<![CDATA[*/var NS='comfilepi:compile_a_real-time_kernel';var JSINFO = {"id":"comfilepi:compile_a_real-time_kernel:index","namespace":"comfilepi:compile_a_real-time_kernel","plugins":{"edittable":{"default columnwidth":""}},"ga":{"trackingId":"","gtagId":"G-2P6FZ7VD4T","anonymizeIp":false,"action":"show","trackOutboundLinks":false,"options":[],"pageview":"\/en\/comfilepi\/compile_a_real-time_kernel\/index","debug":false}};
+/*!]]>*/</script>
+<script type="text/javascript" charset="utf-8" src="/en/lib/exe/jquery.php?tseed=23f888679b4f1dc26eef34902aca964f"></script>
+<script type="text/javascript" charset="utf-8" src="/en/lib/exe/js.php?t=comfile&amp;tseed=50a459413788396d863f73621d80f6a0"></script>
+<!--<![endif]-->
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="shortcut icon" href="/en/lib/tpl/comfile/images/favicon.ico" />
+<link rel="apple-touch-icon" href="/en/lib/tpl/comfile/images/apple-touch-icon.png" />
+        <link rel="alternate" href="http://comfilewiki.co.kr/ko" hreflang="ko" />
+</head>
+
+<body>
+    <!--[if lte IE 8 ]><div id="IE8"><![endif]-->
+    <div id="dokuwiki__site"><div id="dokuwiki__top" class="site dokuwiki mode_show tpl_comfile     ">
+
+        
+<!-- ********** HEADER ********** -->
+<div id="dokuwiki__header"><div class="pad group">
+
+
+
+    
+    <div class="headings group">
+        <ul class="a11y skip">
+            <li><a href="#dokuwiki__content">skip to content</a></li>
+        </ul>
+
+        <h1><a href="/en/doku.php?id=index"  accesskey="h" title="[H]"><img src="/en/lib/exe/fetch.php?media=wiki:logo.png" width="212" height="56" alt="" /></a></h1>
+            </div>
+
+    <div class="tools group">
+        <!-- USER TOOLS -->
+                    <div id="dokuwiki__usertools">
+                <h3 class="a11y">User Tools</h3>
+                <ul>
+                                    </ul>
+            </div>
+        
+        <!-- SITE TOOLS -->
+        <div id="dokuwiki__sitetools">
+            <h3 class="a11y">Site Tools</h3>
+            <form action="/en/doku.php?id=index" accept-charset="utf-8" class="search" id="dw__search" method="get" role="search"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" placeholder="Search" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><button type="submit" title="Search">Search</button><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>            <div class="mobileTools">
+                <form action="/en/doku.php" method="get" accept-charset="utf-8"><div class="no"><input type="hidden" name="id" value="comfilepi:compile_a_real-time_kernel:index" /><select name="do" class="edit quickselect" title="Tools"><option value="">Tools</option><optgroup label="Page Tools"><option value="revisions">Old revisions</option><option value="backlink">Backlinks</option></optgroup><optgroup label="Site Tools"><option value="recent">Recent Changes</option><option value="media">Media Manager</option><option value="index">Sitemap</option></optgroup><optgroup label="User Tools"><option value="login">Log In</option></optgroup></select><button type="submit">&gt;</button></div></form>            </div>
+            <ul>
+                            </ul>
+        </div>
+		
+        <div>
+            <a href="http://comfilewiki.co.kr" style="margin-right: 10px;">한국어</a>
+            
+            <div id="google_translate_element" style="float: right;"></div>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+                }
+            </script>
+            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        </div>
+    </div>
+
+    <!-- BREADCRUMBS -->
+            <div class="breadcrumbs">
+                            <div class="youarehere"><span class="bchead">You are here: </span><span class="home"><bdi><a href="/en/doku.php?id=index" class="wikilink1" title="index">COMFILE Technology&#039;s Documentation Library</a></bdi></span> » <bdi><a href="/en/doku.php?id=comfilepi:index" class="wikilink1" title="comfilepi:index">ComfilePi - Industrial Raspberry Pi Panel PC</a></bdi> » <bdi><span class="curid"><a href="/en/doku.php?id=comfilepi:compile_a_real-time_kernel:index" class="wikilink1" title="comfilepi:compile_a_real-time_kernel:index">Compile and Deploy a Real-Time Kernel to the ComfilePi</a></span></bdi></div>
+                                </div>
+    
+
+
+    <hr class="a11y" />
+</div></div><!-- /header -->
+
+        <div class="wrapper group">
+
+            
+            <!-- ********** CONTENT ********** -->
+            <div id="dokuwiki__content"><div class="pad group">
+                
+                <div class="pageId"><span>comfilepi:compile_a_real-time_kernel:index</span></div>
+
+                <div class="page group">
+                                                            <!-- wikipage start -->
+                    <!-- TOC START -->
+<div id="dw__toc">
+<h3 class="toggle">Table of Contents</h3>
+<div>
+
+<ul class="toc">
+<li class="level1"><div class="li"><a href="#compile_and_deploy_a_real-time_kernel_to_the_comfilepi">Compile and Deploy a Real-Time Kernel to the ComfilePi</a></div>
+<ul class="toc">
+<li class="level2"><div class="li"><a href="#kernel_versioning">Kernel Versioning</a></div></li>
+<li class="level2"><div class="li"><a href="#build_script">Build Script</a></div></li>
+<li class="level2"><div class="li"><a href="#deploy_to_the_comfilepi">Deploy to the ComfilePi</a></div></li>
+<li class="level2"><div class="li"><a href="#references">References</a></div></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<!-- TOC END -->
+
+<h1 class="sectionedit1" id="compile_and_deploy_a_real-time_kernel_to_the_comfilepi">Compile and Deploy a Real-Time Kernel to the ComfilePi</h1>
+<div class="level1">
+
+<p>
+The generic kernel employed the the default ComfilePi operating system is not a real-time kernel.  That is fine for many, if not most, use cases.  For those use cases that may require real-time operation, we provide the following procedure.
+</p>
+
+<p>
+In addition to compiling and deploying a realtime kernel, <a href="/en/doku.php?id=comfilepi:improving_real-time_performance:index" class="wikilink1" title="comfilepi:improving_real-time_performance:index">other OS configurations</a> may be necessary to improve the realtime performance.
+</p>
+
+<p>
+Please note that COMFILE Technology does not maintain the Raspberry Pi kernel or the Linux real-time patches, so those wishing to employ this capability should assume responsibility for it.
+</p>
+
+</div>
+
+<h2 class="sectionedit2" id="kernel_versioning">Kernel Versioning</h2>
+<div class="level2">
+
+<p>
+The Raspberry Pi Foundation maintains the kernel for Raspberry Pi-based products at <a href="https://github.com/raspberrypi/linux" class="urlextern" title="https://github.com/raspberrypi/linux" rel="nofollow">https://github.com/raspberrypi/linux</a>. The real-time kernel patches are maintained by a different group at <a href="https://cdn.kernel.org/pub/linux/kernel/projects/rt/" class="urlextern" title="https://cdn.kernel.org/pub/linux/kernel/projects/rt/" rel="nofollow">https://cdn.kernel.org/pub/linux/kernel/projects/rt/</a>. Compile errors and/or patch errors can arise if the 3 digit version number of the Raspberry Pi kernel and the real time patch do not match.  The Raspberry Pi Foundation and the real-time patch maintainers do no coordinate their releases, so one must search the <a href="https://github.com/raspberrypi/linux/commits/rpi-6.1.y" class="urlextern" title="https://github.com/raspberrypi/linux/commits/rpi-6.1.y" rel="nofollow">kernel&#039;s commit history</a> for a “Linux x.y.z” commit that matches the real-time kernel patch version, then use the “Merge remote-tracking…” commit that follows it.  At the time of writing this, the latest such commit for the 5.10.y branch was here:
+</p>
+
+<p>
+<a href="/en/lib/exe/detail.php?id=comfilepi%3Acompile_a_real-time_kernel%3Aindex&amp;media=comfilepi:compile_a_real-time_kernel:commit.png" class="media" title="comfilepi:compile_a_real-time_kernel:commit.png"><img src="/en/lib/exe/fetch.php?media=comfilepi:compile_a_real-time_kernel:commit.png" class="mediacenter" alt="" /></a>
+</p>
+
+</div>
+
+<h2 class="sectionedit3" id="build_script">Build Script</h2>
+<div class="level2">
+
+<p>
+Given the versioning limitations explained above, the following shell script cross-compiles kernel version 6.1.26.  It will download all necessary software and source code, cross-compile the real-time kernel, and package the resulting assests for deployment to a ComfilePi panel PC.  It was tested on a Debian instance of <a href="https://docs.microsoft.com/en-us/windows/wsl/about" class="urlextern" title="https://docs.microsoft.com/en-us/windows/wsl/about" rel="nofollow">Windows Subsystem for Linux</a>.
+</p>
+<pre class="code bash"><span class="co0">#!/bin/bash</span>
+&nbsp;
+<span class="co0"># You may need to install the following packages</span>
+<span class="co0"># apt update -y</span>
+<span class="co0"># apt install -y wget git bc bison flex libssl-dev make libc6-dev libncurses5-dev crossbuild-essential-$ARCH</span>
+&nbsp;
+<span class="re2">KERNEL_VERSION</span>=<span class="nu0">6.1</span>
+<span class="re2">RT_PATCH_VERSION</span>=<span class="re1">$KERNEL_VERSION</span>.26-rt8
+<span class="re2">COMMIT_HASH</span>=dbcb82357ef21be47841ba39d117b626d715af31
+<span class="re2">DEFCONFIG</span>=bcm2711_defconfig
+<span class="re2">ARCH</span>=arm64
+<span class="re2">TARGET</span>=aarch64-linux-gnu
+<span class="re2">KERNEL_NAME</span>=kernel8
+&nbsp;
+<span class="re2">KERNEL_BRANCH</span>=rpi-<span class="re1">$KERNEL_VERSION</span>.y
+<span class="re2">COMPILER</span>=<span class="re1">$TARGET</span>-
+&nbsp;
+<span class="co0"># All work will be done in $PWD/rtkernel.  The final result will be packaged as $PWD/rtkernel/result</span>
+<span class="re2">WORK_DIR</span>=<span class="sy0">`</span><span class="kw3">pwd</span><span class="sy0">`/</span>rtkernel
+<span class="kw2">rm</span> <span class="re5">-rf</span> <span class="re1">$WORK_DIR</span>
+<span class="kw2">mkdir</span> <span class="re1">$WORK_DIR</span>
+<span class="kw3">cd</span> <span class="re1">$WORK_DIR</span>
+&nbsp;
+<span class="co0"># download the kernel</span>
+<span class="kw2">git clone</span> <span class="re5">--depth</span>=<span class="nu0">1</span> <span class="re5">--branch</span> <span class="re1">$KERNEL_BRANCH</span> https:<span class="sy0">//</span>github.com<span class="sy0">/</span>raspberrypi<span class="sy0">/</span>linux
+&nbsp;
+<span class="co0"># download the RT patch</span>
+<span class="kw2">wget</span> http:<span class="sy0">//</span>cdn.kernel.org<span class="sy0">/</span>pub<span class="sy0">/</span>linux<span class="sy0">/</span>kernel<span class="sy0">/</span>projects<span class="sy0">/</span>rt<span class="sy0">/</span><span class="re1">$KERNEL_VERSION</span><span class="sy0">/</span>older<span class="sy0">/</span>patch-<span class="re1">$RT_PATCH_VERSION</span>.patch.gz
+<span class="kw2">gunzip</span> patch-<span class="re1">$RT_PATCH_VERSION</span>.patch.gz
+&nbsp;
+<span class="co0"># Need this to get precisely the correct kernel version</span>
+<span class="kw3">cd</span> linux
+<span class="kw2">git fetch</span> origin <span class="re1">$COMMIT_HASH</span>
+<span class="kw2">git reset</span> <span class="re5">--hard</span> <span class="re1">$COMMIT_HASH</span>
+&nbsp;
+<span class="co0"># Patch the kernel</span>
+<span class="kw2">patch</span> <span class="re5">-p1</span> <span class="sy0">&lt;</span> ..<span class="sy0">/</span>patch-<span class="re1">$RT_PATCH_VERSION</span>.patch
+&nbsp;
+ <span class="co0"># Prepare configuration</span>
+<span class="kw2">make</span> <span class="re2">ARCH</span>=<span class="re1">$ARCH</span> <span class="re2">CROSS_COMPILE</span>=<span class="re1">$COMPILER</span> <span class="re1">$DEFCONFIG</span>
+&nbsp;
+ <span class="co0"># Configure to use the &quot;Fully Preemptible Kernel (Real-Time)&quot; kernel</span>
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> CONFIG_PREEMPT_RT y
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> CONFIG_RCU_BOOST y
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> CONFIG_RCU_BOOST_DELAY <span class="nu0">500</span>
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> CONFIG_RCU_NOCB_CPU y
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> CONFIG_NO_HZ_FULL y
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> CONTEXT_TRACKING_USER_FORCE n
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> RCU_NOCB_CPU_DEFAULT_ALL n
+.<span class="sy0">/</span>scripts<span class="sy0">/</span>config <span class="re5">--set-val</span> RCU_NOCB_CPU_CB_BOOST y
+&nbsp;
+<span class="co0"># Compile</span>
+<span class="kw2">make</span> <span class="re5">-j32</span> <span class="re2">ARCH</span>=<span class="re1">$ARCH</span> <span class="re2">CROSS_COMPILE</span>=<span class="re1">$COMPILER</span> Image.gz modules dtbs
+&nbsp;
+<span class="co0"># copy assets to the root file system</span>
+<span class="kw2">make</span> <span class="re2">ARCH</span>=<span class="re1">$ARCH</span> <span class="re2">CROSS_COMPILE</span>=<span class="re1">$COMPILER</span> <span class="re2">INSTALL_MOD_PATH</span>=modules_to_install modules_install
+&nbsp;
+ <span class="co0"># Out of linux, out of work_dir</span>
+<span class="kw3">cd</span> ..<span class="sy0">/</span>..<span class="sy0">/</span>
+&nbsp;
+<span class="co0"># copy assets to the $PROJECT_DIR/result directory</span>
+<span class="re2">RESULT_DIR</span>=<span class="re1">$WORK_DIR</span><span class="sy0">/</span>result
+<span class="kw2">mkdir</span> <span class="re5">-p</span> <span class="re1">$RESULT_DIR</span><span class="sy0">/</span>boot<span class="sy0">/</span>overlays
+<span class="kw2">cp</span> <span class="co1">${WORK_DIR}</span><span class="sy0">/</span>linux<span class="sy0">/</span>arch<span class="sy0">/</span><span class="re1">$ARCH</span><span class="sy0">/</span>boot<span class="sy0">/</span>Image.gz <span class="co1">${RESULT_DIR}</span><span class="sy0">/</span>boot<span class="sy0">/</span><span class="re1">$KERNEL_NAME</span>.img
+<span class="kw2">cp</span> <span class="re5">-r</span> <span class="co1">${WORK_DIR}</span><span class="sy0">/</span>linux<span class="sy0">/</span>modules_to_install<span class="sy0">/</span>lib<span class="sy0">/*</span> <span class="co1">${RESULT_DIR}</span><span class="sy0">/</span>lib<span class="sy0">/</span>
+<span class="kw2">cp</span> <span class="co1">${WORK_DIR}</span><span class="sy0">/</span>linux<span class="sy0">/</span>arch<span class="sy0">/</span><span class="re1">$ARCH</span><span class="sy0">/</span>boot<span class="sy0">/</span>dts<span class="sy0">/</span>broadcom<span class="sy0">/*</span>.dtb <span class="co1">${RESULT_DIR}</span><span class="sy0">/</span>boot<span class="sy0">/</span>
+<span class="kw2">cp</span> <span class="co1">${WORK_DIR}</span><span class="sy0">/</span>linux<span class="sy0">/</span>arch<span class="sy0">/</span><span class="re1">$ARCH</span><span class="sy0">/</span>boot<span class="sy0">/</span>dts<span class="sy0">/</span>overlays<span class="sy0">/*</span>.dtb<span class="sy0">*</span> <span class="co1">${RESULT_DIR}</span><span class="sy0">/</span>boot<span class="sy0">/</span>overlays<span class="sy0">/</span>
+<span class="kw2">cp</span> <span class="co1">${WORK_DIR}</span><span class="sy0">/</span>linux<span class="sy0">/</span>arch<span class="sy0">/</span><span class="re1">$ARCH</span><span class="sy0">/</span>boot<span class="sy0">/</span>dts<span class="sy0">/</span>overlays<span class="sy0">/</span>README <span class="co1">${RESULT_DIR}</span><span class="sy0">/</span>boot<span class="sy0">/</span>overlays<span class="sy0">/</span></pre>
+
+</div>
+
+<h2 class="sectionedit4" id="deploy_to_the_comfilepi">Deploy to the ComfilePi</h2>
+<div class="level2">
+
+<p>
+After running the build script above, the <em>rtkernel/result</em> directory will contain 2 directories: <em>boot</em> and <em>lib</em>.  The <em>boot</em> directory contains assets that must be deployed to the ComfilePi&#039;s FAT32 partition (i.e. the <em>/boot</em> directory) and the <em>lib</em> directory contains assets that must be deployed to the ComfilePi&#039;s operating system root partition (i.e. the <em>/lib</em> directory).
+</p>
+
+<p>
+On the build PC:
+</p>
+<pre class="code bash"><span class="co0"># Package up the result into a single file</span>
+<span class="kw2">tar</span> czf rtkernel.tgz <span class="re5">-C</span> rtkernel<span class="sy0">/</span>result<span class="sy0">/</span> .
+&nbsp;
+<span class="co0"># transfer the file to the ComfilePi</span>
+<span class="kw2">scp</span> rtkernel.tgz pi<span class="sy0">@</span>192.168.0.5:</pre>
+
+<p>
+<a href="http://downloads.comfiletech.com/ComfilePi/realtime/rtkernel_6.1.26-rt8.tgz" class="urlextern" title="http://downloads.comfiletech.com/ComfilePi/realtime/rtkernel_6.1.26-rt8.tgz" rel="nofollow">Download rtkernel_6.1.26-rt8.tgz</a> (MD5: cadb563fc3cc61e9a2a5fc571a08004a)
+</p>
+
+<p>
+On the ComfilePi:
+</p>
+<pre class="code bash"><span class="co0"># Install the kernel assets</span>
+<span class="kw2">sudo</span> <span class="kw2">tar</span> xzf rtkernel.tgz <span class="re5">--directory</span> <span class="sy0">/</span> <span class="re5">--keep-directory-symlink</span> <span class="re5">--no-same-owner</span></pre>
+
+<p>
+After rebooting, verify that the new kernel is loaded and running
+</p>
+<pre class="code">$uname -a
+Linux raspberrypi 6.1.21-rt8-v8+ #1 SMP PREEMPT_RT Fri May 12 10:19:19 KST 2023 aarch64 GNU/Linux</pre>
+
+</div>
+
+<h2 class="sectionedit5" id="references">References</h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li"> <a href="https://www.raspberrypi.org/documentation/linux/kernel/building.md" class="urlextern" title="https://www.raspberrypi.org/documentation/linux/kernel/building.md" rel="nofollow">https://www.raspberrypi.org/documentation/linux/kernel/building.md</a></div>
+</li>
+</ul>
+
+<p>
+<a href="/en/doku.php?id=comfilepi:index" class="wikilink1" title="comfilepi:index">ComfilePi - Industrial Raspberry Pi Panel PC</a>
+</p>
+
+</div>
+
+                    <!-- wikipage stop -->
+                                    </div>
+
+                <div class="docInfo"><bdi>comfilepi/compile_a_real-time_kernel/index.txt</bdi> · Last modified: 2023/11/22 08:57 by <bdi>COMFILE Technology</bdi></div>
+
+                            </div></div><!-- /content -->
+
+            <hr class="a11y" />
+
+            <!-- PAGE ACTIONS -->
+            <div id="dokuwiki__pagetools">
+                <h3 class="a11y">Page Tools</h3>
+                <div class="tools">
+                    <ul>
+                        <li><a href="/en/doku.php?id=comfilepi:compile_a_real-time_kernel:index&amp;do=revisions"  class="action revs" accesskey="o" rel="nofollow" title="Old revisions [O]"><span>Old revisions</span></a></li><li><a href="/en/doku.php?id=comfilepi:compile_a_real-time_kernel:index&amp;do=backlink"  class="action backlink" rel="nofollow" title="Backlinks"><span>Backlinks</span></a></li><li><a href="#dokuwiki__top"  class="action top" accesskey="t" rel="nofollow" title="Back to top [T]"><span>Back to top</span></a></li>                    </ul>
+                </div>
+            </div>
+        </div><!-- /wrapper -->
+
+        
+<!-- ********** FOOTER ********** -->
+<div id="dokuwiki__footer"><div class="pad">
+	<!--
+    	-->
+
+	<!--
+    <div class="buttons">
+                <a href="http://www.dokuwiki.org/donate" title="Donate" ><img
+            src="/en/lib/tpl/comfile/images/button-donate.gif" width="80" height="15" alt="Donate" /></a>
+        <a href="http://www.php.net" title="Powered by PHP" ><img
+            src="/en/lib/tpl/comfile/images/button-php.gif" width="80" height="15" alt="Powered by PHP" /></a>
+        <a href="http://validator.w3.org/check/referer" title="Valid HTML5" ><img
+            src="/en/lib/tpl/comfile/images/button-html5.png" width="80" height="15" alt="Valid HTML5" /></a>
+        <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3" title="Valid CSS" ><img
+            src="/en/lib/tpl/comfile/images/button-css.png" width="80" height="15" alt="Valid CSS" /></a>
+        <a href="http://dokuwiki.org/" title="Driven by DokuWiki" ><img
+            src="/en/lib/tpl/comfile/images/button-dw.png" width="80" height="15" alt="Driven by DokuWiki" /></a>
+    </div>
+	-->
+</div></div><!-- /footer -->
+
+<!-- Do not translate code -->
+<script language="javascript">
+// Don't translate code
+function noTranslate(elements)
+{
+  var i;
+
+  for(i = 0; i < elements.length; i++) 
+  {
+    // translate="no" does not seem to be supported by any browser yet, but it's here just in case.
+    var a = document.createAttribute("translate");
+    a.value = "no";
+    elements[i].setAttributeNode(a);
+    
+    // This works.  Add a notranslate class
+    elements[i].className += " notranslate";
+  }
+}
+
+noTranslate(document.getElementsByTagName("code"));
+noTranslate(document.getElementsByTagName("pre"));
+</script>
+
+<script type="text/javascript" src="lib/scripts/gifffer.min.js"></script>
+<script>
+    Gifffer();
+</script>
+
+    </div></div><!-- /site -->
+
+    <div class="no"><img src="/en/lib/exe/indexer.php?id=comfilepi%3Acompile_a_real-time_kernel%3Aindex&amp;1711180316" width="2" height="1" alt="" /></div>
+    <div id="screen__mode" class="no"></div>    <!--[if lte IE 8 ]></div><![endif]-->
+</body>
+</html>

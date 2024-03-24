@@ -206,12 +206,12 @@ print(" ");
 
 /* LINEARIZALAS */
 /*    diff(    x ,t) =            f(x)             +  g(x)*Ua */
-/* kifejtve */
+/*         kifejtve manualisan, mert maxima-val nem sikerult  */
 /* 1: diff(omegaw,t) = (AAw*sin(fi2) - BBw*omegaw) + (GGw)*Ua */
 /* 2: diff(omega2,t) = (AA2*sin(fi2) - BBw*omegaw) + (GG2)*Ua */
-/* 3: diff(fi2   ,t) = (     omega2              ) + ( 0 )*Ua */ 
-
-/* ezt nem tudtam maxima-val megcsinalni, csak kezzel */
+/* 3: diff(fi2   ,t) = (     omega2              ) + ( 0 )*Ua */
+/* AA es BB konstansok es                                     */ 
+/* g(x)-nek nincs x fuggese, tehat a GG is konstans :         */
 AAw: Ib*rw*mb*g/(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw);
 BBw: (Ib*mb*rb*rb)*(ku*km+rv*Ra)/(Ra*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
 GGw: km*(Ib+mb*rb*rb)/(Ra*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
@@ -219,11 +219,20 @@ AA2: (Iw*rb*rb+Ib*rw*rw)/((rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
 BB2: (Ib*rw*(ku*km+rv*Ra))/(Ra*(rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
 GG2: (Ib*rw*km)/(Ra*(rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
 
+/* tvabbiakban omegaw == ww */
+
 /* egyensulyi pont meghatarozasa, ami korul linearizalunk, ott, ahol: */
 /* diff(x,t) = 0 */
-/*  */
-/*  */
-/*  */
+/* tehat a fentek szerint */
+/* 0 =            f(x)             +  g(x)*Ua                 */
+eq_lin1: 0 = Aw*sin_fi2-Bw*ww+Gw*Ua;
+eq_lin2: 0 = A2*sin_fi2-B2*ww+G2*Ua;
+eq_lin12: A2*eq_lin1 - (Aw*eq_lin2); /* megszabadaulni sin_fi2-tol */
+eq_lin3: 0 = w2;
+/* algsys([eq_lin1, eq_lin2], [ww]); */ /* ez miert nem megy? */
+/* %th(1)[1]; */
+/* ww: th(1)[1]; */
+solve([eq_lin12], ww); 
 
 
 /* linearizalas utan az alabbi linaris diff egyenlet alakul: */
@@ -231,9 +240,9 @@ GG2: (Ib*rw*km)/(Ra*(rw+rb)*(Ib*Iw+mb*rb*rb*Iw+mb*Ib*rw*rw));
 /* A = diff(f,x)|Xe,Ua */
 /* b = diff(g,Ua)|Xe,Ua */
 /* kifejtve */
-  | df1/dww df1/dw2 df1/dfi2 |
-  | df2/dww df2/dw2 df2/dfi2 |
-  | df3/dww df3/dw2 df3/dfi2 |
+/*  | df1/dww df1/dw2 df1/dfi2 | */
+/*  | df2/dww df2/dw2 df2/dfi2 | */
+/*  | df3/dww df3/dw2 df3/dfi2 | */
 
 
 

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="no-js">
+<head>
+    <meta charset="utf-8" />
+    <title>realtime:documentation:howto:tools:cyclictest:start [Wiki]</title>
+    <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+    <meta name="generator" content="DokuWiki"/>
+<meta name="theme-color" content="#008800"/>
+<meta name="robots" content="index,follow"/>
+<meta name="keywords" content="realtime,documentation,howto,tools,cyclictest,start"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Wiki"/>
+<link rel="start" href="/"/>
+<link rel="contents" href="/realtime/documentation/howto/tools/cyclictest/start?do=index" title="Sitemap"/>
+<link rel="manifest" href="/lib/exe/manifest.php"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="/feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current namespace" href="/feed.php?mode=list&amp;ns=realtime:documentation:howto:tools:cyclictest"/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="/_export/xhtml/realtime/documentation/howto/tools/cyclictest/start"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="/_export/raw/realtime/documentation/howto/tools/cyclictest/start"/>
+<link rel="canonical" href="https://wiki.linuxfoundation.org/realtime/documentation/howto/tools/cyclictest/start"/>
+<link rel="stylesheet" type="text/css" href="/lib/exe/css.php?t=dokuwiki&amp;tseed=3abf20f179d49a827de0782976186dc4"/>
+<!--[if gte IE 9]><!-->
+<script type="text/javascript">/*<![CDATA[*/var NS='realtime:documentation:howto:tools:cyclictest';var JSINFO = {"plugins":{"edittable":{"default columnwidth":""}},"plugin_folded":{"hide":"hide","reveal":"reveal"},"id":"realtime:documentation:howto:tools:cyclictest:start","namespace":"realtime:documentation:howto:tools:cyclictest","ACT":"show","useHeadingNavigation":0,"useHeadingContent":0};
+/*!]]>*/</script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/jquery.php?tseed=23f888679b4f1dc26eef34902aca964f"></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?t=dokuwiki&amp;tseed=3abf20f179d49a827de0782976186dc4"></script>
+<script type="text/javascript">/*<![CDATA[*/document.documentElement.className += ' olCSSsupported';
+/*!]]>*/</script>
+<!--<![endif]-->
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="shortcut icon" href="/lib/tpl/dokuwiki/images/favicon.ico" />
+<link rel="apple-touch-icon" href="/lib/tpl/dokuwiki/images/apple-touch-icon.png" />
+    </head>
+
+<body>
+    <div id="dokuwiki__site"><div id="dokuwiki__top" class="site dokuwiki mode_show tpl_dokuwiki     ">
+
+        
+<!-- ********** HEADER ********** -->
+<div id="dokuwiki__header"><div class="pad group">
+
+    
+    <div class="headings group">
+        <ul class="a11y skip">
+            <li><a href="#dokuwiki__content">skip to content</a></li>
+        </ul>
+
+        <h1><a href="/start"  accesskey="h" title="[H]"><img src="/_media/wiki/logo.png" width="200" height="64" alt="" /> <span>Wiki</span></a></h1>
+            </div>
+
+    <div class="tools group">
+        <!-- USER TOOLS -->
+                    <div id="dokuwiki__usertools">
+                <h3 class="a11y">User Tools</h3>
+                <ul>
+                    <li class="action login"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=login&amp;sectok=" title="Log In" rel="nofollow"><span>Log In</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 17.25V14H3v-4h7V6.75L15.25 12 10 17.25M8 2h9a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4h2v4h9V4H8v4H6V4a2 2 0 0 1 2-2z"/></svg></a></li>                </ul>
+            </div>
+        
+        <!-- SITE TOOLS -->
+        <div id="dokuwiki__sitetools">
+            <h3 class="a11y">Site Tools</h3>
+            <form action="/start" method="get" role="search" class="search doku_form" id="dw__search" accept-charset="utf-8"><input type="hidden" name="do" value="search" /><input type="hidden" name="id" value="realtime:documentation:howto:tools:cyclictest:start" /><div class="no"><input name="q" type="text" class="edit" title="[F]" accesskey="f" placeholder="Search" autocomplete="on" id="qsearch__in" value="" /><button value="1" type="submit" title="Search">Search</button><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>            <div class="mobileTools">
+                <form action="/doku.php" method="get" accept-charset="utf-8"><div class="no"><input type="hidden" name="id" value="realtime:documentation:howto:tools:cyclictest:start" /><select name="do" class="edit quickselect" title="Tools"><option value="">Tools</option><optgroup label="Page Tools"><option value="edit">Show pagesource</option><option value="revisions">Old revisions</option><option value="menuitemfolded">Fold/unfold all</option><option value="backlink">Backlinks</option></optgroup><optgroup label="Site Tools"><option value="recent">Recent Changes</option><option value="media">Media Manager</option><option value="index">Sitemap</option></optgroup><optgroup label="User Tools"><option value="login">Log In</option></optgroup></select><button type="submit">&gt;</button></div></form>            </div>
+            <ul>
+                <li class="action recent"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=recent" title="Recent Changes [r]" rel="nofollow" accesskey="r">Recent Changes</a></li><li class="action media"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=media&amp;ns=realtime%3Adocumentation%3Ahowto%3Atools%3Acyclictest" title="Media Manager" rel="nofollow">Media Manager</a></li><li class="action index"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=index" title="Sitemap [x]" rel="nofollow" accesskey="x">Sitemap</a></li>            </ul>
+        </div>
+
+    </div>
+
+    <!-- BREADCRUMBS -->
+            <div class="breadcrumbs">
+                                        <div class="trace"><span class="bchead">Trace:</span> <span class="bcsep">•</span> <span class="curid"><bdi><a href="/realtime/documentation/howto/tools/cyclictest/start"  class="breadcrumbs" title="realtime:documentation:howto:tools:cyclictest:start">cyclictest</a></bdi></span></div>
+                    </div>
+    
+
+
+    <hr class="a11y" />
+</div></div><!-- /header -->
+
+        <div class="wrapper group">
+
+            
+            <!-- ********** CONTENT ********** -->
+            <div id="dokuwiki__content"><div class="pad group">
+                
+                <div class="pageId"><span>realtime:documentation:howto:tools:cyclictest:start</span></div>
+
+                <div class="page group">
+                                                            <!-- wikipage start -->
+                    <!-- TOC START -->
+<div id="dw__toc" class="dw__toc">
+<h3 class="toggle">Table of Contents</h3>
+<div>
+
+<ul class="toc">
+<li class="level1"><div class="li"><a href="#cyclictest">Cyclictest</a></div>
+<ul class="toc">
+<li class="level2"><div class="li"><a href="#use_cases">Use Cases</a></div></li>
+<li class="level2"><div class="li"><a href="#technical_explanation">Technical Explanation</a></div></li>
+<li class="level2"><div class="li"><a href="#installation">Installation</a></div></li>
+<li class="level2"><div class="li"><a href="#execution">Execution</a></div></li>
+<li class="level2"><div class="li"><a href="#results">Results</a></div>
+<ul class="toc">
+<li class="level3"><div class="li"><a href="#histograms">Histograms</a></div></li>
+</ul>
+</li>
+<li class="level2"><div class="li"><a href="#analysis">Analysis</a></div>
+<ul class="toc">
+<li class="level3"><div class="li"><a href="#expected_results">Expected Results</a></div></li>
+</ul>
+</li>
+<li class="level2"><div class="li"><a href="#test_design">Test Design</a></div></li>
+<li class="level2"><div class="li"><a href="#limitations">Limitations</a></div></li>
+<li class="level2"><div class="li"><a href="#more_information">More Information</a></div></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<!-- TOC END -->
+
+<h1 class="sectionedit1" id="cyclictest">Cyclictest</h1>
+<div class="level1">
+
+<p>
+Cyclictest accurately and repeatedly measures the difference between a thread&#039;s intended wake-up time and the time at which it actually wakes up in order to provide statistics about the system&#039;s latencies. It can measure latencies in real-time systems caused by the hardware, the firmware, and the operating system.
+</p>
+
+<p>
+The original test was written by Thomas Gleixner (tglx), but several people have subsequently contributed modifications. Cyclictest is currently maintained by Clark Williams and John Kacur and is part of the test suite <a href="/realtime/documentation/howto/tools/rt-tests" class="wikilink1" title="realtime:documentation:howto:tools:rt-tests">rt-tests</a>.
+</p>
+<hr />
+
+</div>
+
+<h2 class="sectionedit2" id="use_cases">Use Cases</h2>
+<div class="level2">
+
+<p>
+Cyclictest is most commonly used for benchmarking RT systems. It is one of the most frequently used tools for evaluating the relative performance of real-time systems. Some performance tests which use Cyclictest are listed below as well as some other uses for Cyclictest.
+</p>
+<ul>
+<li class="level1"><div class="li"> System benchmarking: <a href="/realtime/documentation/howto/tools/rteval" class="wikilink1" title="realtime:documentation:howto:tools:rteval">RTEval</a>, <a href="/realtime/documentation/howto/tools/worstcaselatency" class="wikilink1" title="realtime:documentation:howto:tools:worstcaselatency">Worst case latency test scenarios</a></div>
+</li>
+<li class="level1"><div class="li"> <a href="/realtime/documentation/howto/tools/cyclictest/tracing" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:tracing">Latency debugging with tracing</a></div>
+</li>
+<li class="level1"><div class="li"> <a href="/realtime/documentation/howto/tools/cyclictest/app-performance" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:app-performance">Approximating application performance</a></div>
+</li>
+</ul>
+
+<p>
+OSADL (Open Source Automation Development Lab) uses Cyclictest to continuously monitor the latencies of several systems. More details about the project and about the specific Cyclictest options they use can be found on the <a href="https://www.osadl.org/Continuous-latency-monitoring.qa-farm-monitoring.0.html" class="urlextern" title="https://www.osadl.org/Continuous-latency-monitoring.qa-farm-monitoring.0.html" rel="nofollow">OSADL website</a>.
+</p>
+
+</div>
+
+<h2 class="sectionedit3" id="technical_explanation">Technical Explanation</h2>
+<div class="level2">
+
+<p>
+To measure latencies, Cyclictest runs a non real-time master thread (scheduling class SCHED_OTHER) which starts a defined number of measuring threads with a defined real-time priority (scheduling class SCHED_FIFO). The measuring threads are woken up periodically with a defined interval by an expiring timer (cyclic alarm). Subsequently, the difference between the programmed and the effective wake-up time is calculated and handed over to the master thread via shared memory. The master thread tracks the latency values and prints the minimum, maximum, and average latencies.
+</p>
+
+</div>
+
+<h2 class="sectionedit4" id="installation">Installation</h2>
+<div class="level2">
+
+<p>
+Cyclictest can be installed by following the instructions on the <a href="/realtime/documentation/howto/tools/rt-tests#compile-and-install" class="wikilink1" title="realtime:documentation:howto:tools:rt-tests">rt-tests page</a>.
+</p>
+
+</div>
+
+<h2 class="sectionedit5" id="execution">Execution</h2>
+<div class="level2">
+
+<p>
+Cyclictest must be run as root, with sudo, or as a member of the realtime group. Here is a test case that is relevant for most SMP real-time systems:
+</p>
+<pre class="code bash"><span class="co4"># </span>cyclictest <span class="re5">--mlockall</span> <span class="re5">--smp</span> <span class="re5">--priority</span>=<span class="nu0">80</span> <span class="re5">--interval</span>=<span class="nu0">200</span> <span class="re5">--distance</span>=<span class="nu0">0</span></pre>
+
+<p>
+The options above are not relevant for every situation on every system. The Cyclictest <a href="/realtime/documentation/howto/tools/cyclictest/test-design#option-selection" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:test-design">Test Design</a> page goes into more detail about how to choose the right options for measuring a specific latency on a given system. Additionally, <code>cyclictest -h</code> provides a quick description of the different program options and more detailed explanations can be found by running <code>man ./src/cyclictest/cyclictest.8</code> from the root of the <a href="/realtime/documentation/howto/tools/rt-tests" class="wikilink1" title="realtime:documentation:howto:tools:rt-tests">rt-tests</a> files. 
+</p>
+
+<p>
+Running Cyclictest without any options is not recommended as it will not necessarily measure anything useful. Without parameters, Cyclictest creates one thread with an intended wake-up period of 1 ms. 
+</p>
+
+</div>
+
+<h2 class="sectionedit6" id="results">Results</h2>
+<div class="level2">
+
+<p>
+Here is an example of what the Cyclictest results could look like:
+</p>
+<pre class="code">T: 0 (821)  P: 80  I: 200  C: 518063  Min: 1  Act: 1  Avg: 1  Max: 15
+T: 1 (822)  P: 80  I: 200  C: 518050  Min: 1  Act: 2  Avg: 1  Max: 23</pre>
+
+<p>
+These results were obtained by running the example command given above in the execution section for a short time on a 2 CPU machine running an RT patched version of the 4.9 kernel. The whitespace in the results above has been changed for formatting reasons. 
+</p>
+
+<p>
+The table below contains a description of the abbreviated labels in the results:
+</p>
+<div class="wrap_center plugin_wrap"><div class="table sectionedit9"><table class="inline">
+	<thead>
+	<tr class="row0">
+		<th class="col0 leftalign"> abr.  </th><th class="col1 leftalign"> Label     </th><th class="col2 leftalign"> Description                                                        </th>
+	</tr>
+	</thead>
+	<tr class="row1">
+		<td class="col0 leftalign"> T             </td><td class="col1 leftalign"> Thread    </td><td class="col2 leftalign"> Thread index and thread ID                                         </td>
+	</tr>
+	<tr class="row2">
+		<td class="col0 leftalign"> P             </td><td class="col1 leftalign"> Priority  </td><td class="col2 leftalign"> RT thread priority                                                 </td>
+	</tr>
+	<tr class="row3">
+		<td class="col0 leftalign"> I             </td><td class="col1 leftalign"> Interval  </td><td class="col2 leftalign"> Intended wake up period for the latency measuring threads (in us)  </td>
+	</tr>
+	<tr class="row4">
+		<td class="col0 leftalign"> C             </td><td class="col1 leftalign"> Count     </td><td class="col2 leftalign"> Number of times the latency was measured i.e. iteration count      </td>
+	</tr>
+	<tr class="row5">
+		<td class="col0 leftalign"> Min           </td><td class="col1 leftalign"> Minimum   </td><td class="col2 leftalign"> Minimum latency that was measured (in us)                          </td>
+	</tr>
+	<tr class="row6">
+		<td class="col0 leftalign"> Act           </td><td class="col1 leftalign"> Actual    </td><td class="col2 leftalign"> Latency measured during the latest completed iteration (in us)     </td>
+	</tr>
+	<tr class="row7">
+		<td class="col0 leftalign"> Max           </td><td class="col1 leftalign"> Maximum   </td><td class="col2 leftalign"> Maximum latency that was measured (in us)                          </td>
+	</tr>
+</table></div>
+</div>
+<p>
+The default unit used to present the latency values is microseconds (us), but this can be changed to nanoseconds using the –nsecs option.
+</p>
+
+</div>
+
+<h3 class="sectionedit10" id="histograms">Histograms</h3>
+<div class="level3">
+
+<p>
+The program options –histogram and –histofall can be used to output a histogram of the latencies to stdout at the end of the test. A more detailed description of these options can be found in the help menu (–help) or in the Cyclictest man page. Alternatively, an <a href="https://www.osadl.org/Create-a-latency-plot-from-cyclictest-hi.bash-script-for-latency-plot.0.html?&amp;no_cache=1&amp;sword_list[0]=script" class="urlextern" title="https://www.osadl.org/Create-a-latency-plot-from-cyclictest-hi.bash-script-for-latency-plot.0.html?&amp;no_cache=1&amp;sword_list[0]=script" rel="nofollow">OSADL script</a> can be used to run Cyclictest and produce a latency plot with the resulting histogram data. Before running the script, it should be modified so that the options passed to Cyclictest match the intended test case. More details about this can be found below in the Test Design section.
+</p>
+
+</div>
+
+<h2 class="sectionedit11" id="analysis">Analysis</h2>
+<div class="level2">
+
+<p>
+The most important value in the results is the maximum detected latency as this value can give an idea of the worst case latency length in the evaluated situation. These results should always be evaluated carefully, as the maximum measured value does not necessarily represent the system&#039;s worst case. More details about why the results should be interpreted critically can be found via the Cyclictest <a href="/realtime/documentation/howto/tools/cyclictest/test-design" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:test-design">Test Design</a> page and in the Limitations section below.
+</p>
+
+<p>
+It is not possible to specify a universally applicable recommended limit for latency length. The Cyclictest results should be analyzed based on the system&#039;s timing requirements for the latency of what was being measured. For example, if the latency of a specific real-time task was measured, then the results should be compared with the timing requirements for that specific task. The requirements will determine whether the latencies observed in a system are acceptable or too long.
+</p>
+
+</div>
+
+<h3 class="sectionedit12" id="expected_results">Expected Results</h3>
+<div class="level3">
+
+<p>
+An interesting way of seeing how the tested system compares to other real-time platforms is to run Cyclictest with the same options that are used by OSADL to benchmark systems in their <a href="https://www.osadl.org/Latency-plots.latency-plots.0.html" class="urlextern" title="https://www.osadl.org/Latency-plots.latency-plots.0.html" rel="nofollow">Real-time QA Farm</a> and to then compare the results with the results produced by their tested systems. The exact Cyclictest command used for a system is specified next to that system&#039;s latency plot. It is also possible to see a latency plot with the combined results of all the real-time devices that are currently being tested.
+</p>
+
+<p>
+It can also be interesting to compare with results from other systems that were running loads, using various Cyclictest parameters, and running different real-time and non real-time kernels. These results give a general idea of the order of magnitude that the latencies should be. They also show the effect that different test conditions and parameters can have on the Cyclictest results.
+</p>
+<div class="wrap_rightalign plugin_wrap">
+<p>
+<a href="/realtime/documentation/howto/tools/cyclictest/result-examples" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:result-examples">Read detailed examples of results</a>
+</p>
+</div>
+</div>
+
+<h2 class="sectionedit15" id="test_design">Test Design</h2>
+<div class="level2">
+
+<p>
+Cyclictest can be used to detect latencies that occur in many different systems and situations. However, a test must be designed carefully because it is relatively easy to not measure the latencies that were intended to be measured. Both the test setup and the parameters passed to Cyclictest need to be carefully chosen as a function of the specific situation in which the latencies are to be evaluated. If these elements are not considered thoughtfully, the Cyclictest results will not accurately represent the latencies that occur in that situation.
+</p>
+<div class="wrap_rightalign plugin_wrap">
+<p>
+<a href="/realtime/documentation/howto/tools/cyclictest/test-design" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:test-design">Read more about how to design a test</a>
+</p>
+</div>
+</div>
+
+<h2 class="sectionedit18" id="limitations">Limitations</h2>
+<div class="level2">
+
+<p>
+The latencies measured by Cyclictest may be slightly optimistic depending on the final application that will execute on the system. This is because <a href="/realtime/documentation/howto/tools/cyclictest/options/nanosleep" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:options:nanosleep">nanosleep</a> is used by the Cyclictest measuring threads, so they essentially have the shortest possible wake-up time that an RT userspace task can have. When using nanosleep, the Cyclictest thread timer expiry path is executed directly in hard interrupt context with no additional indirection. So, if an application task&#039;s wake-up is not completed in hard interrupt context (e.g. threaded interrupt context), the application task will experience a longer wake-up latency than a Cyclictest measuring thread in an identical situation due to the additional level of indirection. In a case like this, the Cyclictest thread&#039;s latency measurement will be optimistic even if the latency starts at the exact time that the Cyclictest thread is intended to execute and the thread is affected by the full duration of the latency.
+</p>
+<div class="wrap_rightalign plugin_wrap">
+<p>
+<a href="/realtime/documentation/howto/tools/cyclictest/limitations" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:limitations">Read more about Cyclictest limitations</a>
+</p>
+</div>
+</div>
+
+<h2 class="sectionedit21" id="more_information">More Information</h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li"> <a href="/realtime/documentation/howto/tools/cyclictest/faq" class="wikilink1" title="realtime:documentation:howto:tools:cyclictest:faq">Cyclictest FAQ</a></div>
+</li>
+<li class="level1"><div class="li"> <a href="https://man.archlinux.org/man/cyclictest.8.en" class="urlextern" title="https://man.archlinux.org/man/cyclictest.8.en" rel="nofollow">cyclictest manpage</a></div>
+</li>
+<li class="level1"><div class="li"> <a href="https://man.archlinux.org/man/get_cyclictest_snapshot.8.en" class="urlextern" title="https://man.archlinux.org/man/get_cyclictest_snapshot.8.en" rel="nofollow">get_cyclictest_snapshot</a> – get a snapshot of running instances of cyclictest</div>
+</li>
+</ul>
+
+</div>
+
+                    <!-- wikipage stop -->
+                                    </div>
+
+                <div class="docInfo"><bdi>realtime/documentation/howto/tools/cyclictest/start.txt</bdi> · Last modified: 2023/08/05 06:45 by <bdi>costa.shul</bdi></div>
+
+                            </div></div><!-- /content -->
+
+            <hr class="a11y" />
+
+            <!-- PAGE ACTIONS -->
+            <div id="dokuwiki__pagetools">
+                <h3 class="a11y">Page Tools</h3>
+                <div class="tools">
+                    <ul>
+                        <li class="source"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=edit" title="Show pagesource [v]" rel="nofollow" accesskey="v"><span>Show pagesource</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M13 9h5.5L13 3.5V9M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2m.12 13.5l3.74 3.74 1.42-1.41-2.33-2.33 2.33-2.33-1.42-1.41-3.74 3.74m11.16 0l-3.74-3.74-1.42 1.41 2.33 2.33-2.33 2.33 1.42 1.41 3.74-3.74z"/></svg></a></li><li class="revs"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=revisions" title="Old revisions [o]" rel="nofollow" accesskey="o"><span>Old revisions</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M11 7v5.11l4.71 2.79.79-1.28-4-2.37V7m0-5C8.97 2 5.91 3.92 4.27 6.77L2 4.5V11h6.5L5.75 8.25C6.96 5.73 9.5 4 12.5 4a7.5 7.5 0 0 1 7.5 7.5 7.5 7.5 0 0 1-7.5 7.5c-3.27 0-6.03-2.09-7.06-5h-2.1c1.1 4.03 4.77 7 9.16 7 5.24 0 9.5-4.25 9.5-9.5A9.5 9.5 0 0 0 12.5 2z"/></svg></a></li><li class="backlink"><a href="/realtime/documentation/howto/tools/cyclictest/start?do=backlink" title="Backlinks" rel="nofollow"><span>Backlinks</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.03.39-1.42 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24m2.82-4.24c.39-.39 1.03-.39 1.42 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.43l-.47.47a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.42z"/></svg></a></li><li class="menuitemfolded"><a href="javascript:void(0);" title="Fold/unfold all" rel="nofollow" class="fold_unfold_all_new" onclick="fold_unfold_all();"><span>Fold/unfold all</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M 2,0 L 6.5,3 L 2,6 z M 8,6.6 L 12.5,9.6 L 8,12.6 z M 14,13.2 L 20,13.2 L 17,17.7 z"/></svg></a></li><li class="top"><a href="#dokuwiki__top" title="Back to top [t]" rel="nofollow" accesskey="t"><span>Back to top</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg></a></li>                    </ul>
+                </div>
+            </div>
+        </div><!-- /wrapper -->
+
+        
+<!-- ********** FOOTER ********** -->
+<div id="dokuwiki__footer"><div class="pad">
+    <div class="license">Except where otherwise noted, content on this wiki is licensed under the following license: <bdi><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" rel="license" class="urlextern">CC Attribution-Noncommercial-Share Alike 4.0 International</a></bdi></div>
+    <div class="buttons">
+        <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" rel="license"><img src="/lib/images/license/button/cc-by-nc-sa.png" alt="CC Attribution-Noncommercial-Share Alike 4.0 International" /></a>        <a href="https://www.dokuwiki.org/donate" title="Donate" ><img
+            src="/lib/tpl/dokuwiki/images/button-donate.gif" width="80" height="15" alt="Donate" /></a>
+        <a href="https://php.net" title="Powered by PHP" ><img
+            src="/lib/tpl/dokuwiki/images/button-php.gif" width="80" height="15" alt="Powered by PHP" /></a>
+        <a href="//validator.w3.org/check/referer" title="Valid HTML5" ><img
+            src="/lib/tpl/dokuwiki/images/button-html5.png" width="80" height="15" alt="Valid HTML5" /></a>
+        <a href="//jigsaw.w3.org/css-validator/check/referer?profile=css3" title="Valid CSS" ><img
+            src="/lib/tpl/dokuwiki/images/button-css.png" width="80" height="15" alt="Valid CSS" /></a>
+        <a href="https://dokuwiki.org/" title="Driven by DokuWiki" ><img
+            src="/lib/tpl/dokuwiki/images/button-dw.png" width="80" height="15" alt="Driven by DokuWiki" /></a>
+    </div>
+</div></div><!-- /footer -->
+
+    </div></div><!-- /site -->
+
+    <div class="no"><img src="/lib/exe/indexer.php?id=realtime%3Adocumentation%3Ahowto%3Atools%3Acyclictest%3Astart&amp;1711222082" width="2" height="1" alt="" /></div>
+    <div id="screen__mode" class="no"></div></body>
+</html>

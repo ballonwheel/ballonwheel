@@ -1,0 +1,964 @@
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><title>SCHED_FIFO and realtime throttling [LWN.net]</title>
+        <meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@lwnnet" />
+<meta name="twitter:title" content="SCHED_FIFO and realtime throttling" />
+<meta name="twitter:description" content="Throttling of realtime SCHED_FIFO processes is a feature which was added in
+2.6.25.  It is only toward the end of the 2.6.27 development cycle, though,
+that the larger development community noticed its presence.  The result has
+been a lengthy discussion on how SCHED_FIFO should be implemented, whether
+POSIX compliance matters, and what constitutes sensible default policy in
+the kernel.  Click below (subscribers only) for the full article from this
+week's Kernel Page.
+" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+        <link rel="icon" href="https://static.lwn.net/images/favicon.png"
+              type="image/png">
+        <link rel="alternate" type="application/rss+xml" title="LWN.net headlines" href="https://lwn.net/headlines/rss">
+<link rel="alternate" type="application/rss+xml" title="Comments posted to this article" href="https://lwn.net/headlines/296419/">
+        <link rel="stylesheet" href="/CSS/lwn">
+<link rel="stylesheet" href="/CSS/nosub">
+
+        
+<script type="text/javascript">var p="http",d="static";if(document.location.protocol=="https:"){p+="s";d="engine";}var z=document.createElement("script");z.type="text/javascript";z.async=true;z.src=p+"://"+d+".adzerk.net/ados.js";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(z,s);</script>
+<script type="text/javascript">
+var ados_keywords = ados_keywords || [];
+if( location.protocol=='https:' ) {
+        ados_keywords.push('T:SSL');
+} else {
+        ados_keywords.push('T:HTTP');
+}
+
+var ados = ados || {};
+ados.run = ados.run || [];
+ados.run.push(function() {
+
+ados_add_placement(4669, 20979, "azk13321_leaderboard", 4).setZone(16026);
+
+ados_add_placement(4669, 20979, "azk93271_right_zone", [5,10,6]).setZone(16027);
+
+ados_add_placement(4669, 20979, "azk31017_tracking", 20).setZone(20995);
+
+
+
+ados_setKeywords(ados_keywords.join(', ')); 
+ados_load();
+});</script>
+
+        </head>
+        <body>
+        <a name="t"></a>
+<div id="menu"><a href="/"><img src="https://static.lwn.net/images/logo/barepenguin-70.png" class="logo"
+                 border="0" alt="LWN.net Logo">
+           <span class="logo">LWN<br>.net</span>
+           <span class="logobl">News from the source</span></a>
+           <a href="/"><img src="https://static.lwn.net/images/lcorner-ss.png" class="sslogo"
+                 border="0" alt="LWN"></a><div class="navmenu-container">
+           <ul class="navmenu">
+        <li><a class="navmenu" href="#t"><b>Content</b></a><ul><li><a href="/current/">Weekly Edition</a></li><li><a href="/Archives/">Archives</a></li><li><a href="/Search/">Search</a></li><li><a href="/Kernel/">Kernel</a></li><li><a href="/Security/">Security</a></li><li><a href="/Calendar/">Events calendar</a></li><li><a href="/Comments/unread">Unread comments</a></li><li><hr></li><li><a href="/op/FAQ.lwn">LWN FAQ</a></li><li><a href="/op/AuthorGuide.lwn">Write for us</a></li></ul></li>
+<li><a class="navmenu" href="#t"><b>Edition</b></a><ul><li><a href="/Articles/295854/">Return to the Kernel page</a></li></ul></li>
+</ul></div>
+</div> <!-- menu -->
+<div class="not-handset"
+            	     style="margin-left: 10.5em; display: block;">
+                   <div class="not-print"> <div id="azk13321_leaderboard"></div> </div>
+                </div>
+            <div class="topnav-container">
+<div class="not-handset"><form action="https://lwn.net/Login/" method="post" name="loginform"
+                 class="loginform">
+        <label><b>User:</b> <input type="text" name="Username" value="" size="8" id="uc" /></label> 
+		<label><b>Password:</b> <input type="password" name="Password" size="8" id="pc" /></label> <input type="hidden" name="target" value="/Articles/296419/" /> <input type="submit" name="submit" value="Log in" /></form> |
+           <form action="https://lwn.net/subscribe/" method="post" class="loginform">
+           <input type="submit" name="submit" value="Subscribe" />
+           </form> |
+           <form action="https://lwn.net/Login/newaccount" method="post" class="loginform">
+           <input type="submit" name="submit" value="Register" />
+           </form>
+        </div>
+               <div class="handset-only">
+               <a href="/subscribe/"><b>Subscribe</b></a> /
+               <a href="/Login/"><b>Log in</b></a> /
+               <a href="/Login/newaccount"><b>New account</b></a>
+               </div>
+               </div><div class="maincolumn flexcol">
+<div class="middlecolumn">
+<div class="PageHeadline">
+<h1>SCHED_FIFO and realtime throttling</h1>
+</div>
+<div class="ArticleText">
+<center>
+           <table class="Form" width="60%">
+           <tr><td><b>LWN.net needs you!</b><p>Without subscribers, LWN would simply not exist.  Please consider
+       <a href="/subscribe/">signing up for a subscription</a> and helping
+       to keep LWN publishing</td></tr>
+           </table>
+           </center>
+           <p>
+           <div class="FeatureByline">
+           By <b>Jonathan Corbet</b><br>September 1, 2008
+           </div>
+The SCHED_FIFO scheduling class is a longstanding, POSIX-specified realtime
+feature.  Processes in this class are given the CPU for as long as they
+want it, subject only to the needs of higher-priority realtime
+processes.  If there are two SCHED_FIFO processes with the same priority
+contending for the CPU, the process which is currently running will
+continue to do so until it decides to give the processor up.  SCHED_FIFO is
+thus useful for realtime applications where one wants to know, with great
+assurance, that the highest-priority process on the system will have full
+access to the processor for as long as it needs it.
+<p>
+One of the many features merged back in the 2.6.25 cycle was realtime group
+scheduling.  As a way of balancing CPU usage between competing groups of
+processes, each 
+of which can be running realtime tasks, the group scheduler introduced the
+concept of "realtime bandwidth," or rt_bandwith.  This bandwidth consists
+of a pair of values: a CPU time accounting period, and the amount of CPU
+that the group is allowed to use - at realtime priority - during that
+period.  Once a SCHED_FIFO task causes a group to exceed its rt_bandwidth,
+it will be pushed out of the processor whether it wants to go or not.
+<p>
+This feature is required if one wants to allow multiple groups to split a
+system's realtime processing power.  But it also turns out to have its uses in
+the default situation, where all processes on the system are contained
+within a single, default group.  Kernels
+shipped since 2.6.25 have set the rt_bandwidth value for the default group
+to be 0.95 out of every 1.0 seconds.  In other words, the group scheduler
+is configured, by default, to reserve 5% of the CPU for non-SCHED_FIFO
+tasks.
+<p>
+
+It seems that nobody really noticed this feature until mid-August, when
+Peter Zijlstra posted <a href="/Articles/296421/">a patch</a> which set the
+default value to "unlimited."  At that point it became clear that some
+developers have a different idea about how this kind of policy should be
+set than others do.
+<p>
+Ingo Molnar <a href="/Articles/296422/">disagreed</a> with the patch,
+saying:
+<p>
+<div class="BigQuote">
+	The thing is, i got far more bugreports about locked up RT tasks
+	where the lockup was unintentional, than real bugreports about
+	anyone _intending_ for the whole box to come to a grinding halt
+	because a high-prio RT tasks is monopolizing the CPU.
+</div>
+<p>
+Ingo's suggestion was to raise the limit to ten seconds of CPU time.  As he
+(and others) pointed out: any SCHED_FIFO application which needs to
+monopolize the CPU for that long has serious problems and needs to be
+fixed.
+<p>
+There are real problems associated with letting a SCHED_FIFO process run
+indefinitely.  Should that process never get around to relinquishing the
+CPU, the system will simply hang forevermore; there is no possibility of
+the administrator slipping in with a <tt>kill</tt> command.  This process
+will also block important things like kernel threads; even if it releases
+the processor after ten seconds, it will have seriously degraded the
+operation of the rest of the system.  Even on a multiprocessor system,
+there will typically be processes bound to the CPU where the SCHED_FIFO
+process is running; there will be no way to recover those processes without
+breaking their CPU affinity, which is not a step anybody wants to take.
+<p>
+So, it is argued, the rt_bandwidth limit is an important safety breaker.
+With it in place, even a runaway SCHED_FIFO cannot prevent the
+administrator from (eventually) regaining control of the system and
+figuring out what is going on.  In exchange for this safety, this feature
+only robs SCHED_FIFO tasks of a small amount of CPU time - the equivalent
+of running the application on a slightly weaker processor.
+<p>
+Those opposed to the default rt_bandwidth limit cite two main points: it is
+a user-space API change (which also breaks POSIX compliance) and
+represents an imposition of policy by the kernel.  On the first point, Nick
+Piggin <a href="/Articles/296425/">worries</a> that this change could lead
+to broken applications:
+<p>
+<div class="BigQuote">
+	It's not common sense to change this. It would be perfectly valid
+	to engineer a realtime process that uses a peak of say 90% of the
+	CPU with a 10% margin for safety and other services. Now they only
+	have 5%.
+	<p>
+	Or a realtime app could definitely use the CPU adaptively up to
+	100% but still unable to tolerate an unexpected preemption.
+</div>
+<p>
+What could make the problem worse is that the throttle might not cut in
+during testing; it could, instead, wait until something unexpected comes up
+in a production system.  Needless to say, that is a prospect which can
+prove scary for people who create and deploy this kind of system.
+<p>
+The "policy in the kernel" argument was mostly <a
+href="/Articles/296427/">shot down by Linus</a>, who pointed out that
+there's lots of policy in the kernel, especially when it comes to the
+default settings of tunable parameters.  He says:
+<p>
+<div class="BigQuote">
+	And the default policy should generally be the one that makes sense
+	for most people. Quite frankly, if it's an issue where all normal
+	distros would basically be expected to set a value, then that value
+	should _be_ the default policy, and none of the normal distros
+	should ever need to worry.
+</div>
+<p>
+Linus carefully avoided taking a position on which setting makes sense for
+the most people here.  One could certainly argue that making systems
+resistant to being taken over by runaway realtime processes is the more
+sensible setting, especially considering that there is a certain amount of
+interest in running scary applications like PulseAudio with realtime priority.
+On the other hand, one can also make the case that conforming to the
+standard (and expected) SCHED_FIFO semantics is the only option which makes
+sense at all.
+<p>
+There has been
+some talk of creating a new realtime scheduling class with throttling being
+explicitly part of its semantics; this class could, with a suitably low
+limit, even be made available to unprivileged processes.
+Meanwhile, as of this writing, the 0.95-second limit - the one option that
+<i>nobody</i> seems to like - remains unchanged.  It will almost certainly
+be raised; how much is something we'll have to wait to see.<br clear="all"><table class="IndexEntries">
+           <tr><th colspan=2>Index entries for this article</th></tr>
+           <tr><td><a href="/Kernel/Index">Kernel</a></td><td><a href="/Kernel/Index#Realtime">Realtime</a></td></tr>
+            <tr><td><a href="/Kernel/Index">Kernel</a></td><td><a href="/Kernel/Index#Scheduler-Realtime">Scheduler/Realtime</a></td></tr>
+            </table><br clear="all">
+<hr width="60%" align="left">
+           (<a href="https://lwn.net/Login/?target=/Articles/296419/">Log in</a> to post comments)
+           <p>
+           
+</div> <!-- ArticleText -->
+<p><a name="Comments"></a>
+
+<a name="CommAnchor296466"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 0:13 UTC (Tue) by <b>jengelh</b> (subscriber, #33263)
+       [<a href="/Articles/296466/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+Would interested parties please use SCHED_RR if they intend to give the processor back...<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296466/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296485"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_RR doesn't limit CPU usage</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 6:42 UTC (Tue) by <b>simlo</b> (guest, #10866)
+       [<a href="/Articles/296485/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+SCHED_RR is Round Robin _within_ the same priority. If there is no equal<br>
+priority task a SCHED_RR task is the same as a SCHED_FIFO task.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296485/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296645"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_RR doesn't limit CPU usage</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 3, 2008 5:48 UTC (Wed) by <b>jzbiciak</b> (guest, #5246)
+       [<a href="/Articles/296645/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+Are you saying SCHED_RR tasks don't get preempted at the end of their time quanta even if there's no other task ready at its level?<br>
+<p>
+I guess it's only a minor point.  I don't know if there are other housekeeping tasks the kernel can quickly dispatch of (CPU load balancing, for instance) if it periodically reschedules a SCHED_RR task, even if that prio level has only one task.  Clearly, a running SCHED_RR task is the highest priority thing the CPU can and should run at that point.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296645/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+</div>
+
+<a name="CommAnchor296484"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">Processes versus threads</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 7:01 UTC (Tue) by <b>abacus</b> (guest, #49001)
+       [<a href="/Articles/296484/">Link</a>]
+    </p>
+    A clarification: SCHED_FIFO applies to individual threads, not to whole processes. This holds both for the POSIX standard and the Linux implementation. See also <a href="http://www.opengroup.org/onlinepubs/009695399/functions/pthread_setschedparam.html">pthread_setschedparam()</a>.
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296484/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+
+<a name="CommAnchor296488"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 8:06 UTC (Tue) by <b>mjthayer</b> (guest, #39183)
+       [<a href="/Articles/296488/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+I actually always thought that SCHED_FIFO was intended for realtime processes which have a dedicated system to themselves, and which at most give up the CPU voluntarily to processes of their choosing - a bit like in the DOS days.  On the other hand, reserving a little bit of CPU shouldn't hurt them either as long as they have guarantees about what they will get.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296488/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296491"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 8:43 UTC (Tue) by <b>rvfh</b> (guest, #31018)
+       [<a href="/Articles/296491/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+What if the thread is polling some hardware and gets interrupted right when it should be getting some important data before it is overwritten?<br>
+<p>
+I think the default should be 'illimited' indeed, and changeable at run time via proc or sys, so everyone can make their choice.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296491/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296510"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 13:46 UTC (Tue) by <b>jamesh</b> (guest, #1159)
+       [<a href="/Articles/296510/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+If you are designing such a real time system, is it really that big a deal to adjust the knob and give your SCHED_FIFO task 100% of the CPU?  This probably isn't the only setting you'd need to change from default to get such a system to run well.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296510/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+
+<a name="CommAnchor296533"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 15:48 UTC (Tue) by <b>IkeTo</b> (subscriber, #2122)
+       [<a href="/Articles/296533/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+<font class="QuotedText">&gt; What if the thread is polling some hardware and gets interrupted right</font><br>
+<font class="QuotedText">&gt; when it should be getting some important data before it is overwritten?</font><br>
+<p>
+Should polling hardware be the task of the kernel, especially if it is so sensitive to timing?<br>
+<p>
+<font class="QuotedText">&gt; I think the default should be 'illimited' indeed, and changeable at run</font><br>
+<font class="QuotedText">&gt; time via proc or sys, so everyone can make their choice.</font><br>
+<p>
+If "everyone can make their choice" anyway, why not have the default to be limited to a sensible value so that the choice to betray themselves are made only consciously?<br>
+<p>
+Be reminded that people (distributions) do use SCHED_FIFO, e.g., to play movie in a way that video hopefully sync with audio.  It isn't nice if such programs would "normally" be risky of getting their computers hung up.<br>
+<p>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296533/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296589"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 19:38 UTC (Tue) by <b>k8to</b> (guest, #15413)
+       [<a href="/Articles/296589/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+You don't have to resort to hardware to make this important.<br>
+<p>
+Let's say I have the software to run a robot implemented in Linux.  My route plotting software is implemented in userland, and I've carefully written it so that it has a worst case time to reroute the robot in 50ms in an emergency, so it will never collide with a human.<br>
+<p>
+Oops, my cpu got yanked away from me in the middle of that and now I ran someone over.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296589/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296612"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 21:46 UTC (Tue) by <b>dlang</b> (guest, #313)
+       [<a href="/Articles/296612/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+if a few ms (or even a couple hundred ms) make the difference between avoiding a human and crashing into one you must have a pretty fast robot!<br>
+<p>
+besides, if you are building your super-fast robot control system you have the ability to turn the knob and give yourself absolute control of the CPU<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296612/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296614"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 22:13 UTC (Tue) by <b>nix</b> (subscriber, #2304)
+       [<a href="/Articles/296614/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+If your super-fast robot control system is capable of running people over, <br>
+I'd say you're negligent if you don't find and turn that knob (and a good <br>
+few extra ones).<br>
+<p>
+I'd also say that this is an extremely rare case: most Linux users are not <br>
+working on systems that can harm people if held up for a fraction of a <br>
+second. The needs of the overwhelmingly common case (`don't let buggy code <br>
+lock up my system') should govern.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296614/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+
+<a name="CommAnchor296631"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 3, 2008 2:26 UTC (Wed) by <b>walken</b> (subscriber, #7089)
+       [<a href="/Articles/296631/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+I think your hypothetical robot controller should arrange to be scheduled to run, at a high priority, every 10ms or so. It'd check that there is no emergency, and then it'd sleep for the next 10ms.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296631/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+
+<a name="CommAnchor296853"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 4, 2008 8:26 UTC (Thu) by <b>ekj</b> (guest, #1524)
+       [<a href="/Articles/296853/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+Irrelevant. They're only talking of changing the DEFAULT, not of making giving up up to 5% cpu MANDATORY.<br>
+<p>
+In other words, they claim that -MOST- peoples machines are probably better of in MOST cases letting a gone-crazy SCHED_FIFO process hog only 95% of the cpu, rather than 100. Because it makes it possible to for example open a shell and kill the bugger.<br>
+<p>
+The existence of special rare cases where you really want 100% is a no-argument: Simply *turn* the provided knob up to 100 for those cases then.<br>
+<p>
+You're in essence saying that 99% of users should turn the knob down to 95 - so that the last 1% won't have to turn it up to 100. Which makes no sense.<br>
+<p>
+Also, your example is extremely contrived. Indeed it serves as a good example of just how uncommon such situations are likely to be.<br>
+<p>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296853/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor297081"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 5, 2008 7:26 UTC (Fri) by <b>rvfh</b> (guest, #31018)
+       [<a href="/Articles/297081/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+I perfectly understand that, for most people, 95% or even 90% is best.<br>
+<p>
+But the issue here is not just 'what is best for most people' but also 'what's expected from the spec'. Breaking the spec is exactly what we reproach to some companies, and we need to think carefully before doing it.<br>
+<p>
+I guess that's why Linus himself did not take party, and that's why I don't really know which is best either, but reading the comments here makes me think that I would rather have the 90% myself :-)<br>
+<p>
+<p>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/297081/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor297106"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 5, 2008 12:10 UTC (Fri) by <b>ekj</b> (guest, #1524)
+       [<a href="/Articles/297106/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+In general, providing sensible defaults is a good thing.<br>
+<p>
+The overwhelming majority of machines should be configured so that a bug in a single SCHED_FIFO priority task cannot completely lock the machine up hard.<br>
+<p>
+That makes it a sensible default in my book.<br>
+<p>
+Okay okay, so you can argue the KERNEL should default to 100%, whereupon 99% of the distributions out there should default to turning the knob to 95% or 90% or whatever.<br>
+<p>
+But -someone-, earlier in the chain than the end-user, should change their default. It's not reasonable (as today!) to expect Joe User to know that he needs to turn the knob to avoid hard lockups on stumbling on a pulseaudio-bug or whatever.<br>
+<p>
+I still think the extremely few projects that DO need true 100% can turn the knob themselves; are you aware of even a single real such project ? (as opposed to theoretical constructs like the one in the grandparent)<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/297106/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+</div>
+
+<a name="CommAnchor296879"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 4, 2008 11:19 UTC (Thu) by <b>mb</b> (subscriber, #50428)
+       [<a href="/Articles/296879/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+You should be using rtai or rtlinux, if you have such requirements.<br>
+Yeah, really, you should.<br>
+<p>
+<a href="http://linuxcnc.org/">http://linuxcnc.org/</a><br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296879/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor297259"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 8, 2008 0:53 UTC (Mon) by <b>vonbrand</b> (guest, #4458)
+       [<a href="/Articles/297259/">Link</a>]
+    </p>
+    <p>
+Part of the whole idea is getting rid on RTLinux (i.e., integrating that functionality into the vanilla kernel source).
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/297259/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<a name="CommAnchor296487"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 8:43 UTC (Tue) by <b>ballombe</b> (subscriber, #9523)
+       [<a href="/Articles/296487/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+Since sysctl_sched_rt_runtime is global and not per-thread,<br>
+it seems better to have both SCHED_FIFO and e.g. SCHED_FIFO_THROTTLED,<br>
+so that systems needing both kind of policy (maybe not at the same time)<br>
+does not need to change the setting back and forth.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296487/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296613"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 2, 2008 22:07 UTC (Tue) by <b>nix</b> (subscriber, #2304)
+       [<a href="/Articles/296613/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+But the problem is that it's the *processes* that decide whether to use <br>
+SCHED_FIFO or this new _THROTTLED variant. If I wanted to impose a site <br>
+policy that no process is allowed to lock up my system by taking total <br>
+ownership of the CPU forever, even if it wants to, I'd have to change the <br>
+source of every application that used SCHED_FIFO, and if it was <br>
+closed-source I'd be out of luck.<br>
+<p>
+And that's not good enough. Regardless of what the default is, I want some <br>
+way to say 'let realtime-prio stuff run without scaring me', and that <br>
+means they take most, but not all of the CPU. (What's the difference <br>
+between a process taking most of the CPU and one taking all of it on a <br>
+slightly slower machine? A process, realtime or not, that cares that it's <br>
+running 5% slower than otherwise is a broken process --- just like one <br>
+that hogs the CPU constantly for ten seconds and doesn't let anyone else <br>
+get a word in edgeways.)<br>
+<p>
+(This is particularly important now that RT-prio stuff can run as <br>
+non-root, because that means it might actually get used for <br>
+non-specialized applications, not all of which can be guaranteed not to <br>
+have infloop-causing bugs.)<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296613/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296633"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 3, 2008 2:32 UTC (Wed) by <b>walken</b> (subscriber, #7089)
+       [<a href="/Articles/296633/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+<font class="QuotedText">&gt; (What's the difference between a process taking most of the CPU and one</font><br>
+<font class="QuotedText">&gt; taking all of it on a slightly slower machine? A process, realtime or not,</font><br>
+<font class="QuotedText">&gt; that cares that it's running 5% slower than otherwise is a broken process</font><br>
+<font class="QuotedText">&gt; --- just like one that hogs the CPU constantly for ten seconds and doesn't</font><br>
+<font class="QuotedText">&gt; let anyone else get a word in edgeways.)</font><br>
+<p>
+The process running 100% of the time on a slow machine will see time progress in small increments (say, if it calls gettimeofday in a loop, it'll see it progress a few microseconds at a time) while the process running 95% on a fast machine will see a large time increment once in a while, when it is descheduled. So, there definitely is a difference, for realtime processes.<br>
+<p>
+Still, I do not understand why one would try to yank 100% of the CPU on a posix system and expect the underlying OS to work fine...<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296633/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor296880"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 4, 2008 11:24 UTC (Thu) by <b>mb</b> (subscriber, #50428)
+       [<a href="/Articles/296880/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+Yeah well, a hard (old style) RT process will also be interrupted once in a while by hardware interrupts. Sure, the time running an IRQ is a lot lower than the time a process is scheduled away, but still.<br>
+If you really care about not getting interrupted at all, you should be running inside of the kernel or probably with rtai or rtlinux.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296880/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor297095"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 5, 2008 10:27 UTC (Fri) by <b>dmarkh</b> (guest, #40670)
+       [<a href="/Articles/297095/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+The thing is anyone actually having a dedicated machine to run that (old style) RT process is almost surely running on an SMP machine and has isolated his CPU from hardware interrupts and other processes. But even doing that, the kernel thinks that IT owns the CPUs in your box, not you, and requires some time on YOUR cpu regardless of your requirements. Folks, the kernel is just plain broken when you have 4 processors and cannot dedicate %100 of a single processor for a RT application. When you run a process at %100 on a single processor it breaks the kernel because the kernel can't get the processor for it's workque and other crap it thinks it needs to run on YOUR cpu. I think all this throttling crap is more of a "Lets not let userland break our kernel" sort of thing rather than "Lets not let user land break them selves" sort of thing.<br>
+<p>
+I will admit though, for a non SMP box this is probably a good thing as a default setting. <br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/297095/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+</div>
+
+<a name="CommAnchor296648"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 3, 2008 8:40 UTC (Wed) by <b>njs</b> (subscriber, #40338)
+       [<a href="/Articles/296648/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+Presumably you would make _THROTTLED the version that is accessible to non-root users, and leave SCHED_FIFO exclusively for root?  (More or less what it says at the end of the article.)<br>
+<p>
+It seems like there are two use cases, traditional real-time systems with more-or-less dedicated systems running custom programs, and the emerging desktop real-time stuff.  A process will generally know which sort of process it is?  It further seems to me that the former case wants weak emergency-only throttling for all tasks as a development aid, while the latter wants much stronger always-on throttling for unprivileged tasks in particular.  (I don't see why unprivileged realtime tasks should have access to "most but not all" of the CPU... the ideal limit would be "you get exactly as much time as the fair staircase scheduler would give you, but since you flipped the realtime bit I will guarantee that you receive it exactly when you ask for it".)  But they've made the default limit ~10s, which seems way higher than desired for ordinary desktop use, *and* annoys the hard-core real-time folks... (who aren't annoyed that they'll run uniformly 5% slower, they're scared that the 5% might come in the form of being abruptly descheduled just before a deadline.  But it's still hard to imagine a task actually running 10s straight without sleeping, which is why the discussion is all in terms of API guarantees and abstract junk like that.)<br>
+<p>
+Of course, in practice what will probably happen is that we won't end up with anyone's idea of the Platonic real-time API, kernels for both sorts of systems will end up tweaked away from the default anyway, desktop systems will use more elaborate schemes with different users segregated into different control groups with different limits, etc., and things will work out.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/296648/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+</div>
+
+<a name="CommAnchor297092"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 5, 2008 9:49 UTC (Fri) by <b>sdalley</b> (subscriber, #18550)
+       [<a href="/Articles/297092/">Link</a>]
+    </p>
+    <div class="FormattedComment">
+No realtime programmer worth his or her salt would design software in which the realtime throttling was an issue.<br>
+<p>
+The normal state of a realtime thread is sleeping. Waiting on an event of some sort, a timer, a mutex, a file event, a message/semaphore from an interrupt routine etc. In such a state, the throttle accounting is not kicking in. When the event occurs, the thread is immediately scheduled according to priority, does what it has to, and goes back to sleep.<br>
+<p>
+The realtime thread should absolutely not be busy-waiting in a screaming poll loop or performing compute-bound processing for hundreds of milliseconds at a time. You pass the data to non-realtime tasks for that.<br>
+<p>
+If a well-designed program is running into RT-throttling problems, it's time for a design rethink or a faster processor. IMHO it's quite proper in such cases that the throttling kicks in for the good of the system as a whole.<br>
+</div>
+
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/297092/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+<div class="Comment">
+
+<a name="CommAnchor297613"></a>
+<div class="CommentBox">
+  <h3 class="CommentTitle">SCHED_FIFO and realtime throttling</h3>
+  <div class="CommentBody">
+    <p class="CommentPoster">Posted Sep 10, 2008 1:08 UTC (Wed) by <b>sethml</b> (guest, #8471)
+       [<a href="/Articles/297613/">Link</a>]
+    </p>
+    I second this.  I've actually written systems using SCHED_FIFO, in which 
+losing a few ms would result in catastrophe.  (Not human-killing-robot 
+catastrophe, but you might end up with a bacteria-infested bottle of juice 
+because the system failed to remove a bottle with a damaged cap from the 
+assembly line.)  I would totally support the current 95% limit.  Any thread 
+running at real-time priority should only be running a small percentage of 
+the time, or else it's screwed.  Having the 95% limit would have saved me 
+many hours - instead I'd have to power-cycle the system, since there was no 
+way to kill the rogue thread.  (And for reasons I never figured out, 
+setting up an sshd at an even higher SCHED_FIFO priority didn't work.)<p>
+
+What I would have killed for at the time was a real-time scheduler for 
+which I could specify much more complex constraints.  I'd have loved to be 
+able to express: thread A gets top priority, but in no more than 100 1ms 
+chunks per second, and thread B gets medium priority, but uses no more than 
+90% of the CPU available to it, and thread C gets whatever's left.  (Thread 
+C would be my communications thread, so that the controller of the system 
+could actually fix it if something went wrong.)
+  </div>
+  
+  <div class="CommentReplyButton">
+    <form action="/Articles/297613/comment" method="post">
+      <input type="submit" value="Reply to this comment">
+    </form>
+  </div>
+
+  <p>
+  
+</div>
+</div>
+</div> <!-- middlecolumn -->
+<div class="rightcol not-print">
+<div id="azk93271_right_zone"></div>
+</div>
+</div> <!-- maincolumn -->
+
+            <br clear="all">
+            <center>
+            <P>
+            <span class="ReallySmall">
+            Copyright &copy; 2008, Eklektix, Inc.<BR>
+            This article may be redistributed under the terms of the
+              <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+              Commons CC BY-SA 4.0</a> license<br>
+            Comments and public postings are copyrighted by their creators.<br>
+            Linux  is a registered trademark of Linus Torvalds<br>
+            </span>
+            </center>
+            
+            </body></html>

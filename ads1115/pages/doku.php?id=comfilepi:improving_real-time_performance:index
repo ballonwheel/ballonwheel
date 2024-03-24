@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="no-js">
+<head>
+    <meta charset="utf-8" />
+    <title>Improving Real-Time Performance on the ComfilePi</title>
+    <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+    <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="keywords" content="comfilepi,improving_real-time_performance,index"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/en/lib/exe/opensearch.php" title="COMFILE Technology's Online Documentation Library"/>
+<link rel="start" href="/en/"/>
+<link rel="contents" href="/en/doku.php?id=comfilepi:improving_real-time_performance:index&amp;do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="/en/feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current namespace" href="/en/feed.php?mode=list&amp;ns=comfilepi:improving_real-time_performance"/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="/en/doku.php?do=export_xhtml&amp;id=comfilepi:improving_real-time_performance:index"/>
+<link rel="canonical" href="http://comfilewiki.co.kr/en/doku.php?id=comfilepi:improving_real-time_performance:index"/>
+<link rel="stylesheet" type="text/css" href="/en/lib/exe/css.php?t=comfile&amp;tseed=50a459413788396d863f73621d80f6a0"/>
+<!--[if gte IE 9]><!-->
+<script type="text/javascript">/*<![CDATA[*/var NS='comfilepi:improving_real-time_performance';var JSINFO = {"id":"comfilepi:improving_real-time_performance:index","namespace":"comfilepi:improving_real-time_performance","plugins":{"edittable":{"default columnwidth":""}},"ga":{"trackingId":"","gtagId":"G-2P6FZ7VD4T","anonymizeIp":false,"action":"show","trackOutboundLinks":false,"options":[],"pageview":"\/en\/comfilepi\/improving_real-time_performance\/index","debug":false}};
+/*!]]>*/</script>
+<script type="text/javascript" charset="utf-8" src="/en/lib/exe/jquery.php?tseed=23f888679b4f1dc26eef34902aca964f"></script>
+<script type="text/javascript" charset="utf-8" src="/en/lib/exe/js.php?t=comfile&amp;tseed=50a459413788396d863f73621d80f6a0"></script>
+<!--<![endif]-->
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="shortcut icon" href="/en/lib/tpl/comfile/images/favicon.ico" />
+<link rel="apple-touch-icon" href="/en/lib/tpl/comfile/images/apple-touch-icon.png" />
+        <link rel="alternate" href="http://comfilewiki.co.kr/ko" hreflang="ko" />
+</head>
+
+<body>
+    <!--[if lte IE 8 ]><div id="IE8"><![endif]-->
+    <div id="dokuwiki__site"><div id="dokuwiki__top" class="site dokuwiki mode_show tpl_comfile     ">
+
+        
+<!-- ********** HEADER ********** -->
+<div id="dokuwiki__header"><div class="pad group">
+
+
+
+    
+    <div class="headings group">
+        <ul class="a11y skip">
+            <li><a href="#dokuwiki__content">skip to content</a></li>
+        </ul>
+
+        <h1><a href="/en/doku.php?id=index"  accesskey="h" title="[H]"><img src="/en/lib/exe/fetch.php?media=wiki:logo.png" width="212" height="56" alt="" /></a></h1>
+            </div>
+
+    <div class="tools group">
+        <!-- USER TOOLS -->
+                    <div id="dokuwiki__usertools">
+                <h3 class="a11y">User Tools</h3>
+                <ul>
+                                    </ul>
+            </div>
+        
+        <!-- SITE TOOLS -->
+        <div id="dokuwiki__sitetools">
+            <h3 class="a11y">Site Tools</h3>
+            <form action="/en/doku.php?id=index" accept-charset="utf-8" class="search" id="dw__search" method="get" role="search"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" placeholder="Search" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><button type="submit" title="Search">Search</button><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>            <div class="mobileTools">
+                <form action="/en/doku.php" method="get" accept-charset="utf-8"><div class="no"><input type="hidden" name="id" value="comfilepi:improving_real-time_performance:index" /><select name="do" class="edit quickselect" title="Tools"><option value="">Tools</option><optgroup label="Page Tools"><option value="revisions">Old revisions</option><option value="backlink">Backlinks</option></optgroup><optgroup label="Site Tools"><option value="recent">Recent Changes</option><option value="media">Media Manager</option><option value="index">Sitemap</option></optgroup><optgroup label="User Tools"><option value="login">Log In</option></optgroup></select><button type="submit">&gt;</button></div></form>            </div>
+            <ul>
+                            </ul>
+        </div>
+		
+        <div>
+            <a href="http://comfilewiki.co.kr" style="margin-right: 10px;">한국어</a>
+            
+            <div id="google_translate_element" style="float: right;"></div>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+                }
+            </script>
+            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        </div>
+    </div>
+
+    <!-- BREADCRUMBS -->
+            <div class="breadcrumbs">
+                            <div class="youarehere"><span class="bchead">You are here: </span><span class="home"><bdi><a href="/en/doku.php?id=index" class="wikilink1" title="index">COMFILE Technology&#039;s Documentation Library</a></bdi></span> » <bdi><a href="/en/doku.php?id=comfilepi:index" class="wikilink1" title="comfilepi:index">ComfilePi - Industrial Raspberry Pi Panel PC</a></bdi> » <bdi><span class="curid"><a href="/en/doku.php?id=comfilepi:improving_real-time_performance:index" class="wikilink1" title="comfilepi:improving_real-time_performance:index">Improving Real-Time Performance on the ComfilePi</a></span></bdi></div>
+                                </div>
+    
+
+
+    <hr class="a11y" />
+</div></div><!-- /header -->
+
+        <div class="wrapper group">
+
+            
+            <!-- ********** CONTENT ********** -->
+            <div id="dokuwiki__content"><div class="pad group">
+                
+                <div class="pageId"><span>comfilepi:improving_real-time_performance:index</span></div>
+
+                <div class="page group">
+                                                            <!-- wikipage start -->
+                    <!-- TOC START -->
+<div id="dw__toc">
+<h3 class="toggle">Table of Contents</h3>
+<div>
+
+<ul class="toc">
+<li class="level1"><div class="li"><a href="#improving_real-time_performance_on_the_comfilepi">Improving Real-Time Performance on the ComfilePi</a></div>
+<ul class="toc">
+<li class="level2"><div class="li"><a href="#setting_the_cpu_governor_to_performance">Setting the CPU Governor to &#039;&#039;performance&#039;&#039;</a></div></li>
+<li class="level2"><div class="li"><a href="#isolate_a_program_to_one_of_the_4_cpu_cores">Isolate a Program to One of the 4 CPU Cores</a></div></li>
+<li class="level2"><div class="li"><a href="#schedule_the_program_as_real-time_with_high_priority">Schedule the Program as Real-Time with High Priority</a></div></li>
+<li class="level2"><div class="li"><a href="#disable_realtime_throttling_not_recommended">Disable Realtime Throttling (Not Recommended)</a></div></li>
+<li class="level2"><div class="li"><a href="#demonstration_measurement_and_results">Demonstration, Measurement, and Results</a></div>
+<ul class="toc">
+<li class="level3"><div class="li"><a href="#test_program">Test Program</a></div></li>
+<li class="level3"><div class="li"><a href="#measurement_and_results">Measurement and Results</a></div></li>
+<li class="level3"><div class="li"><a href="#additional_information">Additional Information</a></div></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<!-- TOC END -->
+
+<h1 class="sectionedit1" id="improving_real-time_performance_on_the_comfilepi">Improving Real-Time Performance on the ComfilePi</h1>
+<div class="level1">
+
+<p>
+The following changes can be made to the ComfilePi to improve the the real-time performance of a program running on it.
+</p>
+<ul>
+<li class="level1"><div class="li"> Set the CPU governor to <code>performance</code> to keep the CPU&#039;s frequency constant</div>
+</li>
+<li class="level1"><div class="li"> Isolate a real-time program to one of the 4 CPU cores</div>
+</li>
+<li class="level1"><div class="li"> Schedule the program as real-time with high priority</div>
+</li>
+<li class="level1"><div class="li"> Disable realtime throttling.</div>
+</li>
+<li class="level1"><div class="li"> <a href="/en/doku.php?id=comfilepi:compile_a_real-time_kernel:index" class="wikilink1" title="comfilepi:compile_a_real-time_kernel:index">Use a real-time kernel</a></div>
+</li>
+</ul>
+
+</div>
+
+<h2 class="sectionedit2" id="setting_the_cpu_governor_to_performance">Setting the CPU Governor to &#039;&#039;performance&#039;&#039;</h2>
+<div class="level2">
+
+<p>
+Run the following commands in a terminal to set the CPU governor to <code>performance</code> to prevent the system from dynamically changing the CPU frequency.
+</p>
+<pre class="code">sudo apt install cpufrequtils
+sudo cpufreq-set -g performance</pre>
+
+<p>
+Operating system utilities should report the frequency at 1.2GHz.
+</p>
+<pre class="code">pi@raspberrypi:~ $ sudo cat /sys/devices/system/cpu/cpu[0-3]/cpufreq/cpuinfo_cur_freq
+1500000
+1500000
+1500000
+1500000
+pi@raspberrypi:~ $ vcgencmd measure_clock arm
+frequency(48)=1500398464</pre>
+
+</div>
+
+<h2 class="sectionedit3" id="isolate_a_program_to_one_of_the_4_cpu_cores">Isolate a Program to One of the 4 CPU Cores</h2>
+<div class="level2">
+
+<p>
+First, add <code>isolcpus=nohz,domain,managed_irq,3 irqaffinity=0-2 nohz_full=3 rcu_nocbs=3</code> to the <em>/boot/cmdline.txt</em> file.  This will prevent Linux from allocating the 4th core to most process, interrupt handlers, and kernel threads.  Reboot for the change to take effect.  See <a href="https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html" class="urlextern" title="https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html" rel="nofollow">the Linux kernel documentation</a> for more information on these kernel arguments.
+</p>
+
+<p>
+Then use <code>taskset</code> to have Linux run a program, in this case a program called <em>test</em>, on the 4th core.  The program will have that core all to itself.  See <a href="https://www.man7.org/linux/man-pages/man1/taskset.1.html" class="urlextern" title="https://www.man7.org/linux/man-pages/man1/taskset.1.html" rel="nofollow">the taskset man page</a> for more information.
+</p>
+<pre class="code">sudo taskset -cp 3 `pidof test`</pre>
+
+<p>
+Core isolation can also be achieved using <em>cpusets</em>.  See the following resources for more information:
+</p>
+<ul>
+<li class="level1"><div class="li"> <a href="https://docs.kernel.org/admin-guide/cgroup-v1/cpusets.html" class="urlextern" title="https://docs.kernel.org/admin-guide/cgroup-v1/cpusets.html" rel="nofollow">Linux kernel documentation on cpusets</a></div>
+</li>
+<li class="level1"><div class="li"> <a href="https://github.com/lpechacek/cpuset/blob/master/doc/tutorial.txt" class="urlextern" title="https://github.com/lpechacek/cpuset/blob/master/doc/tutorial.txt" rel="nofollow">cpuset utility package documentation</a></div>
+</li>
+</ul>
+
+</div>
+
+<h2 class="sectionedit4" id="schedule_the_program_as_real-time_with_high_priority">Schedule the Program as Real-Time with High Priority</h2>
+<div class="level2">
+
+<p>
+This will configure the process with FIFO scheduling, and increase its priority to the maximum.  Other options are possible allowing one to tune the scheduling algorithm to their specific use case.  See <a href="https://www.man7.org/linux/man-pages/man1/chrt.1.html" class="urlextern" title="https://www.man7.org/linux/man-pages/man1/chrt.1.html" rel="nofollow">the chrt man page</a> for more information.
+</p>
+<pre class="code">sudo chrt -f -p 99 `pidof test`</pre>
+
+<p>
+<code>htop</code> will report the process with a priority of <em>RT</em>.
+<a href="/en/lib/exe/detail.php?id=comfilepi%3Aimproving_real-time_performance%3Aindex&amp;media=comfilepi:improving_real-time_performance:priorityrt.png" class="media" title="comfilepi:improving_real-time_performance:priorityrt.png"><img src="/en/lib/exe/fetch.php?media=comfilepi:improving_real-time_performance:priorityrt.png" class="mediacenter" alt="" /></a>
+</p>
+
+</div>
+
+<h2 class="sectionedit5" id="disable_realtime_throttling_not_recommended">Disable Realtime Throttling (Not Recommended)</h2>
+<div class="level2">
+
+<p>
+When using FIFO scheduling, it may be necessary to disable <a href="https://lwn.net/Articles/296419/" class="urlextern" title="https://lwn.net/Articles/296419/" rel="nofollow">realtime throttling</a>.
+</p>
+<pre class="code">sudo sh -c &quot;echo -1 &gt; /proc/sys/kernel/sched_rt_runtime_us&quot;</pre>
+
+<p>
+However, this is a blunt instrument because it disables realtime throttling on all cores.  Instead, to implement precise timing, it may be best to introduce a <code>sleep</code> along with a spin-wait for greater precision.  For more information, refer to <a href="https://stackoverflow.com/a/75122036/539972" class="urlextern" title="https://stackoverflow.com/a/75122036/539972" rel="nofollow">this description</a>.
+</p>
+
+</div>
+
+<h2 class="sectionedit6" id="demonstration_measurement_and_results">Demonstration, Measurement, and Results</h2>
+<div class="level2">
+
+</div>
+
+<h3 class="sectionedit7" id="test_program">Test Program</h3>
+<div class="level3">
+
+<p>
+In this test, a program is created to output a 100µs alternating pulse (500kHz) on one of the ComfilePI&#039;s GPIO pins.  The program uses the <a href="https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/" class="urlextern" title="https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/" rel="nofollow">gpiod</a> library.
+</p>
+<pre class="code C"><span class="co2">#include &lt;gpiod.h&gt;</span>
+<span class="co2">#include &lt;cstdio&gt;</span>
+<span class="co2">#include &lt;chrono&gt;</span>
+<span class="co2">#include &lt;unistd.h&gt;</span>
+&nbsp;
+using namespace std<span class="sy0">::</span><span class="me2">chrono</span><span class="sy0">;</span>
+&nbsp;
+<span class="kw4">void</span> delay<span class="br0">&#40;</span><span class="kw4">uint32_t</span> us<span class="br0">&#41;</span>
+<span class="br0">&#123;</span>
+    <span class="kw4">auto</span> t1 <span class="sy0">=</span> steady_clock<span class="sy0">::</span><span class="me2">now</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw4">auto</span> t2 <span class="sy0">=</span> t1 <span class="sy0">+</span> microseconds<span class="br0">&#40;</span>us<span class="br0">&#41;</span><span class="sy0">;</span>
+    this_thread<span class="sy0">::</span><span class="me2">sleep_for</span><span class="br0">&#40;</span>10us<span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">while</span> <span class="br0">&#40;</span>steady_clock<span class="sy0">::</span><span class="me2">now</span><span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="sy0">&lt;</span> t2<span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span>
+&nbsp;
+<span class="kw4">int</span> main<span class="br0">&#40;</span><span class="kw4">int</span> argc<span class="sy0">,</span> <span class="kw4">char</span> <span class="sy0">**</span>argv<span class="br0">&#41;</span>
+<span class="br0">&#123;</span>
+    <span class="kw4">const</span> <span class="kw4">char</span> <span class="sy0">*</span>chipname <span class="sy0">=</span> <span class="st0">&quot;gpiochip0&quot;</span><span class="sy0">;</span>
+    <span class="kw4">struct</span> gpiod_chip <span class="sy0">*</span>chip<span class="sy0">;</span>
+    <span class="kw4">struct</span> gpiod_line <span class="sy0">*</span>line16<span class="sy0">;</span>
+&nbsp;
+    <span class="co1">// Open GPIO16</span>
+    chip <span class="sy0">=</span> gpiod_chip_open_by_name<span class="br0">&#40;</span>chipname<span class="br0">&#41;</span><span class="sy0">;</span>
+    line16 <span class="sy0">=</span> gpiod_chip_get_line<span class="br0">&#40;</span>chip<span class="sy0">,</span> <span class="nu0">16</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    gpiod_line_request_output<span class="br0">&#40;</span>line16<span class="sy0">,</span> <span class="st0">&quot;realtime&quot;</span><span class="sy0">,</span> <span class="nu0">0</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    <span class="co1">// Toggle GPIO every 100us</span>
+    <span class="kw1">while</span> <span class="br0">&#40;</span><span class="kw2">true</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        gpiod_line_set_value<span class="br0">&#40;</span>line16<span class="sy0">,</span> <span class="kw2">true</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        delay<span class="br0">&#40;</span><span class="nu0">50</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        gpiod_line_set_value<span class="br0">&#40;</span>line16<span class="sy0">,</span> <span class="kw2">false</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        delay<span class="br0">&#40;</span><span class="nu0">50</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="co1">// Release lines and chip</span>
+    gpiod_line_release<span class="br0">&#40;</span>line16<span class="br0">&#41;</span><span class="sy0">;</span>
+    gpiod_chip_close<span class="br0">&#40;</span>chip<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw1">return</span> <span class="nu0">0</span><span class="sy0">;</span>
+<span class="br0">&#125;</span></pre>
+
+<p>
+Compile with…
+</p>
+<pre class="code"># Install the gpiod library if necessary
+# sudo apt install libgpiod-dev
+
+# Compile the program
+g++ -O3 test.cpp -lgpiod -o test</pre>
+
+<p>
+An oscilloscope shows the pulse as physically generated by the ComfilePi.
+</p>
+
+<p>
+<a href="/en/lib/exe/detail.php?id=comfilepi%3Aimproving_real-time_performance%3Aindex&amp;media=comfilepi:improving_real-time_performance:scope.png" class="media" title="comfilepi:improving_real-time_performance:scope.png"><img src="/en/lib/exe/fetch.php?w=900&amp;tok=68cb01&amp;media=comfilepi:improving_real-time_performance:scope.png" class="mediacenter" alt="" width="900" /></a>
+</p>
+
+<p>
+While the real-time program is executing, a separate process is run to simulate browsing the web using the Chromium browser.  The goal is to measure any disruption to the real-time process that may occur by an operator interacting with a user interface.
+</p>
+<pre class="code bash"><span class="co0">#!/bin/bash</span>
+&nbsp;
+<span class="kw1">while</span> <span class="kw2">true</span>
+<span class="kw1">do</span>
+    chromium-browser http:<span class="sy0">//</span>comfiletech.com <span class="sy0">&amp;</span>
+    <span class="kw2">sleep</span> 15s
+    <span class="kw2">killall</span> chromium-browser
+    <span class="kw2">sleep</span> 5s
+<span class="kw1">done</span></pre>
+
+<p>
+Due to the CPU isolation configuration explained above, Linux will allocate the Chromium browser only to the first 3 cores.
+</p>
+
+</div>
+
+<h3 class="sectionedit8" id="measurement_and_results">Measurement and Results</h3>
+<div class="level3">
+
+<p>
+An external data capture instrument is used to measure the consistency of the pulse.  Any deviation from the 100µs, specified in the program&#039;s source code, is jitter.  The jitter is recorded according to the number of times it occurs over the duration of the test.
+</p>
+
+<p>
+The test is conducted under 3 configurations:
+</p>
+<ol>
+<li class="level1"><div class="li"> An ordinary kernel with no CPU isolation or real-time scheduling</div>
+</li>
+<li class="level1"><div class="li"> An ordinary kernel with CPU isolation and real-time scheduling</div>
+</li>
+<li class="level1"><div class="li"> A real-time kernel with CPU isolation and real-time scheduling</div>
+</li>
+</ol>
+
+<p>
+<a href="/en/lib/exe/detail.php?id=comfilepi%3Aimproving_real-time_performance%3Aindex&amp;media=comfilepi:improving_real-time_performance:jitter.png" class="media" title="comfilepi:improving_real-time_performance:jitter.png"><img src="/en/lib/exe/fetch.php?w=900&amp;tok=5aece4&amp;media=comfilepi:improving_real-time_performance:jitter.png" class="mediacenter" alt="" width="900" /></a>
+</p>
+
+<p>
+As can be seen in the chart above, the ordinary kernel, without any CPU isolation or real-time scheduling, operates with excessive jitter and would likely not be suitable for any real-time application.  However, by taking a few measures to optimize a process for real-time performance, it is possible to reduce jitter potentially below 50µs which may be acceptable for some real-time use cases.  Without the intentional disturbance introduced by running the web browser, the performance is better.
+</p>
+
+<p>
+Although the real-time kernel can reduce jitter, it trades off overall performance throughput.  Using the real-time kernel may cause the system to boot slower and run some applications with a mild performance penalty, but it will provide more deterministic behavior.
+</p>
+
+</div>
+
+<h3 class="sectionedit9" id="additional_information">Additional Information</h3>
+<div class="level3">
+<ul>
+<li class="level1"><div class="li"> <a href="https://www.youtube.com/watch?v=sKVrsDLxtDM" class="urlextern" title="https://www.youtube.com/watch?v=sKVrsDLxtDM" rel="nofollow">Measuring the Impacts of the Preempt-RT Patch</a></div>
+</li>
+</ul>
+
+<p>
+<a href="/en/doku.php?id=comfilepi:index" class="wikilink1" title="comfilepi:index">ComfilePi - Industrial Raspberry Pi Panel PC</a>
+</p>
+
+</div>
+
+                    <!-- wikipage stop -->
+                                    </div>
+
+                <div class="docInfo"><bdi>comfilepi/improving_real-time_performance/index.txt</bdi> · Last modified: 2024/03/13 15:42 by <bdi>COMFILE Technology</bdi></div>
+
+                            </div></div><!-- /content -->
+
+            <hr class="a11y" />
+
+            <!-- PAGE ACTIONS -->
+            <div id="dokuwiki__pagetools">
+                <h3 class="a11y">Page Tools</h3>
+                <div class="tools">
+                    <ul>
+                        <li><a href="/en/doku.php?id=comfilepi:improving_real-time_performance:index&amp;do=revisions"  class="action revs" accesskey="o" rel="nofollow" title="Old revisions [O]"><span>Old revisions</span></a></li><li><a href="/en/doku.php?id=comfilepi:improving_real-time_performance:index&amp;do=backlink"  class="action backlink" rel="nofollow" title="Backlinks"><span>Backlinks</span></a></li><li><a href="#dokuwiki__top"  class="action top" accesskey="t" rel="nofollow" title="Back to top [T]"><span>Back to top</span></a></li>                    </ul>
+                </div>
+            </div>
+        </div><!-- /wrapper -->
+
+        
+<!-- ********** FOOTER ********** -->
+<div id="dokuwiki__footer"><div class="pad">
+	<!--
+    	-->
+
+	<!--
+    <div class="buttons">
+                <a href="http://www.dokuwiki.org/donate" title="Donate" ><img
+            src="/en/lib/tpl/comfile/images/button-donate.gif" width="80" height="15" alt="Donate" /></a>
+        <a href="http://www.php.net" title="Powered by PHP" ><img
+            src="/en/lib/tpl/comfile/images/button-php.gif" width="80" height="15" alt="Powered by PHP" /></a>
+        <a href="http://validator.w3.org/check/referer" title="Valid HTML5" ><img
+            src="/en/lib/tpl/comfile/images/button-html5.png" width="80" height="15" alt="Valid HTML5" /></a>
+        <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3" title="Valid CSS" ><img
+            src="/en/lib/tpl/comfile/images/button-css.png" width="80" height="15" alt="Valid CSS" /></a>
+        <a href="http://dokuwiki.org/" title="Driven by DokuWiki" ><img
+            src="/en/lib/tpl/comfile/images/button-dw.png" width="80" height="15" alt="Driven by DokuWiki" /></a>
+    </div>
+	-->
+</div></div><!-- /footer -->
+
+<!-- Do not translate code -->
+<script language="javascript">
+// Don't translate code
+function noTranslate(elements)
+{
+  var i;
+
+  for(i = 0; i < elements.length; i++) 
+  {
+    // translate="no" does not seem to be supported by any browser yet, but it's here just in case.
+    var a = document.createAttribute("translate");
+    a.value = "no";
+    elements[i].setAttributeNode(a);
+    
+    // This works.  Add a notranslate class
+    elements[i].className += " notranslate";
+  }
+}
+
+noTranslate(document.getElementsByTagName("code"));
+noTranslate(document.getElementsByTagName("pre"));
+</script>
+
+<script type="text/javascript" src="lib/scripts/gifffer.min.js"></script>
+<script>
+    Gifffer();
+</script>
+
+    </div></div><!-- /site -->
+
+    <div class="no"><img src="/en/lib/exe/indexer.php?id=comfilepi%3Aimproving_real-time_performance%3Aindex&amp;1711180152" width="2" height="1" alt="" /></div>
+    <div id="screen__mode" class="no"></div>    <!--[if lte IE 8 ]></div><![endif]-->
+</body>
+</html>
