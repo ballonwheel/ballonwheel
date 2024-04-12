@@ -1,16 +1,32 @@
 # ADS1115
 ADC 16bit 860sps i2c 4singleEnded 3.3V
 
-
-## 1. i2c driver
-
+https://www.ti.com/lit/ds/symlink/ads1115.pdf
 
 
-## 2. character device kernel driver
+Understanding Kernel modul dev
+
+https://sysprog21.github.io/lkmpg/
 
 
 
-## 3. devicetree
+## 1. i2c character device kernel driver
+
+### 1.1 Egy lehetoseg, hogy chaaracter device-t irok es userspace-ben hasznalom az ADC adatot.
+
+https://hubtronics.in/learn/ads1115-char-driver-raspberry-pi
+
+
+### 1.2 Masik lehetoseg, hogy az i2c driverre irok user space-bol
+
+https://github.com/giobauermeister/ads1115-linux-rpi
+
+https://www.bristolwatch.com/rpi/ads1115.html
+
+
+
+
+## 2. devicetree
 
 https://forums.raspberrypi.com/viewtopic.php?t=275563
 
