@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+
+<title>ADS1115 4-Channel ADC Uses I2C with Raspberry Pi</title>
+
+<meta name="description" content="Tutorial on using the ADS1115 analog-to-digital converter with the Raspberry Pi under linux.">
+<meta name="keywords" content="ADS1115,Raspberry Pi">
+
+<meta name="author" content="Lewis Loflin">
+<meta name="robots" content="index, follow">
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4857839345134773"
+     crossorigin="anonymous"></script>
+
+<!-- Override CSS file - add your own CSS rules -->
+<link rel="stylesheet" href="styles.css">
+<!-- TemplateBeginEditable name="head" -->
+<!-- TemplateEndEditable -->
+</head>
+
+ <body>
+
+<div class="container">
+
+  <div class="content"><!-- TemplateBeginEditable name="content" -->
+
+<div class=center><img src="webp/ads1115a.webp" alt="ADS1115 PC board assembly." width="484" height="453"><br><b>Fig. 1 ADS1115 PC board assembly.</b></div><br>
+
+<h1>ADS1115 4-Channel ADC Uses I2C with Raspberry Pi</h1>
+
+<p>by Lewis Loflin</p>
+
+<p>The ADS1115 is a 4-channel analog-to-digital converter utilizes the I2C proto call with selectable addresses. Here we look at connecting this device with the Raspberry Pi running the Debian based Raspbian operating system. The reality is we are using a Linux system.</p>
+
+
+<p>YouTube video: <a href="https://youtu.be/OPC5lXCKp_w">ADS1115 4-Channel ADC Uses I2C with Raspberry Pi</a>.</p>
+
+
+
+<p>Fig. 1 illustrates a breakout board and the ultra small integrated circuit. While mine was purchased off Ebay, but is also available from Sparkfun.com and Adafruit.com. Most material on the web concerns connections to Arduino with annoying pre-made libraries that disclosed nothing on the actual programming.</p>
+
+
+
+<div class=center><img src="webp/ads1115_con.webp" alt="Electrical connections ADS1115." width="701" height="421"><br><b>Fig. 2 Electrical connections ADS1115.</b></div><br>
+
+<p>Fig. 2 illustrates the typical ADS1115 electrical connections.</p>
+
+<p>Like my other projects I present direct program code examples tested and working. There program uses the TMP37 analog Centigrade temperature sensor on AIN0. For more on the TMP37 electrical connections see:</p>
+
+
+<ul>
+<li><a href="https://www.bristolwatch.com/arduino/arduino_tmp37.htm">Arduino TMP37 Centigrade Temperature Sensor Tutorial</a></li> 
+<li><a href="https://www.bristolwatch.com/arduino/tmp37_i2c_arduino.htm">Arduino TMP37 I2C Temperature Display</a></li>
+</ul>
+<br>
+<p>Also <a href="geany/ads1115.pdf">ads1115.pdf</a> spec sheet.</p>
+
+
+
+<div class=center><img src="webp/ads1115_add.webp" alt="ASD1115 addressing connections." width="610" height="531"><br><b>Fig. 3 ASD1115 addressing connections.</b></div><br>
+
+<p>Fig. 3 shows the addressing scheme for the ADS1115 - the breakout boards have a pin ADDR and connect as shown above for a particular address I used 0x48.</p>
+
+<p>An issue to be aware of is the pull up resistors built into the boards as shown in Fig. 2. The Raspberry Pi I2C connections is 3.3-volts and has its own pull up resistors. This may create problems - either remove/cut the pull ups or in my case I used a level translator to operate the ADS1115 at 5-volts and isolate the pull up problem.</p>
+
+<div class=center><img src="webp/ads1115b.webp" alt="ADS1115 internal block diagram." width="570" height="296"><br><b>Fig. 4 ADS1115 internal block diagram.</b></div><br>
+
+<p>Fig. 4 shows the internal block diagram of the ADS1115 ADC with 16-bit resolution.</p>
+
+
+<p>Bits D14-D12 are used for input select. For a closer look at MUX switching see <a href="webp/ads1115_mux.webp">ads1115_mux.jpg</a>. Let's take a closer look at the internal registers within the ADS1115.</p>
+
+
+
+<div class=center><a href="webp/ads1115c.webp"><img src="webp/ads1115csm.webp" alt="ASD1115 registers." width="600" height="268"></a><br><b>Fig. 5 internal ASD1115 registers.<br>Click for larger image.</b></div><br>
+
+<p>Fig. 5 shows three registers in the ADS1115. The first is a 8-bit "pointer" register that directs data to either the 16-bit read-only conversion register (0) or the 16-bit read/write config register (1). While the program below goes into all the config register bits I'll cover the most important parts of the config register.</p>
+
+<pre><b>Bits D11-D9 Amplifier gain (partial):
+000 : FS = +-6.144V(1)  
+001 : FS = +-4.096V(1)
+010 : FS = +-2.048V (default)
+011 : FS = +-1.024V
+</b></pre>
+
+<p>Bits D11-D9 determine the internal amp gain - it sets the upper voltage limit of the ADCs. Because I used 5 volts I selected "001". Don't be fooled by 6.144 volts because the device operates at a max voltage of 5.5 volts. Even at 5 volts the device will never read anywhere near that level.</p>
+
+<p>If one is operating the ADS1115 at 3.3 volts one must select 2.048V or "010". With a Vmax of 4.096 the voltage per step (VPS) at 15 bit (2^15) is:</p>
+
+<p> VPS = 4.096 / 32768 = 125 uV per step. Arduino with a 10-bit resolution is 5 / 1023 = 4.887 mV per step. The ADS1115 has almost 40 times the resolution of Arduino.</p>
+
+<pre><b>Bit D8 Mode Select:
+0 : Continuous conversion mode
+1 : Power-down single-shot mode (default)
+</b></pre>
+
+<p>D8 is the mode select bit. A "0" activates the continuous mode where once written to one could simply read the conversion register with no further writes to the config register.</p>
+
+<p>A "1" (default) in D8 is the one-shot mode. In that mode the ADS1115 does a conversion after the write then powers down to low current mode. Bit D15 serves as a ready flag and when set data is ready.</p>
+
+<p>The following code snippet illustrates this. :</p>
+
+<pre><b>// wait for conversion complete
+  // checking bit 15
+  do {
+    if (read(fd, writeBuf, 2) != 2) {
+      perror("Read conversion");
+      exit(-1);
+    }
+  }
+  while ((writeBuf[0] &amp; 0x80) == 0);
+</b></pre>
+
+<p>There are two program files the first demonstrates the single shot mode where it measures the value of a potentiometer connected to ANC1 and print out the voltage reading from 0-4.2 volts on the terminal.</p>
+
+<p>See <a href="geany/ads1115a.c">ads1115a.c</a></p>
+
+
+<div class=center><img src="webp/ads1115_output.webp" alt="Terminal output for ASD1115 ADC." width="669" height="630"><br><b>Fig. 6 terminal output of five readings of TMP37 sensor.</b></div><br>
+
+<p>The second demonstrates continuous mode see <a href="geany/ads1115c.c">ads1115c.c</a></p>
+
+
+
+
+<ul>
+<li><a href="http://www.sullivan-county.com/main.htm">Web Master</a></li>
+<li><a href="mailto:lewis@sullivan-county.com">E-Mail</a></li>
+<li><a href="https://www.bristolwatch.com/index.htm">Gen. Electronics Homepage</a></li>
+<li><a href="https://www.youtube.com/user/murkava">YouTube Channel</a></li>
+</ul>
+
+
+
+<ul>
+<li>Software and setup:</li>
+<li><a href="https://www.bristolwatch.com/rpi/index.htm">Raspberry Pi Openbox Desktop 2019</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/rpi_openbox.htm">Setting up Openbox for Raspberry Pi</a></li>
+</ul>
+
+<ul>
+<li><a href="https://www.bristolwatch.com/rpi/pwmRpi.htm">WiringPi and Pulse-Width-Modulation with Raspberry Pi</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/geany.htm">WiringPi for Raspberry Pi and MAX6675 thermal-couple sensor</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/geany2.htm">WiringPi Blink an LED Demo</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/i2clcd.htm">Interface I2C LCD to Raspberry Pi in C</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/ads1115.html">ADS1115 4-Channel ADC Uses I2C with Raspberry Pi</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/mcp4725.html">MCP4725 12-Bit DAC Interface to Raspberry Pi</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/pcf8591Rpi.htm">Raspberry Pi with PCF8591 Analog To Digital Control in C</a></li>
+<li><a href="https://www.bristolwatch.com/rpi/pcf8591.html">Raspberry Pi PCF8591 AD-DA Sensor Python Interface</a></li>
+</ul>
+
+<p>This is a collection of programs and hardware hacks related to mainly Raspberry Pi and Debian Linux.</p>
+
+<ul>
+<li><a href="https://www.bristolwatch.com/debian/index.htm">Main Light Fast Linux Desktops with Openbox, JWM</a></li>
+<li><a href="https://www.bristolwatch.com/debian/atx.htm">Test Reuse Surplus PC Power Supplies</a></li>
+<li><a href="https://www.bristolwatch.com/debian/wbar.htm">Add WBAR Launch Dock to Raspberry Pi</a></li>
+<li><a href="https://www.bristolwatch.com/debian/mpg123.htm">Add MPG123 Terminal Music Player to Raspberry Pi, Linux</a></li>
+<li><a href="https://www.bristolwatch.com/debian/alsamixer.htm">Basics of Alsamixer Audio Control for Linux</a></li>
+<li><a href="https://www.bristolwatch.com/debian/usb_sata.htm">Add Solid State Hard Drive to Raspberry Pi</a></li>
+<li><a href="https://www.bristolwatch.com/debian/beep.htm">Beep a PC Speaker Add Beeper to Raspberry Pi</a></li>
+<li><a href="https://www.bristolwatch.com/debian/feh.htm">Using FEH Wallpaper Setter Under Linux</a></li>
+
+<li><a href="https://www.bristolwatch.com/debian/scrot.htm">Scrot Lite Weight Screen Shot Software for Linux</a></li>
+<li><a href="https://www.bristolwatch.com/debian/beaver.htm">Using Light Weight Beaver Text Editor</a></li>
+<li><a href="https://www.bristolwatch.com/debian/viewnior.htm">Install Viewnior Image Viewer for Linux</a></li>
+<li><a href="https://www.bristolwatch.com/debian/zmixer.htm">Zmixer ALSA Sound Control Tutorial</a></li>
+<li><a href="https://www.bristolwatch.com/debian/xinitrc.htm">Tutorial Xinitrc Desktop Manager Control for Linux</a></li>
+<li><a href="https://www.bristolwatch.com/debian/jwm.htm">Setup Raspberry Pi Using JWM Window Manager</a></li>
+</ul>
+
+
+
+<p class=center><b>Web site Copyright <a href="http://www.sullivan-county.com/main.htm">Lewis Loflin</a>, All rights reserved. <br>If using this material on another site, please provide a link back to my site.</b></p>  
+
+
+<p>&nbsp;</p>
+  
+  
+  <!-- TemplateEndEditable --><!-- end .content --></div>
+  <!-- end .container --></div>
+  
+</body>
+</html>

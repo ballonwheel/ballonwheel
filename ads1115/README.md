@@ -3,25 +3,56 @@ ADC 16bit 860sps i2c 4singleEnded 3.3V
 
 https://www.ti.com/lit/ds/symlink/ads1115.pdf
 
+A cel, hogy kiprobaljam a soros(i2c) ADC illesztesi lehetosegeket es, 
+
+hogy milyen olvasasi sebesseg erheto el konnyen, egyszeruen..
+
+Kene irni egy kernel drvert, ami az RT-kontrol feladatokat megoldja kernel space-ben
+
+es a user space-ben lehetnek a <10Hz RT-taskok, settings, etc... 
+
 
 Understanding Kernel modul dev
 
-https://sysprog21.github.io/lkmpg/
+https://www.kernel.org/doc/html/v5.3/hwmon/ads1015.html
+
+lasd me'g a linux kernel modul programming guide: 
+
+$ cd ../lkmpg
 
 
 
 ## 1. i2c character device kernel driver
 
-### 1.1 Egy lehetoseg, hogy chaaracter device-t irok es userspace-ben hasznalom az ADC adatot.
+### 1.1 Egy lehetoseg, hogy character device-t irok es userspace-ben hasznalom az ADC adatot.
 
 https://hubtronics.in/learn/ads1115-char-driver-raspberry-pi
+
+lasd ./hubtronics
+
+
+
 
 
 ### 1.2 Masik lehetoseg, hogy az i2c driverre irok user space-bol
 
-https://github.com/giobauermeister/ads1115-linux-rpi
+#### 1.2.1 bristolwatch
 
 https://www.bristolwatch.com/rpi/ads1115.html
+
+lasd ./bistrolwatch
+
+
+#### 1.2.2 giobauermeister
+
+ezt probaltam es Ts=33msec tudtam elerni
+
+https://github.com/giobauermeister/ads1115-linux-rpi
+
+
+$ sudo ./run.sh
+
+$ sudo ./stop.sh
 
 
 
