@@ -26,9 +26,36 @@ $ uname -a
 
 Linux raspberrypi 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 aarch64 GNU/Linux
 
+$ lsb_release -a
+
+No LSB modules are available.
+
+Distributor ID:	Debian
+
+Description:	Debian GNU/Linux 11 (bullseye)
+
+Release:	11
+
+Codename:	bullseye
+
+## Git remote settings
+
+$ eval "$(ssh-agent -s)"
+
+Agent pid 251373
+
+$ ssh-add .ssh/id_ed25519.rsa
+
+Enter passphrase for .ssh/id_ed25519.rsa: 
+
+Identity added: .ssh/id_ed25519.rsa (dobany.hu@gmail.com)
+
+$ git remote set-url origin git@github.com:ballonwheel/ballonwheel.git
+
+
  
 
-## 2.1 octave install
+## 2.1 octave
 
 $ sudo apt-get install octave octave-signal octave-control octave-instrument-control
 
@@ -42,7 +69,7 @@ octave:2> pkg install -forge symbolic
 
 
 
-## 2.2 Scliab install
+## 2.2 Scliab
 
 $ sudo apt-get install scilab
 
@@ -55,7 +82,7 @@ in Scilab Install command--> atomsInstall("wgserialxcosio")
 start xcos and you can use the working files in the folder of wgserialxcosio.
 
 
-## 2.2, maxima install 
+## 2.2, maxima
 
 $ sudo apt-get install maxima
 
@@ -66,7 +93,7 @@ $ maxima
 (%o2)                               5.44.0
 
  
-## 2.3, sympy install
+## 2.3, sympy
 
 $ sudo apt-get install python
 
@@ -145,6 +172,41 @@ $ cd ./ballonwheel/bash_solution_only_octave/arduino
 $ ../../../bow/arduino-cli compile --verbose --fqbn arduino:avr:nano arduino.ino
 
 $ ../../../bow/arduino-cli upload -v -p /dev/ttyUSB0 --fqbn arduino:avr:nano arduino.ino
+
+
+## ads1115, adc i2c
+
+adc i2c interface, charDevdrv-userspace, kernelspace
+
+
+## tlc0820a, adc, parallel
+
+adc, parallel, kernel drv
+
+
+## ft232, usb-serial
+
+kernel drv, <500usec RT
+
+
+## lkmpg, linux kernel programming guide
+
+
+## pmsm, permanent magnet sync motor model
+
+motor model + foc / openloop / lookupTbl @ startup in octave
+
+
+## maxwell, electrodynamics
+
+
+## mechanics
+
+
+## thid, thermodynamics
+
+
+## quantumComp
 
 
 
