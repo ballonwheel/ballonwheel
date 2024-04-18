@@ -48,7 +48,7 @@ $ ssh-add .ssh/id_ed25519.rsa
 
 Enter passphrase for .ssh/id_ed25519.rsa: 
 
-Identity added: .ssh/id_ed25519.rsa (dobany.hu@gmail.com)
+Identity added: .ssh/id_ed25519.rsa (hello@gmail.com)
 
 $ git remote set-url origin git@github.com:ballonwheel/ballonwheel.git
 
