@@ -1,0 +1,17 @@
+
+
+Extensive and intensive quantities are concepts used in physics and thermodynamics to describe different types of properties of a system.
+
+    Extensive Quantities:
+        Extensive quantities are properties that depend on the size or extent of the system.
+        When you increase the size of the system, the value of an extensive quantity also increases proportionally.
+        Examples of extensive quantities include mass, volume, energy, and entropy.
+        Mathematically, if a property XXX is extensive, then for two systems AAA and BBB with properties XAX_AXA​ and XBX_BXB​, respectively, the property of the combined system A+BA+BA+B is XA+B=XA+XBX_{A+B} = X_A + X_BXA+B​=XA​+XB​.
+
+    Intensive Quantities:
+        Intensive quantities are properties that are independent of the size of the system.
+        These properties do not change when you change the size or quantity of the system.
+        Examples of intensive quantities include temperature, pressure, density, and concentration.
+        Mathematically, if a property YYY is intensive, then for two systems AAA and BBB with properties YAY_AYA​ and YBY_BYB​, respectively, the property of the combined system A+BA+BA+B is YA+B=YA=YBY_{A+B} = Y_A = Y_BYA+B​=YA​=YB​.
+
+In summary, extensive quantities scale with the size of the system, while intensive quantities remain constant regardless of the system's size. Understanding these concepts is crucial for analyzing and describing the behavior of physical systems, especially in thermodynamics and related fields.
