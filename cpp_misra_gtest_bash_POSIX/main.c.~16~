@@ -1,0 +1,18 @@
+#include<stdio.h>
+
+int main()
+{
+int a=12345;
+
+    char str[] = "IndiaBIX";
+    printf("%.#s %2s\n", str, str);
+    printf("%2s\n", str);
+	
+	printf("%*d\n",4,a); // tenyleg letzik ilyen : [width] The width is not specified in the format string, but as an additional integer value argument preceding the argument that has to be formatted.
+	
+    printf("%u %s\n", &"Hello1", &"Hello2");
+    printf("%s\n", "Hello3");
+
+	
+    return 0;
+}

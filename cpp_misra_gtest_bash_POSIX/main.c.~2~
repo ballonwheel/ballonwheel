@@ -1,0 +1,17 @@
+#include <stdio.h>
+
+
+int s;
+unsigned int us;
+
+int main()
+{
+
+    s=0xffffffff;
+    us=s;
+    printf("s=%04X; us=%04X\n",s, us);
+    printf("s=%u; us=%d\n",s, us);
+
+    return 0;
+}
+

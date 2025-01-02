@@ -1,0 +1,957 @@
+/*
+ * @file main.c
+ * @brief keyboard event handler daemon
+ *
+ * This daemon reads HID input events and 
+ * executes commands according to its config file.
+ *
+ * Author: Balint Viragh <bviragh@dension.com>
+ * Copyright (C) 2012 Dension Audio Systems Kft.
+ */
+
+/**
+ * @addtogroup KBD
+ * @{   
+ */
+
+/*================================[ INCLUDES ]===============================*/
+#define _GNU_SOURCE
+/* System headers */
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <linux/input.h>
+
+/* external library headers */   
+#include "shared.h"
+
+/*================================[ INTERNAL MACROS ]========================*/
+
+/** module name used in the syslog */
+#define L_ST_MODULE_NAME        "kbdd"
+
+/** maximal length of a PID in string format */
+#define L_MAX_PID_LEN           15
+
+#if 1 /* TARGET != pc */
+/** heartbeat pidfile */
+#define L_ST_PIDFILE            "/var/run/kbdd.pid"
+/** event descriptor file */
+#define L_ST_DESC_FILE          "/mnt/storage/content/config/keyboard_events"
+#else
+#define L_ST_PIDFILE            "/tmp/kbdd.pid"
+#define L_ST_DESC_FILE          "/tmp/keyboard_events"
+#endif
+
+/** maximal length of a string code */
+#define L_MAX_CODE_LEN          15
+
+/** allocate mamory blocks in this steps */
+#define L_U32_ALLOC_NUM         1
+
+/** maximal length of a line in the descriptor file */
+#define L_MAX_LINE_LEN          511
+
+/** maximal length of a command code */
+#define L_MAX_CMD_LEN           512
+
+/** delimiter for ID field in the descriptor file */
+#define L_ST_ID_DELIM           ";\r\n"
+
+/** delimiter for command field in the descriptor file */
+#define L_ST_CMD_DELIM          "\r\n"
+
+/** wait timeout for keypress event */
+#define L_SELECT_TIMEOUT_SEC    15
+
+/** shell command */
+#define L_ST_CMD_SHELL          "/bin/sh"
+
+/** timeout for md5 and child waiting */
+#define L_U32_TIMEOUT_SEC       5
+
+/** maximal length of a log message */
+#define L_U32_MAX_LOGMSG_LEN    255
+
+/** Config update command */
+#define L_ST_LOGGER_CMD         "logger"
+
+/*================================[ INTERNAL TYPEDEFS ]======================*/
+
+/** structure to describe a command belongs to a key pressure */
+typedef struct {
+    uint16_t u16_code;          /**< scan code of the key belongs to the command */
+    char* cp_cmd;               /**< shell command to execute */
+} l_s_scan_cmd_t;
+
+/** structure to describe a command belongs to an input string */
+typedef struct {
+    char st_code[L_MAX_CODE_LEN+1]; /**< string code belongs to the command */
+    char* cp_cmd;                   /**< shell command to execute */
+} l_s_string_cmd_t;
+
+/*================================[ INTERNAL FUNCTION PROTOTYPES ]===========*/
+
+#ifdef CHECK_PIDFILE
+/* check and write pid file */
+static int l_check_write_pid_f(const char* p_st_pidfile);
+#endif
+/* signal handler */
+static void l_signal_handler_f(int p_signum);
+/* read config descriptor file */
+static void l_read_desc_file_f(const char* p_st_file);
+/* clear commands */
+static void l_clear_commands_f(void);
+/* add scan command */
+static int l_add_scan_cmd_f(uint16_t p_u16_code, const char* p_cp_cmd);
+/* add string command */
+static int l_add_string_cmd_f(const char* p_cp_code, const char* p_cp_cmd);
+/* sort command lists */
+static void l_sort_commands_f(void);
+/* compare scan commands */
+static int l_compare_scan_cmd_f(const void* p_vp_arg1, const void* p_vp_arg2);
+/* compare string commands */
+static int l_compare_string_cmd_f(const void* p_vp_arg1, const void* p_vp_arg2);
+/* process input events */
+static void l_process_event_f(const struct input_event* p_as_inputs, int p_size);
+/* process key press */
+static void l_key_pressed_f(uint16_t p_u16_key_code);
+/* search and execute a scan command */
+static void l_exec_scan_f(uint16_t p_u16_code);
+/* search and execute a string command */
+static void l_exec_string_f(const char* p_cp_code);
+/* exec command */
+static int l_exec_command_f(const char* p_cp_command);
+/* print functional log */
+static void l_log_f(const char* p_st_message, ...);
+
+/*================================[ INTERNAL GLOBALS ]=======================*/
+
+/** number of commands belongs to key pressure */
+static uint32_t l_u32_scan_num = 0u;
+/** maximal number of commands belongs to key pressure */
+static uint32_t l_u32_scan_size = 0u;
+/** array of scan code commands */
+static l_s_scan_cmd_t* l_sp_scan = NULL;
+
+/** number of commands belongs to input strings */
+static uint32_t l_u32_string_num = 0u;
+/** maximal number of commands belongs to input strings */
+static uint32_t l_u32_string_size = 0u;
+/** array of input string commands */
+static l_s_string_cmd_t* l_sp_string = NULL;
+
+/** flag signs if md5 calculation is in progress */
+static int l_b_md5_calc = 0;
+/** md5 checksum of the last read */
+static char l_st_desc_md5[MD5_SUM_LENGTH+1] = { '\0',};
+
+/** event input device file descriptor */
+static int l_fd_dev = -1;
+
+/** string input buffer */
+static char l_st_strbuf[L_MAX_CODE_LEN+1];
+/** index in the input buffer */
+static uint32_t l_u32_strbuf_index = 0u;
+
+/** child PID for execution process */
+static pid_t l_pid_exec = 0;
+
+/*================================[ EXTERNAL GLOBALS ]=======================*/
+
+/*================================[ INTERNAL FUNCTION DEFINITIONS ]==========*/
+
+#ifdef CHECK_PIDFILE
+/** Internal function to check and write pid file
+ *
+ *  @param  p_st_pidfile    path of the pidfile
+ *  @return zero in case of success
+ *
+ *  The function checks if the pidfile exists,
+ *  if not it creates the pidfile with the pid of the process,
+ *  else error is returned.
+ */
+static int l_check_write_pid_f(const char* p_st_pidfile)
+{
+    int fd_file;
+    char st_pid[L_MAX_PID_LEN+1];
+    pid_t pid;
+    int res;
+
+    pid = getpid();
+
+    fd_file = open(p_st_pidfile, O_WRONLY | O_CREAT | O_EXCL, 0664);
+    if(fd_file < 0) {
+        DBG_PERRNO("Heartbeat has been already started (%s)", p_st_pidfile);
+        return -1;
+    }
+    snprintf(st_pid, sizeof(st_pid), "%d\n", pid);
+    res = write(fd_file, st_pid, strlen(st_pid));
+    if(res < 0) {
+        DBG_PERRNO("Can not write pid %d to pidfile %s", pid, p_st_pidfile);
+        close(fd_file);
+        unlink(p_st_pidfile);
+    }
+    res = close(fd_file);
+    if(res < 0) {
+        DBG_PERRNO("Can not close pidfile %s", p_st_pidfile);
+        unlink(p_st_pidfile);
+        return -1;
+    }
+
+    return 0;
+}
+#endif
+
+/** Internal function to handle signals and remove pidfile 
+ *
+ *  @param  p_signum number of received signal
+ *
+ *  The function is called when a signal is caught.
+ *  The function removes the pidfile before exit.
+ */
+static void l_signal_handler_f(int p_signum)
+{
+    uint32_t u32_count;
+
+    if(0 != p_signum) {
+        DBG(DBG_WARNING, "Signal received: %d", p_signum);
+    }
+
+    /* wait for md5 calculation */
+    for(u32_count = 0u; l_b_md5_calc && u32_count < L_U32_TIMEOUT_SEC; ++u32_count) {
+        DBG(DBG_WARNING, "Waiting for end of md5 calculation %d", u32_count);
+        sleep(1);
+    }
+    /* kill child process */
+    if(l_pid_exec > 0) {
+        kill(l_pid_exec, SIGTERM);
+        /* wait for end of child process */
+        for(u32_count = 0u; (0 == l_pid_exec) && (u32_count < L_U32_TIMEOUT_SEC); ++u32_count) {
+            DBG(DBG_WARNING, "Waiting for end of the child process %d", u32_count);
+            sleep(1);
+        }
+    }
+#ifdef CHECK_PIDFILE
+    /* remove pidfile */
+    if(unlink(L_ST_PIDFILE)) {
+        DBG_PERRNO("Can not remove pidfile %s", L_ST_PIDFILE);
+    }
+#endif
+    /* free resources */
+    l_clear_commands_f();
+    l_u32_scan_size = 0u;
+    l_u32_string_size = 0u;
+    l_u32_scan_num = 0u;
+    l_u32_string_num = 0u;
+    free(l_sp_scan);
+    l_sp_scan = NULL;
+    free(l_sp_string);
+    l_sp_string = NULL;
+    close(l_fd_dev);
+
+    exit(EXIT_FAILURE);
+}
+
+/** Internal funtion to read config descriptor file 
+ *
+ *  @param  &p_st_file      path of the descriptor file
+ *
+ *  The function reads the config file if it has changed.
+ */
+static void l_read_desc_file_f(const char* p_st_file)
+{
+    char st_md5[MD5_SUM_LENGTH+1];
+    int res;
+    FILE* sp_file;
+    char st_line[L_MAX_LINE_LEN+1];
+
+    /* calculate md5 sum of the descriptor file */
+    l_b_md5_calc = 1;
+    res = md5_sum_file_f(p_st_file, st_md5);
+    l_b_md5_calc = 0;
+    if(res) {
+        /* file does not exists, etc */
+        st_md5[0] = '\0';
+    }
+    /* compare md5 sum */
+    if(0 == strcmp(l_st_desc_md5, st_md5)) {
+        /* no change */
+        return;
+    }
+    strncpy0(l_st_desc_md5, st_md5, sizeof(l_st_desc_md5));
+    DBG(DBG_INFO, "Reload descriptor");
+    /* reset command settings */
+    l_clear_commands_f();
+    /* open descriptr file */
+    sp_file = fopen(p_st_file, "r");
+    if(NULL == sp_file) {
+        /* no descriptor file to read */
+        return;
+    }
+    /* read lines from the file */
+    while(NULL != fgets(st_line, sizeof(st_line), sp_file)) {
+        char* cp_id = NULL;
+        char* cp_cmd = NULL;
+        char* cp_end;
+        char* cp_err;
+        uint16_t u16_code;
+
+        /* terminate line */
+        cp_end = strrchr(st_line, '\n');
+        if(cp_end)
+            *cp_end = '\0';
+        cp_end = strrchr(st_line, '\r');
+        if(cp_end)
+            *cp_end = '\0';
+        cp_end = strchr(st_line, '#');
+        if(cp_end)
+            *cp_end = '\0';
+
+        cp_id = strtok(st_line, L_ST_ID_DELIM);
+        if(cp_id) {
+            cp_cmd = strtok(NULL, L_ST_CMD_DELIM);
+        }
+        if(NULL == cp_cmd) {
+            DBG(DBG_WARNING, "Can not parse input line %s", st_line);
+            continue;
+        }
+        /* determine id type */
+        if('"' == *cp_id) {
+            /* string type */
+            cp_id++;
+            /* find trailing " */
+            cp_end = strrchr(cp_id, '"');
+            if(NULL == cp_end) {
+                DBG(DBG_ERROR, "invalid id %s", cp_id-1);
+                continue;
+            }
+            /* terminate id */
+            *cp_end = '\0';
+            res = l_add_string_cmd_f(cp_id, cp_cmd);
+            if(res) {
+                DBG(DBG_ERROR, "Can not add string command %s;%s", cp_id, cp_cmd);
+                continue;
+            }
+        } else {
+            /* scan code type */
+            u16_code = (uint16_t)strtoul(cp_id, &cp_err, 0);
+            if(cp_err && *cp_err) {
+                DBG(DBG_ERROR, "Invalid scan code: %s", cp_id);
+                continue;
+            }
+            res = l_add_scan_cmd_f(u16_code, cp_cmd);
+            if(res) {
+                DBG(DBG_ERROR, "Can not add scan command %.2x;%s", u16_code, cp_cmd);
+                continue;
+            }
+        }
+    }
+    /* close descriptor file */
+    if(fclose(sp_file)) {
+        DBG_PERRNO("Can not close descriptor file %s", p_st_file);
+    }
+    /* sort command lists */
+    l_sort_commands_f();
+}
+
+/** Internal function to clear commands in the lists */
+static void l_clear_commands_f(void) {
+    uint32_t u32_index;
+
+    if(l_sp_scan) {
+        for(u32_index = 0u; u32_index < l_u32_scan_num; ++u32_index) {
+            l_s_scan_cmd_t* sp_scan = &l_sp_scan[u32_index];
+            free(sp_scan->cp_cmd);
+            sp_scan->cp_cmd = NULL;
+        }
+    }
+    l_u32_scan_num = 0u;
+    if(l_sp_string) {
+        for(u32_index = 0u; u32_index < l_u32_string_num; ++u32_index) {
+            l_s_string_cmd_t* sp_string = &l_sp_string[u32_index];
+            free(sp_string->cp_cmd);
+            sp_string->cp_cmd = NULL;
+        }
+    }
+    l_u32_string_num = 0u;
+}
+
+/** Internal function to add a scan command
+ *
+ *  @param  p_u16_code  scan code belongs to the command
+ *  @param  p_cp_cmd    command shall be executed
+ *  @return zero in case of success
+ *
+ *  The function adds a new command to l_sp_scan list.
+ */
+static int l_add_scan_cmd_f(uint16_t p_u16_code, const char* p_cp_cmd)
+{
+    l_s_scan_cmd_t* sp_new;
+    uint32_t u32_new_size;
+
+    /* check if there is space for the new element */
+    if(l_u32_scan_num >= l_u32_scan_size) {
+        u32_new_size = l_u32_scan_num + L_U32_ALLOC_NUM;
+        sp_new = realloc(l_sp_scan, u32_new_size * sizeof(l_s_scan_cmd_t));
+        if(NULL == sp_new) {
+            DBG(DBG_ERROR, "Can not allocate memory for scan commands");
+            return -1;
+        }
+        l_sp_scan = sp_new;
+        l_u32_scan_size = u32_new_size;
+    }
+    /* set pointer to the new element */
+    sp_new = &l_sp_scan[l_u32_scan_num++];
+    sp_new->u16_code = p_u16_code;
+    if(p_cp_cmd) {
+        sp_new->cp_cmd = strndup(p_cp_cmd, L_MAX_CMD_LEN);
+        if(NULL == sp_new->cp_cmd) {
+            DBG(DBG_ERROR, "Can not allocate memory for command");
+            return -1;
+        }
+    } else {
+        sp_new->cp_cmd = NULL;
+    }
+    return 0;
+}
+
+/** Internal function to add a string command
+ *
+ *  @param  p_cp_code   string id belongs to the command
+ *  @param  p_cp_cmd    command shall be executed
+ *  @return zero in case of success
+ *
+ *  The function adds a new command to l_sp_string list.
+ */
+static int l_add_string_cmd_f(const char* p_cp_code, const char* p_cp_cmd)
+{
+    l_s_string_cmd_t* sp_new;
+    uint32_t u32_new_size;
+
+    if(NULL == p_cp_code) {
+        DBG(DBG_ERROR, "NULL id argument for add string command");
+        return -1;
+    }
+
+    /* check if there is space for the new element */
+    if(l_u32_string_num >= l_u32_string_size) {
+        u32_new_size = l_u32_string_num + L_U32_ALLOC_NUM;
+        sp_new = realloc(l_sp_string, u32_new_size * sizeof(l_s_string_cmd_t));
+        if(NULL == sp_new) {
+            DBG(DBG_ERROR, "Can not allocate memory for string commands");
+            return -1;
+        }
+        l_sp_string = sp_new;
+        l_u32_string_size = u32_new_size;
+    }
+    /* set pointer to the new element */
+    sp_new = &l_sp_string[l_u32_string_num++];
+    strncpy0(sp_new->st_code, p_cp_code, L_MAX_CODE_LEN+1);
+    if(p_cp_cmd) {
+        sp_new->cp_cmd = strndup(p_cp_cmd, L_MAX_CMD_LEN);
+        if(NULL == sp_new->cp_cmd) {
+            DBG(DBG_ERROR, "Can not allocate memory for command");
+            return -1;
+        }
+    } else {
+        sp_new->cp_cmd = NULL;
+    }
+    return 0;
+}
+
+/** Internal function to sort commands in the lists */
+static void l_sort_commands_f(void) {
+    /* sort scan commands */
+    if((NULL != l_sp_scan) && (l_u32_scan_num > 0)) {
+        qsort(l_sp_scan, l_u32_scan_num, sizeof(*l_sp_scan), 
+                l_compare_scan_cmd_f);
+    }
+    /* sort string commands */
+    if((NULL != l_sp_string) && (l_u32_string_num > 0)) {
+        qsort(l_sp_string, l_u32_string_num, sizeof(*l_sp_string), 
+                l_compare_string_cmd_f);
+    }
+}
+
+/** Internal function to compare two scan commands 
+ *
+ *  @param  p_vp_arg1   argument 1 to compare
+ *  @param  p_vp_arg2   argument 2 to compare
+ *  @return -1, 0, or +1, if arg1 is less, equal or greater than arg2
+ *
+ *  The function is called by qsort and bsearch.
+ */
+static int l_compare_scan_cmd_f(const void* p_vp_arg1, const void* p_vp_arg2)
+{
+    const l_s_scan_cmd_t* sp_arg1 = (l_s_scan_cmd_t*)p_vp_arg1;
+    const l_s_scan_cmd_t* sp_arg2 = (l_s_scan_cmd_t*)p_vp_arg2;
+    int result;
+
+    /* check arguments */
+    if((NULL == sp_arg1) || (NULL == sp_arg2)) {
+        DBG(DBG_ERROR, "NULL argument for scan compare");
+        return -1;
+    }
+    result = sp_arg1->u16_code;
+    result -= sp_arg2->u16_code;
+    return result;
+}
+
+/** Internal function to compare two string commands 
+ *
+ *  @param  p_vp_arg1   argument 1 to compare
+ *  @param  p_vp_arg2   argument 2 to compare
+ *  @return -1, 0, or +1, if arg1 is less, equal or greater than arg2
+ *
+ *  The function is called by qsort and bsearch.
+ */
+static int l_compare_string_cmd_f(const void* p_vp_arg1, const void* p_vp_arg2)
+{
+    const l_s_string_cmd_t* sp_arg1 = (l_s_string_cmd_t*)p_vp_arg1;
+    const l_s_string_cmd_t* sp_arg2 = (l_s_string_cmd_t*)p_vp_arg2;
+
+    /* check arguments */
+    if((NULL == sp_arg1) || (NULL == sp_arg2)) {
+        DBG(DBG_ERROR, "NULL argument for string compare");
+        return -1;
+    }
+    return strcasecmp(sp_arg1->st_code, sp_arg2->st_code);
+}
+
+/** Internal function to process input events
+ *
+ *  @param  p_as_inputs     the received input event structure
+ *  @param  p_size          return value of the read
+ *
+ *  The function processes the incoming key events.
+ */
+static void l_process_event_f(const struct input_event* p_as_inputs, int p_size)
+{
+    int value;
+    uint16_t u16_code;
+
+    if(p_size < sizeof(struct input_event)*2) {
+        DBG(DBG_ERROR, "too less data %d", p_size);
+        return;
+    }
+    
+    value = p_as_inputs[0].value;
+    if(' ' == value) {
+        return;
+    }
+
+    if((1 != p_as_inputs[1].value) || (EV_KEY != p_as_inputs[1].type)) {
+        /* not a key press event */
+        return ;
+    }
+    u16_code = p_as_inputs[1].code;
+    l_key_pressed_f(u16_code);
+}
+
+/** Internal function to be called at a keypress
+ *
+ *  @param  p_u16_key_code  scan code of the pressed key
+ *
+ *  The function calls the appropriate handlers,
+ *  stores the inputs for string commands
+ */
+static void l_key_pressed_f(uint16_t p_u16_key_code) {
+    int b_inc = 1;
+
+    TRACE("Key code: %.2X", p_u16_key_code);
+    /* search for scan command */
+    l_exec_scan_f(p_u16_key_code);
+    /* process */
+    switch(p_u16_key_code) {
+    case KEY_ESC:
+    case KEY_BACKSPACE:
+        /* reset string input buffer */
+        l_u32_strbuf_index = 0u;
+        b_inc = 0;
+        break;
+    case KEY_ENTER:
+    case KEY_KPENTER:
+        /* terminate buffer */
+        l_st_strbuf[l_u32_strbuf_index] = '\0';
+        l_u32_strbuf_index = 0u;
+        b_inc = 0;
+        /* search for string command */
+        l_exec_string_f(l_st_strbuf);
+        break;
+    case KEY_0:
+    case KEY_KP0:
+        l_st_strbuf[l_u32_strbuf_index] = '0';
+        break;
+    case KEY_1:
+    case KEY_KP1:
+        l_st_strbuf[l_u32_strbuf_index] = '1';
+        break;
+    case KEY_2:
+    case KEY_KP2:
+        l_st_strbuf[l_u32_strbuf_index] = '2';
+        break;
+    case KEY_3:
+    case KEY_KP3:
+        l_st_strbuf[l_u32_strbuf_index] = '3';
+        break;
+    case KEY_4:
+    case KEY_KP4:
+        l_st_strbuf[l_u32_strbuf_index] = '4';
+        break;
+    case KEY_5:
+    case KEY_KP5:
+        l_st_strbuf[l_u32_strbuf_index] = '5';
+        break;
+    case KEY_6:
+    case KEY_KP6:
+        l_st_strbuf[l_u32_strbuf_index] = '6';
+        break;
+    case KEY_7:
+    case KEY_KP7:
+        l_st_strbuf[l_u32_strbuf_index] = '7';
+        break;
+    case KEY_8:
+    case KEY_KP8:
+        l_st_strbuf[l_u32_strbuf_index] = '8';
+        break;
+    case KEY_9:
+    case KEY_KP9:
+        l_st_strbuf[l_u32_strbuf_index] = '9';
+        break;
+    default:
+        /* other keys dropped */
+        b_inc = 0;
+        break;
+    }
+    if(b_inc && (l_u32_strbuf_index <= L_MAX_CODE_LEN)) {
+        l_u32_strbuf_index++;
+    }
+}
+
+/** Internal function to search and execute a scan command 
+ *
+ *  @param  p_u16_code  scan code
+ *  
+ *  The function searches for the command belongs to the code,
+ *  and execute it if found.
+ */
+static void l_exec_scan_f(uint16_t p_u16_code)
+{
+    l_s_scan_cmd_t* sp_elem = NULL;
+    l_s_scan_cmd_t s_key;
+    int res;
+
+    if((NULL != l_sp_scan) && (l_u32_scan_num > 0)) {
+        s_key.u16_code = p_u16_code;
+        s_key.cp_cmd = NULL;
+        sp_elem = (l_s_scan_cmd_t*) bsearch(&s_key, l_sp_scan, 
+                    l_u32_scan_num, sizeof(l_s_scan_cmd_t), 
+                    l_compare_scan_cmd_f);
+    }
+    if(sp_elem) {
+        if(NULL == sp_elem->cp_cmd) {
+            DBG(DBG_ERROR, "No command for %.2x code", p_u16_code);
+            return;
+        }
+        l_log_f("Keyboard key event: %.2X exec %s", sp_elem->u16_code, sp_elem->cp_cmd);
+        res = l_exec_command_f(sp_elem->cp_cmd);
+        if(res) {
+            DBG(DBG_ERROR, "Can not exec scan command: [%.2x]: %s (%d)",
+                    sp_elem->u16_code, sp_elem->cp_cmd, res);
+        }
+    }
+}
+
+/** Internal function to search and execute a string command
+ *
+ *  @param  p_cp_code       string ID of the command
+ *
+ *  The function searches for the command belongs to the code,
+ *  and execute it if found.
+ */
+static void l_exec_string_f(const char* p_cp_code)
+{
+    l_s_string_cmd_t* sp_elem = NULL;
+    l_s_string_cmd_t s_key;
+    int res;
+
+    /* check argument */
+    if(NULL == p_cp_code) {
+        DBG(DBG_ERROR, "NULL argument for exec string");
+        return;
+    }
+
+    if((NULL != l_sp_string) && (l_u32_string_num > 0)) {
+        strncpy0(s_key.st_code, p_cp_code, sizeof(s_key.st_code));
+        s_key.cp_cmd = NULL;
+        sp_elem = (l_s_string_cmd_t*) bsearch(&s_key, l_sp_string, 
+                    l_u32_string_num, sizeof(l_s_string_cmd_t), 
+                    l_compare_string_cmd_f);
+    }
+    if(sp_elem) {
+        if(NULL == sp_elem->cp_cmd) {
+            DBG(DBG_ERROR, "No command for %s string", p_cp_code);
+            return;
+        }
+        l_log_f("Keyboard input string event: %s exec %s", sp_elem->st_code, sp_elem->cp_cmd);
+        res = l_exec_command_f(sp_elem->cp_cmd);
+        if(res) {
+            DBG(DBG_ERROR, "Can not exec scan command: [%s]: %s (%d)",
+                    sp_elem->st_code, sp_elem->cp_cmd, res);
+        }
+    }
+}
+
+/** Internal function to execte a command in shell
+ *
+ *  @param  p_cp_cmd    function call
+ *  @param  zero in case of success
+ *
+ *  The function starts a child process to execute to specified command.
+ *  The child PID is stored in l_pid_exec.
+ */
+static int l_exec_command_f(const char* p_cp_command)
+{
+    pid_t pid;
+    int status;
+
+    /* check argument */
+    if(NULL == p_cp_command) {
+        DBG(DBG_ERROR, "NULL argument is specified for exec command");
+        return -1;
+    }
+
+    /* check if an execution is currently in progress */
+    if(l_pid_exec > 0) {
+        DBG(DBG_ERROR, "execution (%d) is in progress, can not start %s", 
+            l_pid_exec, p_cp_command);
+        return -1;
+    }
+
+    /* create child process */
+    pid = fork();
+    if(pid < 0) {
+        DBG_PERRNO("fork for %s", p_cp_command);
+        return -1;
+    }
+    if(0 == pid) {
+        /* child process */
+        char* args[] = { L_ST_CMD_SHELL, "-c", (char*) p_cp_command, NULL };
+
+        if(execv(args[0], args)) {
+            DBG_PERRNO("execv %s", p_cp_command);
+            return -1;
+        }
+        /* can not reach this point */
+        exit(EXIT_FAILURE);
+    }
+    /* parent process */
+    l_pid_exec = pid;
+    pid = waitpid(l_pid_exec, &status, 0);
+    l_pid_exec = 0;
+    if(pid < 0) {
+        DBG_PERRNO("waitpid at %s", p_cp_command);
+        return -1;
+    }
+    if(WIFEXITED(status)) {
+        int exitcode = WEXITSTATUS(status);
+
+        if(exitcode) {
+            DBG(DBG_ERROR, "%s returned %d", p_cp_command, exitcode);
+        }
+        return exitcode;
+    } else {
+        DBG(DBG_ERROR, "%s abnormal return %d", p_cp_command, status);
+        return -1;
+    }
+}
+
+/** Internal function to print to the functional logs
+ *
+ *  @param  p_st_message    message shall be printed
+ *
+ *  The function sends the message as a local0.info to the functional logs
+ */
+static void l_log_f(const char* p_st_message, ...)
+{
+    char st_msg[L_U32_MAX_LOGMSG_LEN+1];
+    char st_cmd[L_U32_MAX_LOGMSG_LEN+1];
+    va_list ap;
+    int result;
+
+    /* check argument */
+    if(NULL == p_st_message) {
+        DBG(DBG_ERROR, "NULL argument for log function");
+        return;
+    }
+
+    /* construct log message */
+    va_start(ap, p_st_message);
+    vsnprintf(st_msg, sizeof(st_msg), p_st_message, ap);
+    va_end(ap);
+
+    snprintf(st_cmd, sizeof(st_cmd), "%s -p local0.info -t EVENT %s", 
+        L_ST_LOGGER_CMD, st_msg);
+    result = system(st_cmd);
+    if(result < 0) {
+        DBG_PERRNO("system %s", st_cmd);
+        return;
+    }
+    if(WIFEXITED(result)) {
+        int exitcode = WEXITSTATUS(result);
+
+        if(exitcode) {
+            DBG(DBG_ERROR, "logger cmd returned %d (%s)", exitcode, st_cmd);
+        }
+    } else {
+        DBG(DBG_ERROR, "logger cmd exited abnormally %d", result);
+    }
+    DBG(DBG_INFO, "%s", st_msg);
+}
+
+/*================================[ EXPORTED FUNCTION DEFINITIONS ]==========*/
+char debug_string[1024];
+const char hextab[] = "0123456789ABCDEF";
+void debug_memdump(uint8_t *b, uint8_t len)
+{
+    uint8_t i,j;
+
+    memset(debug_string, 0, sizeof(debug_string));
+
+    if( len >= sizeof(debug_string) ){
+        TRACE("debug memdump: lenght error!\n");
+        DBG(DBG_INFO, "debug memdump: lenght error!\n");
+        return;
+    }
+
+    for(i = 0, j = 0; i < len; i++){
+        debug_string[j++] = hextab[ ( b[i] & 0xf0 ) >> 4 ];
+        debug_string[j++] = hextab[ ( b[i] & 0x0f )      ];
+        debug_string[j++] = ' ';
+    }
+    TRACE("debug memdump: %s\n", debug_string);
+    DBG(DBG_INFO, "debug memdump: %s\n", debug_string);
+}
+
+/** Entry point of the keyboard daemon */
+int main(int argc, char* argv[])
+{
+    struct dbg_control s_dbg;
+    char* cp_eventfile = NULL;
+    struct sigaction s_sigact;
+    int res;
+    struct input_event s_events[64];
+
+    TRACE("Start Keyboard Daemon");
+
+    /* initialize debug */
+    dbg_get_ctrl(&s_dbg);
+
+    strncpy0(s_dbg.module_name, L_ST_MODULE_NAME, sizeof(s_dbg.module_name));
+    s_dbg.dbg_to_syslog_level = SHARED_DEBUG_FILTER;
+#ifdef ENABLE_DEBUG_STDOUT
+    s_dbg.dbg_to_stdout_level = SHARED_DEBUG_FILTER;
+#else
+    s_dbg.dbg_to_stdout_level = DBG_SILENT;
+#endif
+    dbg_set_ctrl(&s_dbg);
+
+    if(argc < 2) {
+        DBG(DBG_ERROR, "Usage: %s <event_device>", argv[0]);
+        return -1;
+    }
+    cp_eventfile = argv[1];
+    /* open event device file */
+    l_fd_dev = open(cp_eventfile, O_RDONLY);
+    if(l_fd_dev < 0) {
+        DBG_PERRNO("Can not open event file %s", cp_eventfile);
+        return -1;
+    }
+
+#ifdef CHECK_PIDFILE
+    /* check and write pidfile */
+    res = l_check_write_pid_f(L_ST_PIDFILE);
+    if(res) {
+        /* Keyboard daemon is already running */
+        return -1;
+    }
+#endif
+
+    s_sigact.sa_handler = l_signal_handler_f;
+    sigemptyset(&s_sigact.sa_mask);
+    s_sigact.sa_flags = 0;
+
+    /* set up signal handler */
+    if(sigaction(SIGINT, &s_sigact, NULL)) {
+        DBG_PERRNO("sigaction SIGINT");
+        return -1;
+    }
+    if(sigaction(SIGTERM, &s_sigact, NULL)) {
+        DBG_PERRNO("sigaction SIGTERM");
+        return -1;
+    }
+
+    DBG(DBG_INFO, "Keyboard Daemon started");
+
+    /* read descriptor file */
+    l_read_desc_file_f(L_ST_DESC_FILE);
+
+    uint32_t u32_index;
+    for(u32_index = 0; u32_index < l_u32_scan_num; ++u32_index) {
+        TRACE("SCAN %.2x: %s", l_sp_scan[u32_index].u16_code, l_sp_scan[u32_index].cp_cmd);
+    }
+    for(u32_index = 0; u32_index < l_u32_string_num; ++u32_index) {
+        TRACE("STRING %s: %s", l_sp_string[u32_index].st_code, l_sp_string[u32_index].cp_cmd);
+    }
+    
+    while(1) {
+        fd_set rfds;
+        struct timeval s_time;
+
+        /* initialize select */
+        FD_ZERO(&rfds);
+        FD_SET(l_fd_dev, &rfds);
+        s_time.tv_sec = L_SELECT_TIMEOUT_SEC;
+        s_time.tv_usec = 0;
+
+        res = select(l_fd_dev+1, &rfds, NULL, NULL, &s_time);
+        if(res < 0) {
+            DBG_PERRNO("select");
+            sleep(1);
+        } else if(res > 0) {
+           DBG(DBG_INFO, "kbdd res > 0: res = %i", res);
+           /* can be read from event file */
+            if(FD_ISSET(l_fd_dev, &rfds)) {
+                res = read(l_fd_dev, s_events, sizeof(s_events));
+                if(res < 0) {
+                    DBG_PERRNO("read from event file");
+                    break;
+                }
+               DBG(DBG_INFO, "s_events");
+               debug_memdump((uint8_t*)&s_events, sizeof(s_events));
+               DBG(DBG_INFO, "res: %i", res);
+               l_process_event_f(s_events, res);
+            }
+        } else {    /* 0 == res */
+            DBG(DBG_INFO, "kbdd res == 0");
+          /* reread descriptor file periodically */
+            l_read_desc_file_f(L_ST_DESC_FILE);
+        }
+    }
+
+    l_signal_handler_f(0);
+
+    return 0;
+}
+
+/**@}*/

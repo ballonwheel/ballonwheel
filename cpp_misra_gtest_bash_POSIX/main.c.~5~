@@ -1,0 +1,66 @@
+
+
+/*
+// funkcio dekl, def 
+//deklaracio nem foglal helyet a memoriaban
+//definicio: olyan deklaracio ami helyet foglal a memoriaban
+//fv deklaracio: int fv();
+//fv prototipus: int fv(int, int);
+//fv definicio:  int fv(int a, int b){ bla bla}
+//
+//variable decl def
+http://www-ee.eng.hawaii.edu/~tep/EE160/Book/chap14/subsection2.1.1.4.html
+deckl: nem foglal helyet
+def memoriaban helyet foglal
+extern int a; -- dek
+int a; def;
+*/
+
+
+
+/*
+Declaring is the way a programmer tells the compiler to expect a particular type, be it a variable, class/struct/union type, a function type (prototype) or a particular object instance. (ie. extern int i)
+
+Declaration never reserves any space for the variable or instance in the program's memory; it simply a "hint" to the compiler that a use of the variable or instance is expected in the program. This hinting is technically called "forward reference".
+*/
+
+/*
+1 : 	extern int x;
+2 : 	float square ( float x ) { ... }
+3 : 	double pow(double, double);
+extern int x; - is an external variable declaration.
+double pow(double, double); - is a function prototype declaration.
+Therefore, 1 and 3 are declarations. 2 is definition. 
+*/
+
+
+
+#include<stdio.h>
+int main()
+{
+    extern int a;
+    printf("%d\n", a);
+    return 0;
+}
+int a=20;
+- During declaration we tell the datatype of the Variable.
+- During definition the value is initialized.
+
+
+
+11.  	
+When we mention the prototype of a function?
+A. 	Defining
+B. 	Declaring
+C. 	Prototyping
+D. 	Calling
+
+Answer: Option B
+
+Explanation:
+
+A function prototype in C or C++ is a declaration of a function that omits the function body but does specify the function's name, argument types and return type.
+
+While a function definition specifies what a function does, a function prototype can be thought of as specifying its interface.
+
+

@@ -1,0 +1,186 @@
+ARM GAS  /tmp/ccp5qHSD.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mc_parameters.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	ESC_ParamsM1
+  18              		.global	scaleParams_M1
+  19              		.global	R3_2_ParamsM1
+  20              		.global	R3_3_OPAMPParamsM1
+  21              		.section	.data.scaleParams_M1,"aw"
+  22              		.align	2
+  25              	scaleParams_M1:
+  26 0000 99B5DD39 		.word	970831257
+  27 0004 42B3F03A 		.word	988853058
+  28 0008 00A0D73D 		.word	1037541376
+  29 000c 00000000 		.space	4
+  30              		.section	.rodata.ESC_ParamsM1,"a"
+  31              		.align	2
+  34              	ESC_ParamsM1:
+  35 0000 00000040 		.word	1073741824
+  36 0004 002C0140 		.word	1073818624
+  37 0008 C8000000 		.word	200
+  38 000c F4010000 		.word	500
+  39 0010 F4010000 		.word	500
+  40 0014 28D30400 		.word	316200
+  41 0018 E8BF0200 		.word	180200
+  42 001c 40130200 		.word	136000
+  43 0020 40130200 		.word	136000
+  44 0024 B80B     		.short	3000
+  45 0026 E803     		.short	1000
+  46 0028 00       		.byte	0
+  47 0029 000000   		.space	3
+  48              		.section	.rodata.R3_2_ParamsM1,"a"
+  49              		.align	2
+  52              	R3_2_ParamsM1:
+  53 0000 002C0140 		.word	1073818624
+  54 0004 00000000 		.word	R3_3_OPAMPParamsM1
+  55 0008 00000000 		.word	0
+  56 000c 00000000 		.word	0
+  57 0010 00000000 		.word	0
+  58 0014 00000000 		.word	0
+  59 0018 00000000 		.word	0
+  60 001c 00000000 		.word	0
+  61 0020 00000000 		.word	0
+  62 0024 00000000 		.word	0
+  63 0028 00000000 		.word	0
+ARM GAS  /tmp/ccp5qHSD.s 			page 2
+
+
+  64 002c 00000000 		.word	0
+  65 0030 00000000 		.word	0
+  66 0034 00000000 		.word	0
+  67 0038 00010050 		.word	1342177536
+  68 003c 00000050 		.word	1342177280
+  69 0040 00000050 		.word	1342177280
+  70 0044 00000050 		.word	1342177280
+  71 0048 00000050 		.word	1342177280
+  72 004c 00010050 		.word	1342177536
+  73 0050 00000050 		.word	1342177280
+  74 0054 00010050 		.word	1342177536
+  75 0058 00010050 		.word	1342177536
+  76 005c 00010050 		.word	1342177536
+  77 0060 00010050 		.word	1342177536
+  78 0064 00000050 		.word	1342177280
+  79 0068 00060000 		.word	1536
+  80 006c 00060000 		.word	1536
+  81 0070 00060000 		.word	1536
+  82 0074 00060000 		.word	1536
+  83 0078 00060000 		.word	1536
+  84 007c 00060000 		.word	1536
+  85 0080 00180000 		.word	6144
+  86 0084 00240000 		.word	9216
+  87 0088 00240000 		.word	9216
+  88 008c 00060000 		.word	1536
+  89 0090 00060000 		.word	1536
+  90 0094 00180000 		.word	6144
+  91 0098 2901     		.short	297
+  92 009a 1A00     		.short	26
+  93 009c 2900     		.short	41
+  94 009e 4301     		.short	323
+  95 00a0 A100     		.short	161
+  96 00a2 0000     		.short	0
+  97 00a4 165D     		.short	23830
+  98 00a6 01       		.byte	1
+  99 00a7 00       		.byte	0
+ 100 00a8 00       		.byte	0
+ 101 00a9 00       		.byte	0
+ 102 00aa 00       		.byte	0
+ 103 00ab 01       		.byte	1
+ 104 00ac 01       		.byte	1
+ 105 00ad 000000   		.space	3
+ 106              		.section	.rodata.R3_3_OPAMPParamsM1,"a"
+ 107              		.align	2
+ 110              	R3_3_OPAMPParamsM1:
+ 111 0000 04030140 		.word	1073808132
+ 112 0004 00030140 		.word	1073808128
+ 113 0008 00030140 		.word	1073808128
+ 114 000c 00030140 		.word	1073808128
+ 115 0010 00030140 		.word	1073808128
+ 116 0014 04030140 		.word	1073808132
+ 117 0018 08030140 		.word	1073808136
+ 118 001c 08030140 		.word	1073808136
+ 119 0020 08030140 		.word	1073808136
+ 120 0024 04030140 		.word	1073808132
+ 121 0028 04030140 		.word	1073808132
+ 122 002c 08030140 		.word	1073808136
+ARM GAS  /tmp/ccp5qHSD.s 			page 3
+
+
+ 123 0030 FFFFFFFF 		.word	-1
+ 124 0034 FFFFFFFF 		.word	-1
+ 125 0038 FFFFFFFF 		.word	-1
+ 126 003c FFFFFFFF 		.word	-1
+ 127 0040 FFFFFFFF 		.word	-1
+ 128 0044 FFFFFFFF 		.word	-1
+ 129 0048 00000000 		.word	0
+ 130 004c 00010000 		.word	256
+ 131 0050 00010000 		.word	256
+ 132 0054 FFFFFFFF 		.word	-1
+ 133 0058 FFFFFFFF 		.word	-1
+ 134 005c 00000000 		.word	0
+ 135              		.text
+ 136              	.Letext0:
+ 137              		.file 1 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 138              		.file 2 "Drivers/CMSIS/Include/core_cm4.h"
+ 139              		.file 3 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 140              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ 141              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 142              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 143              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 144              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 145              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 146              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 147              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 148              		.file 12 "Inc/mc_type.h"
+ 149              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 150              		.file 14 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 151              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ 152              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+ 153              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+ 154              		.file 18 "Inc/pwm_curr_fdbk.h"
+ 155              		.file 19 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+ 156              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+ 157              		.file 21 "Inc/mc_interface.h"
+ 158              		.file 22 "Inc/mc_configuration_registers.h"
+ 159              		.file 23 "Inc/regular_conversion_manager.h"
+ 160              		.file 24 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+ 161              		.file 25 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ 162              		.file 26 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 163              		.file 27 "Inc/mc_config_common.h"
+ 164              		.file 28 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pqd_motor_power_measurement.h"
+ 165              		.file 29 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 166              		.file 30 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ramp_ext_mngr.h"
+ 167              		.file 31 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/circle_limitation.h"
+ 168              		.file 32 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_pll_speed_pos_fdbk.h"
+ 169              		.file 33 "Inc/mc_config.h"
+ 170              		.file 34 "Src/mc_parameters.c"
+ARM GAS  /tmp/ccp5qHSD.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mc_parameters.c
+     /tmp/ccp5qHSD.s:34     .rodata.ESC_ParamsM1:0000000000000000 ESC_ParamsM1
+     /tmp/ccp5qHSD.s:25     .data.scaleParams_M1:0000000000000000 scaleParams_M1
+     /tmp/ccp5qHSD.s:52     .rodata.R3_2_ParamsM1:0000000000000000 R3_2_ParamsM1
+     /tmp/ccp5qHSD.s:110    .rodata.R3_3_OPAMPParamsM1:0000000000000000 R3_3_OPAMPParamsM1
+     /tmp/ccp5qHSD.s:22     .data.scaleParams_M1:0000000000000000 $d
+     /tmp/ccp5qHSD.s:31     .rodata.ESC_ParamsM1:0000000000000000 $d
+     /tmp/ccp5qHSD.s:49     .rodata.R3_2_ParamsM1:0000000000000000 $d
+     /tmp/ccp5qHSD.s:107    .rodata.R3_3_OPAMPParamsM1:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,165 @@
+#if 1
+#include<stdio.h>
+#include<stdlib.h>
+
+int func1(void)
+{
+    return 0;
+}
+int func2(void)
+{
+    return 0;
+}
+int func3(void)
+{   
+    return 0;
+}
+
+int main()
+{
+/* kenigen 101.oldal
+char **argv
+argv: pointer to char
+int (*daytab)[13]
+daytab: pointer to array[13] of int
+int *daytab[13]
+daytab: array[13] of pointer to int
+void *comp()
+comp: function returning pointer to void
+void (*comp)()
+comp: pointer to function returning void
+char (*(*x())[])()
+x: function returning pointer to array[] of
+pointer to function returning char
+char (*(*x[3])())[5]
+x: array[3] of pointer to function returning
+pointer to array[5] of char
+*/
+
+    int i,j;
+	
+#if 0		
+	int(*p)[3];
+    p = (int(*)[3])malloc(3*sizeof(*p));
+	for(i=0; i<3; i++)
+	{
+		for(j=0; j<3; j++)
+			printf("%d", p[i][j]);
+	}
+#endif    
+
+	int data[3];
+	int(*p)[3];
+	p = (int(*)[3])&data;
+    p[0] = 1;
+    p[1] = 2;
+    p[2] = 3;
+    printf("%X %X %X\n", p[0], p[1], p[2]);
+
+    //int(*p[3])(void) = { func1, func2, func3}; //-->ez ok
+    //p[0] = func1;
+    //p[1] = func2;
+    //p[2] = func3;
+    //(*p[1])();
+    //  p[1] ();
+    //printf("%X %X %X\n", p[0], p[1], p[2]);
+
+    //int data[3];
+    //int *p[3];
+    //p[0] = &data[0];
+    //p[1] = &data[1];
+    //p[2] = &data[2];
+    //printf("%X %X %X\n", p[0], p[1], p[2]);
+	
+
+    return 0;
+}
+#endif
+
+
+/******************************************************************************/
+
+
+
+
+#include <stdio.h>
+#include <stdint.h>
+
+
+
+
+int main (void) 
+{ 
+char txt[2][2] = {'A','\0','B','\0'};
+char *p[2][2];    
+
+	
+
+
+	p[0][0]=&txt[0][0];
+	p[0][1]=&txt[0][1];
+	p[1][0]=&txt[1][0];
+	p[1][1]=&txt[1][1];
+	
+	printf("%c\n", *p[0][0]);
+	printf("%c\n", *p[0][1]);
+	printf("%c\n", *p[1][0]);
+	printf("%c\n", *p[1][1]);
+	
+
+#if 0
+	printf("%c\n", *txt[0][0]);
+	printf("%c\n", *txt[0][1]);
+	printf("%c\n", *txt[1][0]);
+	printf("%c\n", *txt[1][1]);
+imre@55hDesk:~/C_try/pointer$ gcc main.c -o main
+main.c: In function ‘main’:
+main.c:25:17: error: invalid type argument of unary ‘*’ (have ‘int’)
+main.c:26:17: error: invalid type argument of unary ‘*’ (have ‘int’)
+main.c:27:17: error: invalid type argument of unary ‘*’ (have ‘int’)
+main.c:28:17: error: invalid type argument of unary ‘*’ (have ‘int’)
+imre@55hDesk:~/C_try/pointer$ 
+
+
+#include<stdio.h>
+
+int main()
+{
+    int arr[3][3] = {1, 2, 3, 4};
+    printf("%d\n", *(*(*(arr)))); --> ez ua a hulyeseeg
+    return 0;
+}
+#endif 
+
+
+
+What will be the output of the program (sample.c) given below if it is executed from the command line?
+cmd> sample friday tuesday sunday----u
+/* sample.c */
+#include<stdio.h>
+
+int main(int argc, char *argv[])
+{
+    printf("%c", *++argv[2] );
+    return 0;
+}	
+    
+    return 0; 
+}
+
+
+
+
+#include<stdio.h>
+
+int main()
+{
+    char *p;
+    p="hello";
+    printf("%s\n", *&*&p);
+    return 0;
+}
+
+hello lesz
+
+

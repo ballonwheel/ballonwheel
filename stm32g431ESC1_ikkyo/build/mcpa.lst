@@ -1,0 +1,1584 @@
+ARM GAS  /tmp/ccr44A1X.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mcpa.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.MCPA_dataLog,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.global	MCPA_dataLog
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	MCPA_dataLog:
+  28              	.LVL0:
+  29              	.LFB1448:
+  30              		.file 1 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   /******************************************************************************
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @file    mcpa.c
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @brief   This file provides firmware functions that implement the datalog feature
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *          of the MCP protocol
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   ******************************************************************************
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @attention
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * All rights reserved.</center></h2>
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * the License. You may obtain a copy of the License at:
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *                             www.st.com/SLA0044
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   ******************************************************************************
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #include "mc_type.h"
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #include "string.h"
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #include "mcp.h"
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #include "register_interface.h"
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #include "mcpa.h"
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** uint32_t GLOBAL_TIMESTAMP = 0U;
+ARM GAS  /tmp/ccr44A1X.s 			page 2
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** static void MCPA_stopDataLog(MCPA_Handle_t *pHandle);
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** /** @addtogroup MCSDK
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @{
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** /** @addtogroup MCP
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @{
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** /**
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @brief  Allocates and fills buffer with asynchronous data to be sent to controller
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @param  *pHandle Pointer to the MCPA Handle
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** void MCPA_dataLog(MCPA_Handle_t *pHandle)
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** {
+  31              		.loc 1 45 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (MC_NULL == pHandle)
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     /* Nothing to do */
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   else
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint32_t *logValue;
+  35              		.loc 1 54 5 view .LVU1
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint16_t *logValue16;
+  36              		.loc 1 55 5 view .LVU2
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint8_t i;
+  37              		.loc 1 56 5 view .LVU3
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     if (pHandle->HFIndex == pHandle->HFRateBuff) /*  */
+  38              		.loc 1 58 5 view .LVU4
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+  39              		.loc 1 45 1 is_stmt 0 view .LVU5
+  40 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  41              	.LCFI0:
+  42              		.cfi_def_cfa_offset 24
+  43              		.cfi_offset 3, -24
+  44              		.cfi_offset 4, -20
+  45              		.cfi_offset 5, -16
+  46              		.cfi_offset 6, -12
+  47              		.cfi_offset 7, -8
+  48              		.cfi_offset 14, -4
+  49              		.loc 1 58 16 view .LVU6
+  50 0002 C37F     		ldrb	r3, [r0, #31]	@ zero_extendqisi2
+  51              		.loc 1 58 8 view .LVU7
+  52 0004 90F82220 		ldrb	r2, [r0, #34]	@ zero_extendqisi2
+  53 0008 9A42     		cmp	r2, r3
+  54 000a 02D0     		beq	.L34
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     {
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->HFIndex = 0U;
+ARM GAS  /tmp/ccr44A1X.s 			page 3
+
+
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (0U == pHandle->bufferIndex)
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* New buffer allocation */
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         if (0U == pHandle->pTransportLayer->fGetBuffer (pHandle->pTransportLayer,
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        MCTL_ASYNC))
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* Nothing to do, try next HF Task to get an Async buffer */
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef MCP_DEBUG_METRICS
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferMissed++;
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         else
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logValue = (uint32_t *)pHandle->currentBuffer; //cstat !MISRAC2012-Rule-11.3
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           *logValue = GLOBAL_TIMESTAMP; /* 32 first bits is used to store Timestamp */
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferIndex = 4U;
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->MFIndex = 0U; /* Restart the motif from scratch at each buffer */
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* Check if configuration has changed for this new buffer */
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           if (pHandle->Mark == pHandle->MarkBuff)
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             /* Nothing to do */
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           else
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MarkBuff            = pHandle->Mark;
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFNumBuff           = pHandle->HFNum;
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFNumBuff           = pHandle->MFNum;
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFRateBuff          = pHandle->HFRate;
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFRateBuff          = pHandle->MFRate;
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferTxTriggerBuff = pHandle->bufferTxTrigger;
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             /* We store pointer here, so 4 bytes */
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             (void)memcpy(pHandle->dataPtrTableBuff, pHandle->dataPtrTable,
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          ((uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum) * 4U); /* We store p
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                                                          so 4 bytes
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             (void)memcpy(pHandle->dataSizeTableBuff, pHandle->dataSizeTable,
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          (uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum); /* 1 size byte per I
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       else
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Nothing to do */
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       /* */
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if ((pHandle->bufferIndex > 0U)  && (pHandle->bufferIndex <= pHandle->bufferTxTriggerBuff))
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         logValue16 = (uint16_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC2012
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         for (i = 0U; i < pHandle->HFNumBuff; i++)
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           *logValue16 = *((uint16_t *) pHandle->dataPtrTableBuff[i]) ; //cstat !MISRAC2012-Rule-11.
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logValue16++;
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferIndex = pHandle->bufferIndex + 2U;
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* MFRateBuff=254 means we dump MF data once per buffer */
+ARM GAS  /tmp/ccr44A1X.s 			page 4
+
+
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* MFRateBuff=255 means we do not dump MF data */
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         if (pHandle->MFRateBuff < 254U)
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           if (pHandle->MFIndex == pHandle->MFRateBuff)
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFIndex = 0U;
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             for (i = pHandle->HFNumBuff; i < (pHandle->MFNumBuff + pHandle->HFNumBuff); i++)
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               /* Dump MF data */
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               logValue = (uint32_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               *logValue = *((uint32_t *)pHandle->dataPtrTableBuff[i]); //cstat !MISRAC2012-Rule-11.
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NOT_IMPLEMENTED /* Code not implemented. */
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               switch (pHandle->dataSizeTableBuff[i])
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               {
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 case 1:
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 {
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   logValue8 = (uint8_t *)&pHandle->currentBuffer[pHandle->bufferIndex];
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   *logValue8 = *((uint8_t *)pHandle->dataPtrTableBuff[i]);
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   break;
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 }
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 case 2:
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 {
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   logValue16 = (uint16_t *)&pHandle->currentBuffer[pHandle->bufferIndex];
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   *logValue16 = *((uint16_t *)pHandle->dataPtrTableBuff[i]);
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   break;
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 }
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 case 4:
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 {
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   logValue32 = (uint32_t *)&pHandle->currentBuffer[pHandle->bufferIndex];
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   *logValue32 = *((uint32_t *)pHandle->dataPtrTableBuff[i]);
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   break;
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 }
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                 default:
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                   break;
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               }
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               pHandle->bufferIndex = pHandle->bufferIndex+pHandle->dataSizeTableBuff[i];
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 158:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           else
+ 159:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFIndex ++;
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 163:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         else
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* Nothing to do */
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 168:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       else
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 170:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Nothing to do */
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (pHandle->bufferIndex > pHandle->bufferTxTriggerBuff)
+ 173:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         if (pHandle->MFRateBuff == 254U) /* MFRateBuff = 254 means we dump MF data once per buffer 
+ARM GAS  /tmp/ccr44A1X.s 			page 5
+
+
+ 175:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           for (i = pHandle->HFNumBuff; i < (pHandle->MFNumBuff + pHandle->HFNumBuff); i++)
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             logValue = (uint32_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC20
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             *logValue = *((uint32_t *)pHandle->dataPtrTableBuff[i]); //cstat !MISRAC2012-Rule-11.5
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferIndex = pHandle->bufferIndex + pHandle->dataSizeTableBuff[i];
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         else
+ 184:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 185:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* Nothing to do */
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Buffer is ready to be send */
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         logValue16 = (uint16_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC2012
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         *logValue16 = pHandle->MarkBuff; /* MarkBuff is actually 8 bits, but we add also 8 bits of 
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                             the MARK. */
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         pHandle->pTransportLayer->fSendPacket(pHandle->pTransportLayer, pHandle->currentBuffer,
+ 192:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                               pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         pHandle->bufferIndex = 0U;
+ 194:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 195:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       else
+ 196:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Nothing to do */
+ 198:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 199:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 200:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     else
+ 201:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     {
+ 202:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       /* Nothing to log just waiting next call to MCPA_datalog */
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->HFIndex++;
+  55              		.loc 1 203 7 is_stmt 1 view .LVU8
+  56              		.loc 1 203 23 is_stmt 0 view .LVU9
+  57 000c 0133     		adds	r3, r3, #1
+  58 000e C377     		strb	r3, [r0, #31]
+  59              	.LVL1:
+  60              	.L1:
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+ 206:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+ 208:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+  61              		.loc 1 208 1 view .LVU10
+  62 0010 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+  63              	.LVL2:
+  64              	.L34:
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (0U == pHandle->bufferIndex)
+  65              		.loc 1 60 7 is_stmt 1 view .LVU11
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+  66              		.loc 1 61 24 is_stmt 0 view .LVU12
+  67 0012 058B     		ldrh	r5, [r0, #24]
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (0U == pHandle->bufferIndex)
+  68              		.loc 1 60 24 view .LVU13
+  69 0014 0023     		movs	r3, #0
+  70 0016 0446     		mov	r4, r0
+  71 0018 C377     		strb	r3, [r0, #31]
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+  72              		.loc 1 61 7 is_stmt 1 view .LVU14
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ARM GAS  /tmp/ccr44A1X.s 			page 6
+
+
+  73              		.loc 1 61 10 is_stmt 0 view .LVU15
+  74 001a A5B1     		cbz	r5, .L35
+  75              	.LVL3:
+  76              	.L30:
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+  77              		.loc 1 61 10 view .LVU16
+  78 001c 6169     		ldr	r1, [r4, #20]
+  79              	.L19:
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+  80              		.loc 1 108 75 discriminator 1 view .LVU17
+  81 001e A28B     		ldrh	r2, [r4, #28]
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+  82              		.loc 1 108 40 discriminator 1 view .LVU18
+  83 0020 AA42     		cmp	r2, r5
+  84 0022 4DD2     		bcs	.L28
+  85 0024 94F82600 		ldrb	r0, [r4, #38]	@ zero_extendqisi2
+  86              	.L8:
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+  87              		.loc 1 174 9 is_stmt 1 view .LVU19
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+  88              		.loc 1 174 12 is_stmt 0 view .LVU20
+  89 0028 FE28     		cmp	r0, #254
+  90 002a 68D0     		beq	.L36
+  91              	.L16:
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Buffer is ready to be send */
+  92              		.loc 1 186 9 is_stmt 1 view .LVU21
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         *logValue16 = pHandle->MarkBuff; /* MarkBuff is actually 8 bits, but we add also 8 bits of 
+  93              		.loc 1 188 9 view .LVU22
+  94              	.LVL4:
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                             the MARK. */
+  95              		.loc 1 189 9 view .LVU23
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                             the MARK. */
+  96              		.loc 1 189 30 is_stmt 0 view .LVU24
+  97 002c 94F82A30 		ldrb	r3, [r4, #42]	@ zero_extendqisi2
+  98 0030 4B53     		strh	r3, [r1, r5]	@ movhi
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                               pHandle->bufferIndex + 2U, MCTL_ASYNC);
+  99              		.loc 1 191 9 is_stmt 1 view .LVU25
+ 100 0032 228B     		ldrh	r2, [r4, #24]
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                               pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 101              		.loc 1 191 16 is_stmt 0 view .LVU26
+ 102 0034 2068     		ldr	r0, [r4]
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                               pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 103              		.loc 1 191 9 view .LVU27
+ 104 0036 0232     		adds	r2, r2, #2
+ 105 0038 0923     		movs	r3, #9
+ 106 003a 92B2     		uxth	r2, r2
+ 107 003c 4568     		ldr	r5, [r0, #4]
+ 108              	.LVL5:
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                               pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 109              		.loc 1 191 9 view .LVU28
+ 110 003e A847     		blx	r5
+ 111              	.LVL6:
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 112              		.loc 1 193 9 is_stmt 1 view .LVU29
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 113              		.loc 1 193 30 is_stmt 0 view .LVU30
+ 114 0040 0023     		movs	r3, #0
+ARM GAS  /tmp/ccr44A1X.s 			page 7
+
+
+ 115 0042 2383     		strh	r3, [r4, #24]	@ movhi
+ 116              		.loc 1 208 1 view .LVU31
+ 117 0044 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 118              	.LVL7:
+ 119              	.L35:
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+ 120              		.loc 1 64 9 is_stmt 1 view .LVU32
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+ 121              		.loc 1 64 26 is_stmt 0 view .LVU33
+ 122 0046 0146     		mov	r1, r0
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+ 123              		.loc 1 64 19 view .LVU34
+ 124 0048 0922     		movs	r2, #9
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+ 125              		.loc 1 64 26 view .LVU35
+ 126 004a 51F8140B 		ldr	r0, [r1], #20
+ 127              	.LVL8:
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+ 128              		.loc 1 64 19 view .LVU36
+ 129 004e 0368     		ldr	r3, [r0]
+ 130 0050 9847     		blx	r3
+ 131              	.LVL9:
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                        (void **) &pHandle->currentBuffer, //cstat !
+ 132              		.loc 1 64 12 view .LVU37
+ 133 0052 88B3     		cbz	r0, .L4
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           *logValue = GLOBAL_TIMESTAMP; /* 32 first bits is used to store Timestamp */
+ 134              		.loc 1 75 11 is_stmt 1 view .LVU38
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferIndex = 4U;
+ 135              		.loc 1 76 21 is_stmt 0 view .LVU39
+ 136 0054 4A4B     		ldr	r3, .L38
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           *logValue = GLOBAL_TIMESTAMP; /* 32 first bits is used to store Timestamp */
+ 137              		.loc 1 75 20 view .LVU40
+ 138 0056 6169     		ldr	r1, [r4, #20]
+ 139              	.LVL10:
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferIndex = 4U;
+ 140              		.loc 1 76 11 is_stmt 1 view .LVU41
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferIndex = 4U;
+ 141              		.loc 1 76 21 is_stmt 0 view .LVU42
+ 142 0058 1B68     		ldr	r3, [r3]
+ 143 005a 0B60     		str	r3, [r1]
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->MFIndex = 0U; /* Restart the motif from scratch at each buffer */
+ 144              		.loc 1 77 11 is_stmt 1 view .LVU43
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 145              		.loc 1 80 22 is_stmt 0 view .LVU44
+ 146 005c 94F82930 		ldrb	r3, [r4, #41]	@ zero_extendqisi2
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 147              		.loc 1 80 14 view .LVU45
+ 148 0060 94F82A20 		ldrb	r2, [r4, #42]	@ zero_extendqisi2
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* Check if configuration has changed for this new buffer */
+ 149              		.loc 1 78 28 view .LVU46
+ 150 0064 84F82050 		strb	r5, [r4, #32]
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 151              		.loc 1 80 14 view .LVU47
+ 152 0068 9A42     		cmp	r2, r3
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->MFIndex = 0U; /* Restart the motif from scratch at each buffer */
+ 153              		.loc 1 77 32 view .LVU48
+ 154 006a 4FF00405 		mov	r5, #4
+ARM GAS  /tmp/ccr44A1X.s 			page 8
+
+
+ 155 006e 2583     		strh	r5, [r4, #24]	@ movhi
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* Check if configuration has changed for this new buffer */
+ 156              		.loc 1 78 11 is_stmt 1 view .LVU49
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 157              		.loc 1 80 11 view .LVU50
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 158              		.loc 1 80 14 is_stmt 0 view .LVU51
+ 159 0070 D5D0     		beq	.L19
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFNumBuff           = pHandle->HFNum;
+ 160              		.loc 1 86 13 is_stmt 1 view .LVU52
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFNumBuff           = pHandle->MFNum;
+ 161              		.loc 1 87 51 is_stmt 0 view .LVU53
+ 162 0072 94F82300 		ldrb	r0, [r4, #35]	@ zero_extendqisi2
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFRateBuff          = pHandle->HFRate;
+ 163              		.loc 1 88 51 view .LVU54
+ 164 0076 94F82710 		ldrb	r1, [r4, #39]	@ zero_extendqisi2
+ 165              	.LVL11:
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFRateBuff          = pHandle->MFRate;
+ 166              		.loc 1 89 42 view .LVU55
+ 167 007a 94F82160 		ldrb	r6, [r4, #33]	@ zero_extendqisi2
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferTxTriggerBuff = pHandle->bufferTxTrigger;
+ 168              		.loc 1 90 42 view .LVU56
+ 169 007e 94F82550 		ldrb	r5, [r4, #37]	@ zero_extendqisi2
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFNumBuff           = pHandle->HFNum;
+ 170              		.loc 1 86 42 view .LVU57
+ 171 0082 84F82A30 		strb	r3, [r4, #42]
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFNumBuff           = pHandle->MFNum;
+ 172              		.loc 1 87 13 is_stmt 1 view .LVU58
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                                                          so 4 bytes
+ 173              		.loc 1 95 52 is_stmt 0 view .LVU59
+ 174 0086 4218     		adds	r2, r0, r1
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 175              		.loc 1 91 42 view .LVU60
+ 176 0088 638B     		ldrh	r3, [r4, #26]
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFNumBuff           = pHandle->MFNum;
+ 177              		.loc 1 87 42 view .LVU61
+ 178 008a 84F82400 		strb	r0, [r4, #36]
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFRateBuff          = pHandle->HFRate;
+ 179              		.loc 1 88 13 is_stmt 1 view .LVU62
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->HFRateBuff          = pHandle->HFRate;
+ 180              		.loc 1 88 42 is_stmt 0 view .LVU63
+ 181 008e 84F82810 		strb	r1, [r4, #40]
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFRateBuff          = pHandle->MFRate;
+ 182              		.loc 1 89 13 is_stmt 1 view .LVU64
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          ((uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum) * 4U); /* We store p
+ 183              		.loc 1 94 19 is_stmt 0 view .LVU65
+ 184 0092 9200     		lsls	r2, r2, #2
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 185              		.loc 1 91 42 view .LVU66
+ 186 0094 A383     		strh	r3, [r4, #28]	@ movhi
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          ((uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum) * 4U); /* We store p
+ 187              		.loc 1 94 19 view .LVU67
+ 188 0096 D4E90110 		ldrd	r1, r0, [r4, #4]
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->MFRateBuff          = pHandle->MFRate;
+ 189              		.loc 1 89 42 view .LVU68
+ 190 009a 84F82260 		strb	r6, [r4, #34]
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferTxTriggerBuff = pHandle->bufferTxTrigger;
+ARM GAS  /tmp/ccr44A1X.s 			page 9
+
+
+ 191              		.loc 1 90 13 is_stmt 1 view .LVU69
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferTxTriggerBuff = pHandle->bufferTxTrigger;
+ 192              		.loc 1 90 42 is_stmt 0 view .LVU70
+ 193 009e 84F82650 		strb	r5, [r4, #38]
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 194              		.loc 1 91 13 is_stmt 1 view .LVU71
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          ((uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum) * 4U); /* We store p
+ 195              		.loc 1 94 13 view .LVU72
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          ((uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum) * 4U); /* We store p
+ 196              		.loc 1 94 19 is_stmt 0 view .LVU73
+ 197 00a2 FFF7FEFF 		bl	memcpy
+ 198              	.LVL12:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          (uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum); /* 1 size byte per I
+ 199              		.loc 1 97 13 is_stmt 1 view .LVU74
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 200              		.loc 1 98 26 is_stmt 0 view .LVU75
+ 201 00a6 94F82320 		ldrb	r2, [r4, #35]	@ zero_extendqisi2
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 202              		.loc 1 98 53 view .LVU76
+ 203 00aa 94F82730 		ldrb	r3, [r4, #39]	@ zero_extendqisi2
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                          (uint32_t)pHandle->HFNum + (uint32_t)pHandle->MFNum); /* 1 size byte per I
+ 204              		.loc 1 97 19 view .LVU77
+ 205 00ae D4E90310 		ldrd	r1, r0, [r4, #12]
+ 206 00b2 1A44     		add	r2, r2, r3
+ 207 00b4 FFF7FEFF 		bl	memcpy
+ 208              	.LVL13:
+ 209              	.L4:
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 210              		.loc 1 105 7 is_stmt 1 view .LVU78
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 211              		.loc 1 108 7 view .LVU79
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 212              		.loc 1 108 19 is_stmt 0 view .LVU80
+ 213 00b8 258B     		ldrh	r5, [r4, #24]
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 214              		.loc 1 108 10 view .LVU81
+ 215 00ba 002D     		cmp	r5, #0
+ 216 00bc AED1     		bne	.L30
+ 217              		.loc 1 208 1 view .LVU82
+ 218 00be F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 219              	.LVL14:
+ 220              	.L28:
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         for (i = 0U; i < pHandle->HFNumBuff; i++)
+ 221              		.loc 1 110 9 is_stmt 1 view .LVU83
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 222              		.loc 1 111 33 is_stmt 0 view .LVU84
+ 223 00c0 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         for (i = 0U; i < pHandle->HFNumBuff; i++)
+ 224              		.loc 1 110 20 view .LVU85
+ 225 00c4 4E19     		adds	r6, r1, r5
+ 226              	.LVL15:
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 227              		.loc 1 111 9 is_stmt 1 view .LVU86
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 228              		.loc 1 111 9 is_stmt 0 view .LVU87
+ 229 00c6 002B     		cmp	r3, #0
+ 230 00c8 2FD0     		beq	.L9
+ARM GAS  /tmp/ccr44A1X.s 			page 10
+
+
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logValue16++;
+ 231              		.loc 1 113 47 view .LVU88
+ 232 00ca 0022     		movs	r2, #0
+ 233 00cc A768     		ldr	r7, [r4, #8]
+ 234 00ce 1046     		mov	r0, r2
+ 235              	.LVL16:
+ 236              	.L10:
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logValue16++;
+ 237              		.loc 1 113 11 is_stmt 1 discriminator 3 view .LVU89
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logValue16++;
+ 238              		.loc 1 113 25 is_stmt 0 discriminator 3 view .LVU90
+ 239 00d0 57F82030 		ldr	r3, [r7, r0, lsl #2]
+ 240 00d4 1B88     		ldrh	r3, [r3]
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logValue16++;
+ 241              		.loc 1 113 23 discriminator 3 view .LVU91
+ 242 00d6 26F8023B 		strh	r3, [r6], #2	@ movhi
+ 243              	.LVL17:
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferIndex = pHandle->bufferIndex + 2U;
+ 244              		.loc 1 114 11 is_stmt 1 discriminator 3 view .LVU92
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 245              		.loc 1 115 11 discriminator 3 view .LVU93
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 246              		.loc 1 115 55 is_stmt 0 discriminator 3 view .LVU94
+ 247 00da 258B     		ldrh	r5, [r4, #24]
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 248              		.loc 1 111 33 discriminator 3 view .LVU95
+ 249 00dc 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 250 00e0 0132     		adds	r2, r2, #1
+ 251              	.LVL18:
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 252              		.loc 1 115 55 discriminator 3 view .LVU96
+ 253 00e2 0235     		adds	r5, r5, #2
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 254              		.loc 1 111 9 discriminator 3 view .LVU97
+ 255 00e4 D0B2     		uxtb	r0, r2
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 256              		.loc 1 115 55 discriminator 3 view .LVU98
+ 257 00e6 ADB2     		uxth	r5, r5
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 258              		.loc 1 111 9 discriminator 3 view .LVU99
+ 259 00e8 8342     		cmp	r3, r0
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 260              		.loc 1 115 32 discriminator 3 view .LVU100
+ 261 00ea 2583     		strh	r5, [r4, #24]	@ movhi
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 262              		.loc 1 111 9 discriminator 3 view .LVU101
+ 263 00ec F0D8     		bhi	.L10
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 264              		.loc 1 119 9 is_stmt 1 view .LVU102
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 265              		.loc 1 119 20 is_stmt 0 view .LVU103
+ 266 00ee 94F82600 		ldrb	r0, [r4, #38]	@ zero_extendqisi2
+ 267 00f2 A28B     		ldrh	r2, [r4, #28]
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 268              		.loc 1 119 12 view .LVU104
+ 269 00f4 FD28     		cmp	r0, #253
+ 270 00f6 1DD9     		bls	.L18
+ARM GAS  /tmp/ccr44A1X.s 			page 11
+
+
+ 271              	.L11:
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (pHandle->bufferIndex > pHandle->bufferTxTriggerBuff)
+ 272              		.loc 1 171 7 is_stmt 1 view .LVU105
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 273              		.loc 1 172 7 view .LVU106
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 274              		.loc 1 172 10 is_stmt 0 view .LVU107
+ 275 00f8 9542     		cmp	r5, r2
+ 276 00fa 95D8     		bhi	.L8
+ 277              		.loc 1 208 1 view .LVU108
+ 278 00fc F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 279              	.LVL19:
+ 280              	.L36:
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 281              		.loc 1 176 11 is_stmt 1 view .LVU109
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 282              		.loc 1 176 18 is_stmt 0 view .LVU110
+ 283 00fe 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 284              	.LVL20:
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 285              		.loc 1 176 52 view .LVU111
+ 286 0102 94F82800 		ldrb	r0, [r4, #40]	@ zero_extendqisi2
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 287              		.loc 1 176 64 view .LVU112
+ 288 0106 1844     		add	r0, r0, r3
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 289              		.loc 1 176 11 view .LVU113
+ 290 0108 9842     		cmp	r0, r3
+ 291 010a 8FDD     		ble	.L16
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferIndex = pHandle->bufferIndex + pHandle->dataSizeTableBuff[i];
+ 292              		.loc 1 179 46 view .LVU114
+ 293 010c A768     		ldr	r7, [r4, #8]
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 294              		.loc 1 180 66 view .LVU115
+ 295 010e 2669     		ldr	r6, [r4, #16]
+ 296              	.L17:
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             *logValue = *((uint32_t *)pHandle->dataPtrTableBuff[i]); //cstat !MISRAC2012-Rule-11.5
+ 297              		.loc 1 178 13 is_stmt 1 discriminator 3 view .LVU116
+ 298              	.LVL21:
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferIndex = pHandle->bufferIndex + pHandle->dataSizeTableBuff[i];
+ 299              		.loc 1 179 13 discriminator 3 view .LVU117
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferIndex = pHandle->bufferIndex + pHandle->dataSizeTableBuff[i];
+ 300              		.loc 1 179 25 is_stmt 0 discriminator 3 view .LVU118
+ 301 0110 57F82320 		ldr	r2, [r7, r3, lsl #2]
+ 302 0114 1268     		ldr	r2, [r2]
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             pHandle->bufferIndex = pHandle->bufferIndex + pHandle->dataSizeTableBuff[i];
+ 303              		.loc 1 179 23 discriminator 3 view .LVU119
+ 304 0116 4A51     		str	r2, [r1, r5]
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 305              		.loc 1 180 13 is_stmt 1 discriminator 3 view .LVU120
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 306              		.loc 1 180 85 is_stmt 0 discriminator 3 view .LVU121
+ 307 0118 F25C     		ldrb	r2, [r6, r3]	@ zero_extendqisi2
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 308              		.loc 1 176 88 discriminator 3 view .LVU122
+ 309 011a 0133     		adds	r3, r3, #1
+ 310              	.LVL22:
+ARM GAS  /tmp/ccr44A1X.s 			page 12
+
+
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 311              		.loc 1 180 57 discriminator 3 view .LVU123
+ 312 011c 1544     		add	r5, r5, r2
+ 313              	.LVL23:
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 314              		.loc 1 176 88 discriminator 3 view .LVU124
+ 315 011e DBB2     		uxtb	r3, r3
+ 316              	.LVL24:
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 317              		.loc 1 180 57 discriminator 3 view .LVU125
+ 318 0120 ADB2     		uxth	r5, r5
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 319              		.loc 1 176 11 discriminator 3 view .LVU126
+ 320 0122 8342     		cmp	r3, r0
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 321              		.loc 1 180 34 discriminator 3 view .LVU127
+ 322 0124 2583     		strh	r5, [r4, #24]	@ movhi
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 323              		.loc 1 176 11 discriminator 3 view .LVU128
+ 324 0126 F3DB     		blt	.L17
+ 325 0128 80E7     		b	.L16
+ 326              	.LVL25:
+ 327              	.L9:
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 328              		.loc 1 119 9 is_stmt 1 view .LVU129
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 329              		.loc 1 119 20 is_stmt 0 view .LVU130
+ 330 012a 94F82600 		ldrb	r0, [r4, #38]	@ zero_extendqisi2
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 331              		.loc 1 119 12 view .LVU131
+ 332 012e FD28     		cmp	r0, #253
+ 333 0130 3FF66EAF 		bhi	.L1
+ 334              	.LVL26:
+ 335              	.L18:
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 336              		.loc 1 121 11 is_stmt 1 view .LVU132
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 337              		.loc 1 121 22 is_stmt 0 view .LVU133
+ 338 0134 94F82050 		ldrb	r5, [r4, #32]	@ zero_extendqisi2
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 339              		.loc 1 121 14 view .LVU134
+ 340 0138 8542     		cmp	r5, r0
+ 341 013a 04D0     		beq	.L37
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 342              		.loc 1 160 13 is_stmt 1 view .LVU135
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 343              		.loc 1 160 30 is_stmt 0 view .LVU136
+ 344 013c 6B1C     		adds	r3, r5, #1
+ 345 013e 84F82030 		strb	r3, [r4, #32]
+ 346 0142 258B     		ldrh	r5, [r4, #24]
+ 347 0144 D8E7     		b	.L11
+ 348              	.L37:
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             for (i = pHandle->HFNumBuff; i < (pHandle->MFNumBuff + pHandle->HFNumBuff); i++)
+ 349              		.loc 1 123 13 is_stmt 1 view .LVU137
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 350              		.loc 1 124 54 is_stmt 0 view .LVU138
+ 351 0146 94F82860 		ldrb	r6, [r4, #40]	@ zero_extendqisi2
+ARM GAS  /tmp/ccr44A1X.s 			page 13
+
+
+ 352              	.LVL27:
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 353              		.loc 1 124 54 view .LVU139
+ 354 014a 258B     		ldrh	r5, [r4, #24]
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 355              		.loc 1 124 66 view .LVU140
+ 356 014c 1E44     		add	r6, r6, r3
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             for (i = pHandle->HFNumBuff; i < (pHandle->MFNumBuff + pHandle->HFNumBuff); i++)
+ 357              		.loc 1 123 30 view .LVU141
+ 358 014e 0020     		movs	r0, #0
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 359              		.loc 1 124 13 view .LVU142
+ 360 0150 9E42     		cmp	r6, r3
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             for (i = pHandle->HFNumBuff; i < (pHandle->MFNumBuff + pHandle->HFNumBuff); i++)
+ 361              		.loc 1 123 30 view .LVU143
+ 362 0152 84F82000 		strb	r0, [r4, #32]
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 363              		.loc 1 124 13 is_stmt 1 view .LVU144
+ 364              	.LVL28:
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 365              		.loc 1 124 13 is_stmt 0 view .LVU145
+ 366 0156 0EDD     		ble	.L13
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 367              		.loc 1 128 48 view .LVU146
+ 368 0158 D4F808C0 		ldr	ip, [r4, #8]
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 369              		.loc 1 155 66 view .LVU147
+ 370 015c 2769     		ldr	r7, [r4, #16]
+ 371              	.L14:
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****               *logValue = *((uint32_t *)pHandle->dataPtrTableBuff[i]); //cstat !MISRAC2012-Rule-11.
+ 372              		.loc 1 127 15 is_stmt 1 discriminator 3 view .LVU148
+ 373              	.LVL29:
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 374              		.loc 1 128 15 discriminator 3 view .LVU149
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 375              		.loc 1 128 27 is_stmt 0 discriminator 3 view .LVU150
+ 376 015e 5CF82300 		ldr	r0, [ip, r3, lsl #2]
+ 377 0162 0068     		ldr	r0, [r0]
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 378              		.loc 1 128 25 discriminator 3 view .LVU151
+ 379 0164 4851     		str	r0, [r1, r5]
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 380              		.loc 1 155 15 is_stmt 1 discriminator 3 view .LVU152
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 381              		.loc 1 155 85 is_stmt 0 discriminator 3 view .LVU153
+ 382 0166 F85C     		ldrb	r0, [r7, r3]	@ zero_extendqisi2
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 383              		.loc 1 124 90 discriminator 3 view .LVU154
+ 384 0168 0133     		adds	r3, r3, #1
+ 385              	.LVL30:
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 386              		.loc 1 155 58 discriminator 3 view .LVU155
+ 387 016a 0544     		add	r5, r5, r0
+ 388              	.LVL31:
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 389              		.loc 1 124 90 discriminator 3 view .LVU156
+ 390 016c DBB2     		uxtb	r3, r3
+ARM GAS  /tmp/ccr44A1X.s 			page 14
+
+
+ 391              	.LVL32:
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 392              		.loc 1 155 58 discriminator 3 view .LVU157
+ 393 016e ADB2     		uxth	r5, r5
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 394              		.loc 1 124 13 discriminator 3 view .LVU158
+ 395 0170 B342     		cmp	r3, r6
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             }
+ 396              		.loc 1 155 36 discriminator 3 view .LVU159
+ 397 0172 2583     		strh	r5, [r4, #24]	@ movhi
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             {
+ 398              		.loc 1 124 13 discriminator 3 view .LVU160
+ 399 0174 F3DB     		blt	.L14
+ 400              	.L13:
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (pHandle->bufferIndex > pHandle->bufferTxTriggerBuff)
+ 401              		.loc 1 171 7 is_stmt 1 view .LVU161
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 402              		.loc 1 172 7 view .LVU162
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 403              		.loc 1 172 10 is_stmt 0 view .LVU163
+ 404 0176 AA42     		cmp	r2, r5
+ 405 0178 FFF458AF 		bcc	.L16
+ 406              		.loc 1 208 1 view .LVU164
+ 407 017c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 408              	.LVL33:
+ 409              	.L39:
+ 410              		.loc 1 208 1 view .LVU165
+ 411 017e 00BF     		.align	2
+ 412              	.L38:
+ 413 0180 00000000 		.word	.LANCHOR0
+ 414              		.cfi_endproc
+ 415              	.LFE1448:
+ 417              		.section	.text.MCPA_flushDataLog,"ax",%progbits
+ 418              		.align	1
+ 419              		.p2align 2,,3
+ 420              		.global	MCPA_flushDataLog
+ 421              		.syntax unified
+ 422              		.thumb
+ 423              		.thumb_func
+ 424              		.fpu fpv4-sp-d16
+ 426              	MCPA_flushDataLog:
+ 427              	.LVL34:
+ 428              	.LFB1449:
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** /**
+ 211:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @brief  Sends asynchronous data to controller when the buffer is full
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @param  *pHandle Pointer to the MCPA Handle
+ 214:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+ 215:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** void MCPA_flushDataLog (MCPA_Handle_t *pHandle)
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** {
+ 429              		.loc 1 216 1 is_stmt 1 view -0
+ 430              		.cfi_startproc
+ 431              		@ args = 0, pretend = 0, frame = 0
+ 432              		@ frame_needed = 0, uses_anonymous_args = 0
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+ 218:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (MC_NULL == pHandle)
+ARM GAS  /tmp/ccr44A1X.s 			page 15
+
+
+ 219:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+ 220:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     /* Nothing to do */
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 222:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   else
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+ 224:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+ 225:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint32_t *logValue;
+ 433              		.loc 1 225 5 view .LVU167
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint16_t *logValue16;
+ 434              		.loc 1 226 5 view .LVU168
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint8_t i;
+ 435              		.loc 1 227 5 view .LVU169
+ 228:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     if (pHandle->bufferIndex > 0U)
+ 436              		.loc 1 229 5 view .LVU170
+ 437              		.loc 1 229 16 is_stmt 0 view .LVU171
+ 438 0000 028B     		ldrh	r2, [r0, #24]
+ 439              		.loc 1 229 8 view .LVU172
+ 440 0002 9AB1     		cbz	r2, .L49
+ 230:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     {  /* If buffer is allocated, we must send it */
+ 231:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if (pHandle->MFRateBuff == 254U) /* In case of flush, we must respect the packet format to al
+ 441              		.loc 1 231 7 is_stmt 1 view .LVU173
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+ 442              		.loc 1 216 1 is_stmt 0 view .LVU174
+ 443 0004 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 444              	.LCFI1:
+ 445              		.cfi_def_cfa_offset 24
+ 446              		.cfi_offset 3, -24
+ 447              		.cfi_offset 4, -20
+ 448              		.cfi_offset 5, -16
+ 449              		.cfi_offset 6, -12
+ 450              		.cfi_offset 7, -8
+ 451              		.cfi_offset 14, -4
+ 452              		.loc 1 231 10 view .LVU175
+ 453 0006 90F82630 		ldrb	r3, [r0, #38]	@ zero_extendqisi2
+ 454 000a 4169     		ldr	r1, [r0, #20]
+ 455 000c FE2B     		cmp	r3, #254
+ 456 000e 0ED0     		beq	.L52
+ 457              	.L42:
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                           proper decoding */
+ 233:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         for (i = pHandle->HFNumBuff; i < (pHandle->MFNumBuff + pHandle->HFNumBuff); i++)
+ 235:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 236:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          logValue = (uint32_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC2012-
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          *logValue = *((uint32_t *)pHandle->dataPtrTableBuff[i]); //cstat !MISRAC2012-Rule-11.5
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          pHandle->bufferIndex = pHandle->bufferIndex+pHandle->dataSizeTableBuff[i];
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 240:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 241:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       else
+ 242:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 243:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Nothing to do */
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 458              		.loc 1 244 7 is_stmt 1 view .LVU176
+ 245:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       logValue16 = (uint16_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC2012-R
+ 459              		.loc 1 245 7 view .LVU177
+ 460              	.LVL35:
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       *logValue16 = pHandle->MarkBuff; /* MarkBuff is actually 8 bits, but we add also 8 bits of th
+ARM GAS  /tmp/ccr44A1X.s 			page 16
+
+
+ 461              		.loc 1 246 7 view .LVU178
+ 462              		.loc 1 246 28 is_stmt 0 view .LVU179
+ 463 0010 90F82A30 		ldrb	r3, [r0, #42]	@ zero_extendqisi2
+ 464 0014 8B52     		strh	r3, [r1, r2]	@ movhi
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                           the MARK */
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->pTransportLayer->fSendPacket (pHandle->pTransportLayer, pHandle->currentBuffer,
+ 465              		.loc 1 248 7 is_stmt 1 view .LVU180
+ 466 0016 028B     		ldrh	r2, [r0, #24]
+ 467              	.LVL36:
+ 468              		.loc 1 248 7 is_stmt 0 view .LVU181
+ 469 0018 0446     		mov	r4, r0
+ 470              		.loc 1 248 14 view .LVU182
+ 471 001a 0068     		ldr	r0, [r0]
+ 472              	.LVL37:
+ 473              		.loc 1 248 7 view .LVU183
+ 474 001c 0232     		adds	r2, r2, #2
+ 475 001e 0923     		movs	r3, #9
+ 476 0020 92B2     		uxth	r2, r2
+ 477 0022 4568     		ldr	r5, [r0, #4]
+ 478 0024 A847     		blx	r5
+ 479              	.LVL38:
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                              pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->bufferIndex = 0U;
+ 480              		.loc 1 250 7 is_stmt 1 view .LVU184
+ 481              		.loc 1 250 28 is_stmt 0 view .LVU185
+ 482 0026 0023     		movs	r3, #0
+ 483 0028 2383     		strh	r3, [r4, #24]	@ movhi
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     else
+ 253:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     {
+ 254:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       /* Nothing to do */
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 484              		.loc 1 255 5 is_stmt 1 view .LVU186
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+ 257:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+ 259:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 485              		.loc 1 259 1 is_stmt 0 view .LVU187
+ 486 002a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 487              	.LVL39:
+ 488              	.L49:
+ 489              	.LCFI2:
+ 490              		.cfi_def_cfa_offset 0
+ 491              		.cfi_restore 3
+ 492              		.cfi_restore 4
+ 493              		.cfi_restore 5
+ 494              		.cfi_restore 6
+ 495              		.cfi_restore 7
+ 496              		.cfi_restore 14
+ 497              		.loc 1 259 1 view .LVU188
+ 498 002c 7047     		bx	lr
+ 499              	.L52:
+ 500              	.LCFI3:
+ 501              		.cfi_def_cfa_offset 24
+ 502              		.cfi_offset 3, -24
+ 503              		.cfi_offset 4, -20
+ 504              		.cfi_offset 5, -16
+ARM GAS  /tmp/ccr44A1X.s 			page 17
+
+
+ 505              		.cfi_offset 6, -12
+ 506              		.cfi_offset 7, -8
+ 507              		.cfi_offset 14, -4
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 508              		.loc 1 234 9 is_stmt 1 view .LVU189
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 509              		.loc 1 234 16 is_stmt 0 view .LVU190
+ 510 002e 90F82430 		ldrb	r3, [r0, #36]	@ zero_extendqisi2
+ 511              	.LVL40:
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 512              		.loc 1 234 50 view .LVU191
+ 513 0032 90F82850 		ldrb	r5, [r0, #40]	@ zero_extendqisi2
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 514              		.loc 1 234 62 view .LVU192
+ 515 0036 1D44     		add	r5, r5, r3
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 516              		.loc 1 234 9 view .LVU193
+ 517 0038 AB42     		cmp	r3, r5
+ 518 003a E9DA     		bge	.L42
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          pHandle->bufferIndex = pHandle->bufferIndex+pHandle->dataSizeTableBuff[i];
+ 519              		.loc 1 237 43 view .LVU194
+ 520 003c 8768     		ldr	r7, [r0, #8]
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 521              		.loc 1 238 61 view .LVU195
+ 522 003e 0669     		ldr	r6, [r0, #16]
+ 523              	.L43:
+ 236:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          *logValue = *((uint32_t *)pHandle->dataPtrTableBuff[i]); //cstat !MISRAC2012-Rule-11.5
+ 524              		.loc 1 236 10 is_stmt 1 discriminator 3 view .LVU196
+ 525              	.LVL41:
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          pHandle->bufferIndex = pHandle->bufferIndex+pHandle->dataSizeTableBuff[i];
+ 526              		.loc 1 237 10 discriminator 3 view .LVU197
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          pHandle->bufferIndex = pHandle->bufferIndex+pHandle->dataSizeTableBuff[i];
+ 527              		.loc 1 237 22 is_stmt 0 discriminator 3 view .LVU198
+ 528 0040 57F82340 		ldr	r4, [r7, r3, lsl #2]
+ 529 0044 2468     		ldr	r4, [r4]
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****          pHandle->bufferIndex = pHandle->bufferIndex+pHandle->dataSizeTableBuff[i];
+ 530              		.loc 1 237 20 discriminator 3 view .LVU199
+ 531 0046 8C50     		str	r4, [r1, r2]
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 532              		.loc 1 238 10 is_stmt 1 discriminator 3 view .LVU200
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 533              		.loc 1 238 80 is_stmt 0 discriminator 3 view .LVU201
+ 534 0048 F45C     		ldrb	r4, [r6, r3]	@ zero_extendqisi2
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 535              		.loc 1 234 86 discriminator 3 view .LVU202
+ 536 004a 0133     		adds	r3, r3, #1
+ 537              	.LVL42:
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 538              		.loc 1 238 53 discriminator 3 view .LVU203
+ 539 004c 2244     		add	r2, r2, r4
+ 540              	.LVL43:
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 541              		.loc 1 234 86 discriminator 3 view .LVU204
+ 542 004e DBB2     		uxtb	r3, r3
+ 543              	.LVL44:
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 544              		.loc 1 238 53 discriminator 3 view .LVU205
+ARM GAS  /tmp/ccr44A1X.s 			page 18
+
+
+ 545 0050 92B2     		uxth	r2, r2
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 546              		.loc 1 234 9 discriminator 3 view .LVU206
+ 547 0052 AB42     		cmp	r3, r5
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 548              		.loc 1 238 31 discriminator 3 view .LVU207
+ 549 0054 0283     		strh	r2, [r0, #24]	@ movhi
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 550              		.loc 1 234 9 discriminator 3 view .LVU208
+ 551 0056 F3DB     		blt	.L43
+ 552 0058 DAE7     		b	.L42
+ 553              		.cfi_endproc
+ 554              	.LFE1449:
+ 556 005a 00BF     		.section	.text.MCPA_cfgLog,"ax",%progbits
+ 557              		.align	1
+ 558              		.p2align 2,,3
+ 559              		.global	MCPA_cfgLog
+ 560              		.syntax unified
+ 561              		.thumb
+ 562              		.thumb_func
+ 563              		.fpu fpv4-sp-d16
+ 565              	MCPA_cfgLog:
+ 566              	.LVL45:
+ 567              	.LFB1451:
+ 260:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 261:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** /**
+ 262:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @brief  Stops the asynchronous communication
+ 263:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+ 264:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @param  *pHandle Pointer to the MCPA Handle
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** void MCPA_stopDataLog(MCPA_Handle_t *pHandle)
+ 267:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** {
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   uint16_t *logValue16;
+ 269:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->Mark = 0U;
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (pHandle->bufferIndex > 0U)
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     logValue16 = (uint16_t *)&pHandle->currentBuffer[pHandle->bufferIndex]; //cstat !MISRAC2012-Rul
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     *logValue16 = pHandle->MarkBuff; /* MarkBuff is actually 8 bits, but we add also 8 bits of the 
+ 275:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                         the MARK */
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     pHandle->pTransportLayer->fSendPacket (pHandle->pTransportLayer, pHandle->currentBuffer,
+ 277:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                            pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 278:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 279:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   else
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+ 281:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     /* Nothing to do */
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->bufferIndex = 0U;
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->MarkBuff    = 0U;
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->HFIndex     = 0U;
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->HFRateBuff  = 0U; /* We do not want to miss any sample at the restart */
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** /**
+ 290:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @brief  Stores the asynchronous configuration stating all the register to be continuously sent 
+ 291:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   *
+ 292:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @param  *pHandle Pointer to the MCPA Handle
+ARM GAS  /tmp/ccr44A1X.s 			page 19
+
+
+ 293:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   * @param  *cfgdata Configuration of the Async communication
+ 294:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   */
+ 295:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** uint8_t MCPA_cfgLog(MCPA_Handle_t *pHandle, uint8_t *cfgdata)
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** {
+ 568              		.loc 1 296 1 is_stmt 1 view -0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 0
+ 571              		@ frame_needed = 0, uses_anonymous_args = 0
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   uint8_t result = MCP_CMD_OK;
+ 572              		.loc 1 297 3 view .LVU210
+ 298:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+ 300:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (MC_NULL == pHandle)
+ 301:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+ 302:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     result = MCP_CMD_NOK;
+ 303:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 304:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   else
+ 305:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   {
+ 306:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+ 307:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint8_t i;
+ 573              		.loc 1 307 5 view .LVU211
+ 308:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint16_t logSize = 0U; /* Max size of a log per iteration (HF+MF) */
+ 574              		.loc 1 308 5 view .LVU212
+ 309:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint16_t newID, buffSize;
+ 575              		.loc 1 309 5 view .LVU213
+ 310:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint8_t *pCfgData = cfgdata;
+ 576              		.loc 1 310 5 view .LVU214
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     buffSize = *((uint16_t *)pCfgData); //cstat !MISRAC2012-Rule-11.3
+ 577              		.loc 1 312 5 view .LVU215
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   uint8_t result = MCP_CMD_OK;
+ 578              		.loc 1 296 1 is_stmt 0 view .LVU216
+ 579 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 580              	.LCFI4:
+ 581              		.cfi_def_cfa_offset 32
+ 582              		.cfi_offset 3, -32
+ 583              		.cfi_offset 4, -28
+ 584              		.cfi_offset 5, -24
+ 585              		.cfi_offset 6, -20
+ 586              		.cfi_offset 7, -16
+ 587              		.cfi_offset 8, -12
+ 588              		.cfi_offset 9, -8
+ 589              		.cfi_offset 14, -4
+ 590              		.loc 1 312 14 view .LVU217
+ 591 0004 0F88     		ldrh	r7, [r1]
+ 592              	.LVL46:
+ 313:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 314:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     if (buffSize == 0U)
+ 593              		.loc 1 314 5 is_stmt 1 view .LVU218
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   uint8_t result = MCP_CMD_OK;
+ 594              		.loc 1 296 1 is_stmt 0 view .LVU219
+ 595 0006 0446     		mov	r4, r0
+ 596              		.loc 1 314 8 view .LVU220
+ 597 0008 002F     		cmp	r7, #0
+ 598 000a 41D0     		beq	.L74
+ 315:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     { 
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       /* Switch Off condition */
+ARM GAS  /tmp/ccr44A1X.s 			page 20
+
+
+ 317:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       MCPA_stopDataLog(pHandle);
+ 318:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 319:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     else if (buffSize > pHandle->pTransportLayer->txAsyncMaxPayload)
+ 599              		.loc 1 319 10 is_stmt 1 view .LVU221
+ 600              		.loc 1 319 49 is_stmt 0 view .LVU222
+ 601 000c 0368     		ldr	r3, [r0]
+ 602              		.loc 1 319 13 view .LVU223
+ 603 000e DB89     		ldrh	r3, [r3, #14]
+ 604 0010 BB42     		cmp	r3, r7
+ 605 0012 3AD3     		bcc	.L62
+ 320:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     {
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       result = MCP_ERROR_NO_TXASYNC_SPACE;
+ 322:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     else
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     {
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->HFRate = *((uint8_t *)&pCfgData[2]);
+ 606              		.loc 1 325 7 is_stmt 1 view .LVU224
+ 607              		.loc 1 325 23 is_stmt 0 view .LVU225
+ 608 0014 8B78     		ldrb	r3, [r1, #2]	@ zero_extendqisi2
+ 609 0016 80F82130 		strb	r3, [r0, #33]
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->HFNum  = *((uint8_t *)&pCfgData[3]);
+ 610              		.loc 1 326 7 is_stmt 1 view .LVU226
+ 611              		.loc 1 326 23 is_stmt 0 view .LVU227
+ 612 001a CA78     		ldrb	r2, [r1, #3]	@ zero_extendqisi2
+ 613 001c 80F82320 		strb	r2, [r0, #35]
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->MFRate = *((uint8_t *)&pCfgData[4]);
+ 614              		.loc 1 327 7 is_stmt 1 view .LVU228
+ 615              		.loc 1 327 23 is_stmt 0 view .LVU229
+ 616 0020 0B79     		ldrb	r3, [r1, #4]	@ zero_extendqisi2
+ 617 0022 80F82530 		strb	r3, [r0, #37]
+ 328:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->MFNum  = *((uint8_t *)&pCfgData[5]);
+ 618              		.loc 1 328 7 is_stmt 1 view .LVU230
+ 619              		.loc 1 328 23 is_stmt 0 view .LVU231
+ 620 0026 4E79     		ldrb	r6, [r1, #5]	@ zero_extendqisi2
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pCfgData = &pCfgData[6]; /* Start of the HF IDs */
+ 330:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 331:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       if ((pHandle->HFNum + pHandle->MFNum) <= pHandle->nbrOfDataLog)
+ 621              		.loc 1 331 55 view .LVU232
+ 622 0028 837F     		ldrb	r3, [r0, #30]	@ zero_extendqisi2
+ 328:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pHandle->MFNum  = *((uint8_t *)&pCfgData[5]);
+ 623              		.loc 1 328 23 view .LVU233
+ 624 002a 80F82760 		strb	r6, [r0, #39]
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pCfgData = &pCfgData[6]; /* Start of the HF IDs */
+ 625              		.loc 1 329 7 is_stmt 1 view .LVU234
+ 626              	.LVL47:
+ 627              		.loc 1 331 7 view .LVU235
+ 628              		.loc 1 331 27 is_stmt 0 view .LVU236
+ 629 002e 1644     		add	r6, r6, r2
+ 630              		.loc 1 331 10 view .LVU237
+ 631 0030 9E42     		cmp	r6, r3
+ 632 0032 4FDC     		bgt	.L64
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       pCfgData = &pCfgData[6]; /* Start of the HF IDs */
+ 633              		.loc 1 329 16 view .LVU238
+ 634 0034 0631     		adds	r1, r1, #6
+ 635              	.LVL48:
+ 332:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         for (i = 0; i < (pHandle->HFNum + pHandle->MFNum); i++)
+ARM GAS  /tmp/ccr44A1X.s 			page 21
+
+
+ 636              		.loc 1 333 9 view .LVU239
+ 637 0036 002E     		cmp	r6, #0
+ 638 0038 53D0     		beq	.L65
+ 308:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     uint16_t newID, buffSize;
+ 639              		.loc 1 308 14 view .LVU240
+ 640 003a 0026     		movs	r6, #0
+ 641 003c 8846     		mov	r8, r1
+ 642              		.loc 1 333 16 view .LVU241
+ 643 003e 3546     		mov	r5, r6
+ 644 0040 10E0     		b	.L61
+ 645              	.LVL49:
+ 646              	.L66:
+ 334:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 335:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           newID = *((uint16_t *)pCfgData); //cstat !MISRAC2012-Rule-11.3
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           (void)RI_GetPtrReg(newID, &pHandle->dataPtrTable[i]);
+ 337:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* HF Data are fixed to 2 bytes */
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->dataSizeTable[i] = (i < pHandle->HFNum ) ? 2U : RI_GetIDSize(newID);
+ 647              		.loc 1 338 37 view .LVU242
+ 648 0042 0220     		movs	r0, #2
+ 649              	.L60:
+ 650              		.loc 1 338 37 discriminator 4 view .LVU243
+ 651 0044 E368     		ldr	r3, [r4, #12]
+ 652 0046 5855     		strb	r0, [r3, r5]
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++; /* Point to the next UID */
+ 653              		.loc 1 339 11 is_stmt 1 discriminator 4 view .LVU244
+ 654              	.LVL50:
+ 340:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++;
+ 655              		.loc 1 340 11 discriminator 4 view .LVU245
+ 341:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           logSize = logSize+pHandle->dataSizeTable[i];
+ 656              		.loc 1 341 51 is_stmt 0 discriminator 4 view .LVU246
+ 657 0048 E268     		ldr	r2, [r4, #12]
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 658              		.loc 1 333 50 discriminator 4 view .LVU247
+ 659 004a 94F82710 		ldrb	r1, [r4, #39]	@ zero_extendqisi2
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 660              		.loc 1 333 33 discriminator 4 view .LVU248
+ 661 004e 94F82330 		ldrb	r3, [r4, #35]	@ zero_extendqisi2
+ 662              		.loc 1 341 51 discriminator 4 view .LVU249
+ 663 0052 525D     		ldrb	r2, [r2, r5]	@ zero_extendqisi2
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 664              		.loc 1 333 61 discriminator 4 view .LVU250
+ 665 0054 0135     		adds	r5, r5, #1
+ 666              	.LVL51:
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 667              		.loc 1 333 41 discriminator 4 view .LVU251
+ 668 0056 0B44     		add	r3, r3, r1
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 669              		.loc 1 333 61 discriminator 4 view .LVU252
+ 670 0058 EDB2     		uxtb	r5, r5
+ 671              		.loc 1 341 19 discriminator 4 view .LVU253
+ 672 005a 3244     		add	r2, r2, r6
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 673              		.loc 1 333 9 discriminator 4 view .LVU254
+ 674 005c 9D42     		cmp	r5, r3
+ 675              		.loc 1 341 19 discriminator 4 view .LVU255
+ 676 005e 96B2     		uxth	r6, r2
+ 677              	.LVL52:
+ARM GAS  /tmp/ccr44A1X.s 			page 22
+
+
+ 340:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++;
+ 678              		.loc 1 340 19 discriminator 4 view .LVU256
+ 679 0060 4146     		mov	r1, r8
+ 680              	.LVL53:
+ 681              		.loc 1 341 11 is_stmt 1 discriminator 4 view .LVU257
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 682              		.loc 1 333 9 is_stmt 0 discriminator 4 view .LVU258
+ 683 0062 0FDA     		bge	.L75
+ 684              	.LVL54:
+ 685              	.L61:
+ 335:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           (void)RI_GetPtrReg(newID, &pHandle->dataPtrTable[i]);
+ 686              		.loc 1 335 11 is_stmt 1 view .LVU259
+ 335:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           (void)RI_GetPtrReg(newID, &pHandle->dataPtrTable[i]);
+ 687              		.loc 1 335 17 is_stmt 0 view .LVU260
+ 688 0064 38F8029B 		ldrh	r9, [r8], #2
+ 689              	.LVL55:
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* HF Data are fixed to 2 bytes */
+ 690              		.loc 1 336 11 is_stmt 1 view .LVU261
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           /* HF Data are fixed to 2 bytes */
+ 691              		.loc 1 336 17 is_stmt 0 view .LVU262
+ 692 0068 6168     		ldr	r1, [r4, #4]
+ 693 006a 4846     		mov	r0, r9
+ 694 006c 01EB8501 		add	r1, r1, r5, lsl #2
+ 695 0070 FFF7FEFF 		bl	RI_GetPtrReg
+ 696              	.LVL56:
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++; /* Point to the next UID */
+ 697              		.loc 1 338 11 is_stmt 1 view .LVU263
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++; /* Point to the next UID */
+ 698              		.loc 1 338 37 is_stmt 0 view .LVU264
+ 699 0074 94F82330 		ldrb	r3, [r4, #35]	@ zero_extendqisi2
+ 700 0078 AB42     		cmp	r3, r5
+ 701 007a E2D8     		bhi	.L66
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++; /* Point to the next UID */
+ 702              		.loc 1 338 68 discriminator 1 view .LVU265
+ 703 007c 4846     		mov	r0, r9
+ 704 007e FFF7FEFF 		bl	RI_GetIDSize
+ 705              	.LVL57:
+ 706 0082 DFE7     		b	.L60
+ 707              	.LVL58:
+ 708              	.L75:
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pCfgData++; /* Point to the next UID */
+ 709              		.loc 1 338 68 discriminator 1 view .LVU266
+ 710 0084 B31D     		adds	r3, r6, #6
+ 711              	.LVL59:
+ 712              	.L59:
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 343:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         /* Smallest packet must be able to contain logSize Markbyte AsyncID and TimeStamp */
+ 345:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         if (buffSize < (logSize + 2U + 4U))
+ 713              		.loc 1 345 9 is_stmt 1 view .LVU267
+ 714              		.loc 1 345 12 is_stmt 0 view .LVU268
+ 715 0086 9F42     		cmp	r7, r3
+ 716 0088 1AD2     		bcs	.L76
+ 717              	.L62:
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 718              		.loc 1 321 14 view .LVU269
+ 719 008a 0920     		movs	r0, #9
+ARM GAS  /tmp/ccr44A1X.s 			page 23
+
+
+ 720              	.LVL60:
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 347:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           result = MCP_ERROR_NO_TXASYNC_SPACE;
+ 348:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         else
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->bufferTxTrigger = buffSize-logSize - 2U; /* 2 is required to add the last Mark b
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                                ASYNCID */
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           pHandle->Mark = *((uint8_t *)pCfgData);
+ 354:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           if (0U == pHandle->Mark)
+ 355:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {  /* Switch Off condition */
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             MCPA_stopDataLog(pHandle);
+ 357:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           else
+ 359:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {
+ 360:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****             /* Nothing to do */
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         }
+ 363:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       else
+ 365:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       {
+ 366:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         result = MCP_ERROR_BAD_RAW_FORMAT;
+ 367:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 369:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #ifdef NULL_PTR_CHECK_MCPA
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   }
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** #endif
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   return (result);
+ 721              		.loc 1 372 3 is_stmt 1 view .LVU270
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 722              		.loc 1 373 1 is_stmt 0 view .LVU271
+ 723 008c BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 724              	.LVL61:
+ 725              	.L74:
+ 317:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     }
+ 726              		.loc 1 317 7 is_stmt 1 view .LVU272
+ 727              	.LBB6:
+ 728              	.LBI6:
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** {
+ 729              		.loc 1 266 6 view .LVU273
+ 730              	.LBB7:
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 731              		.loc 1 268 3 view .LVU274
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (pHandle->bufferIndex > 0U)
+ 732              		.loc 1 270 3 view .LVU275
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 733              		.loc 1 271 14 is_stmt 0 view .LVU276
+ 734 0090 038B     		ldrh	r3, [r0, #24]
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (pHandle->bufferIndex > 0U)
+ 735              		.loc 1 270 17 view .LVU277
+ 736 0092 80F82970 		strb	r7, [r0, #41]
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 737              		.loc 1 271 3 is_stmt 1 view .LVU278
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 738              		.loc 1 271 6 is_stmt 0 view .LVU279
+ 739 0096 53B1     		cbz	r3, .L56
+ 740              	.LVL62:
+ARM GAS  /tmp/ccr44A1X.s 			page 24
+
+
+ 741              	.L73:
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     *logValue16 = pHandle->MarkBuff; /* MarkBuff is actually 8 bits, but we add also 8 bits of the 
+ 742              		.loc 1 273 5 is_stmt 1 view .LVU280
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****     *logValue16 = pHandle->MarkBuff; /* MarkBuff is actually 8 bits, but we add also 8 bits of the 
+ 743              		.loc 1 273 38 is_stmt 0 view .LVU281
+ 744 0098 6169     		ldr	r1, [r4, #20]
+ 745              	.LVL63:
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                         the MARK */
+ 746              		.loc 1 274 5 is_stmt 1 view .LVU282
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                         the MARK */
+ 747              		.loc 1 274 26 is_stmt 0 view .LVU283
+ 748 009a 94F82A20 		ldrb	r2, [r4, #42]	@ zero_extendqisi2
+ 749 009e CA52     		strh	r2, [r1, r3]	@ movhi
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                            pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 750              		.loc 1 276 5 is_stmt 1 view .LVU284
+ 751 00a0 228B     		ldrh	r2, [r4, #24]
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                            pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 752              		.loc 1 276 12 is_stmt 0 view .LVU285
+ 753 00a2 2068     		ldr	r0, [r4]
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                            pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 754              		.loc 1 276 5 view .LVU286
+ 755 00a4 0232     		adds	r2, r2, #2
+ 756 00a6 92B2     		uxth	r2, r2
+ 757 00a8 4568     		ldr	r5, [r0, #4]
+ 758 00aa 0923     		movs	r3, #9
+ 759              	.LVL64:
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                            pHandle->bufferIndex + 2U, MCTL_ASYNC);
+ 760              		.loc 1 276 5 view .LVU287
+ 761 00ac A847     		blx	r5
+ 762              	.LVL65:
+ 763              	.L56:
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->bufferIndex = 0U;
+ 764              		.loc 1 282 3 is_stmt 1 view .LVU288
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->MarkBuff    = 0U;
+ 765              		.loc 1 283 3 view .LVU289
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->MarkBuff    = 0U;
+ 766              		.loc 1 283 24 is_stmt 0 view .LVU290
+ 767 00ae 0020     		movs	r0, #0
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->HFIndex     = 0U;
+ 768              		.loc 1 284 24 view .LVU291
+ 769 00b0 84F82A00 		strb	r0, [r4, #42]
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->HFRateBuff  = 0U; /* We do not want to miss any sample at the restart */
+ 770              		.loc 1 285 24 view .LVU292
+ 771 00b4 E077     		strb	r0, [r4, #31]
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 772              		.loc 1 286 24 view .LVU293
+ 773 00b6 84F82200 		strb	r0, [r4, #34]
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->MarkBuff    = 0U;
+ 774              		.loc 1 283 24 view .LVU294
+ 775 00ba 2083     		strh	r0, [r4, #24]	@ movhi
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->HFIndex     = 0U;
+ 776              		.loc 1 284 3 is_stmt 1 view .LVU295
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   pHandle->HFRateBuff  = 0U; /* We do not want to miss any sample at the restart */
+ 777              		.loc 1 285 3 view .LVU296
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 778              		.loc 1 286 3 view .LVU297
+ 779              	.LVL66:
+ARM GAS  /tmp/ccr44A1X.s 			page 25
+
+
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 780              		.loc 1 286 3 is_stmt 0 view .LVU298
+ 781              	.LBE7:
+ 782              	.LBE6:
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 783              		.loc 1 372 3 is_stmt 1 view .LVU299
+ 784              		.loc 1 373 1 is_stmt 0 view .LVU300
+ 785 00bc BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 786              	.LVL67:
+ 787              	.L76:
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                                ASYNCID */
+ 788              		.loc 1 351 11 is_stmt 1 view .LVU301
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                                ASYNCID */
+ 789              		.loc 1 351 55 is_stmt 0 view .LVU302
+ 790 00c0 BA1E     		subs	r2, r7, #2
+ 791 00c2 921B     		subs	r2, r2, r6
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****                                                                ASYNCID */
+ 792              		.loc 1 351 36 view .LVU303
+ 793 00c4 6283     		strh	r2, [r4, #26]	@ movhi
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           if (0U == pHandle->Mark)
+ 794              		.loc 1 353 11 is_stmt 1 view .LVU304
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           if (0U == pHandle->Mark)
+ 795              		.loc 1 353 27 is_stmt 0 view .LVU305
+ 796 00c6 0B78     		ldrb	r3, [r1]	@ zero_extendqisi2
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           if (0U == pHandle->Mark)
+ 797              		.loc 1 353 25 view .LVU306
+ 798 00c8 84F82930 		strb	r3, [r4, #41]
+ 354:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {  /* Switch Off condition */
+ 799              		.loc 1 354 11 is_stmt 1 view .LVU307
+ 354:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           {  /* Switch Off condition */
+ 800              		.loc 1 354 14 is_stmt 0 view .LVU308
+ 801 00cc 2BB1     		cbz	r3, .L77
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 802              		.loc 1 297 11 view .LVU309
+ 803 00ce 0020     		movs	r0, #0
+ 804              	.LVL68:
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 805              		.loc 1 372 3 is_stmt 1 view .LVU310
+ 806              		.loc 1 373 1 is_stmt 0 view .LVU311
+ 807 00d0 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 808              	.LVL69:
+ 809              	.L64:
+ 366:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****       }
+ 810              		.loc 1 366 16 view .LVU312
+ 811 00d4 0A20     		movs	r0, #10
+ 812              	.LVL70:
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** }
+ 813              		.loc 1 372 3 is_stmt 1 view .LVU313
+ 814              		.loc 1 373 1 is_stmt 0 view .LVU314
+ 815 00d6 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 816              	.LVL71:
+ 817              	.L77:
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****           }
+ 818              		.loc 1 356 13 is_stmt 1 view .LVU315
+ 819              	.LBB8:
+ 820              	.LBI8:
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** {
+ARM GAS  /tmp/ccr44A1X.s 			page 26
+
+
+ 821              		.loc 1 266 6 view .LVU316
+ 822              	.LBB9:
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c **** 
+ 823              		.loc 1 268 3 view .LVU317
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   if (pHandle->bufferIndex > 0U)
+ 824              		.loc 1 270 3 view .LVU318
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 825              		.loc 1 271 3 view .LVU319
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 826              		.loc 1 271 14 is_stmt 0 view .LVU320
+ 827 00da 238B     		ldrh	r3, [r4, #24]
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 828              		.loc 1 271 6 view .LVU321
+ 829 00dc 002B     		cmp	r3, #0
+ 830 00de E6D0     		beq	.L56
+ 831 00e0 DAE7     		b	.L73
+ 832              	.LVL72:
+ 833              	.L65:
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****   { /* If buffer is allocated, we must send it */
+ 834              		.loc 1 271 6 view .LVU322
+ 835              	.LBE9:
+ 836              	.LBE8:
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/mcpa.c ****         {
+ 837              		.loc 1 333 9 view .LVU323
+ 838 00e2 0623     		movs	r3, #6
+ 839 00e4 CFE7     		b	.L59
+ 840              		.cfi_endproc
+ 841              	.LFE1451:
+ 843              		.global	GLOBAL_TIMESTAMP
+ 844 00e6 00BF     		.section	.bss.GLOBAL_TIMESTAMP,"aw",%nobits
+ 845              		.align	2
+ 846              		.set	.LANCHOR0,. + 0
+ 849              	GLOBAL_TIMESTAMP:
+ 850 0000 00000000 		.space	4
+ 851              		.text
+ 852              	.Letext0:
+ 853              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 854              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+ 855              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 856              		.file 5 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ 857              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 858              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 859              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 860              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 861              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 862              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 863              		.file 12 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 864              		.file 13 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stddef.h"
+ 865              		.file 14 "/usr/include/newlib/sys/_types.h"
+ 866              		.file 15 "/usr/include/newlib/sys/reent.h"
+ 867              		.file 16 "/usr/include/newlib/sys/lock.h"
+ 868              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/mcptl.h"
+ 869              		.file 18 "Inc/mc_interface.h"
+ 870              		.file 19 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 871              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 872              		.file 21 "Inc/mc_parameters.h"
+ 873              		.file 22 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/mcpa.h"
+ARM GAS  /tmp/ccr44A1X.s 			page 27
+
+
+ 874              		.file 23 "Inc/register_interface.h"
+ 875              		.file 24 "<built-in>"
+ARM GAS  /tmp/ccr44A1X.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mcpa.c
+     /tmp/ccr44A1X.s:18     .text.MCPA_dataLog:0000000000000000 $t
+     /tmp/ccr44A1X.s:27     .text.MCPA_dataLog:0000000000000000 MCPA_dataLog
+     /tmp/ccr44A1X.s:413    .text.MCPA_dataLog:0000000000000180 $d
+     /tmp/ccr44A1X.s:418    .text.MCPA_flushDataLog:0000000000000000 $t
+     /tmp/ccr44A1X.s:426    .text.MCPA_flushDataLog:0000000000000000 MCPA_flushDataLog
+     /tmp/ccr44A1X.s:557    .text.MCPA_cfgLog:0000000000000000 $t
+     /tmp/ccr44A1X.s:565    .text.MCPA_cfgLog:0000000000000000 MCPA_cfgLog
+     /tmp/ccr44A1X.s:849    .bss.GLOBAL_TIMESTAMP:0000000000000000 GLOBAL_TIMESTAMP
+     /tmp/ccr44A1X.s:845    .bss.GLOBAL_TIMESTAMP:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+memcpy
+RI_GetPtrReg
+RI_GetIDSize

@@ -1,0 +1,186 @@
+
+
+#if 0
+
+#include<stdio.h>
+
+int main()
+{
+    printf("%c\n", 7["IndiaBIX"]);
+
+	ilyet is lehet
+    *--ptr = "0123456789abcdef"[num %base];
+	
+    return 0;
+}
+#endif 
+
+
+
+
+
+
+/******************************************************************************/
+#if 0
+What will be the output of the program if the array begins at 65472 and each integer occupies 2 bytes?
+#endif
+
+#if 0
+#include<stdio.h>
+
+int main()
+{
+    int a[2][2] = {1, 2, 3, 4};
+    printf("%u, %u, %u\n", a, a+1, &a+1);
+    return 0;
+}
+#endif
+
+#if 0
+imre@55hDesk:~/C_try/string_array$ ./main 
+a    3214777008, ------>kezdet
+a+1  3214777016, ------>a+1 is pointing to the memory location of first element of the second row
+&a+1 3214777024  ------>&a has type "pointer to array of 3 arrays of 4 ints"
+
+a+1--->a+1 cime, tehat (a+1)
+&a+1-->&a cime + 1, tehat (&a)+1  deeeee! az egesz tomb utanai cimet adja vissza
+#endif
+
+
+#if 0
+	A. 	
+65474, 65476
+		B. 	
+65480, 65496
+	C. 	
+65480, 65488
+		D. 	
+65474, 65488
+
+Answer: Option B
+
+Explanation:
+
+Step 1: int a[3][4] = {1, 2, 3, 4, 4, 3, 2, 1, 7, 8, 9, 0}; The array a[3][4] is declared as an integer array having the 3 rows and 4 colums dimensions.
+
+Step 2: printf("%u, %u\n", a+1, &a+1);
+
+The base address(also the address of the first element) of array is 65472.
+
+For a two-dimensional array like a reference to array has type "pointer to array of 4 ints". Therefore, a+1 is pointing to the memory location of first element of the second row in array a. Hence 65472 + (4 ints * 2 bytes) = 65480
+
+Then, &a has type "pointer to array of 3 arrays of 4 ints", totally 12 ints. Therefore, &a+1 denotes "12 ints * 2 bytes * 1 = 24 bytes".
+
+Hence, begining address 65472 + 24 = 65496. So, &a+1 = 65496
+
+Hence the output of the program is 65480, 65496
+
+#endif
+
+
+
+/******************************************************************************/
+
+
+#include<stdio.h>
+
+int main()
+{
+    int arr[] = {12, 13, 14, 15, 16};
+    printf("%d, %d, %d\n", sizeof(arr), sizeof(*arr), sizeof(arr[0]));
+    return 0;
+}
+
+//20, 4, 4 	
+/******************************************************************************/
+
+
+#include<stdio.h>
+
+int main()
+{
+    int arr[] = {12, 14, 15, 23, 45};
+    printf("%u, %u\n", arr, &arr);
+    return 0;
+}
+
+65486, 65486
+
+What will be the output of the program if the array begins at address 65486? 
+
+
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+
+
+
+#include<stdio.h>
+
+int main()
+{
+    char str[] = "Nagpur";
+    str[0]='K';
+    printf("%s, ", str);
+    str = "Kanpur";
+    printf("%s", str+1);
+    return 0;
+}
+
+	A. 	
+Kagpur, Kanpur
+		B. 	
+Nagpur, Kanpur
+	C. 	
+Kagpur, anpur
+		D. 	
+Error
+
+Answer: Option D
+
+Explanation:
+
+The statement str = "Kanpur"; generates the LVALUE required error. We have to use strcpy function to copy a string.
+
+To remove error we have to change this statement str = "Kanpur"; to strcpy(str, "Kanpur");
+
+The program prints the string "anpur"
+
+/******************************************************************************/
+
+
+
+
+ 	
+
+In a file contains the line "I am a boy\r\n" then on reading this line into the array str using fgets(). What will str contain?
+	A. 	
+"I am a boy\r\n\0" 	
+		B. 	
+"I am a boy\r\0"
+	C. 	
+"I am a boy\n\0"
+		D. 	
+"I am a boy"
+
+Answer: Option C
+
+Explanation:
+
+Declaration: char *fgets(char *s, int n, FILE *stream);
+
+fgets reads characters from stream into the string s. It stops when it reads either n - 1 characters or a newline character, whichever comes first.
+
+Therefore, the string str contain "I am a boy\n\0"
+
+
+
+

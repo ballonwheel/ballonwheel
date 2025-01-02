@@ -1,0 +1,53 @@
+
+
+double window :vs
+line numbering :set number
+clipboard
+command line : bash  :![command]
+gdb
+folder tree :Vex
+
+
+:vs
+:set number
+:set paste (shift insert)
+ctrl w w
+:terminal
+:Explore
+:windo diffthis
+:diffoff
+:diffput
+:diffget
+
+
+
+
+
+
+
+:!ls
+:shell
+This will drop you into a shell session where you can execute commands. To return to Vim from the shell, simply type exit and press Enter.
+
+
+
+
+gdb
+To use GDB (GNU Debugger) within Vim, you can take advantage of the built-in terminal emulator in Vim. Here's a step-by-step guide:
+1. **Open Vim**: Open Vim as you normally would.
+2. **Enter Terminal Mode**: Press `Ctrl + W` followed by `:term` to open a terminal window within Vim.
+3. **Run GDB**: In the terminal window, type `gdb` followed by the name of the executable you want to debug. For example:
+   ```
+   gdb ./my_program
+  ```
+4. **Use GDB**: You can now use GDB commands as you would in a regular terminal. Set breakpoints, run your program, examine variables, etc.
+5. **Navigate between Vim and GDB**: You can switch between Vim and the terminal window by pressing `Ctrl + W` twice. This allows you to edit your code in Vim and then switch back to the terminal to interact with GDB.
+6. **Exit GDB**: When you're done debugging, you can exit GDB by typing `quit` in the terminal window.
+This approach allows you to seamlessly integrate GDB into your Vim workflow, enabling you to edit your code and debug it without leaving the Vim environment.
+
+
+
+
+
+
+

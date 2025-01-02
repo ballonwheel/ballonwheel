@@ -1,0 +1,31 @@
+
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+onhivatkozo strukturak
+listaszerkezet...next
+
+/******************************************************************************/
+
+struct data
+{
+    int x;
+    data *b;
+};
+
+
+typedef struct data
+{
+    int x;
+    sdata *b;----------itt mar tudni fogja, hogy mi az a sdata?
+}sdata;
+
+

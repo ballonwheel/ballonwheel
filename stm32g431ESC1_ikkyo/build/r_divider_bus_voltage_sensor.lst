@@ -1,0 +1,769 @@
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"r_divider_bus_voltage_sensor.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.RVBS_Clear,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	RVBS_Clear
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	RVBS_Clear:
+  28              	.LVL0:
+  29              	.LFB1438:
+  30              		.file 1 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /**
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   ******************************************************************************
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @file    r_divider_bus_voltage_sensor.c
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @brief   This file provides firmware functions that implement the  features
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *          of the Resistor Divider Bus Voltage Sensor component of the Motor
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *          Control SDK:
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   ******************************************************************************
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @attention
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * All rights reserved.</center></h2>
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * the License. You may obtain a copy of the License at:
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *                             www.st.com/SLA0044
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   ******************************************************************************
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @ingroup RDividerBusVoltageSensor
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /* Includes ------------------------------------------------------------------*/
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #include "mc_type.h"
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #include "r_divider_bus_voltage_sensor.h"
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #include "regular_conversion_manager.h"
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 2
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /** @addtogroup MCSDK
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @{
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /** @addtogroup BusVoltageSensor
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @{
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /** @defgroup RDividerBusVoltageSensor Resistor Divider Bus Voltage Sensor
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @brief Resistor Divider Bus Voltage Sensor implementation.
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @{
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /**
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @brief  It initializes bus voltage conversion (ADC, ADC channel, conversion time.
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     It must be called only after PWM_Init.
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @param  pHandle related RDivider_Handle_t
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** __weak void RVBS_Init(RDivider_Handle_t *pHandle)
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** {
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   if (MC_NULL == pHandle)
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     /* Nothing to do */
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   else
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     /* Check */
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     RVBS_Clear(pHandle);
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /**
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @brief  It clears bus voltage FW variable containing average bus voltage
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *         value.
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @param  pHandle related RDivider_Handle_t
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** __weak void RVBS_Clear(RDivider_Handle_t *pHandle)
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** {
+  31              		.loc 1 73 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		@ link register save eliminated.
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   if (MC_NULL == pHandle)
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     /* Nothing to do */
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   else
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 3
+
+
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint16_t aux;
+  36              		.loc 1 82 5 view .LVU1
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint16_t index;
+  37              		.loc 1 83 5 view .LVU2
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     aux = (pHandle->OverVoltageThreshold + pHandle->UnderVoltageThreshold) / 2U;
+  38              		.loc 1 85 5 view .LVU3
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+  39              		.loc 1 73 1 is_stmt 0 view .LVU4
+  40 0000 30B4     		push	{r4, r5}
+  41              	.LCFI0:
+  42              		.cfi_def_cfa_offset 8
+  43              		.cfi_offset 4, -8
+  44              		.cfi_offset 5, -4
+  45              		.loc 1 85 51 view .LVU5
+  46 0002 428A     		ldrh	r2, [r0, #18]
+  47              		.loc 1 85 19 view .LVU6
+  48 0004 8489     		ldrh	r4, [r0, #12]
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     for (index = 0U; index < pHandle->LowPassFilterBW; index++)
+  49              		.loc 1 86 5 view .LVU7
+  50 0006 4389     		ldrh	r3, [r0, #10]
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     for (index = 0U; index < pHandle->LowPassFilterBW; index++)
+  51              		.loc 1 85 42 view .LVU8
+  52 0008 1444     		add	r4, r4, r2
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     for (index = 0U; index < pHandle->LowPassFilterBW; index++)
+  53              		.loc 1 85 9 view .LVU9
+  54 000a 6408     		lsrs	r4, r4, #1
+  55              	.LVL1:
+  56              		.loc 1 86 5 is_stmt 1 view .LVU10
+  57              		.loc 1 86 5 is_stmt 0 view .LVU11
+  58 000c 4BB1     		cbz	r3, .L2
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       pHandle->aBuffer[index] = aux;
+  59              		.loc 1 88 14 view .LVU12
+  60 000e 4569     		ldr	r5, [r0, #20]
+  61 0010 0023     		movs	r3, #0
+  62              	.LVL2:
+  63              	.L3:
+  64              		.loc 1 88 7 is_stmt 1 discriminator 3 view .LVU13
+  65              		.loc 1 88 23 is_stmt 0 discriminator 3 view .LVU14
+  66 0012 9AB2     		uxth	r2, r3
+  67 0014 0133     		adds	r3, r3, #1
+  68              	.LVL3:
+  69              		.loc 1 88 31 discriminator 3 view .LVU15
+  70 0016 25F81240 		strh	r4, [r5, r2, lsl #1]	@ movhi
+  71              	.LVL4:
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+  72              		.loc 1 86 5 discriminator 3 view .LVU16
+  73 001a 4189     		ldrh	r1, [r0, #10]
+  74 001c 9AB2     		uxth	r2, r3
+  75 001e 9142     		cmp	r1, r2
+  76 0020 F7D8     		bhi	.L3
+  77              	.L2:
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     }
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->_Super.LatestConv = aux;
+  78              		.loc 1 90 5 is_stmt 1 view .LVU17
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 4
+
+
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->_Super.AvBusVoltage_d = aux;
+  79              		.loc 1 91 5 view .LVU18
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->_Super.AvBusVoltage_d = aux;
+  80              		.loc 1 90 32 is_stmt 0 view .LVU19
+  81 0022 0023     		movs	r3, #0
+  82 0024 64F30F03 		bfi	r3, r4, #0, #16
+  83              	.LVL5:
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->_Super.AvBusVoltage_d = aux;
+  84              		.loc 1 90 32 view .LVU20
+  85 0028 64F31F43 		bfi	r3, r4, #16, #16
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->index = 0U;
+  86              		.loc 1 92 20 view .LVU21
+  87 002c 0022     		movs	r2, #0
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->_Super.AvBusVoltage_d = aux;
+  88              		.loc 1 90 32 view .LVU22
+  89 002e 4360     		str	r3, [r0, #4]
+  90              		.loc 1 92 5 is_stmt 1 view .LVU23
+  91              		.loc 1 92 20 is_stmt 0 view .LVU24
+  92 0030 4276     		strb	r2, [r0, #25]
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+  93              		.loc 1 96 1 view .LVU25
+  94 0032 30BC     		pop	{r4, r5}
+  95              	.LCFI1:
+  96              		.cfi_restore 5
+  97              		.cfi_restore 4
+  98              		.cfi_def_cfa_offset 0
+  99 0034 7047     		bx	lr
+ 100              		.cfi_endproc
+ 101              	.LFE1438:
+ 103 0036 00BF     		.section	.text.RVBS_Init,"ax",%progbits
+ 104              		.align	1
+ 105              		.p2align 2,,3
+ 106              		.weak	RVBS_Init
+ 107              		.syntax unified
+ 108              		.thumb
+ 109              		.thumb_func
+ 110              		.fpu fpv4-sp-d16
+ 112              	RVBS_Init:
+ 113              	.LVL6:
+ 114              	.LFB1437:
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 115              		.loc 1 50 1 is_stmt 1 view -0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 0
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 119              		.loc 1 60 5 view .LVU27
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 120              		.loc 1 50 1 is_stmt 0 view .LVU28
+ 121 0000 08B5     		push	{r3, lr}
+ 122              	.LCFI2:
+ 123              		.cfi_def_cfa_offset 8
+ 124              		.cfi_offset 3, -8
+ 125              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 5
+
+
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 126              		.loc 1 60 5 view .LVU29
+ 127 0002 FFF7FEFF 		bl	RVBS_Clear
+ 128              	.LVL7:
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 129              		.loc 1 64 1 view .LVU30
+ 130 0006 08BD     		pop	{r3, pc}
+ 131              		.cfi_endproc
+ 132              	.LFE1437:
+ 134              		.section	.text.RVBS_CheckFaultState,"ax",%progbits
+ 135              		.align	1
+ 136              		.p2align 2,,3
+ 137              		.weak	RVBS_CheckFaultState
+ 138              		.syntax unified
+ 139              		.thumb
+ 140              		.thumb_func
+ 141              		.fpu fpv4-sp-d16
+ 143              	RVBS_CheckFaultState:
+ 144              	.LVL8:
+ 145              	.LFB1440:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /**
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @brief  It actually performes the Vbus ADC conversion and updates averaged
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *         value for all STM32 families except STM32F3 in u16Volt format.
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @param  pHandle related RDivider_Handle_t
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @retval uint16_t Fault code error
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** __weak uint16_t RVBS_CalcAvVbus(RDivider_Handle_t *pHandle, uint16_t rawValue)
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** {
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t tempValue;
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   if (MC_NULL == pHandle)
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     tempValue = 0U;
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   else
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint32_t wtemp;
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint16_t hAux;
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint8_t i;
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     hAux = rawValue;
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     if (0xFFFFU == hAux)
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       /* Nothing to do */
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     }
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     else
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       /* Store latest value on buffer */
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       pHandle->aBuffer[pHandle->index] = hAux;
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       wtemp = 0u;
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       for (i = 0U; i < (uint8_t)pHandle->LowPassFilterBW; i++)
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         wtemp += pHandle->aBuffer[i];
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 6
+
+
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       wtemp /= pHandle->LowPassFilterBW;
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       /* Averaging done over the buffer stored values */
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       pHandle->_Super.AvBusVoltage_d = (uint16_t)wtemp;
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       pHandle->_Super.LatestConv = hAux;
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       if ((uint16_t)pHandle->index < (pHandle->LowPassFilterBW - 1U))
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         pHandle->index++;
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       else
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         pHandle->index = 0U;
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     }
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     pHandle->_Super.FaultState = RVBS_CheckFaultState(pHandle);
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     tempValue = pHandle->_Super.FaultState;
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   return (tempValue);
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** /**
+ 158:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @brief  It returns #MC_OVER_VOLT, #MC_UNDER_VOLT or #MC_NO_ERROR depending on
+ 159:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   *         bus voltage and protection threshold values
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @param  pHandle related RDivider_Handle_t
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   * @retval uint16_t Fault code error
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   */
+ 163:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** __weak uint16_t RVBS_CheckFaultState(RDivider_Handle_t *pHandle)
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** {
+ 146              		.loc 1 164 1 is_stmt 1 view -0
+ 147              		.cfi_startproc
+ 148              		@ args = 0, pretend = 0, frame = 0
+ 149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 150              		@ link register save eliminated.
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t fault;
+ 151              		.loc 1 165 3 view .LVU32
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   if (MC_NULL == pHandle)
+ 168:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     fault = MC_SW_ERROR;
+ 170:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   else
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   {
+ 173:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 	/* If both thresholds are equal, single threshold feature is used */
+ 175:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 	if (pHandle->OverVoltageThreshold == pHandle->OverVoltageThresholdLow)
+ 152              		.loc 1 175 2 view .LVU33
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t fault;
+ 153              		.loc 1 164 1 is_stmt 0 view .LVU34
+ 154 0000 10B4     		push	{r4}
+ 155              	.LCFI3:
+ 156              		.cfi_def_cfa_offset 4
+ 157              		.cfi_offset 4, -4
+ 158              		.loc 1 175 13 view .LVU35
+ 159 0002 8189     		ldrh	r1, [r0, #12]
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 7
+
+
+ 160              		.loc 1 175 46 view .LVU36
+ 161 0004 C489     		ldrh	r4, [r0, #14]
+ 162 0006 C288     		ldrh	r2, [r0, #6]
+ 163              		.loc 1 175 5 view .LVU37
+ 164 0008 A142     		cmp	r1, r4
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t fault;
+ 165              		.loc 1 164 1 view .LVU38
+ 166 000a 0346     		mov	r3, r0
+ 167              		.loc 1 175 5 view .LVU39
+ 168 000c 0FD0     		beq	.L22
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 	{
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       if (pHandle->_Super.AvBusVoltage_d > pHandle->OverVoltageThreshold)
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         fault = MC_OVER_VOLT;
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       else if (pHandle->_Super.AvBusVoltage_d < pHandle->UnderVoltageThreshold)
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         fault = MC_UNDER_VOLT;
+ 184:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 185:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       else
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         fault = MC_NO_ERROR;
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 	}
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     else
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+ 192:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       /* If both thresholds are different, hysteresis feature is used (Brake mode) */
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       if (pHandle->_Super.AvBusVoltage_d < pHandle->UnderVoltageThreshold)
+ 169              		.loc 1 193 7 is_stmt 1 view .LVU40
+ 170              		.loc 1 193 10 is_stmt 0 view .LVU41
+ 171 000e 408A     		ldrh	r0, [r0, #18]
+ 172              	.LVL9:
+ 173              		.loc 1 193 10 view .LVU42
+ 174 0010 9042     		cmp	r0, r2
+ 175 0012 08D8     		bhi	.L18
+ 194:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 195:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         fault = MC_UNDER_VOLT;
+ 196:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       else if ( false == pHandle->OverVoltageHysteresisUpDir )
+ 176              		.loc 1 197 12 is_stmt 1 view .LVU43
+ 177              		.loc 1 197 15 is_stmt 0 view .LVU44
+ 178 0014 187C     		ldrb	r0, [r3, #16]	@ zero_extendqisi2
+ 179 0016 A0B9     		cbnz	r0, .L15
+ 198:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 199:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         if (pHandle->_Super.AvBusVoltage_d < pHandle->OverVoltageThresholdLow)
+ 180              		.loc 1 199 9 is_stmt 1 view .LVU45
+ 181              		.loc 1 199 12 is_stmt 0 view .LVU46
+ 182 0018 9442     		cmp	r4, r2
+ 183 001a 18D9     		bls	.L19
+ 200:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         {
+ 201:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           pHandle->OverVoltageHysteresisUpDir = true;
+ 184              		.loc 1 201 11 is_stmt 1 view .LVU47
+ 185              		.loc 1 201 47 is_stmt 0 view .LVU48
+ 186 001c 0122     		movs	r2, #1
+ 187 001e 1A74     		strb	r2, [r3, #16]
+ 202:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           fault = MC_NO_ERROR;
+ 188              		.loc 1 202 11 is_stmt 1 view .LVU49
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 8
+
+
+ 189              	.LVL10:
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         }
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         else{
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           fault = MC_OVER_VOLT;
+ 206:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         }
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 208:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       else
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         if (pHandle->_Super.AvBusVoltage_d > pHandle->OverVoltageThreshold)
+ 211:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         {
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           pHandle->OverVoltageHysteresisUpDir = false;
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           fault = MC_OVER_VOLT;
+ 214:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         }
+ 215:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         else{
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           fault = MC_NO_ERROR;
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         }
+ 218:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 219:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     }
+ 220:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   }
+ 222:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #endif
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   return (fault);
+ 190              		.loc 1 223 3 view .LVU50
+ 224:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ 191              		.loc 1 224 1 is_stmt 0 view .LVU51
+ 192 0020 5DF8044B 		ldr	r4, [sp], #4
+ 193              	.LCFI4:
+ 194              		.cfi_remember_state
+ 195              		.cfi_restore 4
+ 196              		.cfi_def_cfa_offset 0
+ 197 0024 7047     		bx	lr
+ 198              	.LVL11:
+ 199              	.L18:
+ 200              	.LCFI5:
+ 201              		.cfi_restore_state
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 202              		.loc 1 183 15 view .LVU52
+ 203 0026 0420     		movs	r0, #4
+ 204              	.L14:
+ 205              	.LVL12:
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ 206              		.loc 1 223 3 is_stmt 1 view .LVU53
+ 207              		.loc 1 224 1 is_stmt 0 view .LVU54
+ 208 0028 5DF8044B 		ldr	r4, [sp], #4
+ 209              	.LCFI6:
+ 210              		.cfi_remember_state
+ 211              		.cfi_restore 4
+ 212              		.cfi_def_cfa_offset 0
+ 213 002c 7047     		bx	lr
+ 214              	.LVL13:
+ 215              	.L22:
+ 216              	.LCFI7:
+ 217              		.cfi_restore_state
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 218              		.loc 1 177 7 is_stmt 1 view .LVU55
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 219              		.loc 1 177 10 is_stmt 0 view .LVU56
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 9
+
+
+ 220 002e 9142     		cmp	r1, r2
+ 221 0030 0DD3     		bcc	.L19
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 222              		.loc 1 181 12 is_stmt 1 view .LVU57
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 223              		.loc 1 181 15 is_stmt 0 view .LVU58
+ 224 0032 408A     		ldrh	r0, [r0, #18]
+ 225              	.LVL14:
+ 226              		.loc 1 224 1 view .LVU59
+ 227 0034 5DF8044B 		ldr	r4, [sp], #4
+ 228              	.LCFI8:
+ 229              		.cfi_remember_state
+ 230              		.cfi_restore 4
+ 231              		.cfi_def_cfa_offset 0
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 232              		.loc 1 183 15 view .LVU60
+ 233 0038 9042     		cmp	r0, r2
+ 234 003a 8CBF     		ite	hi
+ 235 003c 0420     		movhi	r0, #4
+ 236 003e 0020     		movls	r0, #0
+ 237              	.LVL15:
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ 238              		.loc 1 223 3 is_stmt 1 view .LVU61
+ 239              		.loc 1 224 1 is_stmt 0 view .LVU62
+ 240 0040 7047     		bx	lr
+ 241              	.LVL16:
+ 242              	.L15:
+ 243              	.LCFI9:
+ 244              		.cfi_restore_state
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         {
+ 245              		.loc 1 210 9 is_stmt 1 view .LVU63
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         {
+ 246              		.loc 1 210 12 is_stmt 0 view .LVU64
+ 247 0042 9142     		cmp	r1, r2
+ 248 0044 07D3     		bcc	.L23
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 249              		.loc 1 187 15 view .LVU65
+ 250 0046 0020     		movs	r0, #0
+ 251              	.LVL17:
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ 252              		.loc 1 223 3 is_stmt 1 view .LVU66
+ 253              		.loc 1 224 1 is_stmt 0 view .LVU67
+ 254 0048 5DF8044B 		ldr	r4, [sp], #4
+ 255              	.LCFI10:
+ 256              		.cfi_remember_state
+ 257              		.cfi_restore 4
+ 258              		.cfi_def_cfa_offset 0
+ 259 004c 7047     		bx	lr
+ 260              	.LVL18:
+ 261              	.L19:
+ 262              	.LCFI11:
+ 263              		.cfi_restore_state
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 264              		.loc 1 179 15 view .LVU68
+ 265 004e 0220     		movs	r0, #2
+ 266              	.LVL19:
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 10
+
+
+ 267              		.loc 1 223 3 is_stmt 1 view .LVU69
+ 268              		.loc 1 224 1 is_stmt 0 view .LVU70
+ 269 0050 5DF8044B 		ldr	r4, [sp], #4
+ 270              	.LCFI12:
+ 271              		.cfi_remember_state
+ 272              		.cfi_restore 4
+ 273              		.cfi_def_cfa_offset 0
+ 274 0054 7047     		bx	lr
+ 275              	.LVL20:
+ 276              	.L23:
+ 277              	.LCFI13:
+ 278              		.cfi_restore_state
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           fault = MC_OVER_VOLT;
+ 279              		.loc 1 212 11 is_stmt 1 view .LVU71
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****           fault = MC_OVER_VOLT;
+ 280              		.loc 1 212 47 is_stmt 0 view .LVU72
+ 281 0056 0022     		movs	r2, #0
+ 282 0058 1A74     		strb	r2, [r3, #16]
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         }
+ 283              		.loc 1 213 11 is_stmt 1 view .LVU73
+ 284              	.LVL21:
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****         }
+ 285              		.loc 1 213 17 is_stmt 0 view .LVU74
+ 286 005a 0220     		movs	r0, #2
+ 287 005c E4E7     		b	.L14
+ 288              		.cfi_endproc
+ 289              	.LFE1440:
+ 291 005e 00BF     		.section	.text.RVBS_CalcAvVbus,"ax",%progbits
+ 292              		.align	1
+ 293              		.p2align 2,,3
+ 294              		.weak	RVBS_CalcAvVbus
+ 295              		.syntax unified
+ 296              		.thumb
+ 297              		.thumb_func
+ 298              		.fpu fpv4-sp-d16
+ 300              	RVBS_CalcAvVbus:
+ 301              	.LVL22:
+ 302              	.LFB1439:
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t tempValue;
+ 303              		.loc 1 105 1 is_stmt 1 view -0
+ 304              		.cfi_startproc
+ 305              		@ args = 0, pretend = 0, frame = 0
+ 306              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 307              		.loc 1 106 3 view .LVU76
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint16_t hAux;
+ 308              		.loc 1 115 5 view .LVU77
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     uint8_t i;
+ 309              		.loc 1 116 5 view .LVU78
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 310              		.loc 1 117 5 view .LVU79
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 311              		.loc 1 119 5 view .LVU80
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+ 312              		.loc 1 121 5 view .LVU81
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+ 313              		.loc 1 121 8 is_stmt 0 view .LVU82
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 11
+
+
+ 314 0000 4FF6FF73 		movw	r3, #65535
+ 315 0004 9942     		cmp	r1, r3
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t tempValue;
+ 316              		.loc 1 105 1 view .LVU83
+ 317 0006 70B5     		push	{r4, r5, r6, lr}
+ 318              	.LCFI14:
+ 319              		.cfi_def_cfa_offset 16
+ 320              		.cfi_offset 4, -16
+ 321              		.cfi_offset 5, -12
+ 322              		.cfi_offset 6, -8
+ 323              		.cfi_offset 14, -4
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****   uint16_t tempValue;
+ 324              		.loc 1 105 1 view .LVU84
+ 325 0008 0446     		mov	r4, r0
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     {
+ 326              		.loc 1 121 8 view .LVU85
+ 327 000a 1ED0     		beq	.L25
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       wtemp = 0u;
+ 328              		.loc 1 128 7 is_stmt 1 view .LVU86
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       wtemp = 0u;
+ 329              		.loc 1 128 23 is_stmt 0 view .LVU87
+ 330 000c 427E     		ldrb	r2, [r0, #25]	@ zero_extendqisi2
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       wtemp = 0u;
+ 331              		.loc 1 128 14 view .LVU88
+ 332 000e 4369     		ldr	r3, [r0, #20]
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       wtemp = 0u;
+ 333              		.loc 1 128 40 view .LVU89
+ 334 0010 23F81210 		strh	r1, [r3, r2, lsl #1]	@ movhi
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       for (i = 0U; i < (uint8_t)pHandle->LowPassFilterBW; i++)
+ 335              		.loc 1 129 7 is_stmt 1 view .LVU90
+ 336              	.LVL23:
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 337              		.loc 1 130 7 view .LVU91
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 338              		.loc 1 130 40 is_stmt 0 view .LVU92
+ 339 0014 4689     		ldrh	r6, [r0, #10]
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 340              		.loc 1 130 7 view .LVU93
+ 341 0016 16F0FF02 		ands	r2, r6, #255
+ 342 001a 0DD0     		beq	.L28
+ 343 001c 013A     		subs	r2, r2, #1
+ 344 001e D2B2     		uxtb	r2, r2
+ 345 0020 03EB4205 		add	r5, r3, r2, lsl #1
+ 346 0024 023B     		subs	r3, r3, #2
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       for (i = 0U; i < (uint8_t)pHandle->LowPassFilterBW; i++)
+ 347              		.loc 1 129 13 view .LVU94
+ 348 0026 0022     		movs	r2, #0
+ 349              	.LVL24:
+ 350              	.L27:
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 351              		.loc 1 132 9 is_stmt 1 discriminator 3 view .LVU95
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 352              		.loc 1 132 34 is_stmt 0 discriminator 3 view .LVU96
+ 353 0028 33F8020F 		ldrh	r0, [r3, #2]!
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 354              		.loc 1 130 7 discriminator 3 view .LVU97
+ 355 002c AB42     		cmp	r3, r5
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 12
+
+
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 356              		.loc 1 132 15 discriminator 3 view .LVU98
+ 357 002e 0244     		add	r2, r2, r0
+ 358              	.LVL25:
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 359              		.loc 1 130 7 discriminator 3 view .LVU99
+ 360 0030 FAD1     		bne	.L27
+ 361 0032 B2FBF6F2 		udiv	r2, r2, r6
+ 362              	.LVL26:
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 363              		.loc 1 130 7 discriminator 3 view .LVU100
+ 364 0036 92B2     		uxth	r2, r2
+ 365              	.L28:
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       /* Averaging done over the buffer stored values */
+ 366              		.loc 1 134 7 is_stmt 1 view .LVU101
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       pHandle->_Super.LatestConv = hAux;
+ 367              		.loc 1 136 7 view .LVU102
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 368              		.loc 1 139 28 is_stmt 0 view .LVU103
+ 369 0038 637E     		ldrb	r3, [r4, #25]	@ zero_extendqisi2
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       pHandle->_Super.LatestConv = hAux;
+ 370              		.loc 1 136 38 view .LVU104
+ 371 003a E280     		strh	r2, [r4, #6]	@ movhi
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 372              		.loc 1 137 7 is_stmt 1 view .LVU105
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 373              		.loc 1 139 64 is_stmt 0 view .LVU106
+ 374 003c 013E     		subs	r6, r6, #1
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 375              		.loc 1 139 10 view .LVU107
+ 376 003e B342     		cmp	r3, r6
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 377              		.loc 1 141 23 view .LVU108
+ 378 0040 34BF     		ite	cc
+ 379 0042 0133     		addcc	r3, r3, #1
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 380              		.loc 1 145 24 view .LVU109
+ 381 0044 0023     		movcs	r3, #0
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 382              		.loc 1 137 34 view .LVU110
+ 383 0046 A180     		strh	r1, [r4, #4]	@ movhi
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       {
+ 384              		.loc 1 139 7 is_stmt 1 view .LVU111
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 385              		.loc 1 141 9 view .LVU112
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 386              		.loc 1 145 9 view .LVU113
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****       }
+ 387              		.loc 1 145 24 is_stmt 0 view .LVU114
+ 388 0048 6376     		strb	r3, [r4, #25]
+ 389              	.L25:
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     tempValue = pHandle->_Super.FaultState;
+ 390              		.loc 1 149 5 is_stmt 1 view .LVU115
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     tempValue = pHandle->_Super.FaultState;
+ 391              		.loc 1 149 34 is_stmt 0 view .LVU116
+ 392 004a 2046     		mov	r0, r4
+ 393 004c FFF7FEFF 		bl	RVBS_CheckFaultState
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 13
+
+
+ 394              	.LVL27:
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c ****     tempValue = pHandle->_Super.FaultState;
+ 395              		.loc 1 149 32 view .LVU117
+ 396 0050 2081     		strh	r0, [r4, #8]	@ movhi
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** #ifdef NULL_PTR_CHECK_RDIV_BUS_VLT_SNS
+ 397              		.loc 1 150 5 is_stmt 1 view .LVU118
+ 398              	.LVL28:
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** }
+ 399              		.loc 1 154 3 view .LVU119
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 400              		.loc 1 155 1 is_stmt 0 view .LVU120
+ 401 0052 70BD     		pop	{r4, r5, r6, pc}
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c **** 
+ 402              		.loc 1 155 1 view .LVU121
+ 403              		.cfi_endproc
+ 404              	.LFE1439:
+ 406              		.text
+ 407              	.Letext0:
+ 408              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 409              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+ 410              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 411              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 412              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 413              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 414              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 415              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 416              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 417              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 418              		.file 12 "Inc/mc_type.h"
+ 419              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+ 420              		.file 14 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ARM GAS  /tmp/ccZ6g9Fw.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 r_divider_bus_voltage_sensor.c
+     /tmp/ccZ6g9Fw.s:18     .text.RVBS_Clear:0000000000000000 $t
+     /tmp/ccZ6g9Fw.s:27     .text.RVBS_Clear:0000000000000000 RVBS_Clear
+     /tmp/ccZ6g9Fw.s:104    .text.RVBS_Init:0000000000000000 $t
+     /tmp/ccZ6g9Fw.s:112    .text.RVBS_Init:0000000000000000 RVBS_Init
+     /tmp/ccZ6g9Fw.s:135    .text.RVBS_CheckFaultState:0000000000000000 $t
+     /tmp/ccZ6g9Fw.s:143    .text.RVBS_CheckFaultState:0000000000000000 RVBS_CheckFaultState
+     /tmp/ccZ6g9Fw.s:292    .text.RVBS_CalcAvVbus:0000000000000000 $t
+     /tmp/ccZ6g9Fw.s:300    .text.RVBS_CalcAvVbus:0000000000000000 RVBS_CalcAvVbus
+
+NO UNDEFINED SYMBOLS

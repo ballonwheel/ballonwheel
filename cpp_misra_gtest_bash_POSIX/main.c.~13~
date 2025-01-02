@@ -1,0 +1,36 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include<stdio.h>
+
+int main()
+{
+    char huge *near *far *ptr1;
+    char near *far *huge *ptr2;
+    char far *huge *near *ptr3;
+    printf("%d, %d, %d\n", sizeof(**ptr1), sizeof(ptr2), sizeof(*ptr3));
+    return 0;
+}
+imre@55hDesk:~/C_try/memory_model$ gcc main.c -o main
+main.c: In function ‘main’:
+main.c:5:15: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘*’ token
+main.c:5:16: error: ‘near’ undeclared (first use in this function)
+main.c:5:16: note: each undeclared identifier is reported only once for each function it appears in
+main.c:5:22: error: ‘far’ undeclared (first use in this function)
+main.c:5:27: error: ‘ptr1’ undeclared (first use in this function)
+main.c:6:15: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘*’ token
+main.c:6:21: error: ‘huge’ undeclared (first use in this function)
+main.c:6:27: error: ‘ptr2’ undeclared (first use in this function)
+main.c:7:14: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘*’ token
+main.c:7:27: error: ‘ptr3’ undeclared (first use in this function)

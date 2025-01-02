@@ -1,0 +1,40 @@
+# STM32G4 Makefile
+
+# Compiler
+CC = arm-none-eabi-gcc
+
+# Compiler flags
+CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -Og
+LDFLAGS = -TSTM32G431RB_FLASH.ld -specs=nosys.specs
+
+# Source files
+SRCS = main.c
+
+# Object files
+OBJS = $(SRCS:.c=.o)
+
+# Output files
+TARGET = main.elf
+BIN = main.bin
+
+# Path to STM32CubeG4 root directory
+STM32_CUBE_G4_PATH = /home/imre/stm32/STM32CubeG4
+
+# HAL driver files
+HAL_SRCS = $(STM32_CUBE_G4_PATH)/Drivers/STM32G4xx_HAL_Driver/Src/*.c
+
+.PHONY: all clean
+
+all: $(BIN)
+
+$(BIN): $(TARGET)
+	arm-none-eabi-objcopy -O binary $(TARGET) $(BIN)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(HAL_SRCS) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -I$(STM32_CUBE_G4_PATH)/Drivers/STM32G4xx_HAL_Driver/Inc -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(TARGET) $(BIN)

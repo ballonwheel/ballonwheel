@@ -1,0 +1,495 @@
+ARM GAS  /tmp/cc1WpWHi.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mc_config.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	Mci
+  18              		.global	pMPM
+  19              		.global	pPIDId
+  20              		.global	pPIDIq
+  21              		.global	pTemperatureSensor
+  22              		.global	pSTC
+  23              		.comm	pREMNG,4,4
+  24              		.comm	FOCVars,38,4
+  25              		.global	CircleLimitationM1
+  26              		.global	RampExtMngrHFParamsM1
+  27              		.global	STO_M1
+  28              		.global	STO_PLL_M1
+  29              		.global	PWM_Handle_M1
+  30              		.global	RevUpControlM1
+  31              		.global	SpeednTorqCtrlM1
+  32              		.global	PIDIdHandle_M1
+  33              		.global	PIDIqHandle_M1
+  34              		.global	PIDSpeedHandle_M1
+  35              		.global	PQD_MotorPowMeasM1
+  36              		.section	.data.CircleLimitationM1,"aw"
+  37              		.align	2
+  40              	CircleLimitationM1:
+  41 0000 FF7F     		.short	32767
+  42 0002 9879     		.short	31128
+  43              		.section	.data.Mci,"aw"
+  44              		.align	2
+  47              	Mci:
+  48 0000 00000000 		.word	SpeednTorqCtrlM1
+  49 0004 00000000 		.word	FOCVars
+  50 0008 00000000 		.word	PWM_Handle_M1
+  51 000c 00       		.byte	0
+  52 000d 00       		.space	1
+  53 000e 0000     		.short	0
+  54 0010 0000     		.short	0
+  55 0012 00000000 		.space	6
+  55      0000
+  56 0018 00000000 		.word	scaleParams_M1
+  57 001c 0000     		.short	0
+  58 001e 00       		.byte	0
+  59 001f 00       		.byte	0
+  60 0020 0000     		.short	0
+ARM GAS  /tmp/cc1WpWHi.s 			page 2
+
+
+  61 0022 0000     		.short	0
+  62 0024 00       		.byte	0
+  63 0025 000000   		.space	3
+  64              		.section	.data.PIDIdHandle_M1,"aw"
+  65              		.align	2
+  68              	PIDIdHandle_M1:
+  69 0000 0809     		.short	2312
+  70 0002 730E     		.short	3699
+  71 0004 00000000 		.space	8
+  71      00000000 
+  72 000c 00E0FF0F 		.word	268427264
+  73 0010 002000F0 		.word	-268427264
+  74 0014 FF7F     		.short	32767
+  75 0016 0180     		.short	-32767
+  76 0018 0001     		.short	256
+  77 001a 0020     		.short	8192
+  78 001c 0800     		.short	8
+  79 001e 0D00     		.short	13
+  80 0020 0000     		.short	0
+  81 0022 0000     		.space	2
+  82 0024 0000     		.short	0
+  83 0026 0000     		.short	0
+  84 0028 00000000 		.space	4
+  85              		.section	.data.PIDIqHandle_M1,"aw"
+  86              		.align	2
+  89              	PIDIqHandle_M1:
+  90 0000 0809     		.short	2312
+  91 0002 730E     		.short	3699
+  92 0004 00000000 		.space	8
+  92      00000000 
+  93 000c 00E0FF0F 		.word	268427264
+  94 0010 002000F0 		.word	-268427264
+  95 0014 FF7F     		.short	32767
+  96 0016 0180     		.short	-32767
+  97 0018 0001     		.short	256
+  98 001a 0020     		.short	8192
+  99 001c 0800     		.short	8
+ 100 001e 0D00     		.short	13
+ 101 0020 0000     		.short	0
+ 102 0022 0000     		.space	2
+ 103 0024 0000     		.short	0
+ 104 0026 0000     		.short	0
+ 105 0028 00000000 		.space	4
+ 106              		.section	.data.PIDSpeedHandle_M1,"aw"
+ 107              		.align	2
+ 110              	PIDSpeedHandle_M1:
+ 111 0000 3008     		.short	2096
+ 112 0002 EB00     		.short	235
+ 113 0004 00000000 		.space	8
+ 113      00000000 
+ 114 000c 9999D900 		.word	14260633
+ 115 0010 676626FF 		.word	-14260633
+ 116 0014 6603     		.short	870
+ 117 0016 9AFC     		.short	-870
+ 118 0018 0004     		.short	1024
+ 119 001a 0040     		.short	16384
+ 120 001c 0A00     		.short	10
+ARM GAS  /tmp/cc1WpWHi.s 			page 3
+
+
+ 121 001e 0E00     		.short	14
+ 122 0020 0000     		.short	0
+ 123 0022 0000     		.space	2
+ 124 0024 0000     		.short	0
+ 125 0026 0000     		.short	0
+ 126 0028 00000000 		.space	4
+ 127              		.section	.data.PQD_MotorPowMeasM1,"aw"
+ 128              		.align	2
+ 131              	PQD_MotorPowMeasM1:
+ 132 0000 00000000 		.space	4
+ 133 0004 4772503B 		.word	995127879
+ 134 0008 00000000 		.space	8
+ 134      00000000 
+ 135              		.section	.data.PWM_Handle_M1,"aw"
+ 136              		.align	2
+ 139              	PWM_Handle_M1:
+ 140 0000 00000000 		.word	R3_2_GetPhaseCurrents
+ 141 0004 00000000 		.word	R3_2_SwitchOffPWM
+ 142 0008 00000000 		.word	R3_2_SwitchOnPWM
+ 143 000c 00000000 		.word	R3_2_CurrentReadingPolarization
+ 144 0010 00000000 		.word	R3_2_TurnOnLowSides
+ 145 0014 00000000 		.word	R3_2_SetADCSampPointSectX
+ 146 0018 00000000 		.word	0
+ 147 001c 00000000 		.word	R3_2_RLDetectionModeEnable
+ 148 0020 00000000 		.word	R3_2_RLDetectionModeDisable
+ 149 0024 00000000 		.word	R3_2_RLDetectionModeSetDuty
+ 150 0028 00000000 		.word	R3_2_RLTurnOnLowSidesAndStart
+ 151 002c 00000000 		.word	R3_2_SetOffsetCalib
+ 152 0030 00000000 		.word	R3_2_GetOffsetCalib
+ 153 0034 00000000 		.space	8
+ 153      00000000 
+ 154 003c 00000000 		.word	0
+ 155 0040 00000000 		.word	0
+ 156 0044 00000000 		.word	0
+ 157 0048 0000     		.short	0
+ 158 004a 0000     		.short	0
+ 159 004c 0000     		.short	0
+ 160 004e 0473     		.short	29444
+ 161 0050 0000     		.short	0
+ 162 0052 0000     		.short	0
+ 163 0054 0000     		.short	0
+ 164 0056 0000     		.short	0
+ 165 0058 0000     		.short	0
+ 166 005a 0000     		.short	0
+ 167 005c 0000     		.short	0
+ 168 005e 0000     		.space	2
+ 169 0060 0000     		.short	0
+ 170 0062 0000     		.short	0
+ 171 0064 0000     		.short	0
+ 172 0066 0000     		.short	0
+ 173 0068 00000000 		.space	6
+ 173      0000
+ 174 006e FF3F     		.short	16383
+ 175 0070 3421     		.short	8500
+ 176 0072 3F00     		.short	63
+ 177 0074 2A00     		.short	42
+ 178 0076 2A00     		.short	42
+ARM GAS  /tmp/cc1WpWHi.s 			page 4
+
+
+ 179 0078 00       		.byte	0
+ 180 0079 00       		.space	1
+ 181 007a 00       		.byte	0
+ 182 007b 01       		.byte	1
+ 183 007c 00       		.byte	0
+ 184 007d 00       		.space	1
+ 185 007e 00       		.byte	0
+ 186 007f 00       		.space	1
+ 187 0080 00       		.byte	0
+ 188 0081 00       		.byte	0
+ 189 0082 00       		.byte	0
+ 190 0083 00       		.byte	0
+ 191 0084 00       		.space	1
+ 192 0085 00       		.byte	0
+ 193 0086 0000     		.space	2
+ 194 0088 00000000 		.word	0
+ 195 008c 00000000 		.word	0
+ 196 0090 00000000 		.word	0
+ 197 0094 9A10     		.short	4250
+ 198 0096 0000     		.short	0
+ 199 0098 00       		.byte	0
+ 200 0099 00       		.byte	0
+ 201 009a 0000     		.space	2
+ 202 009c 00000000 		.word	R3_2_ParamsM1
+ 203 00a0 00       		.byte	0
+ 204 00a1 000000   		.space	3
+ 205              		.section	.data.RampExtMngrHFParamsM1,"aw"
+ 206              		.align	2
+ 209              	RampExtMngrHFParamsM1:
+ 210 0000 204E0000 		.word	20000
+ 211 0004 00000000 		.space	20
+ 211      00000000 
+ 211      00000000 
+ 211      00000000 
+ 211      00000000 
+ 212              		.section	.data.RevUpControlM1,"aw"
+ 213              		.align	2
+ 216              	RevUpControlM1:
+ 217 0000 E803     		.short	1000
+ 218 0002 0000     		.short	0
+ 219 0004 00000000 		.space	8
+ 219      00000000 
+ 220 000c E803     		.short	1000
+ 221 000e 0000     		.short	0
+ 222 0010 6603     		.short	870
+ 223 0012 0000     		.space	2
+ 224 0014 18000000 		.word	RevUpControlM1+24
+ 225 0018 4006     		.short	1600
+ 226 001a 0A01     		.short	266
+ 227 001c 6603     		.short	870
+ 228 001e 0000     		.space	2
+ 229 0020 24000000 		.word	RevUpControlM1+36
+ 230 0024 0000     		.short	0
+ 231 0026 0A01     		.short	266
+ 232 0028 6603     		.short	870
+ 233 002a 0000     		.space	2
+ 234 002c 30000000 		.word	RevUpControlM1+48
+ARM GAS  /tmp/cc1WpWHi.s 			page 5
+
+
+ 235 0030 0000     		.short	0
+ 236 0032 0A01     		.short	266
+ 237 0034 6603     		.short	870
+ 238 0036 0000     		.space	2
+ 239 0038 3C000000 		.word	RevUpControlM1+60
+ 240 003c 0000     		.short	0
+ 241 003e 0A01     		.short	266
+ 242 0040 6603     		.short	870
+ 243 0042 0000     		.space	2
+ 244 0044 00000000 		.word	0
+ 245 0048 00       		.space	1
+ 246 0049 01       		.byte	1
+ 247 004a F000     		.short	240
+ 248 004c 7800     		.short	120
+ 249 004e 00000000 		.space	4
+ 250 0052 00       		.byte	0
+ 251 0053 00000000 		.space	9
+ 251      00000000 
+ 251      00
+ 252 005c F401     		.short	500
+ 253 005e 0000     		.short	0
+ 254 0060 6603     		.short	870
+ 255 0062 0000     		.space	2
+ 256 0064 00000000 		.word	0
+ 257 0068 00000000 		.space	16
+ 257      00000000 
+ 257      00000000 
+ 257      00000000 
+ 258              		.section	.data.STO_M1,"aw"
+ 259              		.align	2
+ 262              	STO_M1:
+ 263 0000 00000000 		.word	STO_PLL_M1
+ 264 0004 00000000 		.word	STO_PLL_ForceConvergency1
+ 265 0008 00000000 		.word	STO_PLL_ForceConvergency2
+ 266 000c 00000000 		.word	STO_OTF_ResetPLL
+ 267 0010 00000000 		.word	STO_PLL_IsVarianceTight
+ 268              		.section	.data.STO_PLL_M1,"aw"
+ 269              		.align	2
+ 272              	STO_PLL_M1:
+ 273 0000 00       		.space	1
+ 274 0001 02       		.byte	2
+ 275 0002 0A       		.byte	10
+ 276 0003 03       		.byte	3
+ 277 0004 00000000 		.space	16
+ 277      00000000 
+ 277      00000000 
+ 277      00000000 
+ 278 0014 3F02     		.short	575
+ 279 0016 0000     		.short	0
+ 280 0018 FFFF     		.short	-1
+ 281 001a 204E     		.short	20000
+ 282 001c 00000100 		.word	65536
+ 283 0020 3303     		.short	819
+ 284 0022 66A2     		.short	-23962
+ 285 0024 0303     		.short	771
+ 286 0026 CF5B     		.short	23503
+ 287 0028 5E03     		.short	862
+ARM GAS  /tmp/cc1WpWHi.s 			page 6
+
+
+ 288 002a 0000     		.space	2
+ 289 002c 0040     		.short	16384
+ 290 002e 0008     		.short	2048
+ 291 0030 00000000 		.space	4
+ 292 0034 A000     		.short	160
+ 293 0036 0600     		.short	6
+ 294 0038 00000000 		.space	8
+ 294      00000000 
+ 295 0040 FFFFFF7F 		.word	2147483647
+ 296 0044 01000080 		.word	-2147483647
+ 297 0048 FF7F     		.short	32767
+ 298 004a 0180     		.short	-32767
+ 299 004c 0040     		.short	16384
+ 300 004e FFFF     		.short	-1
+ 301 0050 0E00     		.short	14
+ 302 0052 1000     		.short	16
+ 303 0054 0000     		.short	0
+ 304 0056 0000     		.space	2
+ 305 0058 0000     		.short	0
+ 306 005a 0000     		.short	0
+ 307 005c 00000000 		.space	4
+ 308 0060 00000000 		.space	174
+ 308      00000000 
+ 308      00000000 
+ 308      00000000 
+ 308      00000000 
+ 309 010e 40       		.byte	64
+ 310 010f 40       		.byte	64
+ 311 0110 2000     		.short	32
+ 312 0112 11       		.byte	17
+ 313 0113 0F       		.byte	15
+ 314 0114 F000     		.short	240
+ 315 0116 02       		.byte	2
+ 316 0117 40       		.byte	64
+ 317 0118 40       		.byte	64
+ 318 0119 00       		.space	1
+ 319 011a 3F02     		.short	575
+ 320 011c 0E00     		.short	14
+ 321 011e 0B00     		.short	11
+ 322 0120 0600     		.short	6
+ 323 0122 0000     		.space	2
+ 324 0124 00       		.byte	0
+ 325 0125 000000   		.space	3
+ 326              		.section	.data.SpeednTorqCtrlM1,"aw"
+ 327              		.align	2
+ 330              	SpeednTorqCtrlM1:
+ 331 0000 00000000 		.space	28
+ 331      00000000 
+ 331      00000000 
+ 331      00000000 
+ 331      00000000 
+ 332 001c E803     		.short	1000
+ 333 001e F401     		.short	500
+ 334 0020 0000     		.short	0
+ 335 0022 0000     		.short	0
+ 336 0024 0CFE     		.short	-500
+ 337 0026 6603     		.short	870
+ARM GAS  /tmp/cc1WpWHi.s 			page 7
+
+
+ 338 0028 9AFC     		.short	-870
+ 339 002a 03       		.byte	3
+ 340 002b 00       		.space	1
+ 341 002c F000     		.short	240
+ 342 002e 0000     		.short	0
+ 343 0030 0000     		.short	0
+ 344 0032 0000     		.space	2
+ 345              		.section	.data.pMPM,"aw"
+ 346              		.align	2
+ 349              	pMPM:
+ 350 0000 00000000 		.word	PQD_MotorPowMeasM1
+ 351              		.section	.data.pPIDId,"aw"
+ 352              		.align	2
+ 355              	pPIDId:
+ 356 0000 00000000 		.word	PIDIdHandle_M1
+ 357              		.section	.data.pPIDIq,"aw"
+ 358              		.align	2
+ 361              	pPIDIq:
+ 362 0000 00000000 		.word	PIDIqHandle_M1
+ 363              		.section	.data.pSTC,"aw"
+ 364              		.align	2
+ 367              	pSTC:
+ 368 0000 00000000 		.word	SpeednTorqCtrlM1
+ 369              		.section	.data.pTemperatureSensor,"aw"
+ 370              		.align	2
+ 373              	pTemperatureSensor:
+ 374 0000 00000000 		.word	TempSensor_M1
+ 375              		.text
+ 376              	.Letext0:
+ 377              		.file 1 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 378              		.file 2 "Drivers/CMSIS/Include/core_cm4.h"
+ 379              		.file 3 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 380              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ 381              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 382              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 383              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 384              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 385              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 386              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 387              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 388              		.file 12 "Inc/mc_type.h"
+ 389              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 390              		.file 14 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 391              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ 392              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+ 393              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+ 394              		.file 18 "Inc/pwm_curr_fdbk.h"
+ 395              		.file 19 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+ 396              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+ 397              		.file 21 "Inc/mc_interface.h"
+ 398              		.file 22 "Inc/mc_configuration_registers.h"
+ 399              		.file 23 "Inc/regular_conversion_manager.h"
+ 400              		.file 24 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+ 401              		.file 25 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ 402              		.file 26 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 403              		.file 27 "Inc/mc_config_common.h"
+ 404              		.file 28 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pqd_motor_power_measurement.h"
+ARM GAS  /tmp/cc1WpWHi.s 			page 8
+
+
+ 405              		.file 29 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 406              		.file 30 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ramp_ext_mngr.h"
+ 407              		.file 31 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/circle_limitation.h"
+ 408              		.file 32 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_pll_speed_pos_fdbk.h"
+ 409              		.file 33 "Inc/mc_config.h"
+ 410              		.file 34 "Inc/mc_parameters.h"
+ 411              		.file 35 "Src/mc_config.c"
+ARM GAS  /tmp/cc1WpWHi.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mc_config.c
+     /tmp/cc1WpWHi.s:47     .data.Mci:0000000000000000 Mci
+     /tmp/cc1WpWHi.s:349    .data.pMPM:0000000000000000 pMPM
+     /tmp/cc1WpWHi.s:355    .data.pPIDId:0000000000000000 pPIDId
+     /tmp/cc1WpWHi.s:361    .data.pPIDIq:0000000000000000 pPIDIq
+     /tmp/cc1WpWHi.s:373    .data.pTemperatureSensor:0000000000000000 pTemperatureSensor
+     /tmp/cc1WpWHi.s:367    .data.pSTC:0000000000000000 pSTC
+                            *COM*:0000000000000004 pREMNG
+                            *COM*:0000000000000026 FOCVars
+     /tmp/cc1WpWHi.s:40     .data.CircleLimitationM1:0000000000000000 CircleLimitationM1
+     /tmp/cc1WpWHi.s:209    .data.RampExtMngrHFParamsM1:0000000000000000 RampExtMngrHFParamsM1
+     /tmp/cc1WpWHi.s:262    .data.STO_M1:0000000000000000 STO_M1
+     /tmp/cc1WpWHi.s:272    .data.STO_PLL_M1:0000000000000000 STO_PLL_M1
+     /tmp/cc1WpWHi.s:139    .data.PWM_Handle_M1:0000000000000000 PWM_Handle_M1
+     /tmp/cc1WpWHi.s:216    .data.RevUpControlM1:0000000000000000 RevUpControlM1
+     /tmp/cc1WpWHi.s:330    .data.SpeednTorqCtrlM1:0000000000000000 SpeednTorqCtrlM1
+     /tmp/cc1WpWHi.s:68     .data.PIDIdHandle_M1:0000000000000000 PIDIdHandle_M1
+     /tmp/cc1WpWHi.s:89     .data.PIDIqHandle_M1:0000000000000000 PIDIqHandle_M1
+     /tmp/cc1WpWHi.s:110    .data.PIDSpeedHandle_M1:0000000000000000 PIDSpeedHandle_M1
+     /tmp/cc1WpWHi.s:131    .data.PQD_MotorPowMeasM1:0000000000000000 PQD_MotorPowMeasM1
+     /tmp/cc1WpWHi.s:37     .data.CircleLimitationM1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:44     .data.Mci:0000000000000000 $d
+     /tmp/cc1WpWHi.s:65     .data.PIDIdHandle_M1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:86     .data.PIDIqHandle_M1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:107    .data.PIDSpeedHandle_M1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:128    .data.PQD_MotorPowMeasM1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:136    .data.PWM_Handle_M1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:206    .data.RampExtMngrHFParamsM1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:213    .data.RevUpControlM1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:259    .data.STO_M1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:269    .data.STO_PLL_M1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:327    .data.SpeednTorqCtrlM1:0000000000000000 $d
+     /tmp/cc1WpWHi.s:346    .data.pMPM:0000000000000000 $d
+     /tmp/cc1WpWHi.s:352    .data.pPIDId:0000000000000000 $d
+     /tmp/cc1WpWHi.s:358    .data.pPIDIq:0000000000000000 $d
+     /tmp/cc1WpWHi.s:364    .data.pSTC:0000000000000000 $d
+     /tmp/cc1WpWHi.s:370    .data.pTemperatureSensor:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+scaleParams_M1
+R3_2_GetPhaseCurrents
+R3_2_SwitchOffPWM
+R3_2_SwitchOnPWM
+R3_2_CurrentReadingPolarization
+R3_2_TurnOnLowSides
+R3_2_SetADCSampPointSectX
+R3_2_RLDetectionModeEnable
+R3_2_RLDetectionModeDisable
+R3_2_RLDetectionModeSetDuty
+R3_2_RLTurnOnLowSidesAndStart
+R3_2_SetOffsetCalib
+R3_2_GetOffsetCalib
+R3_2_ParamsM1
+STO_PLL_ForceConvergency1
+STO_PLL_ForceConvergency2
+STO_OTF_ResetPLL
+ARM GAS  /tmp/cc1WpWHi.s 			page 10
+
+
+STO_PLL_IsVarianceTight
+TempSensor_M1

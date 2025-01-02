@@ -1,0 +1,38 @@
+
+# STM32G4 Makefile
+
+# Compiler
+CC = arm-none-eabi-gcc
+
+# Compiler flags
+CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -Og
+LDFLAGS = -TSTM32G431RB_FLASH.ld -specs=nosys.specs
+
+# Source files
+SRCS = main.c
+
+# Object files
+OBJS = $(SRCS:.c=.o)
+
+# Output files
+TARGET = main.elf
+BIN = main.bin
+
+.PHONY: all clean
+
+all: $(BIN)
+
+$(BIN): $(TARGET)
+	arm-none-eabi-objcopy -O binary $(TARGET) $(BIN)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(TARGET) $(BIN)
+
+
+

@@ -1,0 +1,73 @@
+
+
+#if 0
+#include<stdio.h>
+
+//void display(int (*ff)());
+
+int main()
+{
+
+    int show();
+
+  //  int (*f)();
+
+    show;//       <-- ez igy nem megy, mert ugye ez csak a show cimet adja vissza
+	     //       kodpointer tk 187.o          
+	//f = show;
+	
+
+    //display(f);
+
+    return 0;
+}
+#if 0
+void display(int (*ff)())
+{
+    (*ff)();
+}
+#endif
+
+int show()
+{
+    printf("IndiaBIX");
+}
+
+#endif
+
+
+
+
+/**********************************************/
+
+
+#if 1
+#include<stdio.h>
+
+void display(int (*ff)());
+
+int main()
+{
+
+    int show();
+
+    int (*f)();
+
+	f = show;
+	
+
+    display(f);
+
+    return 0;
+}
+void display(int (*ff)())
+{
+    (*ff)();//<-----------------------  fuggveny pointer meghivasa
+}
+
+int show()
+{
+    printf("IndiaBIX");
+}
+
+#endif

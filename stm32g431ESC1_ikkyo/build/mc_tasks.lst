@@ -1,0 +1,3203 @@
+ARM GAS  /tmp/ccRbQnGb.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mc_tasks.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.MCboot,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	MCboot
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	MCboot:
+  28              	.LVL0:
+  29              	.LFB1466:
+  30              		.file 1 "Src/mc_tasks.c"
+   1:Src/mc_tasks.c **** 
+   2:Src/mc_tasks.c **** /**
+   3:Src/mc_tasks.c ****   ******************************************************************************
+   4:Src/mc_tasks.c ****   * @file    mc_tasks.c
+   5:Src/mc_tasks.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   6:Src/mc_tasks.c ****   * @brief   This file implements tasks definition
+   7:Src/mc_tasks.c ****   *
+   8:Src/mc_tasks.c ****   ******************************************************************************
+   9:Src/mc_tasks.c ****   * @attention
+  10:Src/mc_tasks.c ****   *
+  11:Src/mc_tasks.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  12:Src/mc_tasks.c ****   * All rights reserved.</center></h2>
+  13:Src/mc_tasks.c ****   *
+  14:Src/mc_tasks.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  15:Src/mc_tasks.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  16:Src/mc_tasks.c ****   * the License. You may obtain a copy of the License at:
+  17:Src/mc_tasks.c ****   *                             www.st.com/SLA0044
+  18:Src/mc_tasks.c ****   *
+  19:Src/mc_tasks.c ****   ******************************************************************************
+  20:Src/mc_tasks.c ****   */
+  21:Src/mc_tasks.c **** 
+  22:Src/mc_tasks.c **** /* Includes ------------------------------------------------------------------*/
+  23:Src/mc_tasks.c **** //cstat -MISRAC2012-Rule-21.1
+  24:Src/mc_tasks.c **** #include "main.h"
+  25:Src/mc_tasks.c **** //cstat +MISRAC2012-Rule-21.1
+  26:Src/mc_tasks.c **** #include "mc_type.h"
+  27:Src/mc_tasks.c **** #include "mc_math.h"
+  28:Src/mc_tasks.c **** #include "motorcontrol.h"
+ARM GAS  /tmp/ccRbQnGb.s 			page 2
+
+
+  29:Src/mc_tasks.c **** #include "regular_conversion_manager.h"
+  30:Src/mc_tasks.c **** #include "mc_interface.h"
+  31:Src/mc_tasks.c **** #include "digital_output.h"
+  32:Src/mc_tasks.c **** #include "pwm_common.h"
+  33:Src/mc_tasks.c **** #include "mc_tasks.h"
+  34:Src/mc_tasks.c **** #include "parameters_conversion.h"
+  35:Src/mc_tasks.c **** #include "mcp_config.h"
+  36:Src/mc_tasks.c **** #include "mc_app_hooks.h"
+  37:Src/mc_tasks.c **** 
+  38:Src/mc_tasks.c **** /* USER CODE BEGIN Includes */
+  39:Src/mc_tasks.c **** 
+  40:Src/mc_tasks.c **** /* USER CODE END Includes */
+  41:Src/mc_tasks.c **** 
+  42:Src/mc_tasks.c **** /* USER CODE BEGIN Private define */
+  43:Src/mc_tasks.c **** /* Private define ------------------------------------------------------------*/
+  44:Src/mc_tasks.c **** /* Un-Comment this macro define in order to activate the smooth
+  45:Src/mc_tasks.c ****    braking action on over voltage */
+  46:Src/mc_tasks.c **** /* #define  MC.SMOOTH_BRAKING_ACTION_ON_OVERVOLTAGE */
+  47:Src/mc_tasks.c **** 
+  48:Src/mc_tasks.c **** /* USER CODE END Private define */
+  49:Src/mc_tasks.c **** 
+  50:Src/mc_tasks.c **** #define VBUS_TEMP_ERR_MASK (MC_OVER_VOLT| MC_UNDER_VOLT| MC_OVER_TEMP)
+  51:Src/mc_tasks.c **** /* Private variables----------------------------------------------------------*/
+  52:Src/mc_tasks.c **** 
+  53:Src/mc_tasks.c **** static uint16_t hMFTaskCounterM1 = 0; //cstat !MISRAC2012-Rule-8.9_a
+  54:Src/mc_tasks.c **** static volatile uint16_t hBootCapDelayCounterM1 = ((uint16_t)0);
+  55:Src/mc_tasks.c **** static volatile uint16_t hStopPermanencyCounterM1 = ((uint16_t)0);
+  56:Src/mc_tasks.c **** static volatile uint8_t bMCBootCompleted = ((uint8_t)0);
+  57:Src/mc_tasks.c **** 
+  58:Src/mc_tasks.c **** #define M1_CHARGE_BOOT_CAP_TICKS          (((uint16_t)SYS_TICK_FREQUENCY * (uint16_t)10) / 1000U)
+  59:Src/mc_tasks.c **** #define M1_CHARGE_BOOT_CAP_DUTY_CYCLES ((uint32_t)0.000\
+  60:Src/mc_tasks.c ****                                       * ((uint32_t)PWM_PERIOD_CYCLES / 2U))
+  61:Src/mc_tasks.c **** #define M2_CHARGE_BOOT_CAP_TICKS         (((uint16_t)SYS_TICK_FREQUENCY * (uint16_t)10) / 1000U)
+  62:Src/mc_tasks.c **** #define M2_CHARGE_BOOT_CAP_DUTY_CYCLES ((uint32_t)0\
+  63:Src/mc_tasks.c ****                                       * ((uint32_t)PWM_PERIOD_CYCLES2 / 2U))
+  64:Src/mc_tasks.c **** 
+  65:Src/mc_tasks.c **** /* USER CODE BEGIN Private Variables */
+  66:Src/mc_tasks.c **** 
+  67:Src/mc_tasks.c **** /* USER CODE END Private Variables */
+  68:Src/mc_tasks.c **** 
+  69:Src/mc_tasks.c **** /* Private functions ---------------------------------------------------------*/
+  70:Src/mc_tasks.c **** void TSK_MediumFrequencyTaskM1(void);
+  71:Src/mc_tasks.c **** void TSK_MF_StopProcessing(uint8_t motor);
+  72:Src/mc_tasks.c **** MCI_Handle_t *GetMCI(uint8_t bMotor);
+  73:Src/mc_tasks.c **** void TSK_SetChargeBootCapDelayM1(uint16_t hTickCount);
+  74:Src/mc_tasks.c **** bool TSK_ChargeBootCapDelayHasElapsedM1(void);
+  75:Src/mc_tasks.c **** void TSK_SetStopPermanencyTimeM1(uint16_t hTickCount);
+  76:Src/mc_tasks.c **** bool TSK_StopPermanencyTimeHasElapsedM1(void);
+  77:Src/mc_tasks.c **** void TSK_SafetyTask_PWMOFF(uint8_t motor);
+  78:Src/mc_tasks.c **** 
+  79:Src/mc_tasks.c **** /* USER CODE BEGIN Private Functions */
+  80:Src/mc_tasks.c **** 
+  81:Src/mc_tasks.c **** /* USER CODE END Private Functions */
+  82:Src/mc_tasks.c **** /**
+  83:Src/mc_tasks.c ****   * @brief  It initializes the whole MC core according to user defined
+  84:Src/mc_tasks.c ****   *         parameters.
+  85:Src/mc_tasks.c ****   * @param  pMCIList pointer to the vector of MCInterface objects that will be
+ARM GAS  /tmp/ccRbQnGb.s 			page 3
+
+
+  86:Src/mc_tasks.c ****   *         created and initialized. The vector must have length equal to the
+  87:Src/mc_tasks.c ****   *         number of motor drives.
+  88:Src/mc_tasks.c ****   */
+  89:Src/mc_tasks.c **** __weak void MCboot( MCI_Handle_t* pMCIList[NBR_OF_MOTORS] )
+  90:Src/mc_tasks.c **** {
+  31              		.loc 1 90 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  91:Src/mc_tasks.c ****   /* USER CODE BEGIN MCboot 0 */
+  92:Src/mc_tasks.c **** 
+  93:Src/mc_tasks.c ****   /* USER CODE END MCboot 0 */
+  94:Src/mc_tasks.c **** 
+  95:Src/mc_tasks.c ****   if (MC_NULL == pMCIList)
+  35              		.loc 1 95 3 view .LVU1
+  36              		.loc 1 95 6 is_stmt 0 view .LVU2
+  37 0000 10B3     		cbz	r0, .L7
+  90:Src/mc_tasks.c ****   /* USER CODE BEGIN MCboot 0 */
+  38              		.loc 1 90 1 view .LVU3
+  39 0002 38B5     		push	{r3, r4, r5, lr}
+  40              	.LCFI0:
+  41              		.cfi_def_cfa_offset 16
+  42              		.cfi_offset 3, -16
+  43              		.cfi_offset 4, -12
+  44              		.cfi_offset 5, -8
+  45              		.cfi_offset 14, -4
+  96:Src/mc_tasks.c ****   {
+  97:Src/mc_tasks.c ****     /* Nothing to do */
+  98:Src/mc_tasks.c ****   }
+  99:Src/mc_tasks.c ****   else
+ 100:Src/mc_tasks.c ****   {
+ 101:Src/mc_tasks.c **** 
+ 102:Src/mc_tasks.c ****     bMCBootCompleted = (uint8_t )0;
+  46              		.loc 1 102 22 view .LVU4
+  47 0004 114D     		ldr	r5, .L11
+  48 0006 0023     		movs	r3, #0
+  49 0008 2B70     		strb	r3, [r5]
+  50 000a 0446     		mov	r4, r0
+  51              		.loc 1 102 5 is_stmt 1 view .LVU5
+ 103:Src/mc_tasks.c **** 
+ 104:Src/mc_tasks.c ****     /*************************************************/
+ 105:Src/mc_tasks.c ****     /*    FOC initialization         */
+ 106:Src/mc_tasks.c ****     /*************************************************/
+ 107:Src/mc_tasks.c ****     FOC_Init();
+  52              		.loc 1 107 5 view .LVU6
+  53 000c FFF7FEFF 		bl	FOC_Init
+  54              	.LVL1:
+ 108:Src/mc_tasks.c **** 
+ 109:Src/mc_tasks.c ****     ASPEP_start(&aspepOverUartA);
+  55              		.loc 1 109 5 view .LVU7
+  56 0010 0F48     		ldr	r0, .L11+4
+  57 0012 FFF7FEFF 		bl	ASPEP_start
+  58              	.LVL2:
+ 110:Src/mc_tasks.c ****     /* USER CODE BEGIN MCboot 1 */
+ 111:Src/mc_tasks.c **** 
+ 112:Src/mc_tasks.c ****     /* USER CODE END MCboot 1 */
+ 113:Src/mc_tasks.c **** 
+ARM GAS  /tmp/ccRbQnGb.s 			page 4
+
+
+ 114:Src/mc_tasks.c ****     /******************************************************/
+ 115:Src/mc_tasks.c ****     /*   PID component initialization: speed regulation   */
+ 116:Src/mc_tasks.c ****     /******************************************************/
+ 117:Src/mc_tasks.c ****     PID_HandleInit(&PIDSpeedHandle_M1);
+  59              		.loc 1 117 5 view .LVU8
+  60 0016 0F48     		ldr	r0, .L11+8
+  61 0018 FFF7FEFF 		bl	PID_HandleInit
+  62              	.LVL3:
+ 118:Src/mc_tasks.c **** 
+ 119:Src/mc_tasks.c ****     /****************************************************/
+ 120:Src/mc_tasks.c ****     /*   Virtual speed sensor component initialization  */
+ 121:Src/mc_tasks.c ****     /****************************************************/
+ 122:Src/mc_tasks.c ****     VSS_Init(&VirtualSpeedSensorM1);
+  63              		.loc 1 122 5 view .LVU9
+  64 001c 0E48     		ldr	r0, .L11+12
+  65 001e FFF7FEFF 		bl	VSS_Init
+  66              	.LVL4:
+ 123:Src/mc_tasks.c **** 
+ 124:Src/mc_tasks.c ****     /********************************************************/
+ 125:Src/mc_tasks.c ****     /*   Bus voltage sensor component initialization        */
+ 126:Src/mc_tasks.c ****     /********************************************************/
+ 127:Src/mc_tasks.c ****     (void)RCM_RegisterRegConv(&VbusRegConv_M1);
+  67              		.loc 1 127 5 view .LVU10
+  68 0022 0E48     		ldr	r0, .L11+16
+  69 0024 FFF7FEFF 		bl	RCM_RegisterRegConv
+  70              	.LVL5:
+ 128:Src/mc_tasks.c ****     RVBS_Init(&BusVoltageSensor_M1);
+  71              		.loc 1 128 5 view .LVU11
+  72 0028 0D48     		ldr	r0, .L11+20
+  73 002a FFF7FEFF 		bl	RVBS_Init
+  74              	.LVL6:
+ 129:Src/mc_tasks.c **** 
+ 130:Src/mc_tasks.c ****     /*******************************************************/
+ 131:Src/mc_tasks.c ****     /*   Temperature measurement component initialization  */
+ 132:Src/mc_tasks.c ****     /*******************************************************/
+ 133:Src/mc_tasks.c ****     (void)RCM_RegisterRegConv(&TempRegConv_M1);
+  75              		.loc 1 133 5 view .LVU12
+  76 002e 0D48     		ldr	r0, .L11+24
+  77 0030 FFF7FEFF 		bl	RCM_RegisterRegConv
+  78              	.LVL7:
+ 134:Src/mc_tasks.c ****     NTC_Init(&TempSensor_M1);
+  79              		.loc 1 134 5 view .LVU13
+  80 0034 0C48     		ldr	r0, .L11+28
+  81 0036 FFF7FEFF 		bl	NTC_Init
+  82              	.LVL8:
+ 135:Src/mc_tasks.c **** 
+ 136:Src/mc_tasks.c ****     pMCIList[M1] = &Mci[M1];
+  83              		.loc 1 136 5 view .LVU14
+  84              		.loc 1 136 18 is_stmt 0 view .LVU15
+  85 003a 0C4B     		ldr	r3, .L11+32
+  86 003c 2360     		str	r3, [r4]
+ 137:Src/mc_tasks.c **** 
+ 138:Src/mc_tasks.c ****     /* Applicative hook in MCBoot() */
+ 139:Src/mc_tasks.c ****     MC_APP_BootHook();
+  87              		.loc 1 139 5 is_stmt 1 view .LVU16
+  88 003e FFF7FEFF 		bl	MC_APP_BootHook
+  89              	.LVL9:
+ARM GAS  /tmp/ccRbQnGb.s 			page 5
+
+
+ 140:Src/mc_tasks.c **** 
+ 141:Src/mc_tasks.c ****     /* USER CODE BEGIN MCboot 2 */
+ 142:Src/mc_tasks.c **** 
+ 143:Src/mc_tasks.c ****     /* USER CODE END MCboot 2 */
+ 144:Src/mc_tasks.c **** 
+ 145:Src/mc_tasks.c ****     bMCBootCompleted = 1U;
+  90              		.loc 1 145 5 view .LVU17
+  91              		.loc 1 145 22 is_stmt 0 view .LVU18
+  92 0042 0123     		movs	r3, #1
+  93 0044 2B70     		strb	r3, [r5]
+ 146:Src/mc_tasks.c ****   }
+ 147:Src/mc_tasks.c **** }
+  94              		.loc 1 147 1 view .LVU19
+  95 0046 38BD     		pop	{r3, r4, r5, pc}
+  96              	.LVL10:
+  97              	.L7:
+  98              	.LCFI1:
+  99              		.cfi_def_cfa_offset 0
+ 100              		.cfi_restore 3
+ 101              		.cfi_restore 4
+ 102              		.cfi_restore 5
+ 103              		.cfi_restore 14
+ 104              		.loc 1 147 1 view .LVU20
+ 105 0048 7047     		bx	lr
+ 106              	.L12:
+ 107 004a 00BF     		.align	2
+ 108              	.L11:
+ 109 004c 00000000 		.word	.LANCHOR0
+ 110 0050 00000000 		.word	aspepOverUartA
+ 111 0054 00000000 		.word	PIDSpeedHandle_M1
+ 112 0058 00000000 		.word	VirtualSpeedSensorM1
+ 113 005c 00000000 		.word	VbusRegConv_M1
+ 114 0060 00000000 		.word	BusVoltageSensor_M1
+ 115 0064 00000000 		.word	TempRegConv_M1
+ 116 0068 00000000 		.word	TempSensor_M1
+ 117 006c 00000000 		.word	Mci
+ 118              		.cfi_endproc
+ 119              	.LFE1466:
+ 121              		.section	.text.TSK_SetChargeBootCapDelayM1,"ax",%progbits
+ 122              		.align	1
+ 123              		.p2align 2,,3
+ 124              		.weak	TSK_SetChargeBootCapDelayM1
+ 125              		.syntax unified
+ 126              		.thumb
+ 127              		.thumb_func
+ 128              		.fpu fpv4-sp-d16
+ 130              	TSK_SetChargeBootCapDelayM1:
+ 131              	.LVL11:
+ 132              	.LFB1468:
+ 148:Src/mc_tasks.c **** 
+ 149:Src/mc_tasks.c **** /**
+ 150:Src/mc_tasks.c ****  * @brief Runs all the Tasks of the Motor Control cockpit
+ 151:Src/mc_tasks.c ****  *
+ 152:Src/mc_tasks.c ****  * This function is to be called periodically at least at the Medium Frequency task
+ 153:Src/mc_tasks.c ****  * rate (It is typically called on the Systick interrupt). Exact invokation rate is
+ 154:Src/mc_tasks.c ****  * the Speed regulator execution rate set in the Motor Contorl Workbench.
+ 155:Src/mc_tasks.c ****  *
+ARM GAS  /tmp/ccRbQnGb.s 			page 6
+
+
+ 156:Src/mc_tasks.c ****  * The following tasks are executed in this order:
+ 157:Src/mc_tasks.c ****  *
+ 158:Src/mc_tasks.c ****  * - Medium Frequency Tasks of each motors.
+ 159:Src/mc_tasks.c ****  * - Safety Task.
+ 160:Src/mc_tasks.c ****  * - Power Factor Correction Task (if enabled).
+ 161:Src/mc_tasks.c ****  * - User Interface task.
+ 162:Src/mc_tasks.c ****  */
+ 163:Src/mc_tasks.c **** __weak void MC_RunMotorControlTasks(void)
+ 164:Src/mc_tasks.c **** {
+ 165:Src/mc_tasks.c ****   if (0U == bMCBootCompleted)
+ 166:Src/mc_tasks.c ****   {
+ 167:Src/mc_tasks.c ****     /* Nothing to do */
+ 168:Src/mc_tasks.c ****   }
+ 169:Src/mc_tasks.c ****   else
+ 170:Src/mc_tasks.c ****   {
+ 171:Src/mc_tasks.c ****     /* ** Medium Frequency Tasks ** */
+ 172:Src/mc_tasks.c **** /* USER CODE BEGIN MC_Scheduler 0 */
+ 173:Src/mc_tasks.c **** 
+ 174:Src/mc_tasks.c **** /* USER CODE END MC_Scheduler 0 */
+ 175:Src/mc_tasks.c **** 
+ 176:Src/mc_tasks.c ****     if(hMFTaskCounterM1 > 0u)
+ 177:Src/mc_tasks.c ****     {
+ 178:Src/mc_tasks.c ****       hMFTaskCounterM1--;
+ 179:Src/mc_tasks.c ****     }
+ 180:Src/mc_tasks.c ****     else
+ 181:Src/mc_tasks.c ****     {
+ 182:Src/mc_tasks.c ****       TSK_MediumFrequencyTaskM1();
+ 183:Src/mc_tasks.c **** 
+ 184:Src/mc_tasks.c ****       /* Applicative hook at end of Medium Frequency for Motor 1 */
+ 185:Src/mc_tasks.c ****       MC_APP_PostMediumFrequencyHook_M1();
+ 186:Src/mc_tasks.c **** 
+ 187:Src/mc_tasks.c ****       MCP_Over_UartA.rxBuffer = MCP_Over_UartA.pTransportLayer->fRXPacketProcess(MCP_Over_UartA.pTr
+ 188:Src/mc_tasks.c ****                                                                                 &MCP_Over_UartA.rxL
+ 189:Src/mc_tasks.c ****       if ( 0U == MCP_Over_UartA.rxBuffer)
+ 190:Src/mc_tasks.c ****       {
+ 191:Src/mc_tasks.c ****         /* Nothing to do */
+ 192:Src/mc_tasks.c ****       }
+ 193:Src/mc_tasks.c ****       else
+ 194:Src/mc_tasks.c ****       {
+ 195:Src/mc_tasks.c ****         /* Synchronous answer */
+ 196:Src/mc_tasks.c ****         if (0U == MCP_Over_UartA.pTransportLayer->fGetBuffer(MCP_Over_UartA.pTransportLayer,
+ 197:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 198:Src/mc_tasks.c ****                                                      MCTL_SYNC))
+ 199:Src/mc_tasks.c ****         {
+ 200:Src/mc_tasks.c ****           /* No buffer available to build the answer ... should not occur */
+ 201:Src/mc_tasks.c ****         }
+ 202:Src/mc_tasks.c ****         else
+ 203:Src/mc_tasks.c ****         {
+ 204:Src/mc_tasks.c ****           MCP_ReceivedPacket(&MCP_Over_UartA);
+ 205:Src/mc_tasks.c ****           MCP_Over_UartA.pTransportLayer->fSendPacket(MCP_Over_UartA.pTransportLayer, MCP_Over_Uart
+ 206:Src/mc_tasks.c ****                                                       MCP_Over_UartA.txLength, MCTL_SYNC);
+ 207:Src/mc_tasks.c ****           /* No buffer available to build the answer ... should not occur */
+ 208:Src/mc_tasks.c ****         }
+ 209:Src/mc_tasks.c ****       }
+ 210:Src/mc_tasks.c **** 
+ 211:Src/mc_tasks.c ****       /* USER CODE BEGIN MC_Scheduler 1 */
+ 212:Src/mc_tasks.c **** 
+ARM GAS  /tmp/ccRbQnGb.s 			page 7
+
+
+ 213:Src/mc_tasks.c ****       /* USER CODE END MC_Scheduler 1 */
+ 214:Src/mc_tasks.c **** 
+ 215:Src/mc_tasks.c ****       hMFTaskCounterM1 = (uint16_t)MF_TASK_OCCURENCE_TICKS;
+ 216:Src/mc_tasks.c ****     }
+ 217:Src/mc_tasks.c ****     if(hBootCapDelayCounterM1 > 0U)
+ 218:Src/mc_tasks.c ****     {
+ 219:Src/mc_tasks.c ****       hBootCapDelayCounterM1--;
+ 220:Src/mc_tasks.c ****     }
+ 221:Src/mc_tasks.c ****     else
+ 222:Src/mc_tasks.c ****     {
+ 223:Src/mc_tasks.c ****       /* Nothing to do */
+ 224:Src/mc_tasks.c ****     }
+ 225:Src/mc_tasks.c ****     if(hStopPermanencyCounterM1 > 0U)
+ 226:Src/mc_tasks.c ****     {
+ 227:Src/mc_tasks.c ****       hStopPermanencyCounterM1--;
+ 228:Src/mc_tasks.c ****     }
+ 229:Src/mc_tasks.c ****     else
+ 230:Src/mc_tasks.c ****     {
+ 231:Src/mc_tasks.c ****       /* Nothing to do */
+ 232:Src/mc_tasks.c ****     }
+ 233:Src/mc_tasks.c **** 
+ 234:Src/mc_tasks.c ****   /* USER CODE BEGIN MC_Scheduler 2 */
+ 235:Src/mc_tasks.c **** 
+ 236:Src/mc_tasks.c ****   /* USER CODE END MC_Scheduler 2 */
+ 237:Src/mc_tasks.c **** 
+ 238:Src/mc_tasks.c ****     /* Safety task is run after Medium Frequency task so that
+ 239:Src/mc_tasks.c ****      * it can overcome actions they initiated if needed */
+ 240:Src/mc_tasks.c ****     TSK_SafetyTask();
+ 241:Src/mc_tasks.c **** 
+ 242:Src/mc_tasks.c ****   }
+ 243:Src/mc_tasks.c **** }
+ 244:Src/mc_tasks.c **** 
+ 245:Src/mc_tasks.c **** /**
+ 246:Src/mc_tasks.c ****   * @brief  It set a counter intended to be used for counting the delay required
+ 247:Src/mc_tasks.c ****   *         for drivers boot capacitors charging of motor 1.
+ 248:Src/mc_tasks.c ****   * @param  hTickCount number of ticks to be counted.
+ 249:Src/mc_tasks.c ****   * @retval void
+ 250:Src/mc_tasks.c ****   */
+ 251:Src/mc_tasks.c **** __weak void TSK_SetChargeBootCapDelayM1(uint16_t hTickCount)
+ 252:Src/mc_tasks.c **** {
+ 133              		.loc 1 252 1 is_stmt 1 view -0
+ 134              		.cfi_startproc
+ 135              		@ args = 0, pretend = 0, frame = 0
+ 136              		@ frame_needed = 0, uses_anonymous_args = 0
+ 137              		@ link register save eliminated.
+ 253:Src/mc_tasks.c ****    hBootCapDelayCounterM1 = hTickCount;
+ 138              		.loc 1 253 4 view .LVU22
+ 139              		.loc 1 253 27 is_stmt 0 view .LVU23
+ 140 0000 014B     		ldr	r3, .L14
+ 141 0002 1880     		strh	r0, [r3]	@ movhi
+ 254:Src/mc_tasks.c **** }
+ 142              		.loc 1 254 1 view .LVU24
+ 143 0004 7047     		bx	lr
+ 144              	.L15:
+ 145 0006 00BF     		.align	2
+ 146              	.L14:
+ 147 0008 00000000 		.word	.LANCHOR1
+ARM GAS  /tmp/ccRbQnGb.s 			page 8
+
+
+ 148              		.cfi_endproc
+ 149              	.LFE1468:
+ 151              		.section	.text.TSK_ChargeBootCapDelayHasElapsedM1,"ax",%progbits
+ 152              		.align	1
+ 153              		.p2align 2,,3
+ 154              		.weak	TSK_ChargeBootCapDelayHasElapsedM1
+ 155              		.syntax unified
+ 156              		.thumb
+ 157              		.thumb_func
+ 158              		.fpu fpv4-sp-d16
+ 160              	TSK_ChargeBootCapDelayHasElapsedM1:
+ 161              	.LFB1469:
+ 255:Src/mc_tasks.c **** 
+ 256:Src/mc_tasks.c **** /**
+ 257:Src/mc_tasks.c ****   * @brief  Use this function to know whether the time required to charge boot
+ 258:Src/mc_tasks.c ****   *         capacitors of motor 1 has elapsed.
+ 259:Src/mc_tasks.c ****   * @param  none
+ 260:Src/mc_tasks.c ****   * @retval bool true if time has elapsed, false otherwise.
+ 261:Src/mc_tasks.c ****   */
+ 262:Src/mc_tasks.c **** __weak bool TSK_ChargeBootCapDelayHasElapsedM1(void)
+ 263:Src/mc_tasks.c **** {
+ 162              		.loc 1 263 1 is_stmt 1 view -0
+ 163              		.cfi_startproc
+ 164              		@ args = 0, pretend = 0, frame = 0
+ 165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166              		@ link register save eliminated.
+ 264:Src/mc_tasks.c ****   bool retVal = false;
+ 167              		.loc 1 264 3 view .LVU26
+ 168              	.LVL12:
+ 265:Src/mc_tasks.c ****   if (((uint16_t)0) == hBootCapDelayCounterM1)
+ 169              		.loc 1 265 3 view .LVU27
+ 170              		.loc 1 265 21 is_stmt 0 view .LVU28
+ 171 0000 034B     		ldr	r3, .L17
+ 172 0002 1888     		ldrh	r0, [r3]
+ 173 0004 80B2     		uxth	r0, r0
+ 174              	.LVL13:
+ 266:Src/mc_tasks.c ****   {
+ 267:Src/mc_tasks.c ****     retVal = true;
+ 268:Src/mc_tasks.c ****   }
+ 269:Src/mc_tasks.c ****   return (retVal);
+ 175              		.loc 1 269 3 is_stmt 1 view .LVU29
+ 270:Src/mc_tasks.c **** }
+ 176              		.loc 1 270 1 is_stmt 0 view .LVU30
+ 177 0006 B0FA80F0 		clz	r0, r0
+ 178              	.LVL14:
+ 179              		.loc 1 270 1 view .LVU31
+ 180 000a 4009     		lsrs	r0, r0, #5
+ 181 000c 7047     		bx	lr
+ 182              	.L18:
+ 183 000e 00BF     		.align	2
+ 184              	.L17:
+ 185 0010 00000000 		.word	.LANCHOR1
+ 186              		.cfi_endproc
+ 187              	.LFE1469:
+ 189              		.section	.text.TSK_SetStopPermanencyTimeM1,"ax",%progbits
+ 190              		.align	1
+ 191              		.p2align 2,,3
+ARM GAS  /tmp/ccRbQnGb.s 			page 9
+
+
+ 192              		.weak	TSK_SetStopPermanencyTimeM1
+ 193              		.syntax unified
+ 194              		.thumb
+ 195              		.thumb_func
+ 196              		.fpu fpv4-sp-d16
+ 198              	TSK_SetStopPermanencyTimeM1:
+ 199              	.LVL15:
+ 200              	.LFB1470:
+ 271:Src/mc_tasks.c **** 
+ 272:Src/mc_tasks.c **** /**
+ 273:Src/mc_tasks.c ****   * @brief  It set a counter intended to be used for counting the permanency
+ 274:Src/mc_tasks.c ****   *         time in STOP state of motor 1.
+ 275:Src/mc_tasks.c ****   * @param  hTickCount number of ticks to be counted.
+ 276:Src/mc_tasks.c ****   * @retval void
+ 277:Src/mc_tasks.c ****   */
+ 278:Src/mc_tasks.c **** __weak void TSK_SetStopPermanencyTimeM1(uint16_t hTickCount)
+ 279:Src/mc_tasks.c **** {
+ 201              		.loc 1 279 1 is_stmt 1 view -0
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 0
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+ 205              		@ link register save eliminated.
+ 280:Src/mc_tasks.c ****   hStopPermanencyCounterM1 = hTickCount;
+ 206              		.loc 1 280 3 view .LVU33
+ 207              		.loc 1 280 28 is_stmt 0 view .LVU34
+ 208 0000 014B     		ldr	r3, .L20
+ 209 0002 1880     		strh	r0, [r3]	@ movhi
+ 281:Src/mc_tasks.c **** }
+ 210              		.loc 1 281 1 view .LVU35
+ 211 0004 7047     		bx	lr
+ 212              	.L21:
+ 213 0006 00BF     		.align	2
+ 214              	.L20:
+ 215 0008 00000000 		.word	.LANCHOR2
+ 216              		.cfi_endproc
+ 217              	.LFE1470:
+ 219              		.section	.text.TSK_StopPermanencyTimeHasElapsedM1,"ax",%progbits
+ 220              		.align	1
+ 221              		.p2align 2,,3
+ 222              		.weak	TSK_StopPermanencyTimeHasElapsedM1
+ 223              		.syntax unified
+ 224              		.thumb
+ 225              		.thumb_func
+ 226              		.fpu fpv4-sp-d16
+ 228              	TSK_StopPermanencyTimeHasElapsedM1:
+ 229              	.LFB1471:
+ 282:Src/mc_tasks.c **** 
+ 283:Src/mc_tasks.c **** /**
+ 284:Src/mc_tasks.c ****   * @brief  Use this function to know whether the permanency time in STOP state
+ 285:Src/mc_tasks.c ****   *         of motor 1 has elapsed.
+ 286:Src/mc_tasks.c ****   * @param  none
+ 287:Src/mc_tasks.c ****   * @retval bool true if time is elapsed, false otherwise.
+ 288:Src/mc_tasks.c ****   */
+ 289:Src/mc_tasks.c **** __weak bool TSK_StopPermanencyTimeHasElapsedM1(void)
+ 290:Src/mc_tasks.c **** {
+ 230              		.loc 1 290 1 is_stmt 1 view -0
+ 231              		.cfi_startproc
+ARM GAS  /tmp/ccRbQnGb.s 			page 10
+
+
+ 232              		@ args = 0, pretend = 0, frame = 0
+ 233              		@ frame_needed = 0, uses_anonymous_args = 0
+ 234              		@ link register save eliminated.
+ 291:Src/mc_tasks.c ****   bool retVal = false;
+ 235              		.loc 1 291 3 view .LVU37
+ 236              	.LVL16:
+ 292:Src/mc_tasks.c ****   if (((uint16_t)0) == hStopPermanencyCounterM1)
+ 237              		.loc 1 292 3 view .LVU38
+ 238              		.loc 1 292 21 is_stmt 0 view .LVU39
+ 239 0000 034B     		ldr	r3, .L23
+ 240 0002 1888     		ldrh	r0, [r3]
+ 241 0004 80B2     		uxth	r0, r0
+ 242              	.LVL17:
+ 293:Src/mc_tasks.c ****   {
+ 294:Src/mc_tasks.c ****     retVal = true;
+ 295:Src/mc_tasks.c ****   }
+ 296:Src/mc_tasks.c ****   return (retVal);
+ 243              		.loc 1 296 3 is_stmt 1 view .LVU40
+ 297:Src/mc_tasks.c **** }
+ 244              		.loc 1 297 1 is_stmt 0 view .LVU41
+ 245 0006 B0FA80F0 		clz	r0, r0
+ 246              	.LVL18:
+ 247              		.loc 1 297 1 view .LVU42
+ 248 000a 4009     		lsrs	r0, r0, #5
+ 249 000c 7047     		bx	lr
+ 250              	.L24:
+ 251 000e 00BF     		.align	2
+ 252              	.L23:
+ 253 0010 00000000 		.word	.LANCHOR2
+ 254              		.cfi_endproc
+ 255              	.LFE1471:
+ 257              		.section	.text.TSK_HighFrequencyTask,"ax",%progbits
+ 258              		.align	1
+ 259              		.p2align 2,,3
+ 260              		.weak	TSK_HighFrequencyTask
+ 261              		.syntax unified
+ 262              		.thumb
+ 263              		.thumb_func
+ 264              		.fpu fpv4-sp-d16
+ 266              	TSK_HighFrequencyTask:
+ 267              	.LFB1472:
+ 298:Src/mc_tasks.c **** 
+ 299:Src/mc_tasks.c **** #if defined (CCMRAM)
+ 300:Src/mc_tasks.c **** #if defined (__ICCARM__)
+ 301:Src/mc_tasks.c **** #pragma location = ".ccmram"
+ 302:Src/mc_tasks.c **** #elif defined (__CC_ARM) || defined(__GNUC__)
+ 303:Src/mc_tasks.c **** __attribute__((section (".ccmram")))
+ 304:Src/mc_tasks.c **** #endif
+ 305:Src/mc_tasks.c **** #endif
+ 306:Src/mc_tasks.c **** 
+ 307:Src/mc_tasks.c **** /**
+ 308:Src/mc_tasks.c ****   * @brief  Executes the Motor Control duties that require a high frequency rate and a precise timi
+ 309:Src/mc_tasks.c ****   *
+ 310:Src/mc_tasks.c ****   *  This is mainly the FOC current control loop. It is executed depending on the state of the Moto
+ 311:Src/mc_tasks.c ****   * subsystem (see the state machine(s)).
+ 312:Src/mc_tasks.c ****   *
+ 313:Src/mc_tasks.c ****   * @retval Number of the  motor instance which FOC loop was executed.
+ARM GAS  /tmp/ccRbQnGb.s 			page 11
+
+
+ 314:Src/mc_tasks.c ****   */
+ 315:Src/mc_tasks.c **** __weak uint8_t TSK_HighFrequencyTask(void)
+ 316:Src/mc_tasks.c **** {
+ 268              		.loc 1 316 1 is_stmt 1 view -0
+ 269              		.cfi_startproc
+ 270              		@ args = 0, pretend = 0, frame = 0
+ 271              		@ frame_needed = 0, uses_anonymous_args = 0
+ 317:Src/mc_tasks.c ****   uint8_t bMotorNbr;
+ 272              		.loc 1 317 3 view .LVU44
+ 318:Src/mc_tasks.c ****   bMotorNbr = 0;
+ 273              		.loc 1 318 3 view .LVU45
+ 274              	.LVL19:
+ 319:Src/mc_tasks.c ****   /* USER CODE BEGIN HighFrequencyTask 0 */
+ 320:Src/mc_tasks.c **** 
+ 321:Src/mc_tasks.c ****   /* USER CODE END HighFrequencyTask 0 */
+ 322:Src/mc_tasks.c ****   FOC_HighFrequencyTask(bMotorNbr);
+ 275              		.loc 1 322 3 view .LVU46
+ 316:Src/mc_tasks.c ****   uint8_t bMotorNbr;
+ 276              		.loc 1 316 1 is_stmt 0 view .LVU47
+ 277 0000 08B5     		push	{r3, lr}
+ 278              	.LCFI2:
+ 279              		.cfi_def_cfa_offset 8
+ 280              		.cfi_offset 3, -8
+ 281              		.cfi_offset 14, -4
+ 282              		.loc 1 322 3 view .LVU48
+ 283 0002 0020     		movs	r0, #0
+ 284 0004 FFF7FEFF 		bl	FOC_HighFrequencyTask
+ 285              	.LVL20:
+ 323:Src/mc_tasks.c **** 
+ 324:Src/mc_tasks.c ****   /* USER CODE BEGIN HighFrequencyTask 1 */
+ 325:Src/mc_tasks.c **** 
+ 326:Src/mc_tasks.c ****   /* USER CODE END HighFrequencyTask 1 */
+ 327:Src/mc_tasks.c **** 
+ 328:Src/mc_tasks.c ****   GLOBAL_TIMESTAMP++;
+ 286              		.loc 1 328 3 is_stmt 1 view .LVU49
+ 287              		.loc 1 328 19 is_stmt 0 view .LVU50
+ 288 0008 064A     		ldr	r2, .L32
+ 329:Src/mc_tasks.c ****   if (0U == MCPA_UART_A.Mark)
+ 289              		.loc 1 329 24 view .LVU51
+ 290 000a 0748     		ldr	r0, .L32+4
+ 328:Src/mc_tasks.c ****   if (0U == MCPA_UART_A.Mark)
+ 291              		.loc 1 328 19 view .LVU52
+ 292 000c 1368     		ldr	r3, [r2]
+ 293              		.loc 1 329 6 view .LVU53
+ 294 000e 90F82910 		ldrb	r1, [r0, #41]	@ zero_extendqisi2
+ 328:Src/mc_tasks.c ****   if (0U == MCPA_UART_A.Mark)
+ 295              		.loc 1 328 19 view .LVU54
+ 296 0012 0133     		adds	r3, r3, #1
+ 297 0014 1360     		str	r3, [r2]
+ 298              		.loc 1 329 3 is_stmt 1 view .LVU55
+ 299              		.loc 1 329 6 is_stmt 0 view .LVU56
+ 300 0016 09B9     		cbnz	r1, .L31
+ 330:Src/mc_tasks.c ****   {
+ 331:Src/mc_tasks.c ****     /* Nothing to do */
+ 332:Src/mc_tasks.c ****   }
+ 333:Src/mc_tasks.c ****   else
+ 334:Src/mc_tasks.c ****   {
+ARM GAS  /tmp/ccRbQnGb.s 			page 12
+
+
+ 335:Src/mc_tasks.c ****     MCPA_dataLog (&MCPA_UART_A);
+ 336:Src/mc_tasks.c ****   }
+ 337:Src/mc_tasks.c **** 
+ 338:Src/mc_tasks.c ****   return (bMotorNbr);
+ 301              		.loc 1 338 3 is_stmt 1 view .LVU57
+ 339:Src/mc_tasks.c **** 
+ 340:Src/mc_tasks.c **** }
+ 302              		.loc 1 340 1 is_stmt 0 view .LVU58
+ 303 0018 0020     		movs	r0, #0
+ 304 001a 08BD     		pop	{r3, pc}
+ 305              	.L31:
+ 335:Src/mc_tasks.c ****   }
+ 306              		.loc 1 335 5 is_stmt 1 view .LVU59
+ 307 001c FFF7FEFF 		bl	MCPA_dataLog
+ 308              	.LVL21:
+ 338:Src/mc_tasks.c **** 
+ 309              		.loc 1 338 3 view .LVU60
+ 310              		.loc 1 340 1 is_stmt 0 view .LVU61
+ 311 0020 0020     		movs	r0, #0
+ 312 0022 08BD     		pop	{r3, pc}
+ 313              	.L33:
+ 314              		.align	2
+ 315              	.L32:
+ 316 0024 00000000 		.word	GLOBAL_TIMESTAMP
+ 317 0028 00000000 		.word	MCPA_UART_A
+ 318              		.cfi_endproc
+ 319              	.LFE1472:
+ 321              		.section	.text.TSK_SafetyTask_PWMOFF,"ax",%progbits
+ 322              		.align	1
+ 323              		.p2align 2,,3
+ 324              		.weak	TSK_SafetyTask_PWMOFF
+ 325              		.syntax unified
+ 326              		.thumb
+ 327              		.thumb_func
+ 328              		.fpu fpv4-sp-d16
+ 330              	TSK_SafetyTask_PWMOFF:
+ 331              	.LVL22:
+ 332              	.LFB1474:
+ 341:Src/mc_tasks.c **** 
+ 342:Src/mc_tasks.c **** /**
+ 343:Src/mc_tasks.c ****   * @brief  Executes safety checks (e.g. bus voltage and temperature) for all drive instances.
+ 344:Src/mc_tasks.c ****   *
+ 345:Src/mc_tasks.c ****   * Faults flags are updated here.
+ 346:Src/mc_tasks.c ****   */
+ 347:Src/mc_tasks.c **** __weak void TSK_SafetyTask(void)
+ 348:Src/mc_tasks.c **** {
+ 349:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask 0 */
+ 350:Src/mc_tasks.c **** 
+ 351:Src/mc_tasks.c ****   /* USER CODE END TSK_SafetyTask 0 */
+ 352:Src/mc_tasks.c ****   if (1U == bMCBootCompleted)
+ 353:Src/mc_tasks.c ****   {
+ 354:Src/mc_tasks.c ****     TSK_SafetyTask_PWMOFF(M1);
+ 355:Src/mc_tasks.c ****     /* User conversion execution */
+ 356:Src/mc_tasks.c ****     RCM_ExecUserConv();
+ 357:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask 1 */
+ 358:Src/mc_tasks.c **** 
+ 359:Src/mc_tasks.c ****   /* USER CODE END TSK_SafetyTask 1 */
+ARM GAS  /tmp/ccRbQnGb.s 			page 13
+
+
+ 360:Src/mc_tasks.c ****   }
+ 361:Src/mc_tasks.c ****   else
+ 362:Src/mc_tasks.c ****   {
+ 363:Src/mc_tasks.c ****     /* Nothing to do */
+ 364:Src/mc_tasks.c ****   }
+ 365:Src/mc_tasks.c **** }
+ 366:Src/mc_tasks.c **** 
+ 367:Src/mc_tasks.c **** /**
+ 368:Src/mc_tasks.c ****   * @brief  Safety task implementation if  MC.M1_ON_OVER_VOLTAGE == TURN_OFF_PWM.
+ 369:Src/mc_tasks.c ****   * @param  bMotor Motor reference number defined
+ 370:Src/mc_tasks.c ****   *         \link Motors_reference_number here \endlink.
+ 371:Src/mc_tasks.c ****   */
+ 372:Src/mc_tasks.c **** __weak void TSK_SafetyTask_PWMOFF(uint8_t bMotor)
+ 373:Src/mc_tasks.c **** {
+ 333              		.loc 1 373 1 is_stmt 1 view -0
+ 334              		.cfi_startproc
+ 335              		@ args = 0, pretend = 0, frame = 0
+ 336              		@ frame_needed = 0, uses_anonymous_args = 0
+ 374:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 0 */
+ 375:Src/mc_tasks.c **** 
+ 376:Src/mc_tasks.c ****   /* USER CODE END TSK_SafetyTask_PWMOFF 0 */
+ 377:Src/mc_tasks.c ****   uint16_t CodeReturn = MC_NO_ERROR;
+ 337              		.loc 1 377 3 view .LVU63
+ 378:Src/mc_tasks.c ****   uint8_t lbmotor = M1;
+ 338              		.loc 1 378 3 view .LVU64
+ 379:Src/mc_tasks.c ****   const uint16_t errMask[NBR_OF_MOTORS] = {VBUS_TEMP_ERR_MASK};
+ 339              		.loc 1 379 3 view .LVU65
+ 380:Src/mc_tasks.c ****   /* Check for fault if FW protection is activated. It returns MC_OVER_TEMP or MC_NO_ERROR */
+ 381:Src/mc_tasks.c ****   if (M1 == bMotor)
+ 340              		.loc 1 381 3 view .LVU66
+ 373:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 0 */
+ 341              		.loc 1 373 1 is_stmt 0 view .LVU67
+ 342 0000 70B5     		push	{r4, r5, r6, lr}
+ 343              	.LCFI3:
+ 344              		.cfi_def_cfa_offset 16
+ 345              		.cfi_offset 4, -16
+ 346              		.cfi_offset 5, -12
+ 347              		.cfi_offset 6, -8
+ 348              		.cfi_offset 14, -4
+ 349              		.loc 1 381 6 view .LVU68
+ 350 0002 0546     		mov	r5, r0
+ 351 0004 98B1     		cbz	r0, .L43
+ 382:Src/mc_tasks.c ****   {
+ 383:Src/mc_tasks.c ****     uint16_t rawValueM1 = RCM_ExecRegularConv(&TempRegConv_M1);
+ 384:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & NTC_CalcAvTemp(&TempSensor_M1, rawValueM1);
+ 385:Src/mc_tasks.c ****   }
+ 386:Src/mc_tasks.c ****   else
+ 387:Src/mc_tasks.c ****   {
+ 388:Src/mc_tasks.c ****     /* Nothing to do */
+ 389:Src/mc_tasks.c ****   }
+ 352              		.loc 1 389 3 is_stmt 1 view .LVU69
+ 390:Src/mc_tasks.c **** 
+ 391:Src/mc_tasks.c **** /* Due to warning array subscript 1 is above array bounds of PWMC_Handle_t *[1] [-Warray-bounds] */
+ 392:Src/mc_tasks.c ****    CodeReturn |= PWMC_IsFaultOccurred(pwmcHandle[lbmotor]);     /* check for fault. It return MC_OV
+ 353              		.loc 1 392 4 view .LVU70
+ 354              		.loc 1 392 18 is_stmt 0 view .LVU71
+ 355 0006 214E     		ldr	r6, .L46
+ARM GAS  /tmp/ccRbQnGb.s 			page 14
+
+
+ 356 0008 3068     		ldr	r0, [r6]
+ 357              	.LVL23:
+ 358              		.loc 1 392 18 view .LVU72
+ 359 000a FFF7FEFF 		bl	PWMC_IsFaultOccurred
+ 360              	.LVL24:
+ 361 000e 0146     		mov	r1, r0
+ 362              	.LVL25:
+ 393:Src/mc_tasks.c ****                                                      (for STM32F30x can return MC_OVER_VOLT in case
+ 394:Src/mc_tasks.c **** 
+ 395:Src/mc_tasks.c ****   if (M1 == bMotor)
+ 363              		.loc 1 395 3 is_stmt 1 view .LVU73
+ 364              	.L38:
+ 396:Src/mc_tasks.c ****   {
+ 397:Src/mc_tasks.c ****     uint16_t rawValueM1 =  RCM_ExecRegularConv(&VbusRegConv_M1);
+ 398:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & RVBS_CalcAvVbus(&BusVoltageSensor_M1, rawValueM1);
+ 399:Src/mc_tasks.c ****   }
+ 400:Src/mc_tasks.c ****   else
+ 401:Src/mc_tasks.c ****   {
+ 402:Src/mc_tasks.c ****     /* Nothing to do */
+ 403:Src/mc_tasks.c ****   }
+ 365              		.loc 1 403 3 view .LVU74
+ 404:Src/mc_tasks.c ****   MCI_FaultProcessing(&Mci[bMotor], CodeReturn, ~CodeReturn); /* Process faults */
+ 366              		.loc 1 404 3 view .LVU75
+ 367 0010 1F4C     		ldr	r4, .L46+4
+ 368 0012 05EB8503 		add	r3, r5, r5, lsl #2
+ 369 0016 04EBC304 		add	r4, r4, r3, lsl #3
+ 370 001a CA43     		mvns	r2, r1
+ 371 001c 2046     		mov	r0, r4
+ 372 001e 92B2     		uxth	r2, r2
+ 373 0020 FFF7FEFF 		bl	MCI_FaultProcessing
+ 374              	.LVL26:
+ 405:Src/mc_tasks.c **** 
+ 406:Src/mc_tasks.c ****   if (MCI_GetFaultState(&Mci[bMotor]) != (uint32_t)MC_NO_FAULTS)
+ 375              		.loc 1 406 3 view .LVU76
+ 376              		.loc 1 406 7 is_stmt 0 view .LVU77
+ 377 0024 2046     		mov	r0, r4
+ 378 0026 FFF7FEFF 		bl	MCI_GetFaultState
+ 379              	.LVL27:
+ 380              		.loc 1 406 6 view .LVU78
+ 381 002a D8B9     		cbnz	r0, .L44
+ 407:Src/mc_tasks.c ****   {
+ 408:Src/mc_tasks.c ****     PWMC_SwitchOffPWM(pwmcHandle[bMotor]);
+ 409:Src/mc_tasks.c ****     if (MCPA_UART_A.Mark != 0U)
+ 410:Src/mc_tasks.c ****     {
+ 411:Src/mc_tasks.c ****       MCPA_flushDataLog (&MCPA_UART_A);
+ 412:Src/mc_tasks.c ****     }
+ 413:Src/mc_tasks.c ****     else
+ 414:Src/mc_tasks.c ****     {
+ 415:Src/mc_tasks.c ****       /* Nothing to do */
+ 416:Src/mc_tasks.c ****     }
+ 417:Src/mc_tasks.c ****     FOC_Clear(bMotor);
+ 418:Src/mc_tasks.c ****     /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 1 */
+ 419:Src/mc_tasks.c **** 
+ 420:Src/mc_tasks.c ****     /* USER CODE END TSK_SafetyTask_PWMOFF 1 */
+ 421:Src/mc_tasks.c ****   }
+ 422:Src/mc_tasks.c ****   else
+ 423:Src/mc_tasks.c ****   {
+ARM GAS  /tmp/ccRbQnGb.s 			page 15
+
+
+ 424:Src/mc_tasks.c ****     /* No errors */
+ 425:Src/mc_tasks.c ****   }
+ 426:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 3 */
+ 427:Src/mc_tasks.c **** 
+ 428:Src/mc_tasks.c ****   /* USER CODE END TSK_SafetyTask_PWMOFF 3 */
+ 429:Src/mc_tasks.c **** }
+ 382              		.loc 1 429 1 view .LVU79
+ 383 002c 70BD     		pop	{r4, r5, r6, pc}
+ 384              	.LVL28:
+ 385              	.L43:
+ 386              	.LBB38:
+ 383:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & NTC_CalcAvTemp(&TempSensor_M1, rawValueM1);
+ 387              		.loc 1 383 5 is_stmt 1 view .LVU80
+ 383:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & NTC_CalcAvTemp(&TempSensor_M1, rawValueM1);
+ 388              		.loc 1 383 27 is_stmt 0 view .LVU81
+ 389 002e 1948     		ldr	r0, .L46+8
+ 390              	.LVL29:
+ 383:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & NTC_CalcAvTemp(&TempSensor_M1, rawValueM1);
+ 391              		.loc 1 383 27 view .LVU82
+ 392              	.LBE38:
+ 392:Src/mc_tasks.c ****                                                      (for STM32F30x can return MC_OVER_VOLT in case
+ 393              		.loc 1 392 18 view .LVU83
+ 394 0030 164E     		ldr	r6, .L46
+ 395              	.LBB39:
+ 383:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & NTC_CalcAvTemp(&TempSensor_M1, rawValueM1);
+ 396              		.loc 1 383 27 view .LVU84
+ 397 0032 FFF7FEFF 		bl	RCM_ExecRegularConv
+ 398              	.LVL30:
+ 384:Src/mc_tasks.c ****   }
+ 399              		.loc 1 384 5 is_stmt 1 view .LVU85
+ 384:Src/mc_tasks.c ****   }
+ 400              		.loc 1 384 37 is_stmt 0 view .LVU86
+ 401 0036 0146     		mov	r1, r0
+ 402 0038 1748     		ldr	r0, .L46+12
+ 403              	.LVL31:
+ 384:Src/mc_tasks.c ****   }
+ 404              		.loc 1 384 37 view .LVU87
+ 405 003a FFF7FEFF 		bl	NTC_CalcAvTemp
+ 406              	.LVL32:
+ 407 003e 0446     		mov	r4, r0
+ 408              	.LVL33:
+ 384:Src/mc_tasks.c ****   }
+ 409              		.loc 1 384 37 view .LVU88
+ 410              	.LBE39:
+ 389:Src/mc_tasks.c **** 
+ 411              		.loc 1 389 3 is_stmt 1 view .LVU89
+ 392:Src/mc_tasks.c ****                                                      (for STM32F30x can return MC_OVER_VOLT in case
+ 412              		.loc 1 392 4 view .LVU90
+ 392:Src/mc_tasks.c ****                                                      (for STM32F30x can return MC_OVER_VOLT in case
+ 413              		.loc 1 392 18 is_stmt 0 view .LVU91
+ 414 0040 3068     		ldr	r0, [r6]
+ 415 0042 FFF7FEFF 		bl	PWMC_IsFaultOccurred
+ 416              	.LVL34:
+ 417              	.LBB40:
+ 384:Src/mc_tasks.c ****   }
+ 418              		.loc 1 384 35 view .LVU92
+ 419 0046 04F00E04 		and	r4, r4, #14
+ARM GAS  /tmp/ccRbQnGb.s 			page 16
+
+
+ 420              	.LVL35:
+ 384:Src/mc_tasks.c ****   }
+ 421              		.loc 1 384 35 view .LVU93
+ 422              	.LBE40:
+ 392:Src/mc_tasks.c ****                                                      (for STM32F30x can return MC_OVER_VOLT in case
+ 423              		.loc 1 392 15 view .LVU94
+ 424 004a 0443     		orrs	r4, r4, r0
+ 425              	.LBB41:
+ 397:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & RVBS_CalcAvVbus(&BusVoltageSensor_M1, rawValueM1);
+ 426              		.loc 1 397 28 view .LVU95
+ 427 004c 1348     		ldr	r0, .L46+16
+ 428 004e FFF7FEFF 		bl	RCM_ExecRegularConv
+ 429              	.LVL36:
+ 398:Src/mc_tasks.c ****   }
+ 430              		.loc 1 398 37 view .LVU96
+ 431 0052 0146     		mov	r1, r0
+ 432 0054 1248     		ldr	r0, .L46+20
+ 433 0056 FFF7FEFF 		bl	RVBS_CalcAvVbus
+ 434              	.LVL37:
+ 435              	.LBE41:
+ 392:Src/mc_tasks.c ****                                                      (for STM32F30x can return MC_OVER_VOLT in case
+ 436              		.loc 1 392 15 view .LVU97
+ 437 005a A4B2     		uxth	r4, r4
+ 438              	.LVL38:
+ 395:Src/mc_tasks.c ****   {
+ 439              		.loc 1 395 3 is_stmt 1 view .LVU98
+ 440              	.LBB42:
+ 397:Src/mc_tasks.c ****     CodeReturn |= errMask[bMotor] & RVBS_CalcAvVbus(&BusVoltageSensor_M1, rawValueM1);
+ 441              		.loc 1 397 5 view .LVU99
+ 398:Src/mc_tasks.c ****   }
+ 442              		.loc 1 398 5 view .LVU100
+ 398:Src/mc_tasks.c ****   }
+ 443              		.loc 1 398 35 is_stmt 0 view .LVU101
+ 444 005c 00F00E01 		and	r1, r0, #14
+ 398:Src/mc_tasks.c ****   }
+ 445              		.loc 1 398 16 view .LVU102
+ 446 0060 2143     		orrs	r1, r1, r4
+ 447              	.LVL39:
+ 398:Src/mc_tasks.c ****   }
+ 448              		.loc 1 398 16 view .LVU103
+ 449              	.LBE42:
+ 450 0062 D5E7     		b	.L38
+ 451              	.LVL40:
+ 452              	.L44:
+ 408:Src/mc_tasks.c ****     if (MCPA_UART_A.Mark != 0U)
+ 453              		.loc 1 408 5 is_stmt 1 view .LVU104
+ 454 0064 56F82500 		ldr	r0, [r6, r5, lsl #2]
+ 455 0068 FFF7FEFF 		bl	PWMC_SwitchOffPWM
+ 456              	.LVL41:
+ 409:Src/mc_tasks.c ****     {
+ 457              		.loc 1 409 5 view .LVU105
+ 409:Src/mc_tasks.c ****     {
+ 458              		.loc 1 409 20 is_stmt 0 view .LVU106
+ 459 006c 0D48     		ldr	r0, .L46+24
+ 409:Src/mc_tasks.c ****     {
+ 460              		.loc 1 409 8 view .LVU107
+ 461 006e 90F82930 		ldrb	r3, [r0, #41]	@ zero_extendqisi2
+ARM GAS  /tmp/ccRbQnGb.s 			page 17
+
+
+ 462 0072 23B9     		cbnz	r3, .L45
+ 416:Src/mc_tasks.c ****     FOC_Clear(bMotor);
+ 463              		.loc 1 416 5 is_stmt 1 view .LVU108
+ 417:Src/mc_tasks.c ****     /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 1 */
+ 464              		.loc 1 417 5 view .LVU109
+ 465 0074 2846     		mov	r0, r5
+ 466              		.loc 1 429 1 is_stmt 0 view .LVU110
+ 467 0076 BDE87040 		pop	{r4, r5, r6, lr}
+ 468              	.LCFI4:
+ 469              		.cfi_remember_state
+ 470              		.cfi_restore 14
+ 471              		.cfi_restore 6
+ 472              		.cfi_restore 5
+ 473              		.cfi_restore 4
+ 474              		.cfi_def_cfa_offset 0
+ 417:Src/mc_tasks.c ****     /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 1 */
+ 475              		.loc 1 417 5 view .LVU111
+ 476 007a FFF7FEBF 		b	FOC_Clear
+ 477              	.LVL42:
+ 478              	.L45:
+ 479              	.LCFI5:
+ 480              		.cfi_restore_state
+ 411:Src/mc_tasks.c ****     }
+ 481              		.loc 1 411 7 is_stmt 1 view .LVU112
+ 482 007e FFF7FEFF 		bl	MCPA_flushDataLog
+ 483              	.LVL43:
+ 416:Src/mc_tasks.c ****     FOC_Clear(bMotor);
+ 484              		.loc 1 416 5 view .LVU113
+ 417:Src/mc_tasks.c ****     /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 1 */
+ 485              		.loc 1 417 5 view .LVU114
+ 486 0082 2846     		mov	r0, r5
+ 487              		.loc 1 429 1 is_stmt 0 view .LVU115
+ 488 0084 BDE87040 		pop	{r4, r5, r6, lr}
+ 489              	.LCFI6:
+ 490              		.cfi_restore 14
+ 491              		.cfi_restore 6
+ 492              		.cfi_restore 5
+ 493              		.cfi_restore 4
+ 494              		.cfi_def_cfa_offset 0
+ 417:Src/mc_tasks.c ****     /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 1 */
+ 495              		.loc 1 417 5 view .LVU116
+ 496 0088 FFF7FEBF 		b	FOC_Clear
+ 497              	.LVL44:
+ 498              	.L47:
+ 499              		.align	2
+ 500              	.L46:
+ 501 008c 00000000 		.word	pwmcHandle
+ 502 0090 00000000 		.word	Mci
+ 503 0094 00000000 		.word	TempRegConv_M1
+ 504 0098 00000000 		.word	TempSensor_M1
+ 505 009c 00000000 		.word	VbusRegConv_M1
+ 506 00a0 00000000 		.word	BusVoltageSensor_M1
+ 507 00a4 00000000 		.word	MCPA_UART_A
+ 508              		.cfi_endproc
+ 509              	.LFE1474:
+ 511              		.section	.text.TSK_SafetyTask,"ax",%progbits
+ 512              		.align	1
+ARM GAS  /tmp/ccRbQnGb.s 			page 18
+
+
+ 513              		.p2align 2,,3
+ 514              		.weak	TSK_SafetyTask
+ 515              		.syntax unified
+ 516              		.thumb
+ 517              		.thumb_func
+ 518              		.fpu fpv4-sp-d16
+ 520              	TSK_SafetyTask:
+ 521              	.LFB1473:
+ 348:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask 0 */
+ 522              		.loc 1 348 1 is_stmt 1 view -0
+ 523              		.cfi_startproc
+ 524              		@ args = 0, pretend = 0, frame = 0
+ 525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 352:Src/mc_tasks.c ****   {
+ 526              		.loc 1 352 3 view .LVU118
+ 348:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask 0 */
+ 527              		.loc 1 348 1 is_stmt 0 view .LVU119
+ 528 0000 08B5     		push	{r3, lr}
+ 529              	.LCFI7:
+ 530              		.cfi_def_cfa_offset 8
+ 531              		.cfi_offset 3, -8
+ 532              		.cfi_offset 14, -4
+ 352:Src/mc_tasks.c ****   {
+ 533              		.loc 1 352 10 view .LVU120
+ 534 0002 064B     		ldr	r3, .L52
+ 535 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 352:Src/mc_tasks.c ****   {
+ 536              		.loc 1 352 6 view .LVU121
+ 537 0006 012B     		cmp	r3, #1
+ 538 0008 00D0     		beq	.L51
+ 365:Src/mc_tasks.c **** 
+ 539              		.loc 1 365 1 view .LVU122
+ 540 000a 08BD     		pop	{r3, pc}
+ 541              	.L51:
+ 542              	.LBB45:
+ 543              	.LBI45:
+ 347:Src/mc_tasks.c **** {
+ 544              		.loc 1 347 13 is_stmt 1 view .LVU123
+ 545              	.LBB46:
+ 354:Src/mc_tasks.c ****     /* User conversion execution */
+ 546              		.loc 1 354 5 view .LVU124
+ 547 000c 0020     		movs	r0, #0
+ 548 000e FFF7FEFF 		bl	TSK_SafetyTask_PWMOFF
+ 549              	.LVL45:
+ 356:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask 1 */
+ 550              		.loc 1 356 5 view .LVU125
+ 551              	.LBE46:
+ 552              	.LBE45:
+ 365:Src/mc_tasks.c **** 
+ 553              		.loc 1 365 1 is_stmt 0 view .LVU126
+ 554 0012 BDE80840 		pop	{r3, lr}
+ 555              	.LCFI8:
+ 556              		.cfi_restore 14
+ 557              		.cfi_restore 3
+ 558              		.cfi_def_cfa_offset 0
+ 559              	.LBB48:
+ 560              	.LBB47:
+ARM GAS  /tmp/ccRbQnGb.s 			page 19
+
+
+ 356:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_SafetyTask 1 */
+ 561              		.loc 1 356 5 view .LVU127
+ 562 0016 FFF7FEBF 		b	RCM_ExecUserConv
+ 563              	.LVL46:
+ 564              	.L53:
+ 565 001a 00BF     		.align	2
+ 566              	.L52:
+ 567 001c 00000000 		.word	.LANCHOR0
+ 568              	.LBE47:
+ 569              	.LBE48:
+ 570              		.cfi_endproc
+ 571              	.LFE1473:
+ 573              		.section	.text.MC_RunMotorControlTasks,"ax",%progbits
+ 574              		.align	1
+ 575              		.p2align 2,,3
+ 576              		.weak	MC_RunMotorControlTasks
+ 577              		.syntax unified
+ 578              		.thumb
+ 579              		.thumb_func
+ 580              		.fpu fpv4-sp-d16
+ 582              	MC_RunMotorControlTasks:
+ 583              	.LFB1467:
+ 164:Src/mc_tasks.c ****   if (0U == bMCBootCompleted)
+ 584              		.loc 1 164 1 is_stmt 1 view -0
+ 585              		.cfi_startproc
+ 586              		@ args = 0, pretend = 0, frame = 0
+ 587              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165:Src/mc_tasks.c ****   {
+ 588              		.loc 1 165 3 view .LVU129
+ 165:Src/mc_tasks.c ****   {
+ 589              		.loc 1 165 10 is_stmt 0 view .LVU130
+ 590 0000 1E4B     		ldr	r3, .L80
+ 591 0002 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 165:Src/mc_tasks.c ****   {
+ 592              		.loc 1 165 6 view .LVU131
+ 593 0004 C3B1     		cbz	r3, .L76
+ 176:Src/mc_tasks.c ****     {
+ 594              		.loc 1 176 5 is_stmt 1 view .LVU132
+ 164:Src/mc_tasks.c ****   if (0U == bMCBootCompleted)
+ 595              		.loc 1 164 1 is_stmt 0 view .LVU133
+ 596 0006 70B5     		push	{r4, r5, r6, lr}
+ 597              	.LCFI9:
+ 598              		.cfi_def_cfa_offset 16
+ 599              		.cfi_offset 4, -16
+ 600              		.cfi_offset 5, -12
+ 601              		.cfi_offset 6, -8
+ 602              		.cfi_offset 14, -4
+ 176:Src/mc_tasks.c ****     {
+ 603              		.loc 1 176 25 view .LVU134
+ 604 0008 1D4C     		ldr	r4, .L80+4
+ 605 000a 2388     		ldrh	r3, [r4]
+ 176:Src/mc_tasks.c ****     {
+ 606              		.loc 1 176 7 view .LVU135
+ 607 000c ABB1     		cbz	r3, .L56
+ 178:Src/mc_tasks.c ****     }
+ 608              		.loc 1 178 7 is_stmt 1 view .LVU136
+ 178:Src/mc_tasks.c ****     }
+ARM GAS  /tmp/ccRbQnGb.s 			page 20
+
+
+ 609              		.loc 1 178 23 is_stmt 0 view .LVU137
+ 610 000e 013B     		subs	r3, r3, #1
+ 611 0010 2380     		strh	r3, [r4]	@ movhi
+ 612              	.L57:
+ 217:Src/mc_tasks.c ****     {
+ 613              		.loc 1 217 5 is_stmt 1 view .LVU138
+ 217:Src/mc_tasks.c ****     {
+ 614              		.loc 1 217 31 is_stmt 0 view .LVU139
+ 615 0012 1C4A     		ldr	r2, .L80+8
+ 616 0014 1388     		ldrh	r3, [r2]
+ 617 0016 9BB2     		uxth	r3, r3
+ 217:Src/mc_tasks.c ****     {
+ 618              		.loc 1 217 7 view .LVU140
+ 619 0018 1BB1     		cbz	r3, .L61
+ 219:Src/mc_tasks.c ****     }
+ 620              		.loc 1 219 7 is_stmt 1 view .LVU141
+ 219:Src/mc_tasks.c ****     }
+ 621              		.loc 1 219 29 is_stmt 0 view .LVU142
+ 622 001a 1388     		ldrh	r3, [r2]
+ 623 001c 013B     		subs	r3, r3, #1
+ 624 001e 9BB2     		uxth	r3, r3
+ 625 0020 1380     		strh	r3, [r2]	@ movhi
+ 626              	.L61:
+ 224:Src/mc_tasks.c ****     if(hStopPermanencyCounterM1 > 0U)
+ 627              		.loc 1 224 5 is_stmt 1 view .LVU143
+ 225:Src/mc_tasks.c ****     {
+ 628              		.loc 1 225 5 view .LVU144
+ 225:Src/mc_tasks.c ****     {
+ 629              		.loc 1 225 33 is_stmt 0 view .LVU145
+ 630 0022 194A     		ldr	r2, .L80+12
+ 631 0024 1388     		ldrh	r3, [r2]
+ 632 0026 9BB2     		uxth	r3, r3
+ 225:Src/mc_tasks.c ****     {
+ 633              		.loc 1 225 7 view .LVU146
+ 634 0028 1BB1     		cbz	r3, .L62
+ 227:Src/mc_tasks.c ****     }
+ 635              		.loc 1 227 7 is_stmt 1 view .LVU147
+ 227:Src/mc_tasks.c ****     }
+ 636              		.loc 1 227 31 is_stmt 0 view .LVU148
+ 637 002a 1388     		ldrh	r3, [r2]
+ 638 002c 013B     		subs	r3, r3, #1
+ 639 002e 9BB2     		uxth	r3, r3
+ 640 0030 1380     		strh	r3, [r2]	@ movhi
+ 641              	.L62:
+ 232:Src/mc_tasks.c **** 
+ 642              		.loc 1 232 5 is_stmt 1 view .LVU149
+ 240:Src/mc_tasks.c **** 
+ 643              		.loc 1 240 5 view .LVU150
+ 644 0032 FFF7FEFF 		bl	TSK_SafetyTask
+ 645              	.LVL47:
+ 243:Src/mc_tasks.c **** 
+ 646              		.loc 1 243 1 is_stmt 0 view .LVU151
+ 647 0036 70BD     		pop	{r4, r5, r6, pc}
+ 648              	.L76:
+ 649              	.LCFI10:
+ 650              		.cfi_def_cfa_offset 0
+ 651              		.cfi_restore 4
+ARM GAS  /tmp/ccRbQnGb.s 			page 21
+
+
+ 652              		.cfi_restore 5
+ 653              		.cfi_restore 6
+ 654              		.cfi_restore 14
+ 655 0038 7047     		bx	lr
+ 656              	.L56:
+ 657              	.LCFI11:
+ 658              		.cfi_def_cfa_offset 16
+ 659              		.cfi_offset 4, -16
+ 660              		.cfi_offset 5, -12
+ 661              		.cfi_offset 6, -8
+ 662              		.cfi_offset 14, -4
+ 182:Src/mc_tasks.c **** 
+ 663              		.loc 1 182 7 is_stmt 1 view .LVU152
+ 187:Src/mc_tasks.c ****                                                                                 &MCP_Over_UartA.rxL
+ 664              		.loc 1 187 47 is_stmt 0 view .LVU153
+ 665 003a 144D     		ldr	r5, .L80+16
+ 182:Src/mc_tasks.c **** 
+ 666              		.loc 1 182 7 view .LVU154
+ 667 003c FFF7FEFF 		bl	TSK_MediumFrequencyTaskM1
+ 668              	.LVL48:
+ 185:Src/mc_tasks.c **** 
+ 669              		.loc 1 185 7 is_stmt 1 view .LVU155
+ 670 0040 FFF7FEFF 		bl	MC_APP_PostMediumFrequencyHook_M1
+ 671              	.LVL49:
+ 187:Src/mc_tasks.c ****                                                                                 &MCP_Over_UartA.rxL
+ 672              		.loc 1 187 7 view .LVU156
+ 187:Src/mc_tasks.c ****                                                                                 &MCP_Over_UartA.rxL
+ 673              		.loc 1 187 47 is_stmt 0 view .LVU157
+ 674 0044 2946     		mov	r1, r5
+ 675 0046 51F80C0B 		ldr	r0, [r1], #12
+ 187:Src/mc_tasks.c ****                                                                                 &MCP_Over_UartA.rxL
+ 676              		.loc 1 187 33 view .LVU158
+ 677 004a 8368     		ldr	r3, [r0, #8]
+ 678 004c 9847     		blx	r3
+ 679              	.LVL50:
+ 187:Src/mc_tasks.c ****                                                                                 &MCP_Over_UartA.rxL
+ 680              		.loc 1 187 31 view .LVU159
+ 681 004e 6860     		str	r0, [r5, #4]
+ 189:Src/mc_tasks.c ****       {
+ 682              		.loc 1 189 7 is_stmt 1 view .LVU160
+ 189:Src/mc_tasks.c ****       {
+ 683              		.loc 1 189 10 is_stmt 0 view .LVU161
+ 684 0050 30B1     		cbz	r0, .L59
+ 196:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 685              		.loc 1 196 9 is_stmt 1 view .LVU162
+ 196:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 686              		.loc 1 196 33 is_stmt 0 view .LVU163
+ 687 0052 2946     		mov	r1, r5
+ 196:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 688              		.loc 1 196 19 view .LVU164
+ 689 0054 0A22     		movs	r2, #10
+ 196:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 690              		.loc 1 196 33 view .LVU165
+ 691 0056 51F8080B 		ldr	r0, [r1], #8
+ 196:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 692              		.loc 1 196 19 view .LVU166
+ 693 005a 0368     		ldr	r3, [r0]
+ARM GAS  /tmp/ccRbQnGb.s 			page 22
+
+
+ 694 005c 9847     		blx	r3
+ 695              	.LVL51:
+ 196:Src/mc_tasks.c ****                                                      (void **) &MCP_Over_UartA.txBuffer, //cstat !M
+ 696              		.loc 1 196 12 view .LVU167
+ 697 005e 10B9     		cbnz	r0, .L79
+ 698              	.L59:
+ 215:Src/mc_tasks.c ****     }
+ 699              		.loc 1 215 7 is_stmt 1 view .LVU168
+ 215:Src/mc_tasks.c ****     }
+ 700              		.loc 1 215 24 is_stmt 0 view .LVU169
+ 701 0060 0123     		movs	r3, #1
+ 702 0062 2380     		strh	r3, [r4]	@ movhi
+ 703 0064 D5E7     		b	.L57
+ 704              	.L79:
+ 204:Src/mc_tasks.c ****           MCP_Over_UartA.pTransportLayer->fSendPacket(MCP_Over_UartA.pTransportLayer, MCP_Over_Uart
+ 705              		.loc 1 204 11 is_stmt 1 view .LVU170
+ 706 0066 2846     		mov	r0, r5
+ 707 0068 FFF7FEFF 		bl	MCP_ReceivedPacket
+ 708              	.LVL52:
+ 205:Src/mc_tasks.c ****                                                       MCP_Over_UartA.txLength, MCTL_SYNC);
+ 709              		.loc 1 205 11 view .LVU171
+ 205:Src/mc_tasks.c ****                                                       MCP_Over_UartA.txLength, MCTL_SYNC);
+ 710              		.loc 1 205 25 is_stmt 0 view .LVU172
+ 711 006c 2868     		ldr	r0, [r5]
+ 205:Src/mc_tasks.c ****                                                       MCP_Over_UartA.txLength, MCTL_SYNC);
+ 712              		.loc 1 205 11 view .LVU173
+ 713 006e EA89     		ldrh	r2, [r5, #14]
+ 714 0070 4668     		ldr	r6, [r0, #4]
+ 715 0072 A968     		ldr	r1, [r5, #8]
+ 716 0074 0A23     		movs	r3, #10
+ 717 0076 B047     		blx	r6
+ 718              	.LVL53:
+ 719 0078 F2E7     		b	.L59
+ 720              	.L81:
+ 721 007a 00BF     		.align	2
+ 722              	.L80:
+ 723 007c 00000000 		.word	.LANCHOR0
+ 724 0080 00000000 		.word	.LANCHOR3
+ 725 0084 00000000 		.word	.LANCHOR1
+ 726 0088 00000000 		.word	.LANCHOR2
+ 727 008c 00000000 		.word	MCP_Over_UartA
+ 728              		.cfi_endproc
+ 729              	.LFE1467:
+ 731              		.section	.text.TSK_HardwareFaultTask,"ax",%progbits
+ 732              		.align	1
+ 733              		.p2align 2,,3
+ 734              		.weak	TSK_HardwareFaultTask
+ 735              		.syntax unified
+ 736              		.thumb
+ 737              		.thumb_func
+ 738              		.fpu fpv4-sp-d16
+ 740              	TSK_HardwareFaultTask:
+ 741              	.LFB1475:
+ 430:Src/mc_tasks.c **** 
+ 431:Src/mc_tasks.c **** /**
+ 432:Src/mc_tasks.c ****   * @brief  Puts the Motor Control subsystem in in safety conditions on a Hard Fault
+ 433:Src/mc_tasks.c ****   *
+ARM GAS  /tmp/ccRbQnGb.s 			page 23
+
+
+ 434:Src/mc_tasks.c ****   *  This function is to be executed when a general hardware failure has been detected
+ 435:Src/mc_tasks.c ****   * by the microcontroller and is used to put the system in safety condition.
+ 436:Src/mc_tasks.c ****   */
+ 437:Src/mc_tasks.c **** __weak void TSK_HardwareFaultTask(void)
+ 438:Src/mc_tasks.c **** {
+ 742              		.loc 1 438 1 is_stmt 1 view -0
+ 743              		.cfi_startproc
+ 744              		@ args = 0, pretend = 0, frame = 0
+ 745              		@ frame_needed = 0, uses_anonymous_args = 0
+ 439:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_HardwareFaultTask 0 */
+ 440:Src/mc_tasks.c **** 
+ 441:Src/mc_tasks.c ****   /* USER CODE END TSK_HardwareFaultTask 0 */
+ 442:Src/mc_tasks.c ****    FOC_Clear(M1);
+ 746              		.loc 1 442 4 view .LVU175
+ 438:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_HardwareFaultTask 0 */
+ 747              		.loc 1 438 1 is_stmt 0 view .LVU176
+ 748 0000 08B5     		push	{r3, lr}
+ 749              	.LCFI12:
+ 750              		.cfi_def_cfa_offset 8
+ 751              		.cfi_offset 3, -8
+ 752              		.cfi_offset 14, -4
+ 753              		.loc 1 442 4 view .LVU177
+ 754 0002 0020     		movs	r0, #0
+ 755 0004 FFF7FEFF 		bl	FOC_Clear
+ 756              	.LVL54:
+ 443:Src/mc_tasks.c ****   MCI_FaultProcessing(&Mci[M1], MC_SW_ERROR, 0);
+ 757              		.loc 1 443 3 is_stmt 1 view .LVU178
+ 758 0008 0022     		movs	r2, #0
+ 759 000a 8021     		movs	r1, #128
+ 760 000c 0248     		ldr	r0, .L84
+ 444:Src/mc_tasks.c **** 
+ 445:Src/mc_tasks.c ****   /* USER CODE BEGIN TSK_HardwareFaultTask 1 */
+ 446:Src/mc_tasks.c **** 
+ 447:Src/mc_tasks.c ****   /* USER CODE END TSK_HardwareFaultTask 1 */
+ 448:Src/mc_tasks.c **** }
+ 761              		.loc 1 448 1 is_stmt 0 view .LVU179
+ 762 000e BDE80840 		pop	{r3, lr}
+ 763              	.LCFI13:
+ 764              		.cfi_restore 14
+ 765              		.cfi_restore 3
+ 766              		.cfi_def_cfa_offset 0
+ 443:Src/mc_tasks.c ****   MCI_FaultProcessing(&Mci[M1], MC_SW_ERROR, 0);
+ 767              		.loc 1 443 3 view .LVU180
+ 768 0012 FFF7FEBF 		b	MCI_FaultProcessing
+ 769              	.LVL55:
+ 770              	.L85:
+ 771 0016 00BF     		.align	2
+ 772              	.L84:
+ 773 0018 00000000 		.word	Mci
+ 774              		.cfi_endproc
+ 775              	.LFE1475:
+ 777              		.section	.text.UI_HandleStartStopButton_cb,"ax",%progbits
+ 778              		.align	1
+ 779              		.p2align 2,,3
+ 780              		.weak	UI_HandleStartStopButton_cb
+ 781              		.syntax unified
+ 782              		.thumb
+ARM GAS  /tmp/ccRbQnGb.s 			page 24
+
+
+ 783              		.thumb_func
+ 784              		.fpu fpv4-sp-d16
+ 786              	UI_HandleStartStopButton_cb:
+ 787              	.LFB1476:
+ 449:Src/mc_tasks.c **** 
+ 450:Src/mc_tasks.c **** __weak void UI_HandleStartStopButton_cb (void)
+ 451:Src/mc_tasks.c **** {
+ 788              		.loc 1 451 1 is_stmt 1 view -0
+ 789              		.cfi_startproc
+ 790              		@ args = 0, pretend = 0, frame = 0
+ 791              		@ frame_needed = 0, uses_anonymous_args = 0
+ 452:Src/mc_tasks.c **** /* USER CODE BEGIN START_STOP_BTN */
+ 453:Src/mc_tasks.c ****   if (IDLE == MC_GetSTMStateMotor1())
+ 792              		.loc 1 453 3 view .LVU182
+ 451:Src/mc_tasks.c **** /* USER CODE BEGIN START_STOP_BTN */
+ 793              		.loc 1 451 1 is_stmt 0 view .LVU183
+ 794 0000 08B5     		push	{r3, lr}
+ 795              	.LCFI14:
+ 796              		.cfi_def_cfa_offset 8
+ 797              		.cfi_offset 3, -8
+ 798              		.cfi_offset 14, -4
+ 799              		.loc 1 453 15 view .LVU184
+ 800 0002 FFF7FEFF 		bl	MC_GetSTMStateMotor1
+ 801              	.LVL56:
+ 802              		.loc 1 453 6 view .LVU185
+ 803 0006 18B9     		cbnz	r0, .L87
+ 454:Src/mc_tasks.c ****   {
+ 455:Src/mc_tasks.c ****     /* Ramp parameters should be tuned for the actual motor */
+ 456:Src/mc_tasks.c ****     (void)MC_StartMotor1();
+ 804              		.loc 1 456 5 is_stmt 1 view .LVU186
+ 457:Src/mc_tasks.c ****   }
+ 458:Src/mc_tasks.c ****   else
+ 459:Src/mc_tasks.c ****   {
+ 460:Src/mc_tasks.c ****     (void)MC_StopMotor1();
+ 461:Src/mc_tasks.c ****   }
+ 462:Src/mc_tasks.c **** /* USER CODE END START_STOP_BTN */
+ 463:Src/mc_tasks.c **** }
+ 805              		.loc 1 463 1 is_stmt 0 view .LVU187
+ 806 0008 BDE80840 		pop	{r3, lr}
+ 807              	.LCFI15:
+ 808              		.cfi_remember_state
+ 809              		.cfi_restore 14
+ 810              		.cfi_restore 3
+ 811              		.cfi_def_cfa_offset 0
+ 456:Src/mc_tasks.c ****   }
+ 812              		.loc 1 456 11 view .LVU188
+ 813 000c FFF7FEBF 		b	MC_StartMotor1
+ 814              	.LVL57:
+ 815              	.L87:
+ 816              	.LCFI16:
+ 817              		.cfi_restore_state
+ 460:Src/mc_tasks.c ****   }
+ 818              		.loc 1 460 5 is_stmt 1 view .LVU189
+ 819              		.loc 1 463 1 is_stmt 0 view .LVU190
+ 820 0010 BDE80840 		pop	{r3, lr}
+ 821              	.LCFI17:
+ 822              		.cfi_restore 14
+ARM GAS  /tmp/ccRbQnGb.s 			page 25
+
+
+ 823              		.cfi_restore 3
+ 824              		.cfi_def_cfa_offset 0
+ 460:Src/mc_tasks.c ****   }
+ 825              		.loc 1 460 11 view .LVU191
+ 826 0014 FFF7FEBF 		b	MC_StopMotor1
+ 827              	.LVL58:
+ 828              		.cfi_endproc
+ 829              	.LFE1476:
+ 831              		.section	.text.mc_lock_pins,"ax",%progbits
+ 832              		.align	1
+ 833              		.p2align 2,,3
+ 834              		.weak	mc_lock_pins
+ 835              		.syntax unified
+ 836              		.thumb
+ 837              		.thumb_func
+ 838              		.fpu fpv4-sp-d16
+ 840              	mc_lock_pins:
+ 841              	.LFB1477:
+ 464:Src/mc_tasks.c **** 
+ 465:Src/mc_tasks.c ****  /**
+ 466:Src/mc_tasks.c ****   * @brief  Locks GPIO pins used for Motor Control to prevent accidental reconfiguration.
+ 467:Src/mc_tasks.c ****   */
+ 468:Src/mc_tasks.c **** __weak void mc_lock_pins (void)
+ 469:Src/mc_tasks.c **** {
+ 842              		.loc 1 469 1 is_stmt 1 view -0
+ 843              		.cfi_startproc
+ 844              		@ args = 0, pretend = 0, frame = 72
+ 845              		@ frame_needed = 0, uses_anonymous_args = 0
+ 470:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP3_INT_GAIN_GPIO_Port, M1_OPAMP3_INT_GAIN_Pin);
+ 846              		.loc 1 470 1 view .LVU193
+ 847              	.LVL59:
+ 848              	.LBB49:
+ 849              	.LBI49:
+ 850              		.file 2 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h"
+   1:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+   2:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   ******************************************************************************
+   3:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @file    stm32g4xx_ll_gpio.h
+   4:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @author  MCD Application Team
+   5:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief   Header file of GPIO LL module.
+   6:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   ******************************************************************************
+   7:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @attention
+   8:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *
+   9:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * Copyright (c) 2019 STMicroelectronics.
+  10:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * All rights reserved.
+  11:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *
+  12:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * in the root directory of this software component.
+  14:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *
+  16:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   ******************************************************************************
+  17:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  18:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  19:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Define to prevent recursive inclusion -------------------------------------*/
+  20:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #ifndef STM32G4xx_LL_GPIO_H
+  21:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define STM32G4xx_LL_GPIO_H
+  22:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  23:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #ifdef __cplusplus
+ARM GAS  /tmp/ccRbQnGb.s 			page 26
+
+
+  24:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** extern "C" {
+  25:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #endif
+  26:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  27:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Includes ------------------------------------------------------------------*/
+  28:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #include "stm32g4xx.h"
+  29:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  30:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @addtogroup STM32G4xx_LL_Driver
+  31:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+  32:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  33:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  34:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #if defined (GPIOA) || defined (GPIOB) || defined (GPIOC) || defined (GPIOD) || defined (GPIOE) || 
+  35:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  36:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL GPIO
+  37:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+  38:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  39:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** MISRA C:2012 deviation rule has been granted for following rules:
+  40:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * Rule-18.1_d - Medium: Array pointer `GPIOx' is accessed with index [..,..]
+  41:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * which may be out of array bounds [..,UNKNOWN] in following APIs:
+  42:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * LL_GPIO_GetAFPin_0_7
+  43:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * LL_GPIO_SetAFPin_0_7
+  44:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * LL_GPIO_SetAFPin_8_15
+  45:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * LL_GPIO_GetAFPin_8_15
+  46:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  47:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  48:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Private types -------------------------------------------------------------*/
+  49:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Private variables ---------------------------------------------------------*/
+  50:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Private constants ---------------------------------------------------------*/
+  51:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Private macros ------------------------------------------------------------*/
+  52:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #if defined(USE_FULL_LL_DRIVER)
+  53:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_Private_Macros GPIO Private Macros
+  54:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+  55:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  56:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  57:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+  58:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+  59:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  60:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #endif /*USE_FULL_LL_DRIVER*/
+  61:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  62:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Exported types ------------------------------------------------------------*/
+  63:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #if defined(USE_FULL_LL_DRIVER)
+  64:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_ES_INIT GPIO Exported Init structures
+  65:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+  66:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  67:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  68:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+  69:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief LL GPIO Init Structure definition
+  70:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+  71:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** typedef struct
+  72:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+  73:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   uint32_t Pin;          /*!< Specifies the GPIO pins to be configured.
+  74:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               This parameter can be any value of @ref GPIO_LL_EC_PIN */
+  75:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  76:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   uint32_t Mode;         /*!< Specifies the operating mode for the selected pins.
+  77:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               This parameter can be a value of @ref GPIO_LL_EC_MODE.
+  78:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  79:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               GPIO HW configuration can be modified afterwards using unitary functi
+  80:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ARM GAS  /tmp/ccRbQnGb.s 			page 27
+
+
+  81:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   uint32_t Speed;        /*!< Specifies the speed for the selected pins.
+  82:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               This parameter can be a value of @ref GPIO_LL_EC_SPEED.
+  83:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  84:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               GPIO HW configuration can be modified afterwards using unitary functi
+  85:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  86:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   uint32_t OutputType;   /*!< Specifies the operating output type for the selected pins.
+  87:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               This parameter can be a value of @ref GPIO_LL_EC_OUTPUT.
+  88:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  89:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               GPIO HW configuration can be modified afterwards using unitary functi
+  90:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  91:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   uint32_t Pull;         /*!< Specifies the operating Pull-up/Pull down for the selected pins.
+  92:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               This parameter can be a value of @ref GPIO_LL_EC_PULL.
+  93:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  94:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               GPIO HW configuration can be modified afterwards using unitary functi
+  95:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  96:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   uint32_t Alternate;    /*!< Specifies the Peripheral to be connected to the selected pins.
+  97:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               This parameter can be a value of @ref GPIO_LL_EC_AF.
+  98:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+  99:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                               GPIO HW configuration can be modified afterwards using unitary functi
+ 100:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** } LL_GPIO_InitTypeDef;
+ 101:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 102:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 103:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 104:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 105:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #endif /* USE_FULL_LL_DRIVER */
+ 106:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 107:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Exported constants --------------------------------------------------------*/
+ 108:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_Exported_Constants GPIO Exported Constants
+ 109:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 110:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 111:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 112:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EC_PIN PIN
+ 113:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 114:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 115:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_0                      GPIO_BSRR_BS0 /*!< Select pin 0 */
+ 116:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_1                      GPIO_BSRR_BS1 /*!< Select pin 1 */
+ 117:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_2                      GPIO_BSRR_BS2 /*!< Select pin 2 */
+ 118:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_3                      GPIO_BSRR_BS3 /*!< Select pin 3 */
+ 119:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_4                      GPIO_BSRR_BS4 /*!< Select pin 4 */
+ 120:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_5                      GPIO_BSRR_BS5 /*!< Select pin 5 */
+ 121:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_6                      GPIO_BSRR_BS6 /*!< Select pin 6 */
+ 122:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_7                      GPIO_BSRR_BS7 /*!< Select pin 7 */
+ 123:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_8                      GPIO_BSRR_BS8 /*!< Select pin 8 */
+ 124:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_9                      GPIO_BSRR_BS9 /*!< Select pin 9 */
+ 125:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_10                     GPIO_BSRR_BS10 /*!< Select pin 10 */
+ 126:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_11                     GPIO_BSRR_BS11 /*!< Select pin 11 */
+ 127:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_12                     GPIO_BSRR_BS12 /*!< Select pin 12 */
+ 128:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_13                     GPIO_BSRR_BS13 /*!< Select pin 13 */
+ 129:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_14                     GPIO_BSRR_BS14 /*!< Select pin 14 */
+ 130:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_15                     GPIO_BSRR_BS15 /*!< Select pin 15 */
+ 131:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PIN_ALL                    (GPIO_BSRR_BS0 | GPIO_BSRR_BS1  | GPIO_BSRR_BS2  | \
+ 132:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                                            GPIO_BSRR_BS3  | GPIO_BSRR_BS4  | GPIO_BSRR_BS5  | \
+ 133:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                                            GPIO_BSRR_BS6  | GPIO_BSRR_BS7  | GPIO_BSRR_BS8  | \
+ 134:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                                            GPIO_BSRR_BS9  | GPIO_BSRR_BS10 | GPIO_BSRR_BS11 | \
+ 135:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                                            GPIO_BSRR_BS12 | GPIO_BSRR_BS13 | GPIO_BSRR_BS14 | \
+ 136:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                                            GPIO_BSRR_BS15) /*!< Select all pins */
+ 137:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ARM GAS  /tmp/ccRbQnGb.s 			page 28
+
+
+ 138:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 139:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 140:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 141:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EC_MODE Mode
+ 142:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 143:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 144:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_MODE_INPUT                 (0x00000000U) /*!< Select input mode */
+ 145:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_MODE_OUTPUT                GPIO_MODER_MODE0_0  /*!< Select output mode */
+ 146:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_MODE_ALTERNATE             GPIO_MODER_MODE0_1  /*!< Select alternate function mode 
+ 147:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_MODE_ANALOG                GPIO_MODER_MODE0    /*!< Select analog mode */
+ 148:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 149:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 150:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 151:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 152:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EC_OUTPUT Output Type
+ 153:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 154:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 155:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_OUTPUT_PUSHPULL            (0x00000000U) /*!< Select push-pull as output type */
+ 156:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_OUTPUT_OPENDRAIN           GPIO_OTYPER_OT0 /*!< Select open-drain as output type */
+ 157:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 158:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 159:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 160:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 161:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EC_SPEED Output Speed
+ 162:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 163:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 164:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_FREQ_LOW             (0x00000000U) /*!< Select I/O low output speed    */
+ 165:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_FREQ_MEDIUM          GPIO_OSPEEDR_OSPEED0_0 /*!< Select I/O medium output spe
+ 166:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_FREQ_HIGH            GPIO_OSPEEDR_OSPEED0_1 /*!< Select I/O fast output speed
+ 167:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_FREQ_VERY_HIGH       GPIO_OSPEEDR_OSPEED0   /*!< Select I/O high output speed
+ 168:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 169:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 170:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 171:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_LOW                  LL_GPIO_SPEED_FREQ_LOW
+ 172:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_MEDIUM               LL_GPIO_SPEED_FREQ_MEDIUM
+ 173:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_FAST                 LL_GPIO_SPEED_FREQ_HIGH
+ 174:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_SPEED_HIGH                 LL_GPIO_SPEED_FREQ_VERY_HIGH
+ 175:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 176:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EC_PULL Pull Up Pull Down
+ 177:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 178:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 179:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PULL_NO                    (0x00000000U) /*!< Select I/O no pull */
+ 180:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PULL_UP                    GPIO_PUPDR_PUPD0_0 /*!< Select I/O pull up */
+ 181:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_PULL_DOWN                  GPIO_PUPDR_PUPD0_1 /*!< Select I/O pull down */
+ 182:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 183:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 184:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 185:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 186:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EC_AF Alternate Function
+ 187:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 188:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 189:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_0                       (0x0000000U) /*!< Select alternate function 0 */
+ 190:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_1                       (0x0000001U) /*!< Select alternate function 1 */
+ 191:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_2                       (0x0000002U) /*!< Select alternate function 2 */
+ 192:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_3                       (0x0000003U) /*!< Select alternate function 3 */
+ 193:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_4                       (0x0000004U) /*!< Select alternate function 4 */
+ 194:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_5                       (0x0000005U) /*!< Select alternate function 5 */
+ARM GAS  /tmp/ccRbQnGb.s 			page 29
+
+
+ 195:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_6                       (0x0000006U) /*!< Select alternate function 6 */
+ 196:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_7                       (0x0000007U) /*!< Select alternate function 7 */
+ 197:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_8                       (0x0000008U) /*!< Select alternate function 8 */
+ 198:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_9                       (0x0000009U) /*!< Select alternate function 9 */
+ 199:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_10                      (0x000000AU) /*!< Select alternate function 10 */
+ 200:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_11                      (0x000000BU) /*!< Select alternate function 11 */
+ 201:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_12                      (0x000000CU) /*!< Select alternate function 12 */
+ 202:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_13                      (0x000000DU) /*!< Select alternate function 13 */
+ 203:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_14                      (0x000000EU) /*!< Select alternate function 14 */
+ 204:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_AF_15                      (0x000000FU) /*!< Select alternate function 15 */
+ 205:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 206:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 207:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 208:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 209:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 210:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 211:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 212:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 213:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Exported macro ------------------------------------------------------------*/
+ 214:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_Exported_Macros GPIO Exported Macros
+ 215:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 216:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 217:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 218:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EM_WRITE_READ Common Write and read registers Macros
+ 219:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 220:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 221:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 222:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 223:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Write a value in GPIO register
+ 224:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  __INSTANCE__ GPIO Instance
+ 225:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  __REG__ Register to be written
+ 226:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  __VALUE__ Value to be written in the register
+ 227:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 228:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 229:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, (__VALU
+ 230:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 231:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 232:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Read a value in GPIO register
+ 233:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  __INSTANCE__ GPIO Instance
+ 234:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  __REG__ Register to be read
+ 235:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Register value
+ 236:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 237:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** #define LL_GPIO_ReadReg(__INSTANCE__, __REG__) READ_REG(__INSTANCE__->__REG__)
+ 238:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 239:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 240:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 241:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 242:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 243:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @}
+ 244:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 245:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 246:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /* Exported functions --------------------------------------------------------*/
+ 247:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_Exported_Functions GPIO Exported Functions
+ 248:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 249:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 250:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 251:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /** @defgroup GPIO_LL_EF_Port_Configuration Port Configuration
+ARM GAS  /tmp/ccRbQnGb.s 			page 30
+
+
+ 252:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @{
+ 253:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 254:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 255:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 256:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Configure gpio mode for a dedicated pin on dedicated port.
+ 257:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   I/O mode can be Input mode, General purpose output, Alternate function mode or Analog.
+ 258:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 259:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll MODER        MODEy         LL_GPIO_SetPinMode
+ 260:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 261:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 262:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 263:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 264:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 265:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 266:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 267:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 268:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 269:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 270:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 271:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 272:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 273:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 274:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 275:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 276:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 277:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 278:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Mode This parameter can be one of the following values:
+ 279:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_INPUT
+ 280:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_OUTPUT
+ 281:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_ALTERNATE
+ 282:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_ANALOG
+ 283:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 284:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 285:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_SetPinMode(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Mode)
+ 286:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 287:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   MODIFY_REG(GPIOx->MODER, (GPIO_MODER_MODE0 << (POSITION_VAL(Pin) * 2U)), (Mode << (POSITION_VAL(P
+ 288:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 289:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 290:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 291:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Return gpio mode for a dedicated pin on dedicated port.
+ 292:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   I/O mode can be Input mode, General purpose output, Alternate function mode or Analog.
+ 293:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 294:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll MODER        MODEy         LL_GPIO_GetPinMode
+ 295:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 296:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 297:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 298:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 299:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 300:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 301:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 302:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 303:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 304:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 305:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 306:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 307:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 308:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ARM GAS  /tmp/ccRbQnGb.s 			page 31
+
+
+ 309:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 310:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 311:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 312:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 313:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Returned value can be one of the following values:
+ 314:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_INPUT
+ 315:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_OUTPUT
+ 316:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_ALTERNATE
+ 317:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_MODE_ANALOG
+ 318:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 319:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE uint32_t LL_GPIO_GetPinMode(GPIO_TypeDef *GPIOx, uint32_t Pin)
+ 320:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 321:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   return (uint32_t)(READ_BIT(GPIOx->MODER,
+ 322:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                              (GPIO_MODER_MODE0 << (POSITION_VAL(Pin) * 2U))) >> (POSITION_VAL(Pin) 
+ 323:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 324:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 325:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 326:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Configure gpio output type for several pins on dedicated port.
+ 327:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Output type as to be set when gpio pin is in output or
+ 328:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         alternate modes. Possible type are Push-pull or Open-drain.
+ 329:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll OTYPER       OTy           LL_GPIO_SetPinOutputType
+ 330:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 331:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  PinMask This parameter can be a combination of the following values:
+ 332:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 333:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 334:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 335:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 336:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 337:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 338:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 339:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 340:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 341:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 342:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 343:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 344:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 345:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 346:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 347:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 348:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_ALL
+ 349:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  OutputType This parameter can be one of the following values:
+ 350:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_OUTPUT_PUSHPULL
+ 351:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_OUTPUT_OPENDRAIN
+ 352:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 353:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 354:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_SetPinOutputType(GPIO_TypeDef *GPIOx, uint32_t PinMask, uint32_t Outpu
+ 355:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 356:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   MODIFY_REG(GPIOx->OTYPER, PinMask, (PinMask * OutputType));
+ 357:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 358:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 359:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 360:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Return gpio output type for several pins on dedicated port.
+ 361:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Output type as to be set when gpio pin is in output or
+ 362:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         alternate modes. Possible type are Push-pull or Open-drain.
+ 363:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 364:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll OTYPER       OTy           LL_GPIO_GetPinOutputType
+ 365:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ARM GAS  /tmp/ccRbQnGb.s 			page 32
+
+
+ 366:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 367:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 368:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 369:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 370:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 371:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 372:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 373:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 374:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 375:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 376:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 377:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 378:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 379:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 380:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 381:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 382:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 383:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_ALL
+ 384:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Returned value can be one of the following values:
+ 385:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_OUTPUT_PUSHPULL
+ 386:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_OUTPUT_OPENDRAIN
+ 387:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 388:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE uint32_t LL_GPIO_GetPinOutputType(GPIO_TypeDef *GPIOx, uint32_t Pin)
+ 389:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 390:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   return (uint32_t)(READ_BIT(GPIOx->OTYPER, Pin) >> POSITION_VAL(Pin));
+ 391:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 392:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 393:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 394:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Configure gpio speed for a dedicated pin on dedicated port.
+ 395:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   I/O speed can be Low, Medium, Fast or High speed.
+ 396:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 397:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Refer to datasheet for frequency specifications and the power
+ 398:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         supply and load conditions for each speed.
+ 399:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll OSPEEDR      OSPEEDy       LL_GPIO_SetPinSpeed
+ 400:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 401:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 402:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 403:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 404:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 405:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 406:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 407:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 408:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 409:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 410:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 411:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 412:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 413:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 414:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 415:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 416:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 417:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 418:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Speed This parameter can be one of the following values:
+ 419:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_LOW
+ 420:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_MEDIUM
+ 421:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_HIGH
+ 422:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_VERY_HIGH
+ARM GAS  /tmp/ccRbQnGb.s 			page 33
+
+
+ 423:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 424:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 425:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_SetPinSpeed(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t  Speed)
+ 426:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 427:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   MODIFY_REG(GPIOx->OSPEEDR, (GPIO_OSPEEDR_OSPEED0 << (POSITION_VAL(Pin) * 2U)),
+ 428:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****              (Speed << (POSITION_VAL(Pin) * 2U)));
+ 429:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 430:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 431:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 432:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Return gpio speed for a dedicated pin on dedicated port.
+ 433:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   I/O speed can be Low, Medium, Fast or High speed.
+ 434:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 435:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Refer to datasheet for frequency specifications and the power
+ 436:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         supply and load conditions for each speed.
+ 437:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll OSPEEDR      OSPEEDy       LL_GPIO_GetPinSpeed
+ 438:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 439:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 440:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 441:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 442:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 443:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 444:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 445:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 446:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 447:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 448:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 449:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 450:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 451:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 452:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 453:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 454:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 455:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 456:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Returned value can be one of the following values:
+ 457:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_LOW
+ 458:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_MEDIUM
+ 459:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_HIGH
+ 460:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_SPEED_FREQ_VERY_HIGH
+ 461:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 462:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE uint32_t LL_GPIO_GetPinSpeed(GPIO_TypeDef *GPIOx, uint32_t Pin)
+ 463:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 464:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   return (uint32_t)(READ_BIT(GPIOx->OSPEEDR,
+ 465:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                              (GPIO_OSPEEDR_OSPEED0 << (POSITION_VAL(Pin) * 2U))) >> (POSITION_VAL(P
+ 466:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 467:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 468:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 469:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Configure gpio pull-up or pull-down for a dedicated pin on a dedicated port.
+ 470:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 471:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll PUPDR        PUPDy         LL_GPIO_SetPinPull
+ 472:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 473:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 474:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 475:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 476:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 477:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 478:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 479:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ARM GAS  /tmp/ccRbQnGb.s 			page 34
+
+
+ 480:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 481:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 482:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 483:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 484:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 485:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 486:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 487:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 488:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 489:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 490:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pull This parameter can be one of the following values:
+ 491:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PULL_NO
+ 492:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PULL_UP
+ 493:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PULL_DOWN
+ 494:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 495:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 496:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_SetPinPull(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Pull)
+ 497:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 498:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   MODIFY_REG(GPIOx->PUPDR, (GPIO_PUPDR_PUPD0 << (POSITION_VAL(Pin) * 2U)), (Pull << (POSITION_VAL(P
+ 499:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 500:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 501:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 502:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Return gpio pull-up or pull-down for a dedicated pin on a dedicated port
+ 503:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 504:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll PUPDR        PUPDy         LL_GPIO_GetPinPull
+ 505:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 506:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 507:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 508:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 509:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 510:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 511:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 512:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 513:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 514:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 515:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 516:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 517:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 518:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 519:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 520:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 521:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 522:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 523:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Returned value can be one of the following values:
+ 524:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PULL_NO
+ 525:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PULL_UP
+ 526:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PULL_DOWN
+ 527:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 528:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE uint32_t LL_GPIO_GetPinPull(GPIO_TypeDef *GPIOx, uint32_t Pin)
+ 529:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 530:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   return (uint32_t)(READ_BIT(GPIOx->PUPDR,
+ 531:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                              (GPIO_PUPDR_PUPD0 << (POSITION_VAL(Pin) * 2U))) >> (POSITION_VAL(Pin) 
+ 532:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 533:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 534:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 535:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Configure gpio alternate function of a dedicated pin from 0 to 7 for a dedicated port.
+ 536:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Possible values are from AF0 to AF15 depending on target.
+ARM GAS  /tmp/ccRbQnGb.s 			page 35
+
+
+ 537:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 538:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll AFRL         AFSELy        LL_GPIO_SetAFPin_0_7
+ 539:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 540:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 541:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 542:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 543:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 544:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 545:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 546:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 547:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 548:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 549:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Alternate This parameter can be one of the following values:
+ 550:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_0
+ 551:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_1
+ 552:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_2
+ 553:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_3
+ 554:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_4
+ 555:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_5
+ 556:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_6
+ 557:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_7
+ 558:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_8
+ 559:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_9
+ 560:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_10
+ 561:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_11
+ 562:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_12
+ 563:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_13
+ 564:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_14
+ 565:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_15
+ 566:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 567:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 568:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_SetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Alternate)
+ 569:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 570:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   MODIFY_REG(GPIOx->AFR[0], (GPIO_AFRL_AFSEL0 << (POSITION_VAL(Pin) * 4U)),
+ 571:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****              (Alternate << (POSITION_VAL(Pin) * 4U)));
+ 572:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 573:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 574:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 575:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Return gpio alternate function of a dedicated pin from 0 to 7 for a dedicated port.
+ 576:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll AFRL         AFSELy        LL_GPIO_GetAFPin_0_7
+ 577:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 578:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 579:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 580:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 581:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 582:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 583:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 584:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 585:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 586:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ 587:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Returned value can be one of the following values:
+ 588:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_0
+ 589:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_1
+ 590:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_2
+ 591:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_3
+ 592:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_4
+ 593:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_5
+ARM GAS  /tmp/ccRbQnGb.s 			page 36
+
+
+ 594:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_6
+ 595:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_7
+ 596:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_8
+ 597:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_9
+ 598:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_10
+ 599:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_11
+ 600:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_12
+ 601:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_13
+ 602:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_14
+ 603:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_15
+ 604:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 605:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE uint32_t LL_GPIO_GetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin)
+ 606:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 607:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   return (uint32_t)(READ_BIT(GPIOx->AFR[0],
+ 608:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                              (GPIO_AFRL_AFSEL0 << (POSITION_VAL(Pin) * 4U))) >> (POSITION_VAL(Pin) 
+ 609:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 610:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 611:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 612:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Configure gpio alternate function of a dedicated pin from 8 to 15 for a dedicated port.
+ 613:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Possible values are from AF0 to AF15 depending on target.
+ 614:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Warning: only one pin can be passed as parameter.
+ 615:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll AFRH         AFSELy        LL_GPIO_SetAFPin_8_15
+ 616:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 617:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 618:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 619:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 620:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 621:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 622:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 623:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 624:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 625:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 626:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Alternate This parameter can be one of the following values:
+ 627:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_0
+ 628:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_1
+ 629:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_2
+ 630:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_3
+ 631:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_4
+ 632:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_5
+ 633:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_6
+ 634:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_7
+ 635:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_8
+ 636:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_9
+ 637:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_10
+ 638:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_11
+ 639:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_12
+ 640:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_13
+ 641:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_14
+ 642:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_15
+ 643:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 644:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 645:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_SetAFPin_8_15(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Alternate)
+ 646:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 647:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   MODIFY_REG(GPIOx->AFR[1], (GPIO_AFRH_AFSEL8 << (POSITION_VAL(Pin >> 8U) * 4U)),
+ 648:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****              (Alternate << (POSITION_VAL(Pin >> 8U) * 4U)));
+ 649:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 650:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ARM GAS  /tmp/ccRbQnGb.s 			page 37
+
+
+ 651:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 652:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Return gpio alternate function of a dedicated pin from 8 to 15 for a dedicated port.
+ 653:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Possible values are from AF0 to AF15 depending on target.
+ 654:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll AFRH         AFSELy        LL_GPIO_GetAFPin_8_15
+ 655:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 656:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  Pin This parameter can be one of the following values:
+ 657:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 658:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 659:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 660:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 661:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 662:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 663:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 664:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 665:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval Returned value can be one of the following values:
+ 666:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_0
+ 667:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_1
+ 668:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_2
+ 669:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_3
+ 670:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_4
+ 671:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_5
+ 672:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_6
+ 673:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_7
+ 674:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_8
+ 675:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_9
+ 676:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_10
+ 677:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_11
+ 678:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_12
+ 679:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_13
+ 680:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_14
+ 681:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_AF_15
+ 682:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 683:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE uint32_t LL_GPIO_GetAFPin_8_15(GPIO_TypeDef *GPIOx, uint32_t Pin)
+ 684:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 685:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   return (uint32_t)(READ_BIT(GPIOx->AFR[1],
+ 686:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****                              (GPIO_AFRH_AFSEL8 << (POSITION_VAL(Pin >> 8U) * 4U))) >> (POSITION_VAL
+ 687:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** }
+ 688:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 689:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** 
+ 690:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** /**
+ 691:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @brief  Lock configuration of several pins for a dedicated port.
+ 692:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   When the lock sequence has been applied on a port bit, the
+ 693:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         value of this port bit can no longer be modified until the
+ 694:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         next reset.
+ 695:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @note   Each lock bit freezes a specific configuration register
+ 696:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         (control and alternate function registers).
+ 697:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @rmtoll LCKR         LCKK          LL_GPIO_LockPin
+ 698:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  GPIOx GPIO Port
+ 699:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @param  PinMask This parameter can be a combination of the following values:
+ 700:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_0
+ 701:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_1
+ 702:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_2
+ 703:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_3
+ 704:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_4
+ 705:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_5
+ 706:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_6
+ 707:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_7
+ARM GAS  /tmp/ccRbQnGb.s 			page 38
+
+
+ 708:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_8
+ 709:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_9
+ 710:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_10
+ 711:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_11
+ 712:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_12
+ 713:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_13
+ 714:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_14
+ 715:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_15
+ 716:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   *         @arg @ref LL_GPIO_PIN_ALL
+ 717:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   * @retval None
+ 718:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   */
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** __STATIC_INLINE void LL_GPIO_LockPin(GPIO_TypeDef *GPIOx, uint32_t PinMask)
+ 851              		.loc 2 719 22 view .LVU194
+ 852              	.LBB50:
+ 720:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   __IO uint32_t temp;
+ 853              		.loc 2 721 3 view .LVU195
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 854              		.loc 2 722 3 view .LVU196
+ 855              	.LBE50:
+ 856              	.LBE49:
+ 469:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP3_INT_GAIN_GPIO_Port, M1_OPAMP3_INT_GAIN_Pin);
+ 857              		.loc 1 469 1 is_stmt 0 view .LVU197
+ 858 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 859              	.LCFI18:
+ 860              		.cfi_def_cfa_offset 20
+ 861              		.cfi_offset 4, -20
+ 862              		.cfi_offset 5, -16
+ 863              		.cfi_offset 6, -12
+ 864              		.cfi_offset 7, -8
+ 865              		.cfi_offset 14, -4
+ 866              	.LBB54:
+ 867              	.LBB51:
+ 868              		.loc 2 722 3 view .LVU198
+ 869 0002 504A     		ldr	r2, .L91
+ 870 0004 5049     		ldr	r1, .L91+4
+ 871 0006 D161     		str	r1, [r2, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 872              		.loc 2 723 3 is_stmt 1 view .LVU199
+ 873 0008 0425     		movs	r5, #4
+ 874              	.LBE51:
+ 875              	.LBE54:
+ 469:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP3_INT_GAIN_GPIO_Port, M1_OPAMP3_INT_GAIN_Pin);
+ 876              		.loc 1 469 1 is_stmt 0 view .LVU200
+ 877 000a 93B0     		sub	sp, sp, #76
+ 878              	.LCFI19:
+ 879              		.cfi_def_cfa_offset 96
+ 880              	.LBB55:
+ 881              	.LBB52:
+ 882              		.loc 2 723 3 view .LVU201
+ 883 000c D561     		str	r5, [r2, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 884              		.loc 2 724 3 is_stmt 1 view .LVU202
+ 885 000e D161     		str	r1, [r2, #28]
+ 725:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   temp = READ_REG(GPIOx->LCKR);
+ 886              		.loc 2 726 3 view .LVU203
+ARM GAS  /tmp/ccRbQnGb.s 			page 39
+
+
+ 887              		.loc 2 726 10 is_stmt 0 view .LVU204
+ 888 0010 D369     		ldr	r3, [r2, #28]
+ 889              		.loc 2 726 8 view .LVU205
+ 890 0012 1193     		str	r3, [sp, #68]
+ 727:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 891              		.loc 2 727 3 is_stmt 1 view .LVU206
+ 892              	.LBE52:
+ 893              	.LBE55:
+ 894              	.LBB56:
+ 895              	.LBB57:
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 896              		.loc 2 722 3 is_stmt 0 view .LVU207
+ 897 0014 4FF00114 		mov	r4, #65537
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 898              		.loc 2 723 3 view .LVU208
+ 899 0018 0127     		movs	r7, #1
+ 900              	.LBE57:
+ 901              	.LBE56:
+ 902              	.LBB60:
+ 903              	.LBB53:
+ 904              		.loc 2 727 3 view .LVU209
+ 905 001a 119B     		ldr	r3, [sp, #68]
+ 906              	.LVL60:
+ 907              		.loc 2 727 3 view .LVU210
+ 908              	.LBE53:
+ 909              	.LBE60:
+ 471:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_CURR_SHUNT_W_GPIO_Port, M1_CURR_SHUNT_W_Pin);
+ 910              		.loc 1 471 1 is_stmt 1 view .LVU211
+ 911              	.LBB61:
+ 912              	.LBI56:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 913              		.loc 2 719 22 view .LVU212
+ 914              	.LBB58:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 915              		.loc 2 721 3 view .LVU213
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 916              		.loc 2 722 3 view .LVU214
+ 917 001c D461     		str	r4, [r2, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 918              		.loc 2 723 3 view .LVU215
+ 919 001e D761     		str	r7, [r2, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 920              		.loc 2 724 3 view .LVU216
+ 921 0020 D461     		str	r4, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 922              		.loc 2 726 3 view .LVU217
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 923              		.loc 2 726 10 is_stmt 0 view .LVU218
+ 924 0022 D369     		ldr	r3, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 925              		.loc 2 726 8 view .LVU219
+ 926 0024 1093     		str	r3, [sp, #64]
+ 927              		.loc 2 727 3 is_stmt 1 view .LVU220
+ 928              	.LBE58:
+ 929              	.LBE61:
+ 930              	.LBB62:
+ 931              	.LBB63:
+ARM GAS  /tmp/ccRbQnGb.s 			page 40
+
+
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 932              		.loc 2 722 3 is_stmt 0 view .LVU221
+ 933 0026 4948     		ldr	r0, .L91+8
+ 934              	.LBE63:
+ 935              	.LBE62:
+ 936              	.LBB66:
+ 937              	.LBB59:
+ 938              		.loc 2 727 3 view .LVU222
+ 939 0028 109B     		ldr	r3, [sp, #64]
+ 940              	.LVL61:
+ 941              		.loc 2 727 3 view .LVU223
+ 942              	.LBE59:
+ 943              	.LBE66:
+ 472:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP3_OUT_GPIO_Port, M1_OPAMP3_OUT_Pin);
+ 944              		.loc 1 472 1 is_stmt 1 view .LVU224
+ 945              	.LBB67:
+ 946              	.LBI62:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 947              		.loc 2 719 22 view .LVU225
+ 948              	.LBB64:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 949              		.loc 2 721 3 view .LVU226
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 950              		.loc 2 722 3 view .LVU227
+ 951 002a D061     		str	r0, [r2, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 952              		.loc 2 723 3 view .LVU228
+ 953 002c 0226     		movs	r6, #2
+ 954 002e D661     		str	r6, [r2, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 955              		.loc 2 724 3 view .LVU229
+ 956 0030 D061     		str	r0, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 957              		.loc 2 726 3 view .LVU230
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 958              		.loc 2 726 10 is_stmt 0 view .LVU231
+ 959 0032 D369     		ldr	r3, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 960              		.loc 2 726 8 view .LVU232
+ 961 0034 0F93     		str	r3, [sp, #60]
+ 962              		.loc 2 727 3 is_stmt 1 view .LVU233
+ 963              	.LBE64:
+ 964              	.LBE67:
+ 965              	.LBB68:
+ 966              	.LBB69:
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 967              		.loc 2 723 3 is_stmt 0 view .LVU234
+ 968 0036 4FF4804C 		mov	ip, #16384
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 969              		.loc 2 722 3 view .LVU235
+ 970 003a 4FF4A033 		mov	r3, #81920
+ 971              	.LBE69:
+ 972              	.LBE68:
+ 973              	.LBB72:
+ 974              	.LBB65:
+ 975              		.loc 2 727 3 view .LVU236
+ 976 003e DDF83CE0 		ldr	lr, [sp, #60]
+ARM GAS  /tmp/ccRbQnGb.s 			page 41
+
+
+ 977              	.LVL62:
+ 978              		.loc 2 727 3 view .LVU237
+ 979              	.LBE65:
+ 980              	.LBE72:
+ 473:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_TEMPERATURE_GPIO_Port, M1_TEMPERATURE_Pin);
+ 981              		.loc 1 473 1 is_stmt 1 view .LVU238
+ 982              	.LBB73:
+ 983              	.LBI68:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 984              		.loc 2 719 22 view .LVU239
+ 985              	.LBB70:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 986              		.loc 2 721 3 view .LVU240
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 987              		.loc 2 722 3 view .LVU241
+ 988 0042 D361     		str	r3, [r2, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 989              		.loc 2 723 3 view .LVU242
+ 990 0044 C2F81CC0 		str	ip, [r2, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 991              		.loc 2 724 3 view .LVU243
+ 992 0048 D361     		str	r3, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 993              		.loc 2 726 3 view .LVU244
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 994              		.loc 2 726 10 is_stmt 0 view .LVU245
+ 995 004a D369     		ldr	r3, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 996              		.loc 2 726 8 view .LVU246
+ 997 004c 0E93     		str	r3, [sp, #56]
+ 998              		.loc 2 727 3 is_stmt 1 view .LVU247
+ 999              	.LBE70:
+ 1000              	.LBE73:
+ 1001              	.LBB74:
+ 1002              	.LBB75:
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1003              		.loc 2 722 3 is_stmt 0 view .LVU248
+ 1004 004e 4FF09043 		mov	r3, #1207959552
+ 1005              	.LBE75:
+ 1006              	.LBE74:
+ 1007              	.LBB77:
+ 1008              	.LBB71:
+ 1009              		.loc 2 727 3 view .LVU249
+ 1010 0052 DDF838C0 		ldr	ip, [sp, #56]
+ 1011              	.LVL63:
+ 1012              		.loc 2 727 3 view .LVU250
+ 1013              	.LBE71:
+ 1014              	.LBE77:
+ 474:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_BUS_VOLTAGE_GPIO_Port, M1_BUS_VOLTAGE_Pin);
+ 1015              		.loc 1 474 1 is_stmt 1 view .LVU251
+ 1016              	.LBB78:
+ 1017              	.LBI74:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1018              		.loc 2 719 22 view .LVU252
+ 1019              	.LBB76:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1020              		.loc 2 721 3 view .LVU253
+ARM GAS  /tmp/ccRbQnGb.s 			page 42
+
+
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1021              		.loc 2 722 3 view .LVU254
+ 1022 0056 DC61     		str	r4, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1023              		.loc 2 723 3 view .LVU255
+ 1024 0058 DF61     		str	r7, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1025              		.loc 2 724 3 view .LVU256
+ 1026 005a DC61     		str	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1027              		.loc 2 726 3 view .LVU257
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1028              		.loc 2 726 10 is_stmt 0 view .LVU258
+ 1029 005c DC69     		ldr	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1030              		.loc 2 726 8 view .LVU259
+ 1031 005e 0D94     		str	r4, [sp, #52]
+ 1032              		.loc 2 727 3 is_stmt 1 view .LVU260
+ 1033 0060 0D9C     		ldr	r4, [sp, #52]
+ 1034              	.LVL64:
+ 1035              		.loc 2 727 3 is_stmt 0 view .LVU261
+ 1036              	.LBE76:
+ 1037              	.LBE78:
+ 475:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_CURR_SHUNT_U_GPIO_Port, M1_CURR_SHUNT_U_Pin);
+ 1038              		.loc 1 475 1 is_stmt 1 view .LVU262
+ 1039              	.LBB79:
+ 1040              	.LBI79:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1041              		.loc 2 719 22 view .LVU263
+ 1042              	.LBB80:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1043              		.loc 2 721 3 view .LVU264
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1044              		.loc 2 722 3 view .LVU265
+ 1045 0062 D861     		str	r0, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1046              		.loc 2 723 3 view .LVU266
+ 1047 0064 DE61     		str	r6, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1048              		.loc 2 724 3 view .LVU267
+ 1049 0066 D861     		str	r0, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1050              		.loc 2 726 3 view .LVU268
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1051              		.loc 2 726 10 is_stmt 0 view .LVU269
+ 1052 0068 D869     		ldr	r0, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1053              		.loc 2 726 8 view .LVU270
+ 1054 006a 0C90     		str	r0, [sp, #48]
+ 1055              		.loc 2 727 3 is_stmt 1 view .LVU271
+ 1056 006c 0C9C     		ldr	r4, [sp, #48]
+ 1057              	.LVL65:
+ 1058              		.loc 2 727 3 is_stmt 0 view .LVU272
+ 1059              	.LBE80:
+ 1060              	.LBE79:
+ 476:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP1_INT_GAIN_GPIO_Port, M1_OPAMP1_INT_GAIN_Pin);
+ 1061              		.loc 1 476 1 is_stmt 1 view .LVU273
+ARM GAS  /tmp/ccRbQnGb.s 			page 43
+
+
+ 1062              	.LBB81:
+ 1063              	.LBI81:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1064              		.loc 2 719 22 view .LVU274
+ 1065              	.LBB82:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1066              		.loc 2 721 3 view .LVU275
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1067              		.loc 2 722 3 view .LVU276
+ 1068 006e 3848     		ldr	r0, .L91+12
+ 1069 0070 D861     		str	r0, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1070              		.loc 2 723 3 view .LVU277
+ 1071 0072 0824     		movs	r4, #8
+ 1072 0074 DC61     		str	r4, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1073              		.loc 2 724 3 view .LVU278
+ 1074 0076 D861     		str	r0, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1075              		.loc 2 726 3 view .LVU279
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1076              		.loc 2 726 10 is_stmt 0 view .LVU280
+ 1077 0078 D869     		ldr	r0, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1078              		.loc 2 726 8 view .LVU281
+ 1079 007a 0B90     		str	r0, [sp, #44]
+ 1080              		.loc 2 727 3 is_stmt 1 view .LVU282
+ 1081 007c 0B98     		ldr	r0, [sp, #44]
+ 1082              	.LVL66:
+ 1083              		.loc 2 727 3 is_stmt 0 view .LVU283
+ 1084              	.LBE82:
+ 1085              	.LBE81:
+ 477:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP1_OUT_GPIO_Port, M1_OPAMP1_OUT_Pin);
+ 1086              		.loc 1 477 1 is_stmt 1 view .LVU284
+ 1087              	.LBB83:
+ 1088              	.LBI83:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1089              		.loc 2 719 22 view .LVU285
+ 1090              	.LBB84:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1091              		.loc 2 721 3 view .LVU286
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1092              		.loc 2 722 3 view .LVU287
+ 1093 007e D961     		str	r1, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1094              		.loc 2 723 3 view .LVU288
+ 1095 0080 DD61     		str	r5, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1096              		.loc 2 724 3 view .LVU289
+ 1097 0082 D961     		str	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1098              		.loc 2 726 3 view .LVU290
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1099              		.loc 2 726 10 is_stmt 0 view .LVU291
+ 1100 0084 D969     		ldr	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1101              		.loc 2 726 8 view .LVU292
+ARM GAS  /tmp/ccRbQnGb.s 			page 44
+
+
+ 1102 0086 0A91     		str	r1, [sp, #40]
+ 1103              		.loc 2 727 3 is_stmt 1 view .LVU293
+ 1104 0088 0A98     		ldr	r0, [sp, #40]
+ 1105              	.LVL67:
+ 1106              		.loc 2 727 3 is_stmt 0 view .LVU294
+ 1107              	.LBE84:
+ 1108              	.LBE83:
+ 478:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP2_OUT_GPIO_Port, M1_OPAMP2_OUT_Pin);
+ 1109              		.loc 1 478 1 is_stmt 1 view .LVU295
+ 1110              	.LBB85:
+ 1111              	.LBI85:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1112              		.loc 2 719 22 view .LVU296
+ 1113              	.LBB86:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1114              		.loc 2 721 3 view .LVU297
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1115              		.loc 2 722 3 view .LVU298
+ 1116 008a 3249     		ldr	r1, .L91+16
+ 1117 008c D961     		str	r1, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1118              		.loc 2 723 3 view .LVU299
+ 1119 008e 4020     		movs	r0, #64
+ 1120 0090 D861     		str	r0, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1121              		.loc 2 724 3 view .LVU300
+ 1122 0092 D961     		str	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1123              		.loc 2 726 3 view .LVU301
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1124              		.loc 2 726 10 is_stmt 0 view .LVU302
+ 1125 0094 D969     		ldr	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1126              		.loc 2 726 8 view .LVU303
+ 1127 0096 0991     		str	r1, [sp, #36]
+ 1128              		.loc 2 727 3 is_stmt 1 view .LVU304
+ 1129 0098 0998     		ldr	r0, [sp, #36]
+ 1130              	.LVL68:
+ 1131              		.loc 2 727 3 is_stmt 0 view .LVU305
+ 1132              	.LBE86:
+ 1133              	.LBE85:
+ 479:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_OPAMP2_INT_GAIN_GPIO_Port, M1_OPAMP2_INT_GAIN_Pin);
+ 1134              		.loc 1 479 1 is_stmt 1 view .LVU306
+ 1135              	.LBB87:
+ 1136              	.LBI87:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1137              		.loc 2 719 22 view .LVU307
+ 1138              	.LBB88:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1139              		.loc 2 721 3 view .LVU308
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1140              		.loc 2 722 3 view .LVU309
+ 1141 009a 2F49     		ldr	r1, .L91+20
+ 1142 009c D961     		str	r1, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1143              		.loc 2 723 3 view .LVU310
+ 1144 009e 2020     		movs	r0, #32
+ARM GAS  /tmp/ccRbQnGb.s 			page 45
+
+
+ 1145 00a0 D861     		str	r0, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1146              		.loc 2 724 3 view .LVU311
+ 1147 00a2 D961     		str	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1148              		.loc 2 726 3 view .LVU312
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1149              		.loc 2 726 10 is_stmt 0 view .LVU313
+ 1150 00a4 D969     		ldr	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1151              		.loc 2 726 8 view .LVU314
+ 1152 00a6 0891     		str	r1, [sp, #32]
+ 1153              		.loc 2 727 3 is_stmt 1 view .LVU315
+ 1154 00a8 0898     		ldr	r0, [sp, #32]
+ 1155              	.LVL69:
+ 1156              		.loc 2 727 3 is_stmt 0 view .LVU316
+ 1157              	.LBE88:
+ 1158              	.LBE87:
+ 480:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_CURR_SHUNT_V_GPIO_Port, M1_CURR_SHUNT_V_Pin);
+ 1159              		.loc 1 480 1 is_stmt 1 view .LVU317
+ 1160              	.LBB89:
+ 1161              	.LBI89:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1162              		.loc 2 719 22 view .LVU318
+ 1163              	.LBB90:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1164              		.loc 2 721 3 view .LVU319
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1165              		.loc 2 722 3 view .LVU320
+ 1166 00aa 2C49     		ldr	r1, .L91+24
+ 1167 00ac D961     		str	r1, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1168              		.loc 2 723 3 view .LVU321
+ 1169 00ae 8020     		movs	r0, #128
+ 1170 00b0 D861     		str	r0, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1171              		.loc 2 724 3 view .LVU322
+ 1172 00b2 D961     		str	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1173              		.loc 2 726 3 view .LVU323
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1174              		.loc 2 726 10 is_stmt 0 view .LVU324
+ 1175 00b4 D969     		ldr	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1176              		.loc 2 726 8 view .LVU325
+ 1177 00b6 0791     		str	r1, [sp, #28]
+ 1178              		.loc 2 727 3 is_stmt 1 view .LVU326
+ 1179              	.LBE90:
+ 1180              	.LBE89:
+ 1181              	.LBB92:
+ 1182              	.LBB93:
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1183              		.loc 2 723 3 is_stmt 0 view .LVU327
+ 1184 00b8 4FF40040 		mov	r0, #32768
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1185              		.loc 2 722 3 view .LVU328
+ 1186 00bc 4FF4C031 		mov	r1, #98304
+ARM GAS  /tmp/ccRbQnGb.s 			page 46
+
+
+ 1187              	.LBE93:
+ 1188              	.LBE92:
+ 1189              	.LBB95:
+ 1190              	.LBB91:
+ 1191              		.loc 2 727 3 view .LVU329
+ 1192 00c0 079C     		ldr	r4, [sp, #28]
+ 1193              	.LVL70:
+ 1194              		.loc 2 727 3 view .LVU330
+ 1195              	.LBE91:
+ 1196              	.LBE95:
+ 481:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_INPUT_GPIO_Port, M1_PWM_INPUT_Pin);
+ 1197              		.loc 1 481 1 is_stmt 1 view .LVU331
+ 1198              	.LBB96:
+ 1199              	.LBI92:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1200              		.loc 2 719 22 view .LVU332
+ 1201              	.LBB94:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1202              		.loc 2 721 3 view .LVU333
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1203              		.loc 2 722 3 view .LVU334
+ 1204 00c2 D961     		str	r1, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1205              		.loc 2 723 3 view .LVU335
+ 1206 00c4 D861     		str	r0, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1207              		.loc 2 724 3 view .LVU336
+ 1208 00c6 D961     		str	r1, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1209              		.loc 2 726 3 view .LVU337
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1210              		.loc 2 726 10 is_stmt 0 view .LVU338
+ 1211 00c8 DC69     		ldr	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1212              		.loc 2 726 8 view .LVU339
+ 1213 00ca 0694     		str	r4, [sp, #24]
+ 1214              		.loc 2 727 3 is_stmt 1 view .LVU340
+ 1215 00cc 069D     		ldr	r5, [sp, #24]
+ 1216              	.LVL71:
+ 1217              		.loc 2 727 3 is_stmt 0 view .LVU341
+ 1218              	.LBE94:
+ 1219              	.LBE96:
+ 482:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_UH_GPIO_Port, M1_PWM_UH_Pin);
+ 1220              		.loc 1 482 1 is_stmt 1 view .LVU342
+ 1221              	.LBB97:
+ 1222              	.LBI97:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1223              		.loc 2 719 22 view .LVU343
+ 1224              	.LBB98:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1225              		.loc 2 721 3 view .LVU344
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1226              		.loc 2 722 3 view .LVU345
+ 1227 00ce 244C     		ldr	r4, .L91+28
+ 1228 00d0 DC61     		str	r4, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1229              		.loc 2 723 3 view .LVU346
+ARM GAS  /tmp/ccRbQnGb.s 			page 47
+
+
+ 1230 00d2 4FF48075 		mov	r5, #256
+ 1231 00d6 DD61     		str	r5, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1232              		.loc 2 724 3 view .LVU347
+ 1233 00d8 DC61     		str	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1234              		.loc 2 726 3 view .LVU348
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1235              		.loc 2 726 10 is_stmt 0 view .LVU349
+ 1236 00da DC69     		ldr	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1237              		.loc 2 726 8 view .LVU350
+ 1238 00dc 0594     		str	r4, [sp, #20]
+ 1239              		.loc 2 727 3 is_stmt 1 view .LVU351
+ 1240              	.LBE98:
+ 1241              	.LBE97:
+ 1242              	.LBB100:
+ 1243              	.LBB101:
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1244              		.loc 2 723 3 is_stmt 0 view .LVU352
+ 1245 00de 4FF40075 		mov	r5, #512
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1246              		.loc 2 722 3 view .LVU353
+ 1247 00e2 4FF48134 		mov	r4, #66048
+ 1248              	.LBE101:
+ 1249              	.LBE100:
+ 1250              	.LBB104:
+ 1251              	.LBB99:
+ 1252              		.loc 2 727 3 view .LVU354
+ 1253 00e6 059E     		ldr	r6, [sp, #20]
+ 1254              	.LVL72:
+ 1255              		.loc 2 727 3 view .LVU355
+ 1256              	.LBE99:
+ 1257              	.LBE104:
+ 483:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_VH_GPIO_Port, M1_PWM_VH_Pin);
+ 1258              		.loc 1 483 1 is_stmt 1 view .LVU356
+ 1259              	.LBB105:
+ 1260              	.LBI100:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1261              		.loc 2 719 22 view .LVU357
+ 1262              	.LBB102:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1263              		.loc 2 721 3 view .LVU358
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1264              		.loc 2 722 3 view .LVU359
+ 1265 00e8 DC61     		str	r4, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1266              		.loc 2 723 3 view .LVU360
+ 1267 00ea DD61     		str	r5, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1268              		.loc 2 724 3 view .LVU361
+ 1269 00ec DC61     		str	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1270              		.loc 2 726 3 view .LVU362
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1271              		.loc 2 726 10 is_stmt 0 view .LVU363
+ 1272 00ee DC69     		ldr	r4, [r3, #28]
+ARM GAS  /tmp/ccRbQnGb.s 			page 48
+
+
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1273              		.loc 2 726 8 view .LVU364
+ 1274 00f0 0494     		str	r4, [sp, #16]
+ 1275              		.loc 2 727 3 is_stmt 1 view .LVU365
+ 1276              	.LBE102:
+ 1277              	.LBE105:
+ 1278              	.LBB106:
+ 1279              	.LBB107:
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1280              		.loc 2 723 3 is_stmt 0 view .LVU366
+ 1281 00f2 4FF48065 		mov	r5, #1024
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1282              		.loc 2 722 3 view .LVU367
+ 1283 00f6 4FF48234 		mov	r4, #66560
+ 1284              	.LBE107:
+ 1285              	.LBE106:
+ 1286              	.LBB110:
+ 1287              	.LBB103:
+ 1288              		.loc 2 727 3 view .LVU368
+ 1289 00fa 049E     		ldr	r6, [sp, #16]
+ 1290              	.LVL73:
+ 1291              		.loc 2 727 3 view .LVU369
+ 1292              	.LBE103:
+ 1293              	.LBE110:
+ 484:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_WH_GPIO_Port, M1_PWM_WH_Pin);
+ 1294              		.loc 1 484 1 is_stmt 1 view .LVU370
+ 1295              	.LBB111:
+ 1296              	.LBI106:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1297              		.loc 2 719 22 view .LVU371
+ 1298              	.LBB108:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1299              		.loc 2 721 3 view .LVU372
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1300              		.loc 2 722 3 view .LVU373
+ 1301 00fc DC61     		str	r4, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1302              		.loc 2 723 3 view .LVU374
+ 1303 00fe DD61     		str	r5, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1304              		.loc 2 724 3 view .LVU375
+ 1305 0100 DC61     		str	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1306              		.loc 2 726 3 view .LVU376
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1307              		.loc 2 726 10 is_stmt 0 view .LVU377
+ 1308 0102 DC69     		ldr	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1309              		.loc 2 726 8 view .LVU378
+ 1310 0104 0394     		str	r4, [sp, #12]
+ 1311              		.loc 2 727 3 is_stmt 1 view .LVU379
+ 1312              	.LBE108:
+ 1313              	.LBE111:
+ 1314              	.LBB112:
+ 1315              	.LBB113:
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1316              		.loc 2 723 3 is_stmt 0 view .LVU380
+ARM GAS  /tmp/ccRbQnGb.s 			page 49
+
+
+ 1317 0106 4FF48055 		mov	r5, #4096
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1318              		.loc 2 722 3 view .LVU381
+ 1319 010a 4FF48834 		mov	r4, #69632
+ 1320              	.LBE113:
+ 1321              	.LBE112:
+ 1322              	.LBB115:
+ 1323              	.LBB109:
+ 1324              		.loc 2 727 3 view .LVU382
+ 1325 010e 039E     		ldr	r6, [sp, #12]
+ 1326              	.LVL74:
+ 1327              		.loc 2 727 3 view .LVU383
+ 1328              	.LBE109:
+ 1329              	.LBE115:
+ 485:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_VL_GPIO_Port, M1_PWM_VL_Pin);
+ 1330              		.loc 1 485 1 is_stmt 1 view .LVU384
+ 1331              	.LBB116:
+ 1332              	.LBI112:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1333              		.loc 2 719 22 view .LVU385
+ 1334              	.LBB114:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1335              		.loc 2 721 3 view .LVU386
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1336              		.loc 2 722 3 view .LVU387
+ 1337 0110 DC61     		str	r4, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1338              		.loc 2 723 3 view .LVU388
+ 1339 0112 DD61     		str	r5, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1340              		.loc 2 724 3 view .LVU389
+ 1341 0114 DC61     		str	r4, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1342              		.loc 2 726 3 view .LVU390
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1343              		.loc 2 726 10 is_stmt 0 view .LVU391
+ 1344 0116 DB69     		ldr	r3, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1345              		.loc 2 726 8 view .LVU392
+ 1346 0118 0293     		str	r3, [sp, #8]
+ 1347              		.loc 2 727 3 is_stmt 1 view .LVU393
+ 1348 011a 029B     		ldr	r3, [sp, #8]
+ 1349              	.LVL75:
+ 1350              		.loc 2 727 3 is_stmt 0 view .LVU394
+ 1351              	.LBE114:
+ 1352              	.LBE116:
+ 486:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_WL_GPIO_Port, M1_PWM_WL_Pin);
+ 1353              		.loc 1 486 1 is_stmt 1 view .LVU395
+ 1354              	.LBB117:
+ 1355              	.LBI117:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1356              		.loc 2 719 22 view .LVU396
+ 1357              	.LBB118:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1358              		.loc 2 721 3 view .LVU397
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1359              		.loc 2 722 3 view .LVU398
+ARM GAS  /tmp/ccRbQnGb.s 			page 50
+
+
+ 1360 011c D161     		str	r1, [r2, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1361              		.loc 2 723 3 view .LVU399
+ 1362 011e D061     		str	r0, [r2, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1363              		.loc 2 724 3 view .LVU400
+ 1364 0120 D161     		str	r1, [r2, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1365              		.loc 2 726 3 view .LVU401
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1366              		.loc 2 726 10 is_stmt 0 view .LVU402
+ 1367 0122 D269     		ldr	r2, [r2, #28]
+ 1368              	.LBE118:
+ 1369              	.LBE117:
+ 1370              	.LBB121:
+ 1371              	.LBB122:
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1372              		.loc 2 722 3 view .LVU403
+ 1373 0124 0F4B     		ldr	r3, .L91+32
+ 1374              	.LBE122:
+ 1375              	.LBE121:
+ 1376              	.LBB125:
+ 1377              	.LBB119:
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1378              		.loc 2 726 8 view .LVU404
+ 1379 0126 0192     		str	r2, [sp, #4]
+ 1380              		.loc 2 727 3 is_stmt 1 view .LVU405
+ 1381              	.LBE119:
+ 1382              	.LBE125:
+ 1383              	.LBB126:
+ 1384              	.LBB123:
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1385              		.loc 2 723 3 is_stmt 0 view .LVU406
+ 1386 0128 4FF40051 		mov	r1, #8192
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ 1387              		.loc 2 722 3 view .LVU407
+ 1388 012c 4FF49032 		mov	r2, #73728
+ 1389              	.LBE123:
+ 1390              	.LBE126:
+ 1391              	.LBB127:
+ 1392              	.LBB120:
+ 1393              		.loc 2 727 3 view .LVU408
+ 1394 0130 0198     		ldr	r0, [sp, #4]
+ 1395              	.LVL76:
+ 1396              		.loc 2 727 3 view .LVU409
+ 1397              	.LBE120:
+ 1398              	.LBE127:
+ 487:Src/mc_tasks.c **** LL_GPIO_LockPin(M1_PWM_UL_GPIO_Port, M1_PWM_UL_Pin);
+ 1399              		.loc 1 487 1 is_stmt 1 view .LVU410
+ 1400              	.LBB128:
+ 1401              	.LBI121:
+ 719:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h **** {
+ 1402              		.loc 2 719 22 view .LVU411
+ 1403              	.LBB124:
+ 721:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1404              		.loc 2 721 3 view .LVU412
+ 722:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, PinMask);
+ARM GAS  /tmp/ccRbQnGb.s 			page 51
+
+
+ 1405              		.loc 2 722 3 view .LVU413
+ 1406 0132 DA61     		str	r2, [r3, #28]
+ 723:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   WRITE_REG(GPIOx->LCKR, GPIO_LCKR_LCKK | PinMask);
+ 1407              		.loc 2 723 3 view .LVU414
+ 1408 0134 D961     		str	r1, [r3, #28]
+ 724:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   /* Read LCKR register. This read is mandatory to complete key lock sequence */
+ 1409              		.loc 2 724 3 view .LVU415
+ 1410 0136 DA61     		str	r2, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1411              		.loc 2 726 3 view .LVU416
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1412              		.loc 2 726 10 is_stmt 0 view .LVU417
+ 1413 0138 DB69     		ldr	r3, [r3, #28]
+ 726:Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_gpio.h ****   (void) temp;
+ 1414              		.loc 2 726 8 view .LVU418
+ 1415 013a 0093     		str	r3, [sp]
+ 1416              		.loc 2 727 3 is_stmt 1 view .LVU419
+ 1417 013c 009B     		ldr	r3, [sp]
+ 1418              	.LVL77:
+ 1419              		.loc 2 727 3 is_stmt 0 view .LVU420
+ 1420              	.LBE124:
+ 1421              	.LBE128:
+ 488:Src/mc_tasks.c **** }
+ 1422              		.loc 1 488 1 view .LVU421
+ 1423 013e 13B0     		add	sp, sp, #76
+ 1424              	.LCFI20:
+ 1425              		.cfi_def_cfa_offset 20
+ 1426              		@ sp needed
+ 1427 0140 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1428              	.L92:
+ 1429 0142 00BF     		.align	2
+ 1430              	.L91:
+ 1431 0144 00040048 		.word	1207960576
+ 1432 0148 04000100 		.word	65540
+ 1433 014c 02000100 		.word	65538
+ 1434 0150 08000100 		.word	65544
+ 1435 0154 40000100 		.word	65600
+ 1436 0158 20000100 		.word	65568
+ 1437 015c 80000100 		.word	65664
+ 1438 0160 00010100 		.word	65792
+ 1439 0164 00080048 		.word	1207961600
+ 1440              		.cfi_endproc
+ 1441              	.LFE1477:
+ 1443              		.section	.bss.bMCBootCompleted,"aw",%nobits
+ 1444              		.set	.LANCHOR0,. + 0
+ 1447              	bMCBootCompleted:
+ 1448 0000 00       		.space	1
+ 1449              		.section	.bss.hBootCapDelayCounterM1,"aw",%nobits
+ 1450              		.align	1
+ 1451              		.set	.LANCHOR1,. + 0
+ 1454              	hBootCapDelayCounterM1:
+ 1455 0000 0000     		.space	2
+ 1456              		.section	.bss.hMFTaskCounterM1,"aw",%nobits
+ 1457              		.align	1
+ 1458              		.set	.LANCHOR3,. + 0
+ 1461              	hMFTaskCounterM1:
+ 1462 0000 0000     		.space	2
+ARM GAS  /tmp/ccRbQnGb.s 			page 52
+
+
+ 1463              		.section	.bss.hStopPermanencyCounterM1,"aw",%nobits
+ 1464              		.align	1
+ 1465              		.set	.LANCHOR2,. + 0
+ 1468              	hStopPermanencyCounterM1:
+ 1469 0000 0000     		.space	2
+ 1470              		.text
+ 1471              	.Letext0:
+ 1472              		.file 3 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 1473              		.file 4 "Drivers/CMSIS/Include/core_cm4.h"
+ 1474              		.file 5 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 1475              		.file 6 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ 1476              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 1477              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 1478              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 1479              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 1480              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 1481              		.file 12 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 1482              		.file 13 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 1483              		.file 14 "Inc/mc_type.h"
+ 1484              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 1485              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 1486              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ 1487              		.file 18 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+ 1488              		.file 19 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+ 1489              		.file 20 "Inc/pwm_curr_fdbk.h"
+ 1490              		.file 21 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+ 1491              		.file 22 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+ 1492              		.file 23 "Inc/mc_interface.h"
+ 1493              		.file 24 "Inc/mc_configuration_registers.h"
+ 1494              		.file 25 "Inc/regular_conversion_manager.h"
+ 1495              		.file 26 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+ 1496              		.file 27 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ 1497              		.file 28 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 1498              		.file 29 "Inc/mc_config_common.h"
+ 1499              		.file 30 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pqd_motor_power_measurement.h"
+ 1500              		.file 31 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 1501              		.file 32 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ramp_ext_mngr.h"
+ 1502              		.file 33 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/circle_limitation.h"
+ 1503              		.file 34 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_pll_speed_pos_fdbk.h"
+ 1504              		.file 35 "Inc/mc_config.h"
+ 1505              		.file 36 "Inc/mc_parameters.h"
+ 1506              		.file 37 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/mcptl.h"
+ 1507              		.file 38 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/mcp.h"
+ 1508              		.file 39 "Inc/aspep.h"
+ 1509              		.file 40 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/mcpa.h"
+ 1510              		.file 41 "Inc/mcp_config.h"
+ 1511              		.file 42 "Inc/mc_api.h"
+ 1512              		.file 43 "Inc/mc_tasks.h"
+ 1513              		.file 44 "Inc/mc_app_hooks.h"
+ARM GAS  /tmp/ccRbQnGb.s 			page 53
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mc_tasks.c
+     /tmp/ccRbQnGb.s:18     .text.MCboot:0000000000000000 $t
+     /tmp/ccRbQnGb.s:27     .text.MCboot:0000000000000000 MCboot
+     /tmp/ccRbQnGb.s:109    .text.MCboot:000000000000004c $d
+     /tmp/ccRbQnGb.s:122    .text.TSK_SetChargeBootCapDelayM1:0000000000000000 $t
+     /tmp/ccRbQnGb.s:130    .text.TSK_SetChargeBootCapDelayM1:0000000000000000 TSK_SetChargeBootCapDelayM1
+     /tmp/ccRbQnGb.s:147    .text.TSK_SetChargeBootCapDelayM1:0000000000000008 $d
+     /tmp/ccRbQnGb.s:152    .text.TSK_ChargeBootCapDelayHasElapsedM1:0000000000000000 $t
+     /tmp/ccRbQnGb.s:160    .text.TSK_ChargeBootCapDelayHasElapsedM1:0000000000000000 TSK_ChargeBootCapDelayHasElapsedM1
+     /tmp/ccRbQnGb.s:185    .text.TSK_ChargeBootCapDelayHasElapsedM1:0000000000000010 $d
+     /tmp/ccRbQnGb.s:190    .text.TSK_SetStopPermanencyTimeM1:0000000000000000 $t
+     /tmp/ccRbQnGb.s:198    .text.TSK_SetStopPermanencyTimeM1:0000000000000000 TSK_SetStopPermanencyTimeM1
+     /tmp/ccRbQnGb.s:215    .text.TSK_SetStopPermanencyTimeM1:0000000000000008 $d
+     /tmp/ccRbQnGb.s:220    .text.TSK_StopPermanencyTimeHasElapsedM1:0000000000000000 $t
+     /tmp/ccRbQnGb.s:228    .text.TSK_StopPermanencyTimeHasElapsedM1:0000000000000000 TSK_StopPermanencyTimeHasElapsedM1
+     /tmp/ccRbQnGb.s:253    .text.TSK_StopPermanencyTimeHasElapsedM1:0000000000000010 $d
+     /tmp/ccRbQnGb.s:258    .text.TSK_HighFrequencyTask:0000000000000000 $t
+     /tmp/ccRbQnGb.s:266    .text.TSK_HighFrequencyTask:0000000000000000 TSK_HighFrequencyTask
+     /tmp/ccRbQnGb.s:316    .text.TSK_HighFrequencyTask:0000000000000024 $d
+     /tmp/ccRbQnGb.s:322    .text.TSK_SafetyTask_PWMOFF:0000000000000000 $t
+     /tmp/ccRbQnGb.s:330    .text.TSK_SafetyTask_PWMOFF:0000000000000000 TSK_SafetyTask_PWMOFF
+     /tmp/ccRbQnGb.s:501    .text.TSK_SafetyTask_PWMOFF:000000000000008c $d
+     /tmp/ccRbQnGb.s:512    .text.TSK_SafetyTask:0000000000000000 $t
+     /tmp/ccRbQnGb.s:520    .text.TSK_SafetyTask:0000000000000000 TSK_SafetyTask
+     /tmp/ccRbQnGb.s:567    .text.TSK_SafetyTask:000000000000001c $d
+     /tmp/ccRbQnGb.s:574    .text.MC_RunMotorControlTasks:0000000000000000 $t
+     /tmp/ccRbQnGb.s:582    .text.MC_RunMotorControlTasks:0000000000000000 MC_RunMotorControlTasks
+     /tmp/ccRbQnGb.s:723    .text.MC_RunMotorControlTasks:000000000000007c $d
+     /tmp/ccRbQnGb.s:732    .text.TSK_HardwareFaultTask:0000000000000000 $t
+     /tmp/ccRbQnGb.s:740    .text.TSK_HardwareFaultTask:0000000000000000 TSK_HardwareFaultTask
+     /tmp/ccRbQnGb.s:773    .text.TSK_HardwareFaultTask:0000000000000018 $d
+     /tmp/ccRbQnGb.s:778    .text.UI_HandleStartStopButton_cb:0000000000000000 $t
+     /tmp/ccRbQnGb.s:786    .text.UI_HandleStartStopButton_cb:0000000000000000 UI_HandleStartStopButton_cb
+     /tmp/ccRbQnGb.s:832    .text.mc_lock_pins:0000000000000000 $t
+     /tmp/ccRbQnGb.s:840    .text.mc_lock_pins:0000000000000000 mc_lock_pins
+     /tmp/ccRbQnGb.s:1431   .text.mc_lock_pins:0000000000000144 $d
+     /tmp/ccRbQnGb.s:1447   .bss.bMCBootCompleted:0000000000000000 bMCBootCompleted
+     /tmp/ccRbQnGb.s:1448   .bss.bMCBootCompleted:0000000000000000 $d
+     /tmp/ccRbQnGb.s:1450   .bss.hBootCapDelayCounterM1:0000000000000000 $d
+     /tmp/ccRbQnGb.s:1454   .bss.hBootCapDelayCounterM1:0000000000000000 hBootCapDelayCounterM1
+     /tmp/ccRbQnGb.s:1457   .bss.hMFTaskCounterM1:0000000000000000 $d
+     /tmp/ccRbQnGb.s:1461   .bss.hMFTaskCounterM1:0000000000000000 hMFTaskCounterM1
+     /tmp/ccRbQnGb.s:1464   .bss.hStopPermanencyCounterM1:0000000000000000 $d
+     /tmp/ccRbQnGb.s:1468   .bss.hStopPermanencyCounterM1:0000000000000000 hStopPermanencyCounterM1
+
+UNDEFINED SYMBOLS
+FOC_Init
+ASPEP_start
+PID_HandleInit
+VSS_Init
+RCM_RegisterRegConv
+RVBS_Init
+NTC_Init
+MC_APP_BootHook
+aspepOverUartA
+PIDSpeedHandle_M1
+ARM GAS  /tmp/ccRbQnGb.s 			page 54
+
+
+VirtualSpeedSensorM1
+VbusRegConv_M1
+BusVoltageSensor_M1
+TempRegConv_M1
+TempSensor_M1
+Mci
+FOC_HighFrequencyTask
+MCPA_dataLog
+GLOBAL_TIMESTAMP
+MCPA_UART_A
+PWMC_IsFaultOccurred
+MCI_FaultProcessing
+MCI_GetFaultState
+RCM_ExecRegularConv
+NTC_CalcAvTemp
+RVBS_CalcAvVbus
+PWMC_SwitchOffPWM
+FOC_Clear
+MCPA_flushDataLog
+pwmcHandle
+RCM_ExecUserConv
+TSK_MediumFrequencyTaskM1
+MC_APP_PostMediumFrequencyHook_M1
+MCP_ReceivedPacket
+MCP_Over_UartA
+MC_GetSTMStateMotor1
+MC_StartMotor1
+MC_StopMotor1

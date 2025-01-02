@@ -1,0 +1,117 @@
+
+
+#if 0
+#include<stdio.h>
+#include<stdlib.h>
+
+union employee
+{
+    char name[15];
+    int age;
+    float salary;
+};
+const union employee e1;
+
+int main()
+{
+    strcpy(e1.name, "K");----------------------->csak warning lesz, de engedi
+    printf("%s %d %f", e1.name, e1.age, e1.salary);
+    return 0;
+}
+imre@55hDesk:~/C_try/const$ gcc main.c -o main 
+main.c: In function ‘main’:
+main.c:14:5: warning: incompatible implicit declaration of built-in function ‘strcpy’ [enabled by default]
+main.c:14:5: warning: passing argument 1 of ‘strcpy’ discards ‘const’ qualifier from pointer target type [enabled by default]
+main.c:14:5: note: expected ‘char *’ but argument is of type ‘const char *’
+imre@55hDesk:~/C_try/const$ vim
+#endif
+
+#if 0
+#include<stdio.h>
+int fun(int **ptr);
+
+int main()
+{
+    int i=10;
+    const int *ptr = &i;
+    fun(&ptr);
+    return 0;
+}
+int fun(int **ptr)
+{
+    int j = 223;
+    int *temp = &j;
+    printf("Before changing ptr = %5x\n", *ptr);
+    const *ptr = temp;
+    printf("After changing ptr = %5x\n", *ptr);
+    return 0;
+}
+imre@55hDesk:~/C_try/const$ gcc main.c -o main 
+main.c: In function ‘main’:
+main.c:31:5: warning: passing argument 1 of ‘fun’ from incompatible pointer type [enabled by default]
+main.c:25:5: note: expected ‘int **’ but argument is of type ‘const int **’
+main.c: In function ‘fun’:
+main.c:39:12: error: ‘ptr’ redeclared as different kind of symbol
+main.c:34:15: note: previous definition of ‘ptr’ was here
+imre@55hDesk:~/C_try/const$ 
+
+#endif
+
+#if 0
+
+#include<stdio.h>
+
+int main()
+{
+    const int x=5;
+    const int *ptrx;
+    ptrx = &x;
+    /* *ptrx = 10; */
+	*(int *)&x = 10;
+    printf("%d\n", x);
+    return 0;
+}
+// imre@55hDesk:~/C_try/const$ gcc main.c -o main 
+// main.c: In function ‘main’:
+// main.c:69:5: error: assignment of read-only location ‘*ptrx’
+// imre@55hDesk:~/C_try/const$ 
+#endif
+
+#if 0
+
+#include<stdio.h>
+
+int main()
+{
+    const int x=5;
+    int *ptrx;
+    ptrx = (int*)&x;
+    *ptrx = 10; 
+    printf("%d\n", x);
+    return 0;
+}
+// imre@55hDesk:~/C_try/const$ gcc main.c -o main 
+// main.c: In function ‘main’:
+// main.c:69:5: error: assignment of read-only location ‘*ptrx’
+// imre@55hDesk:~/C_try/const$ 
+#endif
+
+#if 1
+
+#include<stdio.h>
+int fun(int **ptr);
+
+int main()
+{
+    int i=10, j=20;
+    const int *ptr = &i;
+    printf(" i = %5X", ptr);
+    printf(" ptr = %d", *ptr);
+    ptr = &j;-->ok
+    *ptr = j;-->nem ok
+    printf(" j = %5X", ptr);
+    printf(" ptr = %d", *ptr);
+    return 0;
+}
+#endif
+

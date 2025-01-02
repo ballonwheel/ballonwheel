@@ -1,0 +1,66 @@
+
+
+ez a projekt from scretch not using HAL
+gpio blink
+https://www.st.com/en/evaluation-tools/b-g431b-esc1.html
+villogjon a LED es ha button nyomva van, akkor gyorsabban
+STATUS LED PC6 
+BUTTON PC10
+
+
+
+
+
+
+155 8, Convert to Binary:
+156 ez bekerult a makefile-ba
+157 After compilation, you can convert the ELF file to a binary file suitable for flashing to your STM32G4 microcontroller. Use the objcopy utility:
+158
+159 bash
+160
+161     arm-none-eabi-objcopy -O binary main.elf main.bin
+162
+163     Flash the Binary:
+164     Finally, you can use tools like ST-Link, OpenOCD, or any other flash programming tool to flash the generated binary (main.bin) to your STM32G4 microcontroller.
+165
+166 Ensure you have the necessary permissions to access the programming tool and the STM32 microcontroller.
+167
+168 By following these steps, you can compile your STM32G4 code on a Debian CLI on your Raspberry Pi using the ARM GCC toolchain.
+
+
+
+174  sudo apt-get install stlink-tools
+175 https://github.com/stlink-org/stlink
+176 Support for STM32G4 (#822)
+177 Release v1.6.1
+178 Release date: 2020-06-01
+179  sudo apt-get install stlink-tools
+180 Selecting previously unselected package stlink-tools.
+181 Preparing to unpack .../stlink-tools_1.6.1+ds-3_arm64.deb ...
+182
+183 imre@raspberrypiZ2w3:~/ballonwheel/stm32_b_g431b_ESC1 $ sudo st-info --probe
+184 Found 1 stlink programmers
+185  serial:     303637334646353435303534383937303837313834363135
+186  hla-serial: "\x30\x36\x37\x33\x46\x46\x35\x34\x35\x30\x35\x34\x38\x39\x37\x30\x38\x37\x31\x38\x34\x36\x31\x35"
+187  flash:      131072 (pagesize: 2048)
+188  sram:       32768
+189  chipid:     0x0468
+190  descr:      G4 Category-2
+191
+192
+193 imre@raspberrypiZ2w3:~/ballonwheel/stm32_b_g431b_ESC1 $ sudo st-flash --debug read option_bytes_dump.bin 0x1FFF7800 4
+194 .
+195 .
+196 imre@raspberrypiZ2w3:~/ballonwheel/stm32_b_g431b_ESC1 $ sudo hexdump option_bytes_dump.bin
+197 0000000 f8aa fbef
+198 0000004
+199
+200
+201 jojo, de hova write-oljam a codot?
+202 mindenhol 0x80000000 van
+203 https://www.st.com/resource/en/user_manual/um2237-stm32cubeprogrammer-software-description-stmicroelectronics.pdf
+204 33.oldal, de kulon nem irja
+205 On many STM32 families, the boot address in the internal flash is 0x8000000. This address is remapped to address 0x00000000 by boot mode mechanism
+206 https://community.st.com/t5/stm32-mcus/faq-stm32-boot-process/ta-p/49358
+207
+

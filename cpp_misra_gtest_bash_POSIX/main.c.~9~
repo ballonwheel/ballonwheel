@@ -1,0 +1,23 @@
+
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+int main (void)
+{
+char *p;
+    p = getenv("http_proxy");
+    if (p == NULL) {
+        printf("1\n");
+        return -1;
+    }
+
+    printf("->%s<-\n", p);
+
+    if (!getenv("no_proxy"))
+        printf("2\n");
+
+    return 0;
+}
+ 

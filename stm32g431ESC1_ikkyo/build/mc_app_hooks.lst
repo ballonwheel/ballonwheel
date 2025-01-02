@@ -1,0 +1,195 @@
+ARM GAS  /tmp/ccDJIVbB.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mc_app_hooks.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.MC_APP_BootHook,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	MC_APP_BootHook
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	MC_APP_BootHook:
+  28              	.LFB1464:
+  29              		.file 1 "Src/mc_app_hooks.c"
+   1:Src/mc_app_hooks.c **** 
+   2:Src/mc_app_hooks.c **** /**
+   3:Src/mc_app_hooks.c ****   ******************************************************************************
+   4:Src/mc_app_hooks.c ****   * @file    mc_app_hooks.c
+   5:Src/mc_app_hooks.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   6:Src/mc_app_hooks.c ****   * @brief   This file implements default motor control app hooks.
+   7:Src/mc_app_hooks.c ****   *
+   8:Src/mc_app_hooks.c ****   ******************************************************************************
+   9:Src/mc_app_hooks.c ****   * @attention
+  10:Src/mc_app_hooks.c ****   *
+  11:Src/mc_app_hooks.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  12:Src/mc_app_hooks.c ****   * All rights reserved.</center></h2>
+  13:Src/mc_app_hooks.c ****   *
+  14:Src/mc_app_hooks.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  15:Src/mc_app_hooks.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  16:Src/mc_app_hooks.c ****   * the License. You may obtain a copy of the License at:
+  17:Src/mc_app_hooks.c ****   *                             www.st.com/SLA0044
+  18:Src/mc_app_hooks.c ****   *
+  19:Src/mc_app_hooks.c ****   ******************************************************************************
+  20:Src/mc_app_hooks.c ****   * @ingroup MCAppHooks
+  21:Src/mc_app_hooks.c ****   */
+  22:Src/mc_app_hooks.c **** 
+  23:Src/mc_app_hooks.c **** /* Includes ------------------------------------------------------------------*/
+  24:Src/mc_app_hooks.c **** #include "mc_type.h"
+  25:Src/mc_app_hooks.c **** #include "mc_app_hooks.h"
+  26:Src/mc_app_hooks.c **** #include "mc_config.h"
+  27:Src/mc_app_hooks.c **** #include "esc.h"
+  28:Src/mc_app_hooks.c **** 
+  29:Src/mc_app_hooks.c **** /** @addtogroup MCSDK
+ARM GAS  /tmp/ccDJIVbB.s 			page 2
+
+
+  30:Src/mc_app_hooks.c ****   * @{
+  31:Src/mc_app_hooks.c ****   */
+  32:Src/mc_app_hooks.c **** 
+  33:Src/mc_app_hooks.c **** /** @addtogroup MCTasks
+  34:Src/mc_app_hooks.c ****   * @{
+  35:Src/mc_app_hooks.c ****   */
+  36:Src/mc_app_hooks.c **** 
+  37:Src/mc_app_hooks.c **** /**
+  38:Src/mc_app_hooks.c ****  * @defgroup MCAppHooks Motor Control Applicative hooks
+  39:Src/mc_app_hooks.c ****  * @brief User defined functions that are called in the Motor Control tasks.
+  40:Src/mc_app_hooks.c ****  *
+  41:Src/mc_app_hooks.c ****  *
+  42:Src/mc_app_hooks.c ****  * @{
+  43:Src/mc_app_hooks.c ****  */
+  44:Src/mc_app_hooks.c **** 
+  45:Src/mc_app_hooks.c **** /**
+  46:Src/mc_app_hooks.c ****  * @brief Hook function called right before the end of the MCboot function.
+  47:Src/mc_app_hooks.c ****  *
+  48:Src/mc_app_hooks.c ****  *
+  49:Src/mc_app_hooks.c ****  *
+  50:Src/mc_app_hooks.c ****  */
+  51:Src/mc_app_hooks.c **** __weak void MC_APP_BootHook(void)
+  52:Src/mc_app_hooks.c **** {
+  30              		.loc 1 52 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  53:Src/mc_app_hooks.c ****   esc_boot(&ESC_M1);
+  35              		.loc 1 53 3 view .LVU1
+  36 0000 0148     		ldr	r0, .L3
+  37 0002 FFF7FEBF 		b	esc_boot
+  38              	.LVL0:
+  39              	.L4:
+  40 0006 00BF     		.align	2
+  41              	.L3:
+  42 0008 00000000 		.word	ESC_M1
+  43              		.cfi_endproc
+  44              	.LFE1464:
+  46              		.section	.text.MC_APP_PostMediumFrequencyHook_M1,"ax",%progbits
+  47              		.align	1
+  48              		.p2align 2,,3
+  49              		.weak	MC_APP_PostMediumFrequencyHook_M1
+  50              		.syntax unified
+  51              		.thumb
+  52              		.thumb_func
+  53              		.fpu fpv4-sp-d16
+  55              	MC_APP_PostMediumFrequencyHook_M1:
+  56              	.LFB1465:
+  54:Src/mc_app_hooks.c **** /* USER CODE BEGIN BootHook */
+  55:Src/mc_app_hooks.c **** 
+  56:Src/mc_app_hooks.c **** /* USER CODE END BootHook */
+  57:Src/mc_app_hooks.c **** }
+  58:Src/mc_app_hooks.c **** 
+  59:Src/mc_app_hooks.c **** /**
+  60:Src/mc_app_hooks.c ****  * @brief Hook function called right after the Medium Frequency Task for Motor 1.
+  61:Src/mc_app_hooks.c ****  *
+ARM GAS  /tmp/ccDJIVbB.s 			page 3
+
+
+  62:Src/mc_app_hooks.c ****  *
+  63:Src/mc_app_hooks.c ****  *
+  64:Src/mc_app_hooks.c ****  */
+  65:Src/mc_app_hooks.c **** __weak void MC_APP_PostMediumFrequencyHook_M1(void)
+  66:Src/mc_app_hooks.c **** {
+  57              		.loc 1 66 1 view -0
+  58              		.cfi_startproc
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+  61              		@ link register save eliminated.
+  67:Src/mc_app_hooks.c ****   esc_pwm_control(&ESC_M1);
+  62              		.loc 1 67 3 view .LVU3
+  63 0000 0148     		ldr	r0, .L6
+  64 0002 FFF7FEBF 		b	esc_pwm_control
+  65              	.LVL1:
+  66              	.L7:
+  67 0006 00BF     		.align	2
+  68              	.L6:
+  69 0008 00000000 		.word	ESC_M1
+  70              		.cfi_endproc
+  71              	.LFE1465:
+  73              		.text
+  74              	.Letext0:
+  75              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+  76              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+  77              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+  78              		.file 5 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+  79              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+  80              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+  81              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+  82              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+  83              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+  84              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+  85              		.file 12 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+  86              		.file 13 "Inc/mc_type.h"
+  87              		.file 14 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+  88              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+  89              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+  90              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+  91              		.file 18 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+  92              		.file 19 "Inc/pwm_curr_fdbk.h"
+  93              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+  94              		.file 21 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+  95              		.file 22 "Inc/mc_interface.h"
+  96              		.file 23 "Inc/mc_configuration_registers.h"
+  97              		.file 24 "Inc/regular_conversion_manager.h"
+  98              		.file 25 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+  99              		.file 26 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ 100              		.file 27 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 101              		.file 28 "Inc/mc_config_common.h"
+ 102              		.file 29 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pqd_motor_power_measurement.h"
+ 103              		.file 30 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 104              		.file 31 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ramp_ext_mngr.h"
+ 105              		.file 32 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/circle_limitation.h"
+ 106              		.file 33 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_pll_speed_pos_fdbk.h"
+ 107              		.file 34 "Inc/mc_config.h"
+ARM GAS  /tmp/ccDJIVbB.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mc_app_hooks.c
+     /tmp/ccDJIVbB.s:18     .text.MC_APP_BootHook:0000000000000000 $t
+     /tmp/ccDJIVbB.s:27     .text.MC_APP_BootHook:0000000000000000 MC_APP_BootHook
+     /tmp/ccDJIVbB.s:42     .text.MC_APP_BootHook:0000000000000008 $d
+     /tmp/ccDJIVbB.s:47     .text.MC_APP_PostMediumFrequencyHook_M1:0000000000000000 $t
+     /tmp/ccDJIVbB.s:55     .text.MC_APP_PostMediumFrequencyHook_M1:0000000000000000 MC_APP_PostMediumFrequencyHook_M1
+     /tmp/ccDJIVbB.s:69     .text.MC_APP_PostMediumFrequencyHook_M1:0000000000000008 $d
+
+UNDEFINED SYMBOLS
+esc_boot
+ESC_M1
+esc_pwm_control

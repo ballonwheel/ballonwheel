@@ -1,0 +1,781 @@
+ARM GAS  /tmp/ccI417Mh.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"ntc_temperature_sensor.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.NTC_SetFaultState,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	NTC_SetFaultState
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	NTC_SetFaultState:
+  28              	.LVL0:
+  29              	.LFB1435:
+  30              		.file 1 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   ******************************************************************************
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @file    ntc_temperature_sensor.c
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief   This file provides firmware functions that implement the features
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *          of the Temperature Sensor component of the Motor Control SDK.
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   ******************************************************************************
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @attention
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * All rights reserved.</center></h2>
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * the License. You may obtain a copy of the License at:
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *                             www.st.com/SLA0044
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   ******************************************************************************
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @ingroup TemperatureSensor
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /* Includes ------------------------------------------------------------------*/
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #include "ntc_temperature_sensor.h"
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /** @addtogroup MCSDK
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @{
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ARM GAS  /tmp/ccI417Mh.s 			page 2
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /** @defgroup TemperatureSensor NTC Temperature Sensor
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief Allows to read the temperature of the heat sink
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * This component implements both a virtual and a real temperature sensor,
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * depending on the sensor availability.
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * Access to the MCU peripherals needed to acquire the temperature (GPIO and ADC
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * used for regular conversion) is managed by the PWM component used in the Motor
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * Control subsystem. As a consequence, this NTC temperature sensor implementation
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * is hardware-independent.
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * If a real temperature sensor is available (Sensor Type = #REAL_SENSOR),
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * this component can handle NTC sensors or, more generally, analog temperature sensors
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * which output is related to the temperature by the following formula:
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @f[
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *               V_{out} = V_0 + \frac{dV}{dT} \cdot ( T - T_0)
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @f]
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * In case of Pull up configuration @f$\frac{dV}{dT}@f$ is positive and @f$V_0@f$ is low.
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * In case of Pull down configuration @f$\frac{dV}{dT}@f$ is negative and @f$V_0@f$ is high.
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * In case a real temperature sensor is not available (Sensor Type = #VIRTUAL_SENSOR),
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * This component will always returns a constant, programmable, temperature.
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @{
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /* Private function prototypes -----------------------------------------------*/
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** uint16_t NTC_SetFaultState(NTC_Handle_t *pHandle);
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /* Clear static average temperature value */
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** static inline void NTC_Clear(NTC_Handle_t *pHandle);
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /* Private functions ---------------------------------------------------------*/
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief Returns fault when temperature exceeds the related temperature voltage protection thresh
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle : Pointer on Handle structure of TemperatureSensor component
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @retval Fault status : Updated internal fault status
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** __weak uint16_t NTC_SetFaultState(NTC_Handle_t *pHandle) //cstat !MISRAC2012-Rule-8.13
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+  31              		.loc 1 73 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		@ link register save eliminated.
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   uint16_t hFault;
+  36              		.loc 1 74 3 view .LVU1
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   if (MC_NULL == pHandle)
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     hFault = MC_SW_ERROR;
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ARM GAS  /tmp/ccI417Mh.s 			page 3
+
+
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   else
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     if (pHandle->hSensitivity > 0 )
+  37              		.loc 1 83 5 view .LVU2
+  38              		.loc 1 83 8 is_stmt 0 view .LVU3
+  39 0000 B0F91010 		ldrsh	r1, [r0, #16]
+  40 0004 4388     		ldrh	r3, [r0, #2]
+  41 0006 8289     		ldrh	r2, [r0, #12]
+  42 0008 0029     		cmp	r1, #0
+  43 000a 08DD     		ble	.L2
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       if (pHandle->hAvTemp_d > pHandle->hOverTempThreshold)
+  44              		.loc 1 85 7 is_stmt 1 view .LVU4
+  45              		.loc 1 85 10 is_stmt 0 view .LVU5
+  46 000c 9342     		cmp	r3, r2
+  47 000e 04D8     		bhi	.L7
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         hFault = MC_OVER_TEMP;
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       else if (pHandle->hAvTemp_d < pHandle->hOverTempDeactThreshold)
+  48              		.loc 1 89 12 is_stmt 1 view .LVU6
+  49              		.loc 1 89 15 is_stmt 0 view .LVU7
+  50 0010 C289     		ldrh	r2, [r0, #14]
+  51 0012 9A42     		cmp	r2, r3
+  52 0014 08D9     		bls	.L4
+  53              	.L6:
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         hFault = MC_NO_ERROR;
+  54              		.loc 1 91 16 view .LVU8
+  55 0016 0020     		movs	r0, #0
+  56              	.LVL1:
+  57              		.loc 1 91 16 view .LVU9
+  58 0018 7047     		bx	lr
+  59              	.LVL2:
+  60              	.L7:
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  61              		.loc 1 87 16 view .LVU10
+  62 001a 0820     		movs	r0, #8
+  63              	.LVL3:
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       else
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         hFault = pHandle->hFaultState;
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     else
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       if (pHandle->hAvTemp_d < pHandle->hOverTempThreshold)
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         hFault = MC_OVER_TEMP;
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       else if (pHandle->hAvTemp_d > pHandle->hOverTempDeactThreshold)
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         hFault = MC_NO_ERROR;
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       else
+ARM GAS  /tmp/ccI417Mh.s 			page 4
+
+
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         hFault = pHandle->hFaultState;
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }  
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return (hFault);
+  64              		.loc 1 116 3 is_stmt 1 view .LVU11
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+  65              		.loc 1 117 1 is_stmt 0 view .LVU12
+  66 001c 7047     		bx	lr
+  67              	.LVL4:
+  68              	.L2:
+  69              	.LBB6:
+  70              	.LBI6:
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+  71              		.loc 1 72 17 is_stmt 1 view .LVU13
+  72              	.LBB7:
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  73              		.loc 1 100 7 view .LVU14
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  74              		.loc 1 100 10 is_stmt 0 view .LVU15
+  75 001e 9342     		cmp	r3, r2
+  76 0020 FBD3     		bcc	.L7
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  77              		.loc 1 104 12 is_stmt 1 view .LVU16
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  78              		.loc 1 104 15 is_stmt 0 view .LVU17
+  79 0022 C289     		ldrh	r2, [r0, #14]
+  80 0024 9A42     		cmp	r2, r3
+  81 0026 F6D3     		bcc	.L6
+  82              	.LVL5:
+  83              	.L4:
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+  84              		.loc 1 104 15 view .LVU18
+  85              	.LBE7:
+  86              	.LBE6:
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  87              		.loc 1 95 9 is_stmt 1 view .LVU19
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  88              		.loc 1 95 16 is_stmt 0 view .LVU20
+  89 0028 0089     		ldrh	r0, [r0, #8]
+  90              	.LVL6:
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+  91              		.loc 1 95 16 view .LVU21
+  92 002a 7047     		bx	lr
+  93              		.cfi_endproc
+  94              	.LFE1435:
+  96              		.section	.text.NTC_Init,"ax",%progbits
+  97              		.align	1
+  98              		.p2align 2,,3
+  99              		.weak	NTC_Init
+ 100              		.syntax unified
+ 101              		.thumb
+ 102              		.thumb_func
+ 103              		.fpu fpv4-sp-d16
+ARM GAS  /tmp/ccI417Mh.s 			page 5
+
+
+ 105              	NTC_Init:
+ 106              	.LVL7:
+ 107              	.LFB1436:
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /* Functions ---------------------------------------------------- */
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief Initializes temperature sensing conversions
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle : Pointer on Handle structure of TemperatureSensor component
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** __weak void NTC_Init(NTC_Handle_t *pHandle)
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+ 108              		.loc 1 128 1 is_stmt 1 view -0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112              		@ link register save eliminated.
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   if (MC_NULL == pHandle)
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     /* Nothing to do */
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   else
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     if (REAL_SENSOR == pHandle->bSensorType)
+ 113              		.loc 1 137 5 view .LVU23
+ 114              		.loc 1 137 8 is_stmt 0 view .LVU24
+ 115 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 116 0002 4BB9     		cbnz	r3, .L10
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       NTC_Clear(pHandle);
+ 117              		.loc 1 139 7 is_stmt 1 view .LVU25
+ 118              	.LBB8:
+ 119              	.LBI8:
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     else  /* case VIRTUAL_SENSOR */
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hFaultState = MC_NO_ERROR;
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hAvTemp_d = pHandle->hExpectedTemp_d;
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief Initializes internal average temperature computed value
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle : Pointer on Handle structure of TemperatureSensor component
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** static inline void NTC_Clear(NTC_Handle_t *pHandle)
+ 120              		.loc 1 156 20 view .LVU26
+ 121              	.LVL8:
+ 122              	.LBB9:
+ARM GAS  /tmp/ccI417Mh.s 			page 6
+
+
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+ 158:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 159:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   if (MC_NULL == pHandle)
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     /* nothing to do */
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 163:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   else
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     if (pHandle->hSensitivity > 0 ) 
+ 123              		.loc 1 166 5 view .LVU27
+ 124              		.loc 1 166 8 is_stmt 0 view .LVU28
+ 125 0004 B0F91020 		ldrsh	r2, [r0, #16]
+ 126 0008 002A     		cmp	r2, #0
+ 127 000a 01DD     		ble	.L11
+ 128              	.LBE9:
+ 129              	.LBE8:
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 130              		.loc 1 144 7 is_stmt 1 view .LVU29
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 131              		.loc 1 144 26 is_stmt 0 view .LVU30
+ 132 000c 4380     		strh	r3, [r0, #2]	@ movhi
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 133              		.loc 1 149 1 view .LVU31
+ 134 000e 7047     		bx	lr
+ 135              	.L11:
+ 136              	.LBB11:
+ 137              	.LBB10:
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 168:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hAvTemp_d = 0U;
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 170:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     else
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hAvTemp_d = 0xFFFFU;
+ 138              		.loc 1 172 7 is_stmt 1 view .LVU32
+ 139              		.loc 1 172 26 is_stmt 0 view .LVU33
+ 140 0010 4FF6FF73 		movw	r3, #65535
+ 141 0014 4380     		strh	r3, [r0, #2]	@ movhi
+ 142 0016 7047     		bx	lr
+ 143              	.LVL9:
+ 144              	.L10:
+ 145              		.loc 1 172 26 view .LVU34
+ 146              	.LBE10:
+ 147              	.LBE11:
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hAvTemp_d = pHandle->hExpectedTemp_d;
+ 148              		.loc 1 143 7 is_stmt 1 view .LVU35
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hAvTemp_d = pHandle->hExpectedTemp_d;
+ 149              		.loc 1 143 28 is_stmt 0 view .LVU36
+ 150 0018 0022     		movs	r2, #0
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 151              		.loc 1 144 26 view .LVU37
+ 152 001a 8388     		ldrh	r3, [r0, #4]
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hAvTemp_d = pHandle->hExpectedTemp_d;
+ 153              		.loc 1 143 28 view .LVU38
+ 154 001c 0281     		strh	r2, [r0, #8]	@ movhi
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 155              		.loc 1 144 7 is_stmt 1 view .LVU39
+ARM GAS  /tmp/ccI417Mh.s 			page 7
+
+
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 156              		.loc 1 144 26 is_stmt 0 view .LVU40
+ 157 001e 4380     		strh	r3, [r0, #2]	@ movhi
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 158              		.loc 1 149 1 view .LVU41
+ 159 0020 7047     		bx	lr
+ 160              		.cfi_endproc
+ 161              	.LFE1436:
+ 163 0022 00BF     		.section	.text.NTC_CalcAvTemp,"ax",%progbits
+ 164              		.align	1
+ 165              		.p2align 2,,3
+ 166              		.weak	NTC_CalcAvTemp
+ 167              		.syntax unified
+ 168              		.thumb
+ 169              		.thumb_func
+ 170              		.fpu fpv4-sp-d16
+ 172              	NTC_CalcAvTemp:
+ 173              	.LVL10:
+ 174              	.LFB1438:
+ 173:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 175:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief Performs the temperature sensing average computation after an ADC conversion
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle : Pointer on Handle structure of TemperatureSensor component
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 184:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @retval Fault status : Error reported in case of an over temperature detection
+ 185:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** __weak uint16_t NTC_CalcAvTemp(NTC_Handle_t *pHandle, uint16_t rawValue)
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+ 175              		.loc 1 187 1 is_stmt 1 view -0
+ 176              		.cfi_startproc
+ 177              		@ args = 0, pretend = 0, frame = 0
+ 178              		@ frame_needed = 0, uses_anonymous_args = 0
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   uint16_t returnValue;
+ 179              		.loc 1 188 3 view .LVU43
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   if (MC_NULL == pHandle)
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 192:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     returnValue = 0U;
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 194:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   else
+ 195:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 196:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     if (REAL_SENSOR == pHandle->bSensorType)
+ 180              		.loc 1 197 5 view .LVU44
+ 181              		.loc 1 197 8 is_stmt 0 view .LVU45
+ 182 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 183 0002 8BB9     		cbnz	r3, .L15
+ 184              	.LBB12:
+ 198:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 199:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       uint16_t hAux;
+ 185              		.loc 1 199 7 is_stmt 1 view .LVU46
+ARM GAS  /tmp/ccI417Mh.s 			page 8
+
+
+ 200:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       hAux = rawValue;
+ 186              		.loc 1 200 7 view .LVU47
+ 187              	.LVL11:
+ 201:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 202:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       if (0xFFFFU == hAux)
+ 188              		.loc 1 202 7 view .LVU48
+ 189              		.loc 1 202 10 is_stmt 0 view .LVU49
+ 190 0004 4FF6FF73 		movw	r3, #65535
+ 191 0008 9942     		cmp	r1, r3
+ 192              	.LBE12:
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   uint16_t returnValue;
+ 193              		.loc 1 187 1 view .LVU50
+ 194 000a 10B5     		push	{r4, lr}
+ 195              	.LCFI0:
+ 196              		.cfi_def_cfa_offset 8
+ 197              		.cfi_offset 4, -8
+ 198              		.cfi_offset 14, -4
+ 199              	.LBB14:
+ 200              		.loc 1 202 10 view .LVU51
+ 201 000c 07D0     		beq	.L16
+ 202              	.LBB13:
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         /* Nothing to do */
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+ 206:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       else
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       {
+ 208:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         uint32_t wtemp;
+ 203              		.loc 1 208 9 is_stmt 1 view .LVU52
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         wtemp = (uint32_t)(pHandle->hLowPassFilterBW) - 1U;
+ 204              		.loc 1 209 9 view .LVU53
+ 205              		.loc 1 209 17 is_stmt 0 view .LVU54
+ 206 000e 4289     		ldrh	r2, [r0, #10]
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         wtemp *= ((uint32_t)pHandle->hAvTemp_d);
+ 207              		.loc 1 210 19 view .LVU55
+ 208 0010 4388     		ldrh	r3, [r0, #2]
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         wtemp = (uint32_t)(pHandle->hLowPassFilterBW) - 1U;
+ 209              		.loc 1 209 15 view .LVU56
+ 210 0012 541E     		subs	r4, r2, #1
+ 211              	.LVL12:
+ 212              		.loc 1 210 9 is_stmt 1 view .LVU57
+ 211:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         wtemp += hAux;
+ 213              		.loc 1 211 9 view .LVU58
+ 214              		.loc 1 211 15 is_stmt 0 view .LVU59
+ 215 0014 04FB0313 		mla	r3, r4, r3, r1
+ 216              	.LVL13:
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         wtemp /= ((uint32_t)pHandle->hLowPassFilterBW);
+ 217              		.loc 1 212 9 is_stmt 1 view .LVU60
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 214:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         pHandle->hAvTemp_d = (uint16_t)wtemp;
+ 218              		.loc 1 214 9 view .LVU61
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****         wtemp /= ((uint32_t)pHandle->hLowPassFilterBW);
+ 219              		.loc 1 212 15 is_stmt 0 view .LVU62
+ 220 0018 B3FBF2F3 		udiv	r3, r3, r2
+ 221              	.LVL14:
+ 222              		.loc 1 214 30 view .LVU63
+ 223 001c 4380     		strh	r3, [r0, #2]	@ movhi
+ 224              	.LVL15:
+ARM GAS  /tmp/ccI417Mh.s 			page 9
+
+
+ 225              	.L16:
+ 226              		.loc 1 214 30 view .LVU64
+ 227 001e 0446     		mov	r4, r0
+ 228              	.LBE13:
+ 215:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       }
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hFaultState = NTC_SetFaultState(pHandle);
+ 229              		.loc 1 217 7 is_stmt 1 view .LVU65
+ 230              		.loc 1 217 30 is_stmt 0 view .LVU66
+ 231 0020 FFF7FEFF 		bl	NTC_SetFaultState
+ 232              	.LVL16:
+ 233              		.loc 1 217 28 view .LVU67
+ 234 0024 2081     		strh	r0, [r4, #8]	@ movhi
+ 235              	.LBE14:
+ 218:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 219:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     else  /* case VIRTUAL_SENSOR */
+ 220:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       pHandle->hFaultState = MC_NO_ERROR;
+ 222:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     returnValue = pHandle->hFaultState;
+ 236              		.loc 1 223 5 is_stmt 1 view .LVU68
+ 237              	.LVL17:
+ 224:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 225:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return (returnValue);
+ 238              		.loc 1 227 3 view .LVU69
+ 228:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 239              		.loc 1 228 1 is_stmt 0 view .LVU70
+ 240 0026 10BD     		pop	{r4, pc}
+ 241              	.LVL18:
+ 242              	.L15:
+ 243              	.LCFI1:
+ 244              		.cfi_def_cfa_offset 0
+ 245              		.cfi_restore 4
+ 246              		.cfi_restore 14
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 247              		.loc 1 221 7 is_stmt 1 view .LVU71
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 248              		.loc 1 221 28 is_stmt 0 view .LVU72
+ 249 0028 0023     		movs	r3, #0
+ 250 002a 0381     		strh	r3, [r0, #8]	@ movhi
+ 251 002c 1846     		mov	r0, r3
+ 252              	.LVL19:
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 253              		.loc 1 223 5 is_stmt 1 view .LVU73
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 254              		.loc 1 227 3 view .LVU74
+ 255              		.loc 1 228 1 is_stmt 0 view .LVU75
+ 256 002e 7047     		bx	lr
+ 257              		.cfi_endproc
+ 258              	.LFE1438:
+ 260              		.section	.text.NTC_GetAvTemp_d,"ax",%progbits
+ 261              		.align	1
+ 262              		.p2align 2,,3
+ 263              		.weak	NTC_GetAvTemp_d
+ 264              		.syntax unified
+ARM GAS  /tmp/ccI417Mh.s 			page 10
+
+
+ 265              		.thumb
+ 266              		.thumb_func
+ 267              		.fpu fpv4-sp-d16
+ 269              	NTC_GetAvTemp_d:
+ 270              	.LVL20:
+ 271              	.LFB1439:
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 230:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+ 231:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief  Returns latest averaged temperature measured expressed in u16Celsius
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 233:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle : Pointer on Handle structure of TemperatureSensor component
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 235:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @retval AverageTemperature : Current averaged temperature measured (in u16Celsius)
+ 236:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** __weak uint16_t NTC_GetAvTemp_d(const NTC_Handle_t *pHandle) //cstat !MISRAC2012-Rule-8.13
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+ 272              		.loc 1 238 1 is_stmt 1 view -0
+ 273              		.cfi_startproc
+ 274              		@ args = 0, pretend = 0, frame = 0
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276              		@ link register save eliminated.
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 240:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return ((MC_NULL == pHandle) ? 0U : pHandle->hAvTemp_d);
+ 241:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #else
+ 242:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return (pHandle->hAvTemp_d);
+ 277              		.loc 1 242 3 view .LVU77
+ 243:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 278              		.loc 1 244 1 is_stmt 0 view .LVU78
+ 279 0000 4088     		ldrh	r0, [r0, #2]
+ 280              	.LVL21:
+ 281              		.loc 1 244 1 view .LVU79
+ 282 0002 7047     		bx	lr
+ 283              		.cfi_endproc
+ 284              	.LFE1439:
+ 286              		.section	.text.NTC_GetAvTemp_C,"ax",%progbits
+ 287              		.align	1
+ 288              		.p2align 2,,3
+ 289              		.weak	NTC_GetAvTemp_C
+ 290              		.syntax unified
+ 291              		.thumb
+ 292              		.thumb_func
+ 293              		.fpu fpv4-sp-d16
+ 295              	NTC_GetAvTemp_C:
+ 296              	.LVL22:
+ 297              	.LFB1440:
+ 245:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief  Returns latest averaged temperature expressed in Celsius degrees
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle : Pointer on Handle structure of TemperatureSensor component
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @retval AverageTemperature : Latest averaged temperature measured (in Celsius degrees)
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+ 253:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** __weak int16_t NTC_GetAvTemp_C(NTC_Handle_t *pHandle) //cstat !MISRAC2012-Rule-8.13
+ 254:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+ 298              		.loc 1 254 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccI417Mh.s 			page 11
+
+
+ 299              		.cfi_startproc
+ 300              		@ args = 0, pretend = 0, frame = 0
+ 301              		@ frame_needed = 0, uses_anonymous_args = 0
+ 302              		@ link register save eliminated.
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   int16_t returnValue;
+ 303              		.loc 1 255 3 view .LVU81
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 257:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   if (MC_NULL == pHandle)
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 259:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     returnValue = 0;
+ 260:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 261:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   else
+ 262:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   {
+ 263:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 264:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     int32_t wTemp;
+ 304              		.loc 1 264 5 view .LVU82
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     if (REAL_SENSOR == pHandle->bSensorType)
+ 305              		.loc 1 266 5 view .LVU83
+ 306              		.loc 1 266 8 is_stmt 0 view .LVU84
+ 307 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 308 0002 5BB9     		cbnz	r3, .L24
+ 267:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp = (int32_t)pHandle->hAvTemp_d;
+ 309              		.loc 1 268 7 is_stmt 1 view .LVU85
+ 310              		.loc 1 268 13 is_stmt 0 view .LVU86
+ 311 0004 4388     		ldrh	r3, [r0, #2]
+ 312              	.LVL23:
+ 269:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp -= ((int32_t)pHandle->wV0);
+ 313              		.loc 1 269 7 is_stmt 1 view .LVU87
+ 314              		.loc 1 269 13 is_stmt 0 view .LVU88
+ 315 0006 4169     		ldr	r1, [r0, #20]
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp *= pHandle->hSensitivity;
+ 316              		.loc 1 270 23 view .LVU89
+ 317 0008 B0F91020 		ldrsh	r2, [r0, #16]
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifndef FULL_MISRA_C_COMPLIANCY_NTC_TEMP
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp = (wTemp >> 16) + (int32_t)pHandle->hT0;
+ 318              		.loc 1 273 31 view .LVU90
+ 319 000c 008B     		ldrh	r0, [r0, #24]
+ 320              	.LVL24:
+ 269:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp *= pHandle->hSensitivity;
+ 321              		.loc 1 269 13 view .LVU91
+ 322 000e 5B1A     		subs	r3, r3, r1
+ 323              	.LVL25:
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp *= pHandle->hSensitivity;
+ 324              		.loc 1 270 7 is_stmt 1 view .LVU92
+ 325              		.loc 1 273 7 view .LVU93
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp *= pHandle->hSensitivity;
+ 326              		.loc 1 270 13 is_stmt 0 view .LVU94
+ 327 0010 03FB02F3 		mul	r3, r3, r2
+ 328              	.LVL26:
+ 329              		.loc 1 273 13 view .LVU95
+ 330 0014 00EB2340 		add	r0, r0, r3, asr #16
+ 331              	.LVL27:
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #else
+ 275:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp = (wTemp / 65536) + (int32_t)pHandle->hT0;
+ARM GAS  /tmp/ccI417Mh.s 			page 12
+
+
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 277:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 278:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     else
+ 279:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     {
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****       wTemp = (int32_t)pHandle->hExpectedTemp_C;
+ 281:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     returnValue = (int16_t)wTemp;
+ 332              		.loc 1 282 5 is_stmt 1 view .LVU96
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   }
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return (returnValue);
+ 333              		.loc 1 286 3 view .LVU97
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 334              		.loc 1 287 1 is_stmt 0 view .LVU98
+ 335 0018 00B2     		sxth	r0, r0
+ 336              	.LVL28:
+ 337              		.loc 1 287 1 view .LVU99
+ 338 001a 7047     		bx	lr
+ 339              	.LVL29:
+ 340              	.L24:
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 341              		.loc 1 280 7 is_stmt 1 view .LVU100
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****     }
+ 342              		.loc 1 280 13 is_stmt 0 view .LVU101
+ 343 001c C088     		ldrh	r0, [r0, #6]
+ 344              	.LVL30:
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 345              		.loc 1 282 5 is_stmt 1 view .LVU102
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 346              		.loc 1 286 3 view .LVU103
+ 347              		.loc 1 287 1 is_stmt 0 view .LVU104
+ 348 001e 00B2     		sxth	r0, r0
+ 349              	.LVL31:
+ 350              		.loc 1 287 1 view .LVU105
+ 351 0020 7047     		bx	lr
+ 352              		.cfi_endproc
+ 353              	.LFE1440:
+ 355 0022 00BF     		.section	.text.NTC_CheckTemp,"ax",%progbits
+ 356              		.align	1
+ 357              		.p2align 2,,3
+ 358              		.weak	NTC_CheckTemp
+ 359              		.syntax unified
+ 360              		.thumb
+ 361              		.thumb_func
+ 362              		.fpu fpv4-sp-d16
+ 364              	NTC_CheckTemp:
+ 365              	.LVL32:
+ 366              	.LFB1441:
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** /**
+ 290:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @brief  Returns Temperature measurement fault status
+ 291:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 292:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * Fault status can be either #MC_OVER_TEMP when measure exceeds the protection threshold values o
+ 293:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * #MC_NO_ERROR if it is inside authorized range.
+ 294:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 295:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @param pHandle: Pointer on Handle structure of TemperatureSensor component.
+ARM GAS  /tmp/ccI417Mh.s 			page 13
+
+
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   *
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   * @retval Fault status : read internal fault state
+ 298:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   */
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** __weak uint16_t NTC_CheckTemp(const NTC_Handle_t *pHandle)
+ 300:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** {
+ 367              		.loc 1 300 1 is_stmt 1 view -0
+ 368              		.cfi_startproc
+ 369              		@ args = 0, pretend = 0, frame = 0
+ 370              		@ frame_needed = 0, uses_anonymous_args = 0
+ 371              		@ link register save eliminated.
+ 301:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #ifdef NULL_PTR_CHECK_NTC_TEMP_SENS
+ 302:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return ((MC_NULL == pHandle) ? 0U : pHandle->hFaultState);
+ 303:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #else
+ 304:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c ****   return (pHandle->hFaultState);
+ 372              		.loc 1 304 3 view .LVU107
+ 305:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** #endif
+ 306:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** 
+ 307:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c **** }
+ 373              		.loc 1 307 1 is_stmt 0 view .LVU108
+ 374 0000 0089     		ldrh	r0, [r0, #8]
+ 375              	.LVL33:
+ 376              		.loc 1 307 1 view .LVU109
+ 377 0002 7047     		bx	lr
+ 378              		.cfi_endproc
+ 379              	.LFE1441:
+ 381              		.text
+ 382              	.Letext0:
+ 383              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 384              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+ 385              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 386              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 387              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 388              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 389              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 390              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 391              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 392              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 393              		.file 12 "Inc/mc_type.h"
+ 394              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+ARM GAS  /tmp/ccI417Mh.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ntc_temperature_sensor.c
+     /tmp/ccI417Mh.s:18     .text.NTC_SetFaultState:0000000000000000 $t
+     /tmp/ccI417Mh.s:27     .text.NTC_SetFaultState:0000000000000000 NTC_SetFaultState
+     /tmp/ccI417Mh.s:97     .text.NTC_Init:0000000000000000 $t
+     /tmp/ccI417Mh.s:105    .text.NTC_Init:0000000000000000 NTC_Init
+     /tmp/ccI417Mh.s:164    .text.NTC_CalcAvTemp:0000000000000000 $t
+     /tmp/ccI417Mh.s:172    .text.NTC_CalcAvTemp:0000000000000000 NTC_CalcAvTemp
+     /tmp/ccI417Mh.s:261    .text.NTC_GetAvTemp_d:0000000000000000 $t
+     /tmp/ccI417Mh.s:269    .text.NTC_GetAvTemp_d:0000000000000000 NTC_GetAvTemp_d
+     /tmp/ccI417Mh.s:287    .text.NTC_GetAvTemp_C:0000000000000000 $t
+     /tmp/ccI417Mh.s:295    .text.NTC_GetAvTemp_C:0000000000000000 NTC_GetAvTemp_C
+     /tmp/ccI417Mh.s:356    .text.NTC_CheckTemp:0000000000000000 $t
+     /tmp/ccI417Mh.s:364    .text.NTC_CheckTemp:0000000000000000 NTC_CheckTemp
+
+NO UNDEFINED SYMBOLS

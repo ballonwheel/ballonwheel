@@ -1,0 +1,1580 @@
+ARM GAS  /tmp/ccaomZPI.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"speed_torq_ctrl.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.STC_Init,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	STC_Init
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	STC_Init:
+  28              	.LVL0:
+  29              	.LFB1445:
+  30              		.file 1 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   ******************************************************************************
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @file    speed_torq_ctrl.c
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief   This file provides firmware functions that implement the following features
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *          of the Speed & Torque Control component of the Motor Control SDK.
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   ******************************************************************************
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @attention
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * All rights reserved.</center></h2>
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * the License. You may obtain a copy of the License at:
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *                             www.st.com/SLA0044
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   ******************************************************************************
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @ingroup SpeednTorqCtrlClassic
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /* Includes ------------------------------------------------------------------*/
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #include "speed_torq_ctrl.h"
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #include "speed_pos_fdbk.h"
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #include "mc_type.h"
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ARM GAS  /tmp/ccaomZPI.s 			page 2
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #define CHECK_BOUNDARY
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /** @addtogroup MCSDK
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @{
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /** @defgroup SpeednTorqCtrl Speed & Torque Control
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief Speed & Torque Control component of the Motor Control SDK
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * The MCSDK is able to control the motor in torque or in speed Mode.
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * This component is used to manage torque or speed references and 
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * torque or speed ramps.
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @{
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /** @defgroup SpeednTorqCtrlClassic Classic Speed & Torque Control
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief Speed & Torque Control component for the classic FOC drive
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * This component provides the Speed and Torque feature to the Classic
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * FOC drive.
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @{
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Initializes all the object variables.
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pPI: the PI object used as controller for the speed regulation.
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         It can be equal to #MC_NULL if the STC is initialized in torque mode
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         and it will never be configured in speed mode.
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  SPD_Handle: the speed sensor used to perform the speed regulation.
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         It can be equal to #MC_NULL if the STC is used only in torque mode.
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval none.
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called once right after object creation at initialization of the whole MC core.
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak void STC_Init(SpeednTorqCtrl_Handle_t *pHandle, PID_Handle_t *pPI, SpeednPosFdbk_Handle_t *S
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+  31              		.loc 1 66 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		@ link register save eliminated.
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Nothing to do */
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->PISpeed = pPI;
+  36              		.loc 1 75 5 view .LVU1
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+  37              		.loc 1 66 1 is_stmt 0 view .LVU2
+  38 0000 30B4     		push	{r4, r5}
+  39              	.LCFI0:
+ARM GAS  /tmp/ccaomZPI.s 			page 3
+
+
+  40              		.cfi_def_cfa_offset 8
+  41              		.cfi_offset 4, -8
+  42              		.cfi_offset 5, -4
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SPD = SPD_Handle;
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->Mode = pHandle->ModeDefault;
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SpeedRefUnitExt = ((int32_t)pHandle->MecSpeedRefUnitDefault) * 65536;
+  43              		.loc 1 78 33 view .LVU3
+  44 0002 B0F92C50 		ldrsh	r5, [r0, #44]
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->TorqueRef = ((int32_t)pHandle->TorqueRefDefault) * 65536;
+  45              		.loc 1 79 27 view .LVU4
+  46 0006 B0F92E40 		ldrsh	r4, [r0, #46]
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SPD = SPD_Handle;
+  47              		.loc 1 75 22 view .LVU5
+  48 000a 0161     		str	r1, [r0, #16]
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SPD = SPD_Handle;
+  49              		.loc 1 76 5 is_stmt 1 view .LVU6
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->TargetFinal = 0;
+  50              		.loc 1 80 26 is_stmt 0 view .LVU7
+  51 000c 0023     		movs	r3, #0
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->TorqueRef = ((int32_t)pHandle->TorqueRefDefault) * 65536;
+  52              		.loc 1 78 75 view .LVU8
+  53 000e 2D04     		lsls	r5, r5, #16
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->TargetFinal = 0;
+  54              		.loc 1 79 63 view .LVU9
+  55 0010 2404     		lsls	r4, r4, #16
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SpeedRefUnitExt = ((int32_t)pHandle->MecSpeedRefUnitDefault) * 65536;
+  56              		.loc 1 77 19 view .LVU10
+  57 0012 90F82A10 		ldrb	r1, [r0, #42]	@ zero_extendqisi2
+  58              	.LVL1:
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->Mode = pHandle->ModeDefault;
+  59              		.loc 1 76 18 view .LVU11
+  60 0016 4261     		str	r2, [r0, #20]
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SpeedRefUnitExt = ((int32_t)pHandle->MecSpeedRefUnitDefault) * 65536;
+  61              		.loc 1 77 5 is_stmt 1 view .LVU12
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->TargetFinal = 0;
+  62              		.loc 1 79 24 is_stmt 0 view .LVU13
+  63 0018 C0E90154 		strd	r5, r4, [r0, #4]
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SpeedRefUnitExt = ((int32_t)pHandle->MecSpeedRefUnitDefault) * 65536;
+  64              		.loc 1 77 19 view .LVU14
+  65 001c 0170     		strb	r1, [r0]
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->TorqueRef = ((int32_t)pHandle->TorqueRefDefault) * 65536;
+  66              		.loc 1 78 5 is_stmt 1 view .LVU15
+  67              		.loc 1 80 5 view .LVU16
+  68              		.loc 1 80 26 is_stmt 0 view .LVU17
+  69 001e 4380     		strh	r3, [r0, #2]	@ movhi
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->RampRemainingStep = 0U;
+  70              		.loc 1 81 5 is_stmt 1 view .LVU18
+  71              		.loc 1 81 32 is_stmt 0 view .LVU19
+  72 0020 C360     		str	r3, [r0, #12]
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->IncDecAmount = 0;
+  73              		.loc 1 82 5 is_stmt 1 view .LVU20
+  74              		.loc 1 82 27 is_stmt 0 view .LVU21
+  75 0022 8361     		str	r3, [r0, #24]
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ARM GAS  /tmp/ccaomZPI.s 			page 4
+
+
+  76              		.loc 1 86 1 view .LVU22
+  77 0024 30BC     		pop	{r4, r5}
+  78              	.LCFI1:
+  79              		.cfi_restore 5
+  80              		.cfi_restore 4
+  81              		.cfi_def_cfa_offset 0
+  82 0026 7047     		bx	lr
+  83              		.cfi_endproc
+  84              	.LFE1445:
+  86              		.section	.text.STC_SetSpeedSensor,"ax",%progbits
+  87              		.align	1
+  88              		.p2align 2,,3
+  89              		.weak	STC_SetSpeedSensor
+  90              		.syntax unified
+  91              		.thumb
+  92              		.thumb_func
+  93              		.fpu fpv4-sp-d16
+  95              	STC_SetSpeedSensor:
+  96              	.LVL2:
+  97              	.LFB1446:
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief Sets in real time the speed sensor utilized by the STC.
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param pHandle: handler of the current instance of the SpeednTorqCtrl component.
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param SPD_Handle Speed sensor component to be set.
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval none
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during tasks execution of the MC state machine into MediumFrequencyTask.
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak void STC_SetSpeedSensor(SpeednTorqCtrl_Handle_t *pHandle, SpeednPosFdbk_Handle_t *SPD_Handle
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+  98              		.loc 1 97 1 is_stmt 1 view -0
+  99              		.cfi_startproc
+ 100              		@ args = 0, pretend = 0, frame = 0
+ 101              		@ frame_needed = 0, uses_anonymous_args = 0
+ 102              		@ link register save eliminated.
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Nothing to do */
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SPD = SPD_Handle;
+ 103              		.loc 1 106 5 view .LVU24
+ 104              		.loc 1 106 18 is_stmt 0 view .LVU25
+ 105 0000 4161     		str	r1, [r0, #20]
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 106              		.loc 1 110 1 view .LVU26
+ 107 0002 7047     		bx	lr
+ 108              		.cfi_endproc
+ 109              	.LFE1446:
+ 111              		.section	.text.STC_Clear,"ax",%progbits
+ARM GAS  /tmp/ccaomZPI.s 			page 5
+
+
+ 112              		.align	1
+ 113              		.p2align 2,,3
+ 114              		.weak	STC_Clear
+ 115              		.syntax unified
+ 116              		.thumb
+ 117              		.thumb_func
+ 118              		.fpu fpv4-sp-d16
+ 120              	STC_Clear:
+ 121              	.LVL3:
+ 122              	.LFB1447:
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Resets the integral term of speed regulator if STC is set in speed mode.
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval none.
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called before each motor restart.
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak void STC_Clear(SpeednTorqCtrl_Handle_t *pHandle)
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 123              		.loc 1 120 1 is_stmt 1 view -0
+ 124              		.cfi_startproc
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127              		@ link register save eliminated.
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Nothing to do */
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (MCM_SPEED_MODE == pHandle->Mode)
+ 128              		.loc 1 129 5 view .LVU28
+ 129              		.loc 1 129 8 is_stmt 0 view .LVU29
+ 130 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 131 0002 032B     		cmp	r3, #3
+ 132 0004 00D0     		beq	.L7
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       PID_SetIntegralTerm(pHandle->PISpeed, 0);
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     else
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Nothing to do */
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 133              		.loc 1 140 1 view .LVU30
+ 134 0006 7047     		bx	lr
+ 135              	.L7:
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 136              		.loc 1 131 7 is_stmt 1 view .LVU31
+ 137 0008 0069     		ldr	r0, [r0, #16]
+ 138              	.LVL4:
+ARM GAS  /tmp/ccaomZPI.s 			page 6
+
+
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 139              		.loc 1 131 7 is_stmt 0 view .LVU32
+ 140 000a 0021     		movs	r1, #0
+ 141 000c FFF7FEBF 		b	PID_SetIntegralTerm
+ 142              	.LVL5:
+ 143              		.cfi_endproc
+ 144              	.LFE1447:
+ 146              		.section	.text.STC_GetMecSpeedRefUnit,"ax",%progbits
+ 147              		.align	1
+ 148              		.p2align 2,,3
+ 149              		.weak	STC_GetMecSpeedRefUnit
+ 150              		.syntax unified
+ 151              		.thumb
+ 152              		.thumb_func
+ 153              		.fpu fpv4-sp-d16
+ 155              	STC_GetMecSpeedRefUnit:
+ 156              	.LVL6:
+ 157              	.LFB1448:
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Gets the current mechanical rotor speed reference
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         @ref SpeednTorqCtrl_Handle_t::SpeedRefUnitExt "SpeedRefUnitExt" expressed in the unit
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         defined by [SPEED_UNIT](measurement_units.md).
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval int16_t current mechanical rotor speed reference expressed in 
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         the unit defined by [SPEED_UNIT](measurement_units.md).
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called at MC boot procedure and for speed monitoring through MotorPilote.
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak int16_t STC_GetMecSpeedRefUnit(SpeednTorqCtrl_Handle_t *pHandle)
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 158              		.loc 1 153 1 is_stmt 1 view -0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 0
+ 161              		@ frame_needed = 0, uses_anonymous_args = 0
+ 162              		@ link register save eliminated.
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifndef FULL_MISRA_C_COMPLIANCY_SPD_TORQ_CTRL
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : (int16_t)(pHandle->SpeedRefUnitExt >> 16));
+ 158:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 159:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((int16_t)(pHandle->SpeedRefUnitExt >> 16));
+ 163              		.loc 1 159 3 view .LVU34
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 163:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : (int16_t)(pHandle->SpeedRefUnitExt / 65536));
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((int16_t)(pHandle->SpeedRefUnitExt / 65536));
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 168:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 164              		.loc 1 168 1 is_stmt 0 view .LVU35
+ 165 0000 B0F90600 		ldrsh	r0, [r0, #6]
+ 166              	.LVL7:
+ 167              		.loc 1 168 1 view .LVU36
+ 168 0004 7047     		bx	lr
+ARM GAS  /tmp/ccaomZPI.s 			page 7
+
+
+ 169              		.cfi_endproc
+ 170              	.LFE1448:
+ 172 0006 00BF     		.section	.text.STC_SetControlMode,"ax",%progbits
+ 173              		.align	1
+ 174              		.p2align 2,,3
+ 175              		.weak	STC_SetControlMode
+ 176              		.syntax unified
+ 177              		.thumb
+ 178              		.thumb_func
+ 179              		.fpu fpv4-sp-d16
+ 181              	STC_SetControlMode:
+ 182              	.LVL8:
+ 183              	.LFB1450:
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 170:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Gets the current motor torque reference
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 173:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval int16_t current motor torque reference. This value represents
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         actually the Iq current expressed in digit.
+ 175:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - @ref SpeednTorqCtrl_Handle_t::TorqueRef "TorqueRef" represents
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * actually the Iq current reference expressed in digit.
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - To convert current expressed in digit to current expressed in Amps
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * is possible to use the formula:\n
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * Current(Amp) = [Current(digit) * Vdd micro] / [65536 * Rshunt * Aop]
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during #STC_ExecRamp execution.
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** static inline int16_t STC_GetTorqueRef(SpeednTorqCtrl_Handle_t *pHandle)
+ 184:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 185:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifndef FULL_MISRA_C_COMPLIANCY_SPD_TORQ_CTRL
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : (int16_t)(pHandle->TorqueRef >> 16));
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((int16_t)(pHandle->TorqueRef >> 16));
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 192:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 194:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : (int16_t)(pHandle->TorqueRef / 65536));
+ 195:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 196:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((int16_t)(pHandle->TorqueRef / 65536));
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 198:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 199:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 200:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 201:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 202:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Sets the modality of the speed and torque controller
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         @ref SpeednTorqCtrl_Handle_t::Mode "Mode".
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  bMode:  modality of STC. It can be one of these two settings:
+ 206:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         MCM_TORQUE_MODE to enable the Torque mode or MCM_SPEED_MODE to
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         enable the Speed mode.
+ 208:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval none
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Two modality are available Torque mode and Speed mode.\n
+ 211:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * -- In Torque mode is possible to set directly the motor torque
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * reference or execute a motor torque ramp. This value represents
+ARM GAS  /tmp/ccaomZPI.s 			page 8
+
+
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * actually the Iq current reference expressed in digit.\n
+ 214:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * -- In Speed mode is possible to set the mechanical rotor speed
+ 215:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * reference or execute a speed ramp. The required motor torque is
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * automatically calculated by the STC.\n
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Interrupts the execution of any previous ramp command
+ 218:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * maintaining the last value of Iq by clearing
+ 219:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *  @ref SpeednTorqCtrl_Handle_t::RampRemainingStep "RampRemainingStep".
+ 220:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called generally before Starting the execution of a ramp.
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 222:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak void STC_SetControlMode(SpeednTorqCtrl_Handle_t *pHandle, MC_ControlMode_t bMode)
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 184              		.loc 1 223 1 is_stmt 1 view -0
+ 185              		.cfi_startproc
+ 186              		@ args = 0, pretend = 0, frame = 0
+ 187              		@ frame_needed = 0, uses_anonymous_args = 0
+ 188              		@ link register save eliminated.
+ 224:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 225:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Nothing to do */
+ 228:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 230:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 231:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->Mode = bMode;
+ 189              		.loc 1 232 5 view .LVU38
+ 233:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->RampRemainingStep = 0u; /* Interrupts previous ramp */
+ 190              		.loc 1 233 32 is_stmt 0 view .LVU39
+ 191 0000 0023     		movs	r3, #0
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->RampRemainingStep = 0u; /* Interrupts previous ramp */
+ 192              		.loc 1 232 19 view .LVU40
+ 193 0002 0170     		strb	r1, [r0]
+ 194              		.loc 1 233 5 is_stmt 1 view .LVU41
+ 195              		.loc 1 233 32 is_stmt 0 view .LVU42
+ 196 0004 C360     		str	r3, [r0, #12]
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 235:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 236:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 197              		.loc 1 237 1 view .LVU43
+ 198 0006 7047     		bx	lr
+ 199              		.cfi_endproc
+ 200              	.LFE1450:
+ 202              		.section	.text.STC_ExecRamp,"ax",%progbits
+ 203              		.align	1
+ 204              		.p2align 2,,3
+ 205              		.weak	STC_ExecRamp
+ 206              		.syntax unified
+ 207              		.thumb
+ 208              		.thumb_func
+ 209              		.fpu fpv4-sp-d16
+ 211              	STC_ExecRamp:
+ 212              	.LVL9:
+ 213              	.LFB1451:
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 240:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Starts the execution of a ramp using new target and duration.
+ARM GAS  /tmp/ccaomZPI.s 			page 9
+
+
+ 241:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 242:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  hTargetFinal: final value of command. This is different accordingly
+ 243:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         the STC modality.
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         If STC is in Torque mode hTargetFinal is the value of motor torque
+ 245:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         reference at the end of the ramp. This value represents actually the
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         Iq current expressed in digit.
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         To convert current expressed in Amps to current expressed in digit
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         is possible to use the formula:\n
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         Current(digit) = [Current(Amp) * 65536 * Rshunt * Aop]  /  Vdd micro\n
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         If STC is in Speed mode hTargetFinal is the value of mechanical
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         rotor speed reference at the end of the ramp expressed in the unit 
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         defined by [SPEED_UNIT](measurement_units.md).
+ 253:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  hDurationms: the duration of the ramp expressed in milliseconds. It
+ 254:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         is possible to set 0 to perform an instantaneous change in the value.
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval bool returning false if the absolute value of hTargetFinal is out of
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         the boundary of the application (Above max application speed or max
+ 257:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         application torque or below min application speed depending on
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         current modality of TSC) in this case the command is ignored and the
+ 259:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         previous ramp is not interrupted, otherwise it returns true.
+ 260:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 261:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - This command interrupts the execution of any previous ramp command.
+ 262:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * The generated ramp will be in the modality previously set by
+ 263:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * #STC_SetControlMode method.
+ 264:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during @ref motor profiling, @ref RevUpCtrl "Rev-Up Control" phase,
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @ref EncAlignCtrl "Encoder Alignment Control",
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @ref PositionControl "Position Control" loop or
+ 267:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * speed regulation with @ref SpeedRegulatorPotentiometer Speed potentiometer.
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 269:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak bool STC_ExecRamp(SpeednTorqCtrl_Handle_t *pHandle, int16_t hTargetFinal, uint32_t hDuration
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 214              		.loc 1 270 1 is_stmt 1 view -0
+ 215              		.cfi_startproc
+ 216              		@ args = 0, pretend = 0, frame = 0
+ 217              		@ frame_needed = 0, uses_anonymous_args = 0
+ 218              		@ link register save eliminated.
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   bool allowedRange = true;
+ 219              		.loc 1 271 3 view .LVU45
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 275:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     allowedRange = false;
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 277:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 278:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 279:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     uint32_t wAux;
+ 220              		.loc 1 280 5 view .LVU46
+ 281:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     int32_t wAux1;
+ 221              		.loc 1 281 5 view .LVU47
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     int16_t hCurrentReference;
+ 222              		.loc 1 282 5 view .LVU48
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Check if the hTargetFinal is out of the bound of application */
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (MCM_TORQUE_MODE == pHandle->Mode)
+ 223              		.loc 1 285 5 view .LVU49
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   bool allowedRange = true;
+ 224              		.loc 1 270 1 is_stmt 0 view .LVU50
+ARM GAS  /tmp/ccaomZPI.s 			page 10
+
+
+ 225 0000 0346     		mov	r3, r0
+ 226              		.loc 1 285 35 view .LVU51
+ 227 0002 0078     		ldrb	r0, [r0]	@ zero_extendqisi2
+ 228              	.LVL10:
+ 229              		.loc 1 285 8 view .LVU52
+ 230 0004 0428     		cmp	r0, #4
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   bool allowedRange = true;
+ 231              		.loc 1 270 1 view .LVU53
+ 232 0006 30B4     		push	{r4, r5}
+ 233              	.LCFI2:
+ 234              		.cfi_def_cfa_offset 8
+ 235              		.cfi_offset 4, -8
+ 236              		.cfi_offset 5, -4
+ 237              		.loc 1 285 8 view .LVU54
+ 238 0008 18D0     		beq	.L28
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hCurrentReference = STC_GetTorqueRef(pHandle);
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef CHECK_BOUNDARY
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       if ((int32_t)hTargetFinal > (int32_t)pHandle->MaxPositiveTorque)
+ 290:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 291:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         allowedRange = false;
+ 292:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 293:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       else
+ 294:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 295:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         /* Nothing to do */
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       if ((int32_t)hTargetFinal < (int32_t)pHandle->MinNegativeTorque)
+ 298:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         allowedRange = false;
+ 300:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 301:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       else
+ 302:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 303:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         /* Nothing to do */
+ 304:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 305:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 306:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 307:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     else
+ 308:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 309:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifndef FULL_MISRA_C_COMPLIANCY_SPD_TORQ_CTRL
+ 310:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hCurrentReference = (int16_t)(pHandle->SpeedRefUnitExt >> 16);
+ 239              		.loc 1 311 7 is_stmt 1 view .LVU55
+ 240              	.LVL11:
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 313:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hCurrentReference = (int16_t)(pHandle->SpeedRefUnitExt / 65536);
+ 314:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 315:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef CHECK_BOUNDARY
+ 317:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       if ((int32_t)hTargetFinal > (int32_t)pHandle->MaxAppPositiveMecSpeedUnit)
+ 241              		.loc 1 317 7 view .LVU56
+ 242              		.loc 1 317 35 is_stmt 0 view .LVU57
+ 243 000a DC8B     		ldrh	r4, [r3, #30]
+ 244              		.loc 1 317 10 view .LVU58
+ 245 000c 8C42     		cmp	r4, r1
+ 246 000e 02DA     		bge	.L29
+ 247              	.LVL12:
+ 248              	.L24:
+ARM GAS  /tmp/ccaomZPI.s 			page 11
+
+
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 249              		.loc 1 299 22 view .LVU59
+ 250 0010 0020     		movs	r0, #0
+ 318:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 319:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         allowedRange = false;
+ 320:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       else if (hTargetFinal < pHandle->MinAppNegativeMecSpeedUnit)
+ 322:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         allowedRange = false;
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       else if ((int32_t)hTargetFinal < (int32_t)pHandle->MinAppPositiveMecSpeedUnit)
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         if (hTargetFinal > pHandle->MaxAppNegativeMecSpeedUnit)
+ 328:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****           allowedRange = false;
+ 330:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 331:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 332:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       else
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 334:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         /* Nothing to do */
+ 335:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 337:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (true == allowedRange)
+ 340:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 341:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Interrupts the execution of any previous ramp command */
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       if (0U == hDurationms)
+ 343:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         if (MCM_SPEED_MODE == pHandle->Mode)
+ 345:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****           pHandle->SpeedRefUnitExt = ((int32_t)hTargetFinal) * 65536;
+ 347:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 348:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         else
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****           pHandle->TorqueRef = ((int32_t)hTargetFinal) * 65536;
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep = 0U;
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = 0;
+ 354:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 355:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       else
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 357:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         /* Store the hTargetFinal to be applied in the last step */
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->TargetFinal = hTargetFinal;
+ 359:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 360:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         /* Compute the (wRampRemainingStep) number of steps remaining to complete the ramp */
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux = ((uint32_t)hDurationms) * ((uint32_t)pHandle->STCFrequencyHz);
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux /= 1000U;
+ 363:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep = wAux;
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep++;
+ 365:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 366:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         /* Compute the increment/decrement amount (wIncDecAmount) to be applied to
+ 367:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         the reference value at each CalcTorqueReference */
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux1 = (((int32_t)hTargetFinal) - ((int32_t)hCurrentReference)) * 65536;
+ 369:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux1 /= ((int32_t)pHandle->RampRemainingStep);
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = wAux1;
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ARM GAS  /tmp/ccaomZPI.s 			page 12
+
+
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 374:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 375:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 376:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (allowedRange);
+ 251              		.loc 1 376 3 is_stmt 1 view .LVU60
+ 377:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 252              		.loc 1 377 1 is_stmt 0 view .LVU61
+ 253 0012 30BC     		pop	{r4, r5}
+ 254              	.LCFI3:
+ 255              		.cfi_remember_state
+ 256              		.cfi_restore 5
+ 257              		.cfi_restore 4
+ 258              		.cfi_def_cfa_offset 0
+ 259 0014 7047     		bx	lr
+ 260              	.LVL13:
+ 261              	.L29:
+ 262              	.LCFI4:
+ 263              		.cfi_restore_state
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 264              		.loc 1 321 12 is_stmt 1 view .LVU62
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 265              		.loc 1 321 15 is_stmt 0 view .LVU63
+ 266 0016 B3F92440 		ldrsh	r4, [r3, #36]
+ 267 001a 8C42     		cmp	r4, r1
+ 268 001c F8DC     		bgt	.L24
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 269              		.loc 1 325 12 is_stmt 1 view .LVU64
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 270              		.loc 1 325 40 is_stmt 0 view .LVU65
+ 271 001e 1C8C     		ldrh	r4, [r3, #32]
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 272              		.loc 1 325 15 view .LVU66
+ 273 0020 8C42     		cmp	r4, r1
+ 274 0022 03DD     		ble	.L14
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 275              		.loc 1 327 9 is_stmt 1 view .LVU67
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 276              		.loc 1 327 12 is_stmt 0 view .LVU68
+ 277 0024 B3F92240 		ldrsh	r4, [r3, #34]
+ 278 0028 8C42     		cmp	r4, r1
+ 279 002a F1DB     		blt	.L24
+ 280              	.L14:
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 281              		.loc 1 311 44 view .LVU69
+ 282 002c 5C68     		ldr	r4, [r3, #4]
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 283              		.loc 1 342 7 is_stmt 1 view .LVU70
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 284              		.loc 1 342 10 is_stmt 0 view .LVU71
+ 285 002e B2B9     		cbnz	r2, .L15
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 286              		.loc 1 344 9 is_stmt 1 view .LVU72
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 287              		.loc 1 344 12 is_stmt 0 view .LVU73
+ 288 0030 0328     		cmp	r0, #3
+ 289 0032 4FEA0141 		lsl	r1, r1, #16
+ARM GAS  /tmp/ccaomZPI.s 			page 13
+
+
+ 290              	.LVL14:
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         {
+ 291              		.loc 1 344 12 view .LVU74
+ 292 0036 0BD1     		bne	.L16
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 293              		.loc 1 346 11 is_stmt 1 view .LVU75
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 294              		.loc 1 346 36 is_stmt 0 view .LVU76
+ 295 0038 5960     		str	r1, [r3, #4]
+ 296              	.LVL15:
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 297              		.loc 1 346 36 view .LVU77
+ 298 003a 0AE0     		b	.L17
+ 299              	.LVL16:
+ 300              	.L28:
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef CHECK_BOUNDARY
+ 301              		.loc 1 287 7 is_stmt 1 view .LVU78
+ 302              	.LBB4:
+ 303              	.LBI4:
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 304              		.loc 1 183 23 view .LVU79
+ 305              	.LBB5:
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 306              		.loc 1 190 3 view .LVU80
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 307              		.loc 1 190 3 is_stmt 0 view .LVU81
+ 308              	.LBE5:
+ 309              	.LBE4:
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 310              		.loc 1 289 7 is_stmt 1 view .LVU82
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 311              		.loc 1 289 35 is_stmt 0 view .LVU83
+ 312 003c D88C     		ldrh	r0, [r3, #38]
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 313              		.loc 1 289 10 view .LVU84
+ 314 003e 8842     		cmp	r0, r1
+ 315 0040 E6DB     		blt	.L24
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 316              		.loc 1 297 10 view .LVU85
+ 317 0042 B3F92840 		ldrsh	r4, [r3, #40]
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef CHECK_BOUNDARY
+ 318              		.loc 1 287 27 view .LVU86
+ 319 0046 9868     		ldr	r0, [r3, #8]
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       if ((int32_t)hTargetFinal < (int32_t)pHandle->MinNegativeTorque)
+ 320              		.loc 1 296 7 is_stmt 1 view .LVU87
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 321              		.loc 1 297 7 view .LVU88
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 322              		.loc 1 297 10 is_stmt 0 view .LVU89
+ 323 0048 8C42     		cmp	r4, r1
+ 324 004a E1DC     		bgt	.L24
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 325              		.loc 1 342 7 is_stmt 1 view .LVU90
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       {
+ 326              		.loc 1 342 10 is_stmt 0 view .LVU91
+ 327 004c D2B9     		cbnz	r2, .L30
+ 328 004e 0904     		lsls	r1, r1, #16
+ARM GAS  /tmp/ccaomZPI.s 			page 14
+
+
+ 329              	.LVL17:
+ 330              	.L16:
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 331              		.loc 1 350 11 is_stmt 1 view .LVU92
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         }
+ 332              		.loc 1 350 30 is_stmt 0 view .LVU93
+ 333 0050 9960     		str	r1, [r3, #8]
+ 334              	.L17:
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = 0;
+ 335              		.loc 1 352 9 is_stmt 1 view .LVU94
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = 0;
+ 336              		.loc 1 352 36 is_stmt 0 view .LVU95
+ 337 0052 0022     		movs	r2, #0
+ 338              	.LVL18:
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = 0;
+ 339              		.loc 1 352 36 view .LVU96
+ 340 0054 0120     		movs	r0, #1
+ 341 0056 DA60     		str	r2, [r3, #12]
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 342              		.loc 1 353 9 is_stmt 1 view .LVU97
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 343              		.loc 1 353 31 is_stmt 0 view .LVU98
+ 344 0058 9A61     		str	r2, [r3, #24]
+ 345              		.loc 1 377 1 view .LVU99
+ 346 005a 30BC     		pop	{r4, r5}
+ 347              	.LCFI5:
+ 348              		.cfi_remember_state
+ 349              		.cfi_restore 5
+ 350              		.cfi_restore 4
+ 351              		.cfi_def_cfa_offset 0
+ 352 005c 7047     		bx	lr
+ 353              	.LVL19:
+ 354              	.L15:
+ 355              	.LCFI6:
+ 356              		.cfi_restore_state
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 357              		.loc 1 311 25 view .LVU100
+ 358 005e 2014     		asrs	r0, r4, #16
+ 359              	.LVL20:
+ 360              	.L19:
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 361              		.loc 1 358 9 is_stmt 1 view .LVU101
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux /= 1000U;
+ 362              		.loc 1 361 43 is_stmt 0 view .LVU102
+ 363 0060 9C8B     		ldrh	r4, [r3, #28]
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep = wAux;
+ 364              		.loc 1 362 14 view .LVU103
+ 365 0062 094D     		ldr	r5, .L31
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 366              		.loc 1 358 30 view .LVU104
+ 367 0064 5980     		strh	r1, [r3, #2]	@ movhi
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux /= 1000U;
+ 368              		.loc 1 361 9 is_stmt 1 view .LVU105
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux /= 1000U;
+ 369              		.loc 1 361 14 is_stmt 0 view .LVU106
+ 370 0066 02FB04F2 		mul	r2, r2, r4
+ 371              	.LVL21:
+ARM GAS  /tmp/ccaomZPI.s 			page 15
+
+
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep = wAux;
+ 372              		.loc 1 362 9 is_stmt 1 view .LVU107
+ 363:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep++;
+ 373              		.loc 1 363 9 view .LVU108
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 374              		.loc 1 364 9 view .LVU109
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep = wAux;
+ 375              		.loc 1 362 14 is_stmt 0 view .LVU110
+ 376 006a A5FB0242 		umull	r4, r2, r5, r2
+ 377              	.LVL22:
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->RampRemainingStep = wAux;
+ 378              		.loc 1 362 14 view .LVU111
+ 379 006e 9209     		lsrs	r2, r2, #6
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux1 /= ((int32_t)pHandle->RampRemainingStep);
+ 380              		.loc 1 368 42 view .LVU112
+ 381 0070 091A     		subs	r1, r1, r0
+ 382              	.LVL23:
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 383              		.loc 1 364 35 view .LVU113
+ 384 0072 0132     		adds	r2, r2, #1
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux1 /= ((int32_t)pHandle->RampRemainingStep);
+ 385              		.loc 1 368 15 view .LVU114
+ 386 0074 0904     		lsls	r1, r1, #16
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 387              		.loc 1 370 31 view .LVU115
+ 388 0076 0120     		movs	r0, #1
+ 369:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = wAux1;
+ 389              		.loc 1 369 15 view .LVU116
+ 390 0078 91FBF2F1 		sdiv	r1, r1, r2
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 391              		.loc 1 364 35 view .LVU117
+ 392 007c DA60     		str	r2, [r3, #12]
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         wAux1 /= ((int32_t)pHandle->RampRemainingStep);
+ 393              		.loc 1 368 9 is_stmt 1 view .LVU118
+ 369:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****         pHandle->IncDecAmount = wAux1;
+ 394              		.loc 1 369 9 view .LVU119
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 395              		.loc 1 370 9 view .LVU120
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       }
+ 396              		.loc 1 370 31 is_stmt 0 view .LVU121
+ 397 007e 9961     		str	r1, [r3, #24]
+ 398              		.loc 1 377 1 view .LVU122
+ 399 0080 30BC     		pop	{r4, r5}
+ 400              	.LCFI7:
+ 401              		.cfi_remember_state
+ 402              		.cfi_restore 5
+ 403              		.cfi_restore 4
+ 404              		.cfi_def_cfa_offset 0
+ 405 0082 7047     		bx	lr
+ 406              	.LVL24:
+ 407              	.L30:
+ 408              	.LCFI8:
+ 409              		.cfi_restore_state
+ 410              	.LBB7:
+ 411              	.LBB6:
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 412              		.loc 1 190 11 view .LVU123
+ARM GAS  /tmp/ccaomZPI.s 			page 16
+
+
+ 413 0084 0014     		asrs	r0, r0, #16
+ 414              	.LVL25:
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 415              		.loc 1 190 11 view .LVU124
+ 416 0086 EBE7     		b	.L19
+ 417              	.L32:
+ 418              		.align	2
+ 419              	.L31:
+ 420 0088 D34D6210 		.word	274877907
+ 421              	.LBE6:
+ 422              	.LBE7:
+ 423              		.cfi_endproc
+ 424              	.LFE1451:
+ 426              		.section	.text.STC_CalcTorqueReference,"ax",%progbits
+ 427              		.align	1
+ 428              		.p2align 2,,3
+ 429              		.weak	STC_CalcTorqueReference
+ 430              		.syntax unified
+ 431              		.thumb
+ 432              		.thumb_func
+ 433              		.fpu fpv4-sp-d16
+ 435              	STC_CalcTorqueReference:
+ 436              	.LVL26:
+ 437              	.LFB1452:
+ 378:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 379:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 380:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Computes the new value of motor torque reference.
+ 381:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 382:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval int16_t motor torque reference. This value represents actually the
+ 383:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         Iq current expressed in digit.
+ 384:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         To convert current expressed in Amps to current expressed in digit
+ 385:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         is possible to use the formula:\n
+ 386:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         Current(digit) = [Current(Amp) * 65536 * Rshunt * Aop]  /  Vdd micro
+ 387:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 388:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Must be called at fixed time equal to hSTCFrequencyHz. It is called
+ 389:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * passing as parameter the speed sensor used to perform the speed regulation.
+ 390:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during START and ALIGNEMENT states of the MC state machine into MediumFrequencyTask.
+ 391:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 392:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak int16_t STC_CalcTorqueReference(SpeednTorqCtrl_Handle_t *pHandle)
+ 393:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 438              		.loc 1 393 1 is_stmt 1 view -0
+ 439              		.cfi_startproc
+ 440              		@ args = 0, pretend = 0, frame = 0
+ 441              		@ frame_needed = 0, uses_anonymous_args = 0
+ 394:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   int16_t hTorqueReference;
+ 442              		.loc 1 394 3 view .LVU126
+ 395:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 396:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 397:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 398:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     hTorqueReference = 0;
+ 399:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 400:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 401:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 402:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 403:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     int32_t wCurrentReference;
+ 443              		.loc 1 403 5 view .LVU127
+ 404:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     int16_t hMeasuredSpeed;
+ARM GAS  /tmp/ccaomZPI.s 			page 17
+
+
+ 444              		.loc 1 404 5 view .LVU128
+ 405:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     int16_t hTargetSpeed;
+ 445              		.loc 1 405 5 view .LVU129
+ 406:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     int16_t hError;
+ 446              		.loc 1 406 5 view .LVU130
+ 407:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 408:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (MCM_TORQUE_MODE == pHandle->Mode)
+ 447              		.loc 1 408 5 view .LVU131
+ 393:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   int16_t hTorqueReference;
+ 448              		.loc 1 393 1 is_stmt 0 view .LVU132
+ 449 0000 70B5     		push	{r4, r5, r6, lr}
+ 450              	.LCFI9:
+ 451              		.cfi_def_cfa_offset 16
+ 452              		.cfi_offset 4, -16
+ 453              		.cfi_offset 5, -12
+ 454              		.cfi_offset 6, -8
+ 455              		.cfi_offset 14, -4
+ 409:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       wCurrentReference = pHandle->TorqueRef;
+ 456              		.loc 1 410 25 view .LVU133
+ 457 0002 D0E90151 		ldrd	r5, r1, [r0, #4]
+ 408:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 458              		.loc 1 408 35 view .LVU134
+ 459 0006 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 411:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 412:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     else
+ 413:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 414:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       wCurrentReference = pHandle->SpeedRefUnitExt;
+ 415:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 416:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 417:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Update the speed reference or the torque reference according to the mode
+ 418:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****        and terminates the ramp if needed */
+ 419:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (pHandle->RampRemainingStep > 1U)
+ 460              		.loc 1 419 16 view .LVU135
+ 461 0008 C368     		ldr	r3, [r0, #12]
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 462              		.loc 1 410 25 view .LVU136
+ 463 000a 042A     		cmp	r2, #4
+ 464 000c 08BF     		it	eq
+ 465 000e 0D46     		moveq	r5, r1
+ 466              	.LVL27:
+ 467              		.loc 1 419 5 is_stmt 1 view .LVU137
+ 468              		.loc 1 419 8 is_stmt 0 view .LVU138
+ 469 0010 012B     		cmp	r3, #1
+ 470 0012 0AD9     		bls	.L35
+ 420:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 421:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Increment/decrement the reference value */
+ 422:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       wCurrentReference += pHandle->IncDecAmount;
+ 471              		.loc 1 422 7 is_stmt 1 view .LVU139
+ 472              		.loc 1 422 25 is_stmt 0 view .LVU140
+ 473 0014 8169     		ldr	r1, [r0, #24]
+ 423:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 424:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Decrement the number of remaining steps */
+ 425:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->RampRemainingStep--;
+ 474              		.loc 1 425 33 view .LVU141
+ 475 0016 013B     		subs	r3, r3, #1
+ 476 0018 C360     		str	r3, [r0, #12]
+ARM GAS  /tmp/ccaomZPI.s 			page 18
+
+
+ 422:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 477              		.loc 1 422 25 view .LVU142
+ 478 001a 0D44     		add	r5, r5, r1
+ 479              	.LVL28:
+ 480              		.loc 1 425 7 is_stmt 1 view .LVU143
+ 481              	.L36:
+ 426:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 427:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     else if (1U == pHandle->RampRemainingStep)
+ 428:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 429:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Set the backup value of hTargetFinal */
+ 430:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       wCurrentReference = ((int32_t)pHandle->TargetFinal) * 65536;
+ 431:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->RampRemainingStep = 0U;
+ 432:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 433:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     else
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 435:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Do nothing */
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 482              		.loc 1 436 5 view .LVU144
+ 437:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (MCM_SPEED_MODE == pHandle->Mode)
+ 483              		.loc 1 438 5 view .LVU145
+ 484              		.loc 1 438 8 is_stmt 0 view .LVU146
+ 485 001c 032A     		cmp	r2, #3
+ 486 001e 4FEA2546 		asr	r6, r5, #16
+ 487 0022 0CD0     		beq	.L40
+ 488              	.L37:
+ 439:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 440:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Run the speed control loop */
+ 441:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 442:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       /* Compute speed error */
+ 443:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifndef FULL_MISRA_C_COMPLIANCY_SPD_TORQ_CTRL
+ 444:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 445:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTargetSpeed = (int16_t)(wCurrentReference >> 16);
+ 446:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 447:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTargetSpeed = (int16_t)(wCurrentReference / 65536);
+ 448:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hMeasuredSpeed = SPD_GetAvrgMecSpeedUnit(pHandle->SPD);
+ 450:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hError = hTargetSpeed - hMeasuredSpeed;
+ 451:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTorqueReference = PI_Controller(pHandle->PISpeed, (int32_t)hError);
+ 452:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 453:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->SpeedRefUnitExt = wCurrentReference;
+ 454:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->TorqueRef = ((int32_t)hTorqueReference) * 65536;
+ 455:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 456:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     else
+ 457:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 458:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->TorqueRef = wCurrentReference;
+ 489              		.loc 1 458 7 is_stmt 1 view .LVU147
+ 490              		.loc 1 458 26 is_stmt 0 view .LVU148
+ 491 0024 8560     		str	r5, [r0, #8]
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifndef FULL_MISRA_C_COMPLIANCY_SPD_TORQ_CTRL
+ 460:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 461:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTorqueReference = (int16_t)(wCurrentReference >> 16);
+ 492              		.loc 1 461 7 is_stmt 1 view .LVU149
+ 493              		.loc 1 461 24 is_stmt 0 view .LVU150
+ 494 0026 30B2     		sxth	r0, r6
+ 495              	.LVL29:
+ 462:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ARM GAS  /tmp/ccaomZPI.s 			page 19
+
+
+ 463:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTorqueReference = (int16_t)(wCurrentReference / 65536);
+ 464:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 465:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 466:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 467:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (hTorqueReference);
+ 496              		.loc 1 469 3 is_stmt 1 view .LVU151
+ 470:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 497              		.loc 1 470 1 is_stmt 0 view .LVU152
+ 498 0028 70BD     		pop	{r4, r5, r6, pc}
+ 499              	.LVL30:
+ 500              	.L35:
+ 427:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 501              		.loc 1 427 10 is_stmt 1 view .LVU153
+ 427:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 502              		.loc 1 427 13 is_stmt 0 view .LVU154
+ 503 002a F7D1     		bne	.L36
+ 430:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->RampRemainingStep = 0U;
+ 504              		.loc 1 430 7 is_stmt 1 view .LVU155
+ 430:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->RampRemainingStep = 0U;
+ 505              		.loc 1 430 28 is_stmt 0 view .LVU156
+ 506 002c B0F90250 		ldrsh	r5, [r0, #2]
+ 507              	.LVL31:
+ 431:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 508              		.loc 1 431 34 view .LVU157
+ 509 0030 0023     		movs	r3, #0
+ 430:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->RampRemainingStep = 0U;
+ 510              		.loc 1 430 25 view .LVU158
+ 511 0032 2D04     		lsls	r5, r5, #16
+ 512              	.LVL32:
+ 431:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 513              		.loc 1 431 7 is_stmt 1 view .LVU159
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 514              		.loc 1 438 8 is_stmt 0 view .LVU160
+ 515 0034 032A     		cmp	r2, #3
+ 431:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 516              		.loc 1 431 34 view .LVU161
+ 517 0036 C360     		str	r3, [r0, #12]
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 518              		.loc 1 436 5 is_stmt 1 view .LVU162
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 519              		.loc 1 438 5 view .LVU163
+ 520 0038 4FEA2546 		asr	r6, r5, #16
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 521              		.loc 1 438 8 is_stmt 0 view .LVU164
+ 522 003c F2D1     		bne	.L37
+ 523              	.L40:
+ 445:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 524              		.loc 1 445 7 is_stmt 1 view .LVU165
+ 525              	.LVL33:
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hError = hTargetSpeed - hMeasuredSpeed;
+ 526              		.loc 1 449 7 view .LVU166
+ 527 003e 0446     		mov	r4, r0
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hError = hTargetSpeed - hMeasuredSpeed;
+ 528              		.loc 1 449 24 is_stmt 0 view .LVU167
+ 529 0040 4069     		ldr	r0, [r0, #20]
+ARM GAS  /tmp/ccaomZPI.s 			page 20
+
+
+ 530              	.LVL34:
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hError = hTargetSpeed - hMeasuredSpeed;
+ 531              		.loc 1 449 24 view .LVU168
+ 532 0042 FFF7FEFF 		bl	SPD_GetAvrgMecSpeedUnit
+ 533              	.LVL35:
+ 450:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTorqueReference = PI_Controller(pHandle->PISpeed, (int32_t)hError);
+ 534              		.loc 1 450 7 is_stmt 1 view .LVU169
+ 451:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 535              		.loc 1 451 7 view .LVU170
+ 450:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       hTorqueReference = PI_Controller(pHandle->PISpeed, (int32_t)hError);
+ 536              		.loc 1 450 29 is_stmt 0 view .LVU171
+ 537 0046 301A     		subs	r0, r6, r0
+ 538              	.LVL36:
+ 451:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 539              		.loc 1 451 26 view .LVU172
+ 540 0048 01B2     		sxth	r1, r0
+ 541 004a 2069     		ldr	r0, [r4, #16]
+ 542 004c FFF7FEFF 		bl	PI_Controller
+ 543              	.LVL37:
+ 453:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->TorqueRef = ((int32_t)hTorqueReference) * 65536;
+ 544              		.loc 1 453 7 is_stmt 1 view .LVU173
+ 454:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 545              		.loc 1 454 56 is_stmt 0 view .LVU174
+ 546 0050 0304     		lsls	r3, r0, #16
+ 454:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 547              		.loc 1 454 26 view .LVU175
+ 548 0052 C4E90153 		strd	r5, r3, [r4, #4]
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 549              		.loc 1 469 3 is_stmt 1 view .LVU176
+ 550              		.loc 1 470 1 is_stmt 0 view .LVU177
+ 551 0056 70BD     		pop	{r4, r5, r6, pc}
+ 552              		.loc 1 470 1 view .LVU178
+ 553              		.cfi_endproc
+ 554              	.LFE1452:
+ 556              		.section	.text.STC_GetMecSpeedRefUnitDefault,"ax",%progbits
+ 557              		.align	1
+ 558              		.p2align 2,,3
+ 559              		.weak	STC_GetMecSpeedRefUnitDefault
+ 560              		.syntax unified
+ 561              		.thumb
+ 562              		.thumb_func
+ 563              		.fpu fpv4-sp-d16
+ 565              	STC_GetMecSpeedRefUnitDefault:
+ 566              	.LVL38:
+ 567              	.LFB1453:
+ 471:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 472:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 473:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Gets the Default mechanical rotor speed reference
+ 474:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         @ref SpeednTorqCtrl_Handle_t::MecSpeedRefUnitDefault "MecSpeedRefUnitDefault" expressed
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         the unit defined by [SPEED_UNIT](measurement_units.md).
+ 476:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 477:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval int16_t Default mechanical rotor speed.
+ 478:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - It is the first command to STC after the start of speed ramp execution.
+ 480:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during the boot phase of the MC process.
+ 481:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 482:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak int16_t STC_GetMecSpeedRefUnitDefault(SpeednTorqCtrl_Handle_t *pHandle)
+ARM GAS  /tmp/ccaomZPI.s 			page 21
+
+
+ 483:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 568              		.loc 1 483 1 is_stmt 1 view -0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 0
+ 571              		@ frame_needed = 0, uses_anonymous_args = 0
+ 572              		@ link register save eliminated.
+ 484:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 485:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : pHandle->MecSpeedRefUnitDefault);
+ 486:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 487:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (pHandle->MecSpeedRefUnitDefault);
+ 573              		.loc 1 487 3 view .LVU180
+ 488:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 489:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 574              		.loc 1 489 1 is_stmt 0 view .LVU181
+ 575 0000 B0F92C00 		ldrsh	r0, [r0, #44]
+ 576              	.LVL39:
+ 577              		.loc 1 489 1 view .LVU182
+ 578 0004 7047     		bx	lr
+ 579              		.cfi_endproc
+ 580              	.LFE1453:
+ 582 0006 00BF     		.section	.text.STC_GetMaxAppPositiveMecSpeedUnit,"ax",%progbits
+ 583              		.align	1
+ 584              		.p2align 2,,3
+ 585              		.weak	STC_GetMaxAppPositiveMecSpeedUnit
+ 586              		.syntax unified
+ 587              		.thumb
+ 588              		.thumb_func
+ 589              		.fpu fpv4-sp-d16
+ 591              	STC_GetMaxAppPositiveMecSpeedUnit:
+ 592              	.LVL40:
+ 593              	.LFB1454:
+ 490:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 491:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 492:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Returns the Application maximum positive value of rotor speed
+ 493:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         @ref SpeednTorqCtrl_Handle_t::MaxAppPositiveMecSpeedUnit "MaxAppPositiveMecSpeedUnit".
+ 494:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         Expressed in the unit defined by [SPEED_UNIT](measurement_units.md).
+ 495:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 496:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 497:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Not used into current implementation.
+ 498:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 499:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak uint16_t STC_GetMaxAppPositiveMecSpeedUnit(SpeednTorqCtrl_Handle_t *pHandle)
+ 500:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 594              		.loc 1 500 1 is_stmt 1 view -0
+ 595              		.cfi_startproc
+ 596              		@ args = 0, pretend = 0, frame = 0
+ 597              		@ frame_needed = 0, uses_anonymous_args = 0
+ 598              		@ link register save eliminated.
+ 501:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 502:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0U : pHandle->MaxAppPositiveMecSpeedUnit);
+ 503:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 504:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (pHandle->MaxAppPositiveMecSpeedUnit);
+ 599              		.loc 1 504 3 view .LVU184
+ 505:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 506:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 600              		.loc 1 506 1 is_stmt 0 view .LVU185
+ 601 0000 C08B     		ldrh	r0, [r0, #30]
+ 602              	.LVL41:
+ARM GAS  /tmp/ccaomZPI.s 			page 22
+
+
+ 603              		.loc 1 506 1 view .LVU186
+ 604 0002 7047     		bx	lr
+ 605              		.cfi_endproc
+ 606              	.LFE1454:
+ 608              		.section	.text.STC_GetMinAppNegativeMecSpeedUnit,"ax",%progbits
+ 609              		.align	1
+ 610              		.p2align 2,,3
+ 611              		.weak	STC_GetMinAppNegativeMecSpeedUnit
+ 612              		.syntax unified
+ 613              		.thumb
+ 614              		.thumb_func
+ 615              		.fpu fpv4-sp-d16
+ 617              	STC_GetMinAppNegativeMecSpeedUnit:
+ 618              	.LVL42:
+ 619              	.LFB1455:
+ 507:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 508:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 509:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Returns the Application minimum negative value of rotor speed
+ 510:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         @ref SpeednTorqCtrl_Handle_t::MinAppNegativeMecSpeedUnit "MinAppNegativeMecSpeedUnit".
+ 511:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         Expressed in the unit defined by [SPEED_UNIT](measurement_units.md).
+ 512:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 513:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 514:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Not used into current implementation.
+ 515:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 516:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak int16_t STC_GetMinAppNegativeMecSpeedUnit(SpeednTorqCtrl_Handle_t *pHandle)
+ 517:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 620              		.loc 1 517 1 is_stmt 1 view -0
+ 621              		.cfi_startproc
+ 622              		@ args = 0, pretend = 0, frame = 0
+ 623              		@ frame_needed = 0, uses_anonymous_args = 0
+ 624              		@ link register save eliminated.
+ 518:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 519:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : pHandle->MinAppNegativeMecSpeedUnit);
+ 520:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #else
+ 521:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (pHandle->MinAppNegativeMecSpeedUnit);
+ 625              		.loc 1 521 3 view .LVU188
+ 522:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 523:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 626              		.loc 1 523 1 is_stmt 0 view .LVU189
+ 627 0000 B0F92400 		ldrsh	r0, [r0, #36]
+ 628              	.LVL43:
+ 629              		.loc 1 523 1 view .LVU190
+ 630 0004 7047     		bx	lr
+ 631              		.cfi_endproc
+ 632              	.LFE1455:
+ 634 0006 00BF     		.section	.text.STC_StopSpeedRamp,"ax",%progbits
+ 635              		.align	1
+ 636              		.p2align 2,,3
+ 637              		.weak	STC_StopSpeedRamp
+ 638              		.syntax unified
+ 639              		.thumb
+ 640              		.thumb_func
+ 641              		.fpu fpv4-sp-d16
+ 643              	STC_StopSpeedRamp:
+ 644              	.LVL44:
+ 645              	.LFB1456:
+ 524:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ARM GAS  /tmp/ccaomZPI.s 			page 23
+
+
+ 525:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 526:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Stops the execution of speed ramp by clearing the number of steps remaining to complete
+ 527:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 528:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval bool returning true if the command is executed, false otherwise.
+ 529:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 530:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Not used into current implementation.
+ 531:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 532:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak bool STC_StopSpeedRamp(SpeednTorqCtrl_Handle_t *pHandle)
+ 533:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 646              		.loc 1 533 1 is_stmt 1 view -0
+ 647              		.cfi_startproc
+ 648              		@ args = 0, pretend = 0, frame = 0
+ 649              		@ frame_needed = 0, uses_anonymous_args = 0
+ 650              		@ link register save eliminated.
+ 534:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   bool retVal = false;
+ 651              		.loc 1 534 3 view .LVU192
+ 535:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 536:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 537:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 538:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Nothing to do */
+ 539:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 540:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 541:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 543:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     if (MCM_SPEED_MODE == pHandle->Mode)
+ 652              		.loc 1 543 5 view .LVU193
+ 653              		.loc 1 543 8 is_stmt 0 view .LVU194
+ 654 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 655 0002 032B     		cmp	r3, #3
+ 544:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     {
+ 545:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       pHandle->RampRemainingStep = 0u;
+ 656              		.loc 1 545 7 is_stmt 1 view .LVU195
+ 657              		.loc 1 545 34 is_stmt 0 view .LVU196
+ 658 0004 03BF     		ittte	eq
+ 659 0006 0023     		moveq	r3, #0
+ 660 0008 C360     		streq	r3, [r0, #12]
+ 546:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****       retVal = true;
+ 661              		.loc 1 546 7 is_stmt 1 view .LVU197
+ 662              	.LVL45:
+ 663              		.loc 1 546 14 is_stmt 0 view .LVU198
+ 664 000a 0120     		moveq	r0, #1
+ 665              	.LVL46:
+ 534:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 666              		.loc 1 534 8 view .LVU199
+ 667 000c 0020     		movne	r0, #0
+ 668              	.LVL47:
+ 547:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     }
+ 548:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 549:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 550:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 551:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (retVal);
+ 669              		.loc 1 551 3 is_stmt 1 view .LVU200
+ 552:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 670              		.loc 1 552 1 is_stmt 0 view .LVU201
+ 671 000e 7047     		bx	lr
+ 672              		.cfi_endproc
+ 673              	.LFE1456:
+ARM GAS  /tmp/ccaomZPI.s 			page 24
+
+
+ 675              		.section	.text.STC_GetDefaultIqdref,"ax",%progbits
+ 676              		.align	1
+ 677              		.p2align 2,,3
+ 678              		.weak	STC_GetDefaultIqdref
+ 679              		.syntax unified
+ 680              		.thumb
+ 681              		.thumb_func
+ 682              		.fpu fpv4-sp-d16
+ 684              	STC_GetDefaultIqdref:
+ 685              	.LVL48:
+ 686              	.LFB1457:
+ 553:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 554:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 555:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Returns the default values of Iqdref.
+ 556:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 557:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval default values of Iqdref.
+ 558:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 559:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during the boot phase of the MC process.
+ 560:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 561:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak qd_t STC_GetDefaultIqdref(SpeednTorqCtrl_Handle_t *pHandle)
+ 562:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 687              		.loc 1 562 1 is_stmt 1 view -0
+ 688              		.cfi_startproc
+ 689              		@ args = 0, pretend = 0, frame = 8
+ 690              		@ frame_needed = 0, uses_anonymous_args = 0
+ 691              		@ link register save eliminated.
+ 563:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   qd_t IqdRefDefault;
+ 692              		.loc 1 563 3 view .LVU203
+ 564:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 565:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 566:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 567:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     IqdRefDefault.q = 0;
+ 568:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     IqdRefDefault.d = 0;
+ 569:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 570:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 571:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 572:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 573:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     IqdRefDefault.q = pHandle->TorqueRefDefault;
+ 693              		.loc 1 573 5 view .LVU204
+ 574:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     IqdRefDefault.d = pHandle->IdrefDefault;
+ 694              		.loc 1 574 5 view .LVU205
+ 575:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 576:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 577:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 578:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   return (IqdRefDefault);
+ 695              		.loc 1 578 3 view .LVU206
+ 573:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     IqdRefDefault.d = pHandle->IdrefDefault;
+ 696              		.loc 1 573 30 is_stmt 0 view .LVU207
+ 697 0000 D0F82E30 		ldr	r3, [r0, #46]	@ unaligned
+ 698              		.loc 1 578 10 view .LVU208
+ 699 0004 0020     		movs	r0, #0
+ 700              	.LVL49:
+ 701              		.loc 1 578 10 view .LVU209
+ 702 0006 9AB2     		uxth	r2, r3
+ 703 0008 62F30F00 		bfi	r0, r2, #0, #16
+ 704 000c 1B0C     		lsrs	r3, r3, #16
+ 562:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   qd_t IqdRefDefault;
+ARM GAS  /tmp/ccaomZPI.s 			page 25
+
+
+ 705              		.loc 1 562 1 view .LVU210
+ 706 000e 82B0     		sub	sp, sp, #8
+ 707              	.LCFI10:
+ 708              		.cfi_def_cfa_offset 8
+ 709              		.loc 1 578 10 view .LVU211
+ 710 0010 63F31F40 		bfi	r0, r3, #16, #16
+ 579:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 711              		.loc 1 579 1 view .LVU212
+ 712 0014 02B0     		add	sp, sp, #8
+ 713              	.LCFI11:
+ 714              		.cfi_def_cfa_offset 0
+ 715              		@ sp needed
+ 716 0016 7047     		bx	lr
+ 717              		.cfi_endproc
+ 718              	.LFE1457:
+ 720              		.section	.text.STC_ForceSpeedReferenceToCurrentSpeed,"ax",%progbits
+ 721              		.align	1
+ 722              		.p2align 2,,3
+ 723              		.weak	STC_ForceSpeedReferenceToCurrentSpeed
+ 724              		.syntax unified
+ 725              		.thumb
+ 726              		.thumb_func
+ 727              		.fpu fpv4-sp-d16
+ 729              	STC_ForceSpeedReferenceToCurrentSpeed:
+ 730              	.LVL50:
+ 731              	.LFB1458:
+ 580:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** 
+ 581:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** /**
+ 582:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @brief  Forces the speed reference
+ 583:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *         @ref SpeednTorqCtrl_Handle_t::SpeedRefUnitExt "SpeedRefUnitExt" to the current speed.
+ 584:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @param  pHandle: handler of the current instance of the SpeednTorqCtrl component.
+ 585:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * @retval none
+ 586:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   *
+ 587:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * - Called during the CHARGE_BOOT_CAP, SWITCH_OVER and WAIT_STOP_MOTOR states of the MC state mac
+ 588:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   * into MediumFrequencyTask to initialize the speed reference.
+ 589:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   */
+ 590:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** __weak void STC_ForceSpeedReferenceToCurrentSpeed(SpeednTorqCtrl_Handle_t *pHandle)
+ 591:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** {
+ 732              		.loc 1 591 1 is_stmt 1 view -0
+ 733              		.cfi_startproc
+ 734              		@ args = 0, pretend = 0, frame = 0
+ 735              		@ frame_needed = 0, uses_anonymous_args = 0
+ 592:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 593:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   if (MC_NULL == pHandle)
+ 594:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 595:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     /* Nothing to do */
+ 596:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 597:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   else
+ 598:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   {
+ 599:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 600:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****     pHandle->SpeedRefUnitExt = ((int32_t)SPD_GetAvrgMecSpeedUnit(pHandle->SPD)) * (int32_t)65536;
+ 736              		.loc 1 600 5 view .LVU214
+ 591:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 737              		.loc 1 591 1 is_stmt 0 view .LVU215
+ 738 0000 10B5     		push	{r4, lr}
+ 739              	.LCFI12:
+ 740              		.cfi_def_cfa_offset 8
+ARM GAS  /tmp/ccaomZPI.s 			page 26
+
+
+ 741              		.cfi_offset 4, -8
+ 742              		.cfi_offset 14, -4
+ 591:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 743              		.loc 1 591 1 view .LVU216
+ 744 0002 0446     		mov	r4, r0
+ 745              		.loc 1 600 42 view .LVU217
+ 746 0004 4069     		ldr	r0, [r0, #20]
+ 747              	.LVL51:
+ 748              		.loc 1 600 42 view .LVU218
+ 749 0006 FFF7FEFF 		bl	SPD_GetAvrgMecSpeedUnit
+ 750              	.LVL52:
+ 751              		.loc 1 600 81 view .LVU219
+ 752 000a 0004     		lsls	r0, r0, #16
+ 753              		.loc 1 600 30 view .LVU220
+ 754 000c 6060     		str	r0, [r4, #4]
+ 601:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #ifdef NULL_PTR_CHECK_SPD_TRQ_CTL
+ 602:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c ****   }
+ 603:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** #endif
+ 604:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_torq_ctrl.c **** }
+ 755              		.loc 1 604 1 view .LVU221
+ 756 000e 10BD     		pop	{r4, pc}
+ 757              		.loc 1 604 1 view .LVU222
+ 758              		.cfi_endproc
+ 759              	.LFE1458:
+ 761              		.text
+ 762              	.Letext0:
+ 763              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 764              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+ 765              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 766              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 767              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 768              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 769              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 770              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 771              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 772              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 773              		.file 12 "Inc/mc_type.h"
+ 774              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 775              		.file 14 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 776              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ARM GAS  /tmp/ccaomZPI.s 			page 27
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 speed_torq_ctrl.c
+     /tmp/ccaomZPI.s:18     .text.STC_Init:0000000000000000 $t
+     /tmp/ccaomZPI.s:27     .text.STC_Init:0000000000000000 STC_Init
+     /tmp/ccaomZPI.s:87     .text.STC_SetSpeedSensor:0000000000000000 $t
+     /tmp/ccaomZPI.s:95     .text.STC_SetSpeedSensor:0000000000000000 STC_SetSpeedSensor
+     /tmp/ccaomZPI.s:112    .text.STC_Clear:0000000000000000 $t
+     /tmp/ccaomZPI.s:120    .text.STC_Clear:0000000000000000 STC_Clear
+     /tmp/ccaomZPI.s:147    .text.STC_GetMecSpeedRefUnit:0000000000000000 $t
+     /tmp/ccaomZPI.s:155    .text.STC_GetMecSpeedRefUnit:0000000000000000 STC_GetMecSpeedRefUnit
+     /tmp/ccaomZPI.s:173    .text.STC_SetControlMode:0000000000000000 $t
+     /tmp/ccaomZPI.s:181    .text.STC_SetControlMode:0000000000000000 STC_SetControlMode
+     /tmp/ccaomZPI.s:203    .text.STC_ExecRamp:0000000000000000 $t
+     /tmp/ccaomZPI.s:211    .text.STC_ExecRamp:0000000000000000 STC_ExecRamp
+     /tmp/ccaomZPI.s:420    .text.STC_ExecRamp:0000000000000088 $d
+     /tmp/ccaomZPI.s:427    .text.STC_CalcTorqueReference:0000000000000000 $t
+     /tmp/ccaomZPI.s:435    .text.STC_CalcTorqueReference:0000000000000000 STC_CalcTorqueReference
+     /tmp/ccaomZPI.s:557    .text.STC_GetMecSpeedRefUnitDefault:0000000000000000 $t
+     /tmp/ccaomZPI.s:565    .text.STC_GetMecSpeedRefUnitDefault:0000000000000000 STC_GetMecSpeedRefUnitDefault
+     /tmp/ccaomZPI.s:583    .text.STC_GetMaxAppPositiveMecSpeedUnit:0000000000000000 $t
+     /tmp/ccaomZPI.s:591    .text.STC_GetMaxAppPositiveMecSpeedUnit:0000000000000000 STC_GetMaxAppPositiveMecSpeedUnit
+     /tmp/ccaomZPI.s:609    .text.STC_GetMinAppNegativeMecSpeedUnit:0000000000000000 $t
+     /tmp/ccaomZPI.s:617    .text.STC_GetMinAppNegativeMecSpeedUnit:0000000000000000 STC_GetMinAppNegativeMecSpeedUnit
+     /tmp/ccaomZPI.s:635    .text.STC_StopSpeedRamp:0000000000000000 $t
+     /tmp/ccaomZPI.s:643    .text.STC_StopSpeedRamp:0000000000000000 STC_StopSpeedRamp
+     /tmp/ccaomZPI.s:676    .text.STC_GetDefaultIqdref:0000000000000000 $t
+     /tmp/ccaomZPI.s:684    .text.STC_GetDefaultIqdref:0000000000000000 STC_GetDefaultIqdref
+     /tmp/ccaomZPI.s:721    .text.STC_ForceSpeedReferenceToCurrentSpeed:0000000000000000 $t
+     /tmp/ccaomZPI.s:729    .text.STC_ForceSpeedReferenceToCurrentSpeed:0000000000000000 STC_ForceSpeedReferenceToCurrentSpeed
+
+UNDEFINED SYMBOLS
+PID_SetIntegralTerm
+SPD_GetAvrgMecSpeedUnit
+PI_Controller

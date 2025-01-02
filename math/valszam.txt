@@ -1,0 +1,128 @@
+
+
+
+val valtozo
+
+ 
+
+val valtozo eloszlasa
+
+ 
+
+eloszlasfuggveny
+
+surusegfuggveny
+
+ 
+
+4.3 a val. valtozot jell szamertekek
+
+62.o
+
+varhato ertek mean
+
+szoras deviation
+
+momentum
+
+kvantilis
+
+median
+
+modusz
+
+ferdeseg
+
+lapulas
+
+ 
+
+ 
+
+kul eloszlasok
+
+binomialis: The binomial distribution is a discrete probability distribution that describes the number of successes in a fixed number of independent trials, each with two possible outcomes: success or failure.
+
+milyen eloszlasok vannak 
+
+ Nagyon jó kérdés! Valószínűségszámításban az eloszlások különböző típusait használjuk attól függően, hogy milyen jellegű adatokat és eseményeket modellezünk. Az eloszlásokat két nagy csoportba sorolhatjuk: **diszkrét** és **folytonos** eloszlások.
+
+---
+
+### **1. Diszkrét eloszlások**
+Olyan változókat írnak le, amelyek csak különálló (diszkrét) értékeket vehetnek fel, például egész számokat.
+
+#### a) **Binomiális eloszlás**  
+- **Jellemzője**: Adott számú kísérlet során vizsgáljuk, hogy hányszor következik be egy bizonyos esemény (pl. érmefeldobás).  
+- **Példa**: Hány fejet kapunk 10 érmefeldobásból?
+- **Paraméterei**:  
+  - \( n \): kísérletek száma  
+  - \( p \): esemény bekövetkezésének valószínűsége.
+
+---
+
+#### b) **Poisson-eloszlás**  
+- **Jellemzője**: Ritka események modellezésére használjuk adott idő- vagy térintervallumban.  
+- **Példa**: Hány autóbaleset történik egy hét alatt?  
+- **Paramétere**: \( \lambda \): az események átlagos előfordulási száma.
+
+---
+
+#### c) **Geometriai eloszlás**  
+- **Jellemzője**: Azt vizsgálja, hogy egy adott esemény bekövetkezéséig hány próbát kell elvégezni.  
+- **Példa**: Hány dobás szükséges, hogy egy érme fej legyen?
+
+---
+
+#### d) **Hipergeometriai eloszlás**  
+- **Jellemzője**: Ha egy adott mintából véletlenszerűen kiválasztunk elemeket, mi a valószínűsége, hogy bizonyos típusú elemeket kapunk.  
+- **Példa**: Egy 100 fős csoportból véletlenszerűen kiválasztott 10 ember között hány nő van?
+
+---
+
+### **2. Folytonos eloszlások**
+Olyan változókat írnak le, amelyek bármilyen értéket felvehetnek egy intervallumban.
+
+#### a) **Normális (Gauss-) eloszlás**  
+- **Jellemzője**: Az adatok eloszlása „haranggörbe” alakú, és sok természetes jelenség leírására használjuk.  
+- **Példa**: Emberek testmagassága, hőmérséklet-ingadozás.  
+- **Paraméterei**:  
+  - \( \mu \): átlag  
+  - \( \sigma \): szórás.
+
+---
+
+#### b) **Egyenletes eloszlás**  
+- **Jellemzője**: Az értékek egy adott intervallumban egyenlő valószínűséggel fordulnak elő.  
+- **Példa**: Egy véletlen szám generálása a 0 és 1 közötti tartományban.  
+
+---
+
+#### c) **Exponenciális eloszlás**  
+- **Jellemzője**: Időbeli események közötti várakozási idő modellezésére használják.  
+- **Példa**: Mennyi idő telik el két telefonhívás között?  
+- **Paramétere**: \( \lambda \): az események átlagos bekövetkezési rátája.
+
+---
+
+#### d) **Chi-négyzet eloszlás**  
+- **Jellemzője**: Szórásvizsgálatokra és statisztikai tesztelésre használják.  
+- **Példa**: Megfelel-e egy adathalmaz eloszlása egy adott modellnek?
+
+---
+
+### **3. Speciális eloszlások**
+Ezek speciális felhasználási esetekre szolgálnak:
+
+- **Student-féle t-eloszlás**: Kis minták esetén használják, például a populációs átlag becslésére.  
+- **F-eloszlás**: Két variancia hányadosának összehasonlítására statisztikai elemzésekben.  
+- **Gamma-eloszlás**: Komplex várakozási időkre, például amikor több esemény bekövetkezésére várunk.
+
+---
+
+### **Hogyan választunk eloszlást?**
+- Ha **diszkrét** számokat vizsgálunk (pl. dobások száma), akkor diszkrét eloszlást választunk.  
+- Ha **folytonos** adatokkal dolgozunk (pl. magasság, idő), akkor folytonos eloszlást választunk.  
+- Az eloszlás típusa attól függ, hogy milyen jelenséget modellezünk, és milyen **paraméterek** állnak rendelkezésünkre.
+
+Ha van konkrét példád, szívesen segítek eldönteni, melyik eloszlás lenne a legjobb választás!

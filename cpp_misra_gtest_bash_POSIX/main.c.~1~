@@ -1,0 +1,69 @@
+
+#include <stdio.h>
+#include <string.h>
+#include "proxy.h"
+
+
+
+
+
+enum {
+    GET_PROXY_STRING_LIB,
+    GET_PROXY_STRING_CMD,
+}; 
+
+
+/**
+ * Table for proxy settings
+ */
+const char proxy_labels[][2][30] = {
+    {"basic", "CURLAUTH_BASIC"},
+    {"digest", "CURLAUTH_DIGEST"},
+    {"negotiate", "CURLAUTH_GSSNEGOTIATE"},
+    {"ntlm", "CURLAUTH_NTLM"},
+    {"anyauth", "CURLAUTH_ANY"},
+    {"\0","\0"},
+};
+
+
+
+char * get_proxy_string(char * str_from_cfg, unsigned int type)
+{
+unsigned int i = 0;
+    while(proxy_labels[i]){
+        if(!strcmp(str_from_cfg, proxy_labels[i][0]))
+        {
+            if(type == GET_PROXY_STRING_LIB)
+            {
+                return (char*)proxy_labels[i][1];
+            }
+            else
+            {
+                char str_tmp[30] = "--proxy-";
+                return strcat(str_tmp, proxy_labels[i][0]);
+            }
+        }        
+        i++;
+    }
+}
+
+
+void main(void)
+{
+	printf("1: %s\r\n", get_proxy_string("basic", GET_PROXY_STRING_LIB));
+	printf("2: %s\r\n", get_proxy_string("digest", GET_PROXY_STRING_LIB));
+	printf("3: %s\r\n", get_proxy_string("negotiate", GET_PROXY_STRING_LIB));
+	printf("4: %s\r\n", get_proxy_string("ntlm", GET_PROXY_STRING_LIB));
+	printf("5: %s\r\n", get_proxy_string("anyauth", GET_PROXY_STRING_LIB));
+
+	printf("6: %s\r\n", get_proxy_string("basic", GET_PROXY_STRING_CMD));
+	printf("7: %s\r\n", get_proxy_string("digest", GET_PROXY_STRING_CMD));
+	printf("8: %s\r\n", get_proxy_string("negotiate", GET_PROXY_STRING_CMD));
+	printf("9: %s\r\n", get_proxy_string("ntlm", GET_PROXY_STRING_CMD));
+	printf("10: %s\r\n", get_proxy_string("anyauth", GET_PROXY_STRING_CMD));
+
+}
+
+/**
+ * @}
+ */

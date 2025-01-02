@@ -1,0 +1,1717 @@
+ARM GAS  /tmp/cckRd7il.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"virtual_speed_sensor.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.VSS_Clear,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	VSS_Clear
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	VSS_Clear:
+  28              	.LVL0:
+  29              	.LFB1441:
+  30              		.file 1 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   ******************************************************************************
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @file    virtual_speed_sensor.c
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief   This file provides firmware functions that implement the features
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *          of the Virtual Speed Sensor component of the Motor Control SDK.
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   ******************************************************************************
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @attention
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * All rights reserved.</center></h2>
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * the License. You may obtain a copy of the License at:
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *                             www.st.com/SLA0044
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   ******************************************************************************
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @ingroup VirtualSpeedSensor
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /* Includes ------------------------------------------------------------------*/
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #include "virtual_speed_sensor.h"
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /** @addtogroup MCSDK
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @{
+ARM GAS  /tmp/cckRd7il.s 			page 2
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /** @addtogroup SpeednPosFdbk
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @{
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /** @defgroup VirtualSpeedSensor Virtual Speed & Position Feedback
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief Virtual Speed Speed & Position Feedback implementation
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * This component provides a "virtual" implementation of the speed and position feedback features.
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * This implementation provides a theoretical estimation of the speed and position of the rotor of
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * the motor based on a mechanical acceleration and an initial angle set by the application.
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * This component is used during the @ref RevUpCtrl "Rev-Up Control" phases of the motor or in an
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @ref OpenLoop "Open Loop Control" configuration in a sensorless subsystem.
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @{
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Software initialization of VirtualSpeedSensor component.
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval none
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Calls VSS_Clear.
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Called at initialization of the whole MC core.
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak void VSS_Init(VirtualSpeedSensor_Handle_t *pHandle)
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   VSS_Clear(pHandle);
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Software initialization of VSS object to be performed at each restart
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         of the motor.
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval none
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak void VSS_Clear(VirtualSpeedSensor_Handle_t *pHandle)
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+  31              		.loc 1 69 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		@ link register save eliminated.
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if (MC_NULL == pHandle)
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* Nothing to do */
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.bSpeedErrorNumber = 0U;
+  36              		.loc 1 78 5 view .LVU1
+  37              		.loc 1 78 39 is_stmt 0 view .LVU2
+ARM GAS  /tmp/cckRd7il.s 			page 3
+
+
+  38 0000 0023     		movs	r3, #0
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElAngle = 0;
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hMecAngle = 0;
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hAvrMecSpeedUnit = 0;
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElSpeedDpp = 0;
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hMecAccelUnitP = 0;
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.bSpeedErrorNumber = 0U;
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->wElAccDppP32 = 0;
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->wElSpeedDpp32 = 0;
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hRemainingStep = 0U;
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hElAngleAccu = 0;
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->bTransitionStarted = false;
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->bTransitionEnded = false;
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hTransitionRemainingSteps = pHandle->hTransitionSteps;
+  39              		.loc 1 93 40 view .LVU3
+  40 0002 C28E     		ldrh	r2, [r0, #54]
+  41 0004 C285     		strh	r2, [r0, #46]	@ movhi
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElAngle = 0;
+  42              		.loc 1 78 39 view .LVU4
+  43 0006 0370     		strb	r3, [r0]
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElAngle = 0;
+  44              		.loc 1 79 5 is_stmt 1 view .LVU5
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hAvrMecSpeedUnit = 0;
+  45              		.loc 1 80 5 view .LVU6
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElAngle = 0;
+  46              		.loc 1 79 30 is_stmt 0 view .LVU7
+  47 0008 4360     		str	r3, [r0, #4]
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElSpeedDpp = 0;
+  48              		.loc 1 81 5 is_stmt 1 view .LVU8
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hMecAccelUnitP = 0;
+  49              		.loc 1 82 5 view .LVU9
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElSpeedDpp = 0;
+  50              		.loc 1 81 38 is_stmt 0 view .LVU10
+  51 000a C360     		str	r3, [r0, #12]
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.bSpeedErrorNumber = 0U;
+  52              		.loc 1 83 5 is_stmt 1 view .LVU11
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.bSpeedErrorNumber = 0U;
+  53              		.loc 1 83 36 is_stmt 0 view .LVU12
+  54 000c 4382     		strh	r3, [r0, #18]	@ movhi
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  55              		.loc 1 84 5 is_stmt 1 view .LVU13
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->wElSpeedDpp32 = 0;
+  56              		.loc 1 86 5 view .LVU14
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hRemainingStep = 0U;
+  57              		.loc 1 87 28 is_stmt 0 view .LVU15
+  58 000e C0E90833 		strd	r3, r3, [r0, #32]
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hElAngleAccu = 0;
+  59              		.loc 1 88 5 is_stmt 1 view .LVU16
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hElAngleAccu = 0;
+  60              		.loc 1 88 29 is_stmt 0 view .LVU17
+  61 0012 0385     		strh	r3, [r0, #40]	@ movhi
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  62              		.loc 1 89 5 is_stmt 1 view .LVU18
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->bTransitionEnded = false;
+  63              		.loc 1 91 5 view .LVU19
+ARM GAS  /tmp/cckRd7il.s 			page 4
+
+
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hTransitionRemainingSteps = pHandle->hTransitionSteps;
+  64              		.loc 1 92 5 view .LVU20
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->bTransitionEnded = false;
+  65              		.loc 1 91 33 is_stmt 0 view .LVU21
+  66 0014 8385     		strh	r3, [r0, #44]	@ movhi
+  67              		.loc 1 93 5 is_stmt 1 view .LVU22
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->bTransitionLocked = false;
+  68              		.loc 1 94 5 view .LVU23
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->bCopyObserver = false;
+  69              		.loc 1 96 5 view .LVU24
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+  70              		.loc 1 89 27 is_stmt 0 view .LVU25
+  71 0016 0363     		str	r3, [r0, #48]
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+  72              		.loc 1 100 1 view .LVU26
+  73 0018 7047     		bx	lr
+  74              		.cfi_endproc
+  75              	.LFE1441:
+  77 001a 00BF     		.section	.text.VSS_Init,"ax",%progbits
+  78              		.align	1
+  79              		.p2align 2,,3
+  80              		.weak	VSS_Init
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  84              		.fpu fpv4-sp-d16
+  86              	VSS_Init:
+  87              	.LVL1:
+  88              	.LFB1440:
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   VSS_Clear(pHandle);
+  89              		.loc 1 58 1 is_stmt 1 view -0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+  93              		.loc 1 59 3 view .LVU28
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   VSS_Clear(pHandle);
+  94              		.loc 1 58 1 is_stmt 0 view .LVU29
+  95 0000 08B5     		push	{r3, lr}
+  96              	.LCFI0:
+  97              		.cfi_def_cfa_offset 8
+  98              		.cfi_offset 3, -8
+  99              		.cfi_offset 14, -4
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 100              		.loc 1 59 3 view .LVU30
+ 101 0002 FFF7FEFF 		bl	VSS_Clear
+ 102              	.LVL2:
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 103              		.loc 1 60 1 view .LVU31
+ 104 0006 08BD     		pop	{r3, pc}
+ 105              		.cfi_endproc
+ 106              	.LFE1440:
+ 108              		.section	.text.VSS_CalcElAngle,"ax",%progbits
+ARM GAS  /tmp/cckRd7il.s 			page 5
+
+
+ 109              		.align	1
+ 110              		.p2align 2,,3
+ 111              		.weak	VSS_CalcElAngle
+ 112              		.syntax unified
+ 113              		.thumb
+ 114              		.thumb_func
+ 115              		.fpu fpv4-sp-d16
+ 117              	VSS_CalcElAngle:
+ 118              	.LVL3:
+ 119              	.LFB1442:
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #if defined (CCMRAM)
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #if defined (__ICCARM__)
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #pragma location = ".ccmram"
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #elif defined (__CC_ARM) || defined(__GNUC__)
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __attribute__((section(".ccmram")))
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Updates the rotor electrical angle integrating the last settled
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         instantaneous electrical speed express in [dpp](measurement_units.md).
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval int16_t Measured electrical angle in s16degree format.
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Systematically called after #SPD_GetElAngle that retrieves last computed rotor electrical ang
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** //cstat !MISRAC2012-Rule-8.13
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak int16_t VSS_CalcElAngle(VirtualSpeedSensor_Handle_t *pHandle, int16_t *pInputVars_str)
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 120              		.loc 1 119 1 is_stmt 1 view -0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   int16_t hRetAngle;
+ 125              		.loc 1 120 3 view .LVU33
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if ((MC_NULL == pHandle) || (MC_NULL == pInputVars_str))
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     hRetAngle = 0;
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int16_t hAngleDiff;
+ 126              		.loc 1 129 5 view .LVU34
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int32_t wAux;
+ 127              		.loc 1 130 5 view .LVU35
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int16_t hAngleCorr;
+ 128              		.loc 1 131 5 view .LVU36
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int16_t hSignCorr = 1;
+ 129              		.loc 1 132 5 view .LVU37
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (true == pHandle->bCopyObserver)
+ 130              		.loc 1 134 5 view .LVU38
+ 131              		.loc 1 134 8 is_stmt 0 view .LVU39
+ 132 0000 90F83320 		ldrb	r2, [r0, #51]	@ zero_extendqisi2
+ARM GAS  /tmp/cckRd7il.s 			page 6
+
+
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   int16_t hRetAngle;
+ 133              		.loc 1 119 1 view .LVU40
+ 134 0004 0346     		mov	r3, r0
+ 135              		.loc 1 134 8 view .LVU41
+ 136 0006 1AB1     		cbz	r2, .L6
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       hRetAngle = *(int16_t *)pInputVars_str;
+ 137              		.loc 1 136 7 is_stmt 1 view .LVU42
+ 138              		.loc 1 136 17 is_stmt 0 view .LVU43
+ 139 0008 B1F90000 		ldrsh	r0, [r1]
+ 140              	.LVL4:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->hElAngleAccu += pHandle->_Super.hElSpeedDpp;
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hMecAngle += (pHandle->_Super.hElSpeedDpp / (int16_t)pHandle->_Super.bElToMec
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       if (true == pHandle->bTransitionStarted)
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         if (0 == pHandle->hTransitionRemainingSteps)
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hRetAngle = *(int16_t *)pInputVars_str;
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->bTransitionEnded = true;
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->_Super.bSpeedErrorNumber = 0U;
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         else
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->hTransitionRemainingSteps--;
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           if (pHandle->_Super.hElSpeedDpp >= 0)
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hAngleDiff = *(int16_t *)pInputVars_str - pHandle->hElAngleAccu;
+ 158:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 159:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           else
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hAngleDiff = pHandle->hElAngleAccu - *(int16_t *)pInputVars_str;
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hSignCorr = -1;
+ 163:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           wAux = (int32_t)hAngleDiff * pHandle->hTransitionRemainingSteps;
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr = (int16_t)(wAux / pHandle->hTransitionSteps);
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr *= hSignCorr;
+ 168:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           if (hAngleDiff >= 0)
+ 170:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             pHandle->bTransitionLocked = true;
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hRetAngle = *(int16_t *)pInputVars_str - hAngleCorr;
+ 173:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           else
+ 175:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             if (false == pHandle->bTransitionLocked)
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             {
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****               hRetAngle = pHandle->hElAngleAccu;
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             }
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             else
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             {
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****               hRetAngle = *(int16_t *)pInputVars_str + hAngleCorr;
+ARM GAS  /tmp/cckRd7il.s 			page 7
+
+
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             }
+ 184:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 185:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       else
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hRetAngle = pHandle->hElAngleAccu;
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 192:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElAngle = hRetAngle;
+ 141              		.loc 1 193 5 is_stmt 1 view .LVU44
+ 142              		.loc 1 193 30 is_stmt 0 view .LVU45
+ 143 000c 9880     		strh	r0, [r3, #4]	@ movhi
+ 194:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 195:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 196:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (hRetAngle);
+ 144              		.loc 1 197 3 is_stmt 1 view .LVU46
+ 198:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 145              		.loc 1 198 1 is_stmt 0 view .LVU47
+ 146 000e 7047     		bx	lr
+ 147              	.LVL5:
+ 148              	.L6:
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hMecAngle += (pHandle->_Super.hElSpeedDpp / (int16_t)pHandle->_Super.bElToMec
+ 149              		.loc 1 140 7 is_stmt 1 view .LVU48
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   int16_t hRetAngle;
+ 150              		.loc 1 119 1 is_stmt 0 view .LVU49
+ 151 0010 F0B4     		push	{r4, r5, r6, r7}
+ 152              	.LCFI1:
+ 153              		.cfi_def_cfa_offset 16
+ 154              		.cfi_offset 4, -16
+ 155              		.cfi_offset 5, -12
+ 156              		.cfi_offset 6, -8
+ 157              		.cfi_offset 7, -4
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hMecAngle += (pHandle->_Super.hElSpeedDpp / (int16_t)pHandle->_Super.bElToMec
+ 158              		.loc 1 140 29 view .LVU50
+ 159 0012 028E     		ldrh	r2, [r0, #48]
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hMecAngle += (pHandle->_Super.hElSpeedDpp / (int16_t)pHandle->_Super.bElToMec
+ 160              		.loc 1 140 47 view .LVU51
+ 161 0014 B0F90E50 		ldrsh	r5, [r0, #14]
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 162              		.loc 1 141 33 view .LVU52
+ 163 0018 C788     		ldrh	r7, [r0, #6]
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 164              		.loc 1 143 10 view .LVU53
+ 165 001a 90F82C60 		ldrb	r6, [r0, #44]	@ zero_extendqisi2
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 166              		.loc 1 141 67 view .LVU54
+ 167 001e 4478     		ldrb	r4, [r0, #1]	@ zero_extendqisi2
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 168              		.loc 1 141 65 view .LVU55
+ 169 0020 95FBF4F4 		sdiv	r4, r5, r4
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hMecAngle += (pHandle->_Super.hElSpeedDpp / (int16_t)pHandle->_Super.bElToMec
+ 170              		.loc 1 140 29 view .LVU56
+ 171 0024 2A44     		add	r2, r2, r5
+ 172 0026 92B2     		uxth	r2, r2
+ARM GAS  /tmp/cckRd7il.s 			page 8
+
+
+ 173 0028 10B2     		sxth	r0, r2
+ 174              	.LVL6:
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 175              		.loc 1 141 33 view .LVU57
+ 176 002a 3C44     		add	r4, r4, r7
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hMecAngle += (pHandle->_Super.hElSpeedDpp / (int16_t)pHandle->_Super.bElToMec
+ 177              		.loc 1 140 29 view .LVU58
+ 178 002c 1886     		strh	r0, [r3, #48]	@ movhi
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 179              		.loc 1 141 7 is_stmt 1 view .LVU59
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 180              		.loc 1 141 33 is_stmt 0 view .LVU60
+ 181 002e DC80     		strh	r4, [r3, #6]	@ movhi
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 182              		.loc 1 143 7 is_stmt 1 view .LVU61
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 183              		.loc 1 143 10 is_stmt 0 view .LVU62
+ 184 0030 DEB1     		cbz	r6, .L7
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 185              		.loc 1 145 9 is_stmt 1 view .LVU63
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 186              		.loc 1 145 25 is_stmt 0 view .LVU64
+ 187 0032 B3F92E40 		ldrsh	r4, [r3, #46]
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 188              		.loc 1 145 12 view .LVU65
+ 189 0036 DCB1     		cbz	r4, .L21
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 190              		.loc 1 153 11 is_stmt 1 view .LVU66
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 191              		.loc 1 153 45 is_stmt 0 view .LVU67
+ 192 0038 013C     		subs	r4, r4, #1
+ 193 003a 24B2     		sxth	r4, r4
+ 194 003c DC85     		strh	r4, [r3, #46]	@ movhi
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 195              		.loc 1 155 11 is_stmt 1 view .LVU68
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 196              		.loc 1 155 14 is_stmt 0 view .LVU69
+ 197 003e 002D     		cmp	r5, #0
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 198              		.loc 1 157 26 view .LVU70
+ 199 0040 0988     		ldrh	r1, [r1]
+ 200              	.LVL7:
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 201              		.loc 1 155 14 view .LVU71
+ 202 0042 25DB     		blt	.L9
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 203              		.loc 1 157 13 is_stmt 1 view .LVU72
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 204              		.loc 1 157 53 is_stmt 0 view .LVU73
+ 205 0044 8A1A     		subs	r2, r1, r2
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 206              		.loc 1 157 24 view .LVU74
+ 207 0046 12B2     		sxth	r2, r2
+ 208              	.LVL8:
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 209              		.loc 1 157 24 view .LVU75
+ 210 0048 0126     		movs	r6, #1
+ARM GAS  /tmp/cckRd7il.s 			page 9
+
+
+ 211              	.LVL9:
+ 212              	.L10:
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr = (int16_t)(wAux / pHandle->hTransitionSteps);
+ 213              		.loc 1 165 11 is_stmt 1 view .LVU76
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr *= hSignCorr;
+ 214              		.loc 1 166 11 view .LVU77
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 215              		.loc 1 167 11 view .LVU78
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr = (int16_t)(wAux / pHandle->hTransitionSteps);
+ 216              		.loc 1 165 16 is_stmt 0 view .LVU79
+ 217 004a 02FB04F4 		mul	r4, r2, r4
+ 218              	.LVL10:
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr *= hSignCorr;
+ 219              		.loc 1 166 48 view .LVU80
+ 220 004e B3F93650 		ldrsh	r5, [r3, #54]
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           hAngleCorr *= hSignCorr;
+ 221              		.loc 1 166 39 view .LVU81
+ 222 0052 94FBF5F4 		sdiv	r4, r4, r5
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 223              		.loc 1 169 14 view .LVU82
+ 224 0056 002A     		cmp	r2, #0
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 225              		.loc 1 167 22 view .LVU83
+ 226 0058 14FB06F4 		smulbb	r4, r4, r6
+ 227 005c A4B2     		uxth	r4, r4
+ 228              	.LVL11:
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 229              		.loc 1 169 11 is_stmt 1 view .LVU84
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           {
+ 230              		.loc 1 169 14 is_stmt 0 view .LVU85
+ 231 005e 10DB     		blt	.L11
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hRetAngle = *(int16_t *)pInputVars_str - hAngleCorr;
+ 232              		.loc 1 171 13 is_stmt 1 view .LVU86
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 233              		.loc 1 172 52 is_stmt 0 view .LVU87
+ 234 0060 0C1B     		subs	r4, r1, r4
+ 235              	.LVL12:
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hRetAngle = *(int16_t *)pInputVars_str - hAngleCorr;
+ 236              		.loc 1 171 40 view .LVU88
+ 237 0062 0122     		movs	r2, #1
+ 238              	.LVL13:
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 239              		.loc 1 172 23 view .LVU89
+ 240 0064 20B2     		sxth	r0, r4
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hRetAngle = *(int16_t *)pInputVars_str - hAngleCorr;
+ 241              		.loc 1 171 40 view .LVU90
+ 242 0066 83F83220 		strb	r2, [r3, #50]
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 243              		.loc 1 172 13 is_stmt 1 view .LVU91
+ 244              	.LVL14:
+ 245              	.L7:
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 246              		.loc 1 193 5 view .LVU92
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 247              		.loc 1 193 30 is_stmt 0 view .LVU93
+ 248 006a 9880     		strh	r0, [r3, #4]	@ movhi
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ARM GAS  /tmp/cckRd7il.s 			page 10
+
+
+ 249              		.loc 1 197 3 is_stmt 1 view .LVU94
+ 250              		.loc 1 198 1 is_stmt 0 view .LVU95
+ 251 006c F0BC     		pop	{r4, r5, r6, r7}
+ 252              	.LCFI2:
+ 253              		.cfi_remember_state
+ 254              		.cfi_restore 7
+ 255              		.cfi_restore 6
+ 256              		.cfi_restore 5
+ 257              		.cfi_restore 4
+ 258              		.cfi_def_cfa_offset 0
+ 259 006e 7047     		bx	lr
+ 260              	.LVL15:
+ 261              	.L21:
+ 262              	.LCFI3:
+ 263              		.cfi_restore_state
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->bTransitionEnded = true;
+ 264              		.loc 1 147 11 is_stmt 1 view .LVU96
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->bTransitionEnded = true;
+ 265              		.loc 1 147 21 is_stmt 0 view .LVU97
+ 266 0070 B1F90000 		ldrsh	r0, [r1]
+ 267              	.LVL16:
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->_Super.bSpeedErrorNumber = 0U;
+ 268              		.loc 1 148 11 is_stmt 1 view .LVU98
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 269              		.loc 1 149 45 is_stmt 0 view .LVU99
+ 270 0074 1C70     		strb	r4, [r3]
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->_Super.bSpeedErrorNumber = 0U;
+ 271              		.loc 1 148 37 view .LVU100
+ 272 0076 0122     		movs	r2, #1
+ 273 0078 83F82D20 		strb	r2, [r3, #45]
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 274              		.loc 1 149 11 is_stmt 1 view .LVU101
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 275              		.loc 1 193 5 view .LVU102
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 276              		.loc 1 193 30 is_stmt 0 view .LVU103
+ 277 007c 9880     		strh	r0, [r3, #4]	@ movhi
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 278              		.loc 1 197 3 is_stmt 1 view .LVU104
+ 279              		.loc 1 198 1 is_stmt 0 view .LVU105
+ 280 007e F0BC     		pop	{r4, r5, r6, r7}
+ 281              	.LCFI4:
+ 282              		.cfi_remember_state
+ 283              		.cfi_restore 7
+ 284              		.cfi_restore 6
+ 285              		.cfi_restore 5
+ 286              		.cfi_restore 4
+ 287              		.cfi_def_cfa_offset 0
+ 288 0080 7047     		bx	lr
+ 289              	.LVL17:
+ 290              	.L11:
+ 291              	.LCFI5:
+ 292              		.cfi_restore_state
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             {
+ 293              		.loc 1 176 13 is_stmt 1 view .LVU106
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             {
+ 294              		.loc 1 176 16 is_stmt 0 view .LVU107
+ARM GAS  /tmp/cckRd7il.s 			page 11
+
+
+ 295 0082 93F83220 		ldrb	r2, [r3, #50]	@ zero_extendqisi2
+ 296              	.LVL18:
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             {
+ 297              		.loc 1 176 16 view .LVU108
+ 298 0086 002A     		cmp	r2, #0
+ 299 0088 EFD0     		beq	.L7
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             }
+ 300              		.loc 1 182 15 is_stmt 1 view .LVU109
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             }
+ 301              		.loc 1 182 54 is_stmt 0 view .LVU110
+ 302 008a 0C44     		add	r4, r4, r1
+ 303              	.LVL19:
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             }
+ 304              		.loc 1 182 25 view .LVU111
+ 305 008c 20B2     		sxth	r0, r4
+ 306              	.LVL20:
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             }
+ 307              		.loc 1 182 25 view .LVU112
+ 308 008e ECE7     		b	.L7
+ 309              	.LVL21:
+ 310              	.L9:
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hSignCorr = -1;
+ 311              		.loc 1 161 13 is_stmt 1 view .LVU113
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hSignCorr = -1;
+ 312              		.loc 1 161 48 is_stmt 0 view .LVU114
+ 313 0090 521A     		subs	r2, r2, r1
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hSignCorr = -1;
+ 314              		.loc 1 161 24 view .LVU115
+ 315 0092 12B2     		sxth	r2, r2
+ 316              	.LVL22:
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           }
+ 317              		.loc 1 162 13 is_stmt 1 view .LVU116
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             hSignCorr = -1;
+ 318              		.loc 1 161 24 is_stmt 0 view .LVU117
+ 319 0094 4FF6FF76 		movw	r6, #65535
+ 320 0098 D7E7     		b	.L10
+ 321              		.cfi_endproc
+ 322              	.LFE1442:
+ 324 009a 00BF     		.section	.text.VSS_CalcAvrgMecSpeedUnit,"ax",%progbits
+ 325              		.align	1
+ 326              		.p2align 2,,3
+ 327              		.weak	VSS_CalcAvrgMecSpeedUnit
+ 328              		.syntax unified
+ 329              		.thumb
+ 330              		.thumb_func
+ 331              		.fpu fpv4-sp-d16
+ 333              	VSS_CalcAvrgMecSpeedUnit:
+ 334              	.LVL23:
+ 335              	.LFB1443:
+ 199:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 200:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 201:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Computes and stores rotor instantaneous electrical speed (express
+ 202:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         in [dpp](measurement_units.md) considering the measurement frequency) in order to provi
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         to #SPD_GetElAngle.
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  hMecSpeedUnit pointer to int16_t, used to return the rotor average
+ 206:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         mechanical speed [SPEED_UNIT](measurement_units.md).
+ARM GAS  /tmp/cckRd7il.s 			page 12
+
+
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval bool true = sensor information is reliable and false = sensor information is not reliab
+ 208:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Stores and returns through parameter hMecSpeedUnit the rotor average mechanical speed,
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *  expressed in the unit defined by [SPEED_UNIT](measurement_units.md).
+ 211:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Returns the reliability state of the sensor (always true).
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Called with the same periodicity on which speed control is executed, precisely during START a
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * of the MC tasks state machine or in its RUM state in @ref OpenLoop "Open Loop Control" configur
+ 214:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * TSK_MediumFrequencyTask.
+ 215:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak bool VSS_CalcAvrgMecSpeedUnit(VirtualSpeedSensor_Handle_t *pHandle, int16_t *hMecSpeedUnit)
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 336              		.loc 1 217 1 is_stmt 1 view -0
+ 337              		.cfi_startproc
+ 338              		@ args = 0, pretend = 0, frame = 0
+ 339              		@ frame_needed = 0, uses_anonymous_args = 0
+ 340              		@ link register save eliminated.
+ 218:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   bool SpeedSensorReliability;
+ 341              		.loc 1 218 3 view .LVU119
+ 219:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 220:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if ((MC_NULL == pHandle) || (MC_NULL == hMecSpeedUnit))
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 222:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     SpeedSensorReliability = false;
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 224:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 225:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (pHandle->hRemainingStep > 1u)
+ 342              		.loc 1 227 5 view .LVU120
+ 343              		.loc 1 227 16 is_stmt 0 view .LVU121
+ 344 0000 038D     		ldrh	r3, [r0, #40]
+ 345              		.loc 1 227 8 view .LVU122
+ 346 0002 012B     		cmp	r3, #1
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   bool SpeedSensorReliability;
+ 347              		.loc 1 217 1 view .LVU123
+ 348 0004 70B4     		push	{r4, r5, r6}
+ 349              	.LCFI6:
+ 350              		.cfi_def_cfa_offset 12
+ 351              		.cfi_offset 4, -12
+ 352              		.cfi_offset 5, -8
+ 353              		.cfi_offset 6, -4
+ 354              		.loc 1 227 8 view .LVU124
+ 355 0006 1FD9     		bls	.L23
+ 228:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->wElSpeedDpp32 += pHandle->wElAccDppP32;
+ 356              		.loc 1 229 7 is_stmt 1 view .LVU125
+ 357              		.loc 1 229 30 is_stmt 0 view .LVU126
+ 358 0008 D0E90842 		ldrd	r4, r2, [r0, #32]
+ 230:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifndef FULL_MISRA_C_COMPLIANCY_VIRT_SPD_SENS
+ 231:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       //cstat !MISRAC2012-Rule-1.3_n !ATH-shift-neg !MISRAC2012-Rule-10.1_R6
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp = (int16_t)(pHandle->wElSpeedDpp32 >> 16);
+ 233:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #else
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp = (int16_t)(pHandle->wElSpeedDpp32 / 65536);
+ 235:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 236:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Convert dpp into MecUnit */
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       *hMecSpeedUnit = (int16_t)((((int32_t)pHandle->_Super.hElSpeedDpp)
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                * ((int32_t )pHandle->_Super.hMeasurementFrequency) * SPEED_UNIT)
+ARM GAS  /tmp/cckRd7il.s 			page 13
+
+
+ 359              		.loc 1 239 35 view .LVU127
+ 360 000c 438B     		ldrh	r3, [r0, #26]
+ 240:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                / (((int32_t)pHandle->_Super.DPPConvFactor) * ((int32_t)pHandle->_Su
+ 361              		.loc 1 240 79 view .LVU128
+ 362 000e 4678     		ldrb	r6, [r0, #1]	@ zero_extendqisi2
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifndef FULL_MISRA_C_COMPLIANCY_VIRT_SPD_SENS
+ 363              		.loc 1 229 30 view .LVU129
+ 364 0010 2244     		add	r2, r2, r4
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #else
+ 365              		.loc 1 232 70 view .LVU130
+ 366 0012 1514     		asrs	r5, r2, #16
+ 367              		.loc 1 240 76 view .LVU131
+ 368 0014 C469     		ldr	r4, [r0, #28]
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifndef FULL_MISRA_C_COMPLIANCY_VIRT_SPD_SENS
+ 369              		.loc 1 229 30 view .LVU132
+ 370 0016 4262     		str	r2, [r0, #36]
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #else
+ 371              		.loc 1 232 7 is_stmt 1 view .LVU133
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                / (((int32_t)pHandle->_Super.DPPConvFactor) * ((int32_t)pHandle->_Su
+ 372              		.loc 1 239 32 is_stmt 0 view .LVU134
+ 373 0018 05FB03F3 		mul	r3, r5, r3
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                / (((int32_t)pHandle->_Super.DPPConvFactor) * ((int32_t)pHandle->_Su
+ 374              		.loc 1 239 84 view .LVU135
+ 375 001c 03EB8303 		add	r3, r3, r3, lsl #2
+ 376 0020 5B00     		lsls	r3, r3, #1
+ 377              		.loc 1 240 76 view .LVU136
+ 378 0022 04FB06F4 		mul	r4, r4, r6
+ 379              		.loc 1 240 32 view .LVU137
+ 380 0026 93FBF4F3 		sdiv	r3, r3, r4
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                * ((int32_t )pHandle->_Super.hMeasurementFrequency) * SPEED_UNIT)
+ 381              		.loc 1 238 24 view .LVU138
+ 382 002a 1BB2     		sxth	r3, r3
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #else
+ 383              		.loc 1 232 37 view .LVU139
+ 384 002c C581     		strh	r5, [r0, #14]	@ movhi
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                * ((int32_t )pHandle->_Super.hMeasurementFrequency) * SPEED_UNIT)
+ 385              		.loc 1 238 7 is_stmt 1 view .LVU140
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                * ((int32_t )pHandle->_Super.hMeasurementFrequency) * SPEED_UNIT)
+ 386              		.loc 1 238 22 is_stmt 0 view .LVU141
+ 387 002e 0B80     		strh	r3, [r1]	@ movhi
+ 241:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 388              		.loc 1 241 7 is_stmt 1 view .LVU142
+ 242:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->hRemainingStep--;
+ 389              		.loc 1 242 30 is_stmt 0 view .LVU143
+ 390 0030 028D     		ldrh	r2, [r0, #40]
+ 241:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 391              		.loc 1 241 40 view .LVU144
+ 392 0032 8381     		strh	r3, [r0, #12]	@ movhi
+ 393              		.loc 1 242 7 is_stmt 1 view .LVU145
+ 394              		.loc 1 242 30 is_stmt 0 view .LVU146
+ 395 0034 531E     		subs	r3, r2, #1
+ 396 0036 0385     		strh	r3, [r0, #40]	@ movhi
+ 397              	.L24:
+ 243:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else if (1U == pHandle->hRemainingStep)
+ 245:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       *hMecSpeedUnit = pHandle->hFinalMecSpeedUnit;
+ARM GAS  /tmp/cckRd7il.s 			page 14
+
+
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp = (int16_t)((((int32_t)*hMecSpeedUnit) * ((int32_t)pHandle->_Supe
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                           / (((int32_t)SPEED_UNIT) * ((int32_t)pHandle->_Super.hMea
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp *= ((int16_t)pHandle->_Super.bElToMecRatio);
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->hRemainingStep = 0U;
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 253:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 254:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       *hMecSpeedUnit = pHandle->_Super.hAvrMecSpeedUnit;
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 257:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* If the transition is not done yet, we already know that speed is not reliable */
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (false == pHandle->bTransitionEnded)
+ 398              		.loc 1 258 5 is_stmt 1 view .LVU147
+ 399              		.loc 1 258 25 is_stmt 0 view .LVU148
+ 400 0038 90F82D30 		ldrb	r3, [r0, #45]	@ zero_extendqisi2
+ 401              		.loc 1 258 8 view .LVU149
+ 402 003c 63B9     		cbnz	r3, .L31
+ 403              	.L29:
+ 259:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 260:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.bSpeedErrorNumber = pHandle->_Super.bMaximumSpeedErrorsNumber;
+ 404              		.loc 1 260 7 is_stmt 1 view .LVU150
+ 405              		.loc 1 260 41 is_stmt 0 view .LVU151
+ 406 003e C278     		ldrb	r2, [r0, #3]	@ zero_extendqisi2
+ 407 0040 0270     		strb	r2, [r0]
+ 261:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       SpeedSensorReliability = false;
+ 408              		.loc 1 261 7 is_stmt 1 view .LVU152
+ 409              	.LVL24:
+ 262:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 263:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 264:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       SpeedSensorReliability = SPD_IsMecSpeedReliable(&pHandle->_Super, hMecSpeedUnit);
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 267:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 269:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (SpeedSensorReliability);
+ 410              		.loc 1 270 3 view .LVU153
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 411              		.loc 1 271 1 is_stmt 0 view .LVU154
+ 412 0042 70BC     		pop	{r4, r5, r6}
+ 413              	.LCFI7:
+ 414              		.cfi_remember_state
+ 415              		.cfi_restore 6
+ 416              		.cfi_restore 5
+ 417              		.cfi_restore 4
+ 418              		.cfi_def_cfa_offset 0
+ 419 0044 1846     		mov	r0, r3
+ 420              	.LVL25:
+ 421              		.loc 1 271 1 view .LVU155
+ 422 0046 7047     		bx	lr
+ 423              	.LVL26:
+ 424              	.L23:
+ 425              	.LCFI8:
+ 426              		.cfi_restore_state
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 427              		.loc 1 244 10 is_stmt 1 view .LVU156
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ARM GAS  /tmp/cckRd7il.s 			page 15
+
+
+ 428              		.loc 1 244 13 is_stmt 0 view .LVU157
+ 429 0048 09D0     		beq	.L32
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 430              		.loc 1 255 7 is_stmt 1 view .LVU158
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 431              		.loc 1 255 39 is_stmt 0 view .LVU159
+ 432 004a B0F90C30 		ldrsh	r3, [r0, #12]
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 433              		.loc 1 255 22 view .LVU160
+ 434 004e 0B80     		strh	r3, [r1]	@ movhi
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 435              		.loc 1 258 5 is_stmt 1 view .LVU161
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 436              		.loc 1 258 25 is_stmt 0 view .LVU162
+ 437 0050 90F82D30 		ldrb	r3, [r0, #45]	@ zero_extendqisi2
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 438              		.loc 1 258 8 view .LVU163
+ 439 0054 002B     		cmp	r3, #0
+ 440 0056 F2D0     		beq	.L29
+ 441              	.L31:
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 442              		.loc 1 265 7 is_stmt 1 view .LVU164
+ 443              		.loc 1 271 1 is_stmt 0 view .LVU165
+ 444 0058 70BC     		pop	{r4, r5, r6}
+ 445              	.LCFI9:
+ 446              		.cfi_remember_state
+ 447              		.cfi_restore 6
+ 448              		.cfi_restore 5
+ 449              		.cfi_restore 4
+ 450              		.cfi_def_cfa_offset 0
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 451              		.loc 1 265 32 view .LVU166
+ 452 005a FFF7FEBF 		b	SPD_IsMecSpeedReliable
+ 453              	.LVL27:
+ 454              	.L32:
+ 455              	.LCFI10:
+ 456              		.cfi_restore_state
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 457              		.loc 1 246 7 is_stmt 1 view .LVU167
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 458              		.loc 1 246 31 is_stmt 0 view .LVU168
+ 459 005e B0F92A50 		ldrsh	r5, [r0, #42]
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 460              		.loc 1 246 22 view .LVU169
+ 461 0062 0D80     		strh	r5, [r1]	@ movhi
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp = (int16_t)((((int32_t)*hMecSpeedUnit) * ((int32_t)pHandle->_Supe
+ 462              		.loc 1 247 7 is_stmt 1 view .LVU170
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp *= ((int16_t)pHandle->_Super.bElToMecRatio);
+ 463              		.loc 1 249 71 is_stmt 0 view .LVU171
+ 464 0064 438B     		ldrh	r3, [r0, #26]
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                           / (((int32_t)SPEED_UNIT) * ((int32_t)pHandle->_Super.hMea
+ 465              		.loc 1 248 74 view .LVU172
+ 466 0066 C269     		ldr	r2, [r0, #28]
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->hRemainingStep = 0U;
+ 467              		.loc 1 250 35 view .LVU173
+ 468 0068 4478     		ldrb	r4, [r0, #1]	@ zero_extendqisi2
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp = (int16_t)((((int32_t)*hMecSpeedUnit) * ((int32_t)pHandle->_Supe
+ARM GAS  /tmp/cckRd7il.s 			page 16
+
+
+ 469              		.loc 1 247 40 view .LVU174
+ 470 006a 8581     		strh	r5, [r0, #12]	@ movhi
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                           / (((int32_t)SPEED_UNIT) * ((int32_t)pHandle->_Super.hMea
+ 471              		.loc 1 248 7 is_stmt 1 view .LVU175
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->hRemainingStep = 0U;
+ 472              		.loc 1 250 7 view .LVU176
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp *= ((int16_t)pHandle->_Super.bElToMecRatio);
+ 473              		.loc 1 249 68 is_stmt 0 view .LVU177
+ 474 006c 03EB8303 		add	r3, r3, r3, lsl #2
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                           / (((int32_t)SPEED_UNIT) * ((int32_t)pHandle->_Super.hMea
+ 475              		.loc 1 248 74 view .LVU178
+ 476 0070 02FB05F2 		mul	r2, r2, r5
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp *= ((int16_t)pHandle->_Super.bElToMecRatio);
+ 477              		.loc 1 249 68 view .LVU179
+ 478 0074 5B00     		lsls	r3, r3, #1
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp *= ((int16_t)pHandle->_Super.bElToMecRatio);
+ 479              		.loc 1 249 43 view .LVU180
+ 480 0076 92FBF3F3 		sdiv	r3, r2, r3
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 481              		.loc 1 251 31 view .LVU181
+ 482 007a 0022     		movs	r2, #0
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->hRemainingStep = 0U;
+ 483              		.loc 1 250 35 view .LVU182
+ 484 007c 14FB03F3 		smulbb	r3, r4, r3
+ 485 0080 C381     		strh	r3, [r0, #14]	@ movhi
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 486              		.loc 1 251 7 is_stmt 1 view .LVU183
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 487              		.loc 1 251 31 is_stmt 0 view .LVU184
+ 488 0082 0285     		strh	r2, [r0, #40]	@ movhi
+ 489 0084 D8E7     		b	.L24
+ 490              		.cfi_endproc
+ 491              	.LFE1443:
+ 493 0086 00BF     		.section	.text.VSS_SetMecAcceleration,"ax",%progbits
+ 494              		.align	1
+ 495              		.p2align 2,,3
+ 496              		.weak	VSS_SetMecAcceleration
+ 497              		.syntax unified
+ 498              		.thumb
+ 499              		.thumb_func
+ 500              		.fpu fpv4-sp-d16
+ 502              	VSS_SetMecAcceleration:
+ 503              	.LVL28:
+ 504              	.LFB1444:
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Sets the mechanical acceleration of virtual speed sensor.
+ 275:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  hFinalMecSpeedUnit mechanical speed assumed by
+ 277:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         the virtual speed sensor at the end of the duration. Expressed in the unit defined
+ 278:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         by [SPEED_UNIT](measurement_units.md).
+ 279:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  hDurationms: Duration expressed in ms. It can be 0 to apply
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         instantaneous the final speed.
+ 281:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval none
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - This acceleration is defined starting from current mechanical speed, final mechanical
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * speed expressed in [SPEED_UNIT](measurement_units.md) and duration expressed in milliseconds.
+ARM GAS  /tmp/cckRd7il.s 			page 17
+
+
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Called during @ref RevUpCtrl "Rev-Up Control" and
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @ref EncAlignCtrl "Encoder Alignment Controller procedure" initialization.
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak void  VSS_SetMecAcceleration(VirtualSpeedSensor_Handle_t *pHandle, int16_t hFinalMecSpeedUni
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                     uint16_t hDurationms)
+ 290:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 505              		.loc 1 290 1 is_stmt 1 view -0
+ 506              		.cfi_startproc
+ 507              		@ args = 0, pretend = 0, frame = 0
+ 508              		@ frame_needed = 0, uses_anonymous_args = 0
+ 509              		@ link register save eliminated.
+ 291:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 292:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if (MC_NULL == pHandle)
+ 293:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 294:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* Nothing to do */
+ 295:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 298:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int32_t wMecAccDppP32;
+ 510              		.loc 1 299 5 view .LVU186
+ 300:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     uint16_t hNbrStep;
+ 511              		.loc 1 300 5 view .LVU187
+ 301:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int16_t hCurrentMecSpeedDpp;
+ 512              		.loc 1 301 5 view .LVU188
+ 302:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     int16_t hFinalMecSpeedDpp;
+ 513              		.loc 1 302 5 view .LVU189
+ 303:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 304:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (false == pHandle->bTransitionStarted)
+ 514              		.loc 1 304 5 view .LVU190
+ 515              		.loc 1 304 8 is_stmt 0 view .LVU191
+ 516 0000 90F82C30 		ldrb	r3, [r0, #44]	@ zero_extendqisi2
+ 517 0004 33BB     		cbnz	r3, .L41
+ 305:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 306:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       if (0U == hDurationms)
+ 518              		.loc 1 306 7 is_stmt 1 view .LVU192
+ 519 0006 438B     		ldrh	r3, [r0, #26]
+ 290:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 520              		.loc 1 290 1 is_stmt 0 view .LVU193
+ 521 0008 70B4     		push	{r4, r5, r6}
+ 522              	.LCFI11:
+ 523              		.cfi_def_cfa_offset 12
+ 524              		.cfi_offset 4, -12
+ 525              		.cfi_offset 5, -8
+ 526              		.cfi_offset 6, -4
+ 527 000a C469     		ldr	r4, [r0, #28]
+ 528 000c 4578     		ldrb	r5, [r0, #1]	@ zero_extendqisi2
+ 529 000e 03EB8303 		add	r3, r3, r3, lsl #2
+ 530 0012 5B00     		lsls	r3, r3, #1
+ 531 0014 04FB01F4 		mul	r4, r4, r1
+ 532 0018 94FBF3F4 		sdiv	r4, r4, r3
+ 533              		.loc 1 306 10 view .LVU194
+ 534 001c 3AB9     		cbnz	r2, .L35
+ 307:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 308:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->_Super.hAvrMecSpeedUnit = hFinalMecSpeedUnit;
+ 535              		.loc 1 308 9 is_stmt 1 view .LVU195
+ 309:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ARM GAS  /tmp/cckRd7il.s 			page 18
+
+
+ 310:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->_Super.hElSpeedDpp = (int16_t)((((int32_t)hFinalMecSpeedUnit)
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                                * ((int32_t)pHandle->_Super.DPPConvFactor))
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                               / (((int32_t)SPEED_UNIT)
+ 313:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                                * ((int32_t)pHandle->_Super.hMeasurementFrequency)))
+ 314:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 315:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->_Super.hElSpeedDpp *= ((int16_t)pHandle->_Super.bElToMecRatio);
+ 536              		.loc 1 315 37 is_stmt 0 view .LVU196
+ 537 001e 14FB05F4 		smulbb	r4, r4, r5
+ 538 0022 C481     		strh	r4, [r0, #14]	@ movhi
+ 308:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 539              		.loc 1 308 42 view .LVU197
+ 540 0024 8181     		strh	r1, [r0, #12]	@ movhi
+ 310:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                                * ((int32_t)pHandle->_Super.DPPConvFactor))
+ 541              		.loc 1 310 9 is_stmt 1 view .LVU198
+ 542              		.loc 1 315 9 view .LVU199
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 317:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hRemainingStep = 0U;
+ 543              		.loc 1 317 9 view .LVU200
+ 544              		.loc 1 317 33 is_stmt 0 view .LVU201
+ 545 0026 0285     		strh	r2, [r0, #40]	@ movhi
+ 318:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 319:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hFinalMecSpeedUnit = hFinalMecSpeedUnit;
+ 546              		.loc 1 319 9 is_stmt 1 view .LVU202
+ 547              		.loc 1 319 37 is_stmt 0 view .LVU203
+ 548 0028 4185     		strh	r1, [r0, #42]	@ movhi
+ 320:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       else
+ 322:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep = (uint16_t)((((uint32_t)hDurationms) * ((uint32_t)pHandle->hSpeedSamplingFreqHz))
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hRemainingStep = hNbrStep;
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hCurrentMecSpeedDpp = pHandle->_Super.hElSpeedDpp / ((int16_t)pHandle->_Super.bElToMecRatio
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hFinalMecSpeedDpp = (int16_t)((((int32_t )hFinalMecSpeedUnit) * ((int32_t)pHandle->_Super.D
+ 328:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                     / (((int32_t )SPEED_UNIT) * ((int32_t)pHandle->_Super.hMeasurem
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 330:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         if (0U == hNbrStep)
+ 331:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 332:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           /* Nothing to do */
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 334:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         else
+ 335:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           wMecAccDppP32 = ((((int32_t)hFinalMecSpeedDpp) - ((int32_t)hCurrentMecSpeedDpp))
+ 337:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                          * ((int32_t)65536)) / ((int32_t )hNbrStep);
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****           pHandle->wElAccDppP32 = wMecAccDppP32 * ((int16_t)pHandle->_Super.bElToMecRatio);
+ 340:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 341:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hFinalMecSpeedUnit = hFinalMecSpeedUnit;
+ 343:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->wElSpeedDpp32 = ((int32_t)pHandle->_Super.hElSpeedDpp) * ((int32_t)65536);
+ 345:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 347:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 348:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Nothing to do */
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ARM GAS  /tmp/cckRd7il.s 			page 19
+
+
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 354:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 549              		.loc 1 354 1 view .LVU204
+ 550 002a 70BC     		pop	{r4, r5, r6}
+ 551              	.LCFI12:
+ 552              		.cfi_remember_state
+ 553              		.cfi_restore 6
+ 554              		.cfi_restore 5
+ 555              		.cfi_restore 4
+ 556              		.cfi_def_cfa_offset 0
+ 557 002c 7047     		bx	lr
+ 558              	.L35:
+ 559              	.LCFI13:
+ 560              		.cfi_restore_state
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 561              		.loc 1 323 9 is_stmt 1 view .LVU205
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 562              		.loc 1 323 59 is_stmt 0 view .LVU206
+ 563 002e 838E     		ldrh	r3, [r0, #52]
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 564              		.loc 1 323 101 view .LVU207
+ 565 0030 0F4E     		ldr	r6, .L46
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 566              		.loc 1 323 56 view .LVU208
+ 567 0032 02FB03F3 		mul	r3, r2, r3
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 568              		.loc 1 323 101 view .LVU209
+ 569 0036 A6FB0323 		umull	r2, r3, r6, r3
+ 570              	.LVL29:
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hNbrStep++;
+ 571              		.loc 1 323 18 view .LVU210
+ 572 003a C3F38F13 		ubfx	r3, r3, #6, #16
+ 573              	.LVL30:
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hRemainingStep = hNbrStep;
+ 574              		.loc 1 324 9 is_stmt 1 view .LVU211
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hRemainingStep = hNbrStep;
+ 575              		.loc 1 324 17 is_stmt 0 view .LVU212
+ 576 003e 0133     		adds	r3, r3, #1
+ 577              	.LVL31:
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->hRemainingStep = hNbrStep;
+ 578              		.loc 1 324 17 view .LVU213
+ 579 0040 9BB2     		uxth	r3, r3
+ 580              	.LVL32:
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hCurrentMecSpeedDpp = pHandle->_Super.hElSpeedDpp / ((int16_t)pHandle->_Super.bElToMecRatio
+ 581              		.loc 1 325 9 is_stmt 1 view .LVU214
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hCurrentMecSpeedDpp = pHandle->_Super.hElSpeedDpp / ((int16_t)pHandle->_Super.bElToMecRatio
+ 582              		.loc 1 325 33 is_stmt 0 view .LVU215
+ 583 0042 0385     		strh	r3, [r0, #40]	@ movhi
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hFinalMecSpeedDpp = (int16_t)((((int32_t )hFinalMecSpeedUnit) * ((int32_t)pHandle->_Super.D
+ 584              		.loc 1 326 9 is_stmt 1 view .LVU216
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hFinalMecSpeedDpp = (int16_t)((((int32_t )hFinalMecSpeedUnit) * ((int32_t)pHandle->_Super.D
+ 585              		.loc 1 326 46 is_stmt 0 view .LVU217
+ 586 0044 B0F90E60 		ldrsh	r6, [r0, #14]
+ 587              	.LVL33:
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                                     / (((int32_t )SPEED_UNIT) * ((int32_t)pHandle->_Super.hMeasurem
+ 588              		.loc 1 327 9 is_stmt 1 view .LVU218
+ARM GAS  /tmp/cckRd7il.s 			page 20
+
+
+ 330:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 589              		.loc 1 330 9 view .LVU219
+ 330:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         {
+ 590              		.loc 1 330 12 is_stmt 0 view .LVU220
+ 591 0048 2BB9     		cbnz	r3, .L44
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 592              		.loc 1 342 9 is_stmt 1 view .LVU221
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 593              		.loc 1 344 73 is_stmt 0 view .LVU222
+ 594 004a 3604     		lsls	r6, r6, #16
+ 595              	.LVL34:
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 596              		.loc 1 344 32 view .LVU223
+ 597 004c 4662     		str	r6, [r0, #36]
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 598              		.loc 1 342 37 view .LVU224
+ 599 004e 4185     		strh	r1, [r0, #42]	@ movhi
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 600              		.loc 1 344 9 is_stmt 1 view .LVU225
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 601              		.loc 1 350 5 view .LVU226
+ 602              	.LVL35:
+ 603              	.L45:
+ 604              		.loc 1 354 1 is_stmt 0 view .LVU227
+ 605 0050 70BC     		pop	{r4, r5, r6}
+ 606              	.LCFI14:
+ 607              		.cfi_restore 6
+ 608              		.cfi_restore 5
+ 609              		.cfi_restore 4
+ 610              		.cfi_def_cfa_offset 0
+ 611              	.LVL36:
+ 612              		.loc 1 354 1 view .LVU228
+ 613 0052 7047     		bx	lr
+ 614              	.LVL37:
+ 615              	.L41:
+ 616              		.loc 1 354 1 view .LVU229
+ 617 0054 7047     		bx	lr
+ 618              	.LVL38:
+ 619              	.L44:
+ 620              	.LCFI15:
+ 621              		.cfi_def_cfa_offset 12
+ 622              		.cfi_offset 4, -12
+ 623              		.cfi_offset 5, -8
+ 624              		.cfi_offset 6, -4
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                          * ((int32_t)65536)) / ((int32_t )hNbrStep);
+ 625              		.loc 1 336 11 is_stmt 1 view .LVU230
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 626              		.loc 1 339 11 view .LVU231
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         hFinalMecSpeedDpp = (int16_t)((((int32_t )hFinalMecSpeedUnit) * ((int32_t)pHandle->_Super.D
+ 627              		.loc 1 326 59 is_stmt 0 view .LVU232
+ 628 0056 96FBF5F2 		sdiv	r2, r6, r5
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                          * ((int32_t)65536)) / ((int32_t )hNbrStep);
+ 629              		.loc 1 336 58 view .LVU233
+ 630 005a A41A     		subs	r4, r4, r2
+ 631              	.LVL39:
+ 337:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 632              		.loc 1 337 26 view .LVU234
+ARM GAS  /tmp/cckRd7il.s 			page 21
+
+
+ 633 005c 2204     		lsls	r2, r4, #16
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 634              		.loc 1 344 73 view .LVU235
+ 635 005e 3604     		lsls	r6, r6, #16
+ 636              	.LVL40:
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****                          * ((int32_t)65536)) / ((int32_t )hNbrStep);
+ 637              		.loc 1 336 25 view .LVU236
+ 638 0060 92FBF3F3 		sdiv	r3, r2, r3
+ 639              	.LVL41:
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 640              		.loc 1 339 49 view .LVU237
+ 641 0064 05FB03F3 		mul	r3, r5, r3
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         }
+ 642              		.loc 1 339 33 view .LVU238
+ 643 0068 0362     		str	r3, [r0, #32]
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 644              		.loc 1 342 9 is_stmt 1 view .LVU239
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 645              		.loc 1 344 32 is_stmt 0 view .LVU240
+ 646 006a 4662     		str	r6, [r0, #36]
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 647              		.loc 1 342 37 view .LVU241
+ 648 006c 4185     		strh	r1, [r0, #42]	@ movhi
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 649              		.loc 1 344 9 is_stmt 1 view .LVU242
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 650              		.loc 1 350 5 view .LVU243
+ 651 006e EFE7     		b	.L45
+ 652              	.L47:
+ 653              		.align	2
+ 654              	.L46:
+ 655 0070 D34D6210 		.word	274877907
+ 656              		.cfi_endproc
+ 657              	.LFE1444:
+ 659              		.section	.text.VSS_RampCompleted,"ax",%progbits
+ 660              		.align	1
+ 661              		.p2align 2,,3
+ 662              		.weak	VSS_RampCompleted
+ 663              		.syntax unified
+ 664              		.thumb
+ 665              		.thumb_func
+ 666              		.fpu fpv4-sp-d16
+ 668              	VSS_RampCompleted:
+ 669              	.LVL42:
+ 670              	.LFB1445:
+ 355:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 357:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Checks if the ramp executed after a #VSS_SetMecAcceleration command
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         has been completed by checking zero value of the Number of steps remaining to reach the
+ 359:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         speed.
+ 360:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval bool: true if the ramp is completed, otherwise false.
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 363:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Not used into current implementation.
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 365:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak bool VSS_RampCompleted(VirtualSpeedSensor_Handle_t *pHandle)
+ 366:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ARM GAS  /tmp/cckRd7il.s 			page 22
+
+
+ 671              		.loc 1 366 1 view -0
+ 672              		.cfi_startproc
+ 673              		@ args = 0, pretend = 0, frame = 0
+ 674              		@ frame_needed = 0, uses_anonymous_args = 0
+ 675              		@ link register save eliminated.
+ 367:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   bool retVal = false;
+ 676              		.loc 1 367 3 view .LVU245
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 369:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if (MC_NULL == pHandle)
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* nothing to do */
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 374:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 375:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 376:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (0U == pHandle->hRemainingStep)
+ 677              		.loc 1 376 5 view .LVU246
+ 377:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 378:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       retVal = true;
+ 379:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 380:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 381:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 382:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Nothing to do */
+ 383:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 678              		.loc 1 383 5 view .LVU247
+ 384:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 385:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 386:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 387:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (retVal);
+ 679              		.loc 1 387 3 view .LVU248
+ 376:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 680              		.loc 1 376 8 is_stmt 0 view .LVU249
+ 681 0000 008D     		ldrh	r0, [r0, #40]
+ 682              	.LVL43:
+ 388:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 683              		.loc 1 388 1 view .LVU250
+ 684 0002 B0FA80F0 		clz	r0, r0
+ 685              	.LVL44:
+ 686              		.loc 1 388 1 view .LVU251
+ 687 0006 4009     		lsrs	r0, r0, #5
+ 688 0008 7047     		bx	lr
+ 689              		.cfi_endproc
+ 690              	.LFE1445:
+ 692 000a 00BF     		.section	.text.VSS_GetLastRampFinalSpeed,"ax",%progbits
+ 693              		.align	1
+ 694              		.p2align 2,,3
+ 695              		.weak	VSS_GetLastRampFinalSpeed
+ 696              		.syntax unified
+ 697              		.thumb
+ 698              		.thumb_func
+ 699              		.fpu fpv4-sp-d16
+ 701              	VSS_GetLastRampFinalSpeed:
+ 702              	.LVL45:
+ 703              	.LFB1446:
+ 389:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 390:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 391:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Gets the final speed of last settled ramp of virtual speed sensor expressed
+ARM GAS  /tmp/cckRd7il.s 			page 23
+
+
+ 392:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****             in [SPEED_UNIT](measurement_units.md).
+ 393:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 394:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval none
+ 395:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 396:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Will be call for future dual motor implementation into START state of MC tasks state machine 
+ 397:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 398:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak int16_t  VSS_GetLastRampFinalSpeed(VirtualSpeedSensor_Handle_t *pHandle)
+ 399:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 704              		.loc 1 399 1 is_stmt 1 view -0
+ 705              		.cfi_startproc
+ 706              		@ args = 0, pretend = 0, frame = 0
+ 707              		@ frame_needed = 0, uses_anonymous_args = 0
+ 708              		@ link register save eliminated.
+ 400:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 401:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return ((MC_NULL == pHandle) ? 0 : pHandle->hFinalMecSpeedUnit);
+ 402:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #else
+ 403:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (pHandle->hFinalMecSpeedUnit);
+ 709              		.loc 1 403 3 view .LVU253
+ 404:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 405:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 710              		.loc 1 405 1 is_stmt 0 view .LVU254
+ 711 0000 B0F92A00 		ldrsh	r0, [r0, #42]
+ 712              	.LVL46:
+ 713              		.loc 1 405 1 view .LVU255
+ 714 0004 7047     		bx	lr
+ 715              		.cfi_endproc
+ 716              	.LFE1446:
+ 718 0006 00BF     		.section	.text.VSS_SetStartTransition,"ax",%progbits
+ 719              		.align	1
+ 720              		.p2align 2,,3
+ 721              		.weak	VSS_SetStartTransition
+ 722              		.syntax unified
+ 723              		.thumb
+ 724              		.thumb_func
+ 725              		.fpu fpv4-sp-d16
+ 727              	VSS_SetStartTransition:
+ 728              	.LVL47:
+ 729              	.LFB1447:
+ 406:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 407:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 408:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Sets the command to Start the transition phase from Virtual Speed Sensor
+ 409:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         to other Speed Sensor.
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 411:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  bCommand: true to Start the transition phase, false has no effect.
+ 412:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval bool: true if Transition phase is enabled (started or not), false if
+ 413:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         transition has been triggered but it's actually disabled
+ 414:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         (parameter #hTransitionSteps = 0).
+ 415:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 416:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Transition is to be considered ended when Sensor information is
+ 417:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *  declared 'Reliable' or if function returned value is false.
+ 418:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Called into START state of MC tasks state machine into TSK_MediumFrequencyTask.
+ 419:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 420:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak bool VSS_SetStartTransition(VirtualSpeedSensor_Handle_t *pHandle, bool bCommand)
+ 421:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 730              		.loc 1 421 1 is_stmt 1 view -0
+ 731              		.cfi_startproc
+ 732              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/cckRd7il.s 			page 24
+
+
+ 733              		@ frame_needed = 0, uses_anonymous_args = 0
+ 734              		@ link register save eliminated.
+ 422:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   bool bAux = true;
+ 735              		.loc 1 422 3 view .LVU257
+ 423:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 424:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if (MC_NULL == pHandle)
+ 425:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 426:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* nothing to do */
+ 427:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 428:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 429:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 430:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 431:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (true == bCommand)
+ 736              		.loc 1 431 5 view .LVU258
+ 737              		.loc 1 431 8 is_stmt 0 view .LVU259
+ 738 0000 51B1     		cbz	r1, .L53
+ 432:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 433:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       pHandle->bTransitionStarted = true;
+ 739              		.loc 1 433 7 is_stmt 1 view .LVU260
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 435:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       if (0 == pHandle->hTransitionSteps)
+ 740              		.loc 1 435 10 is_stmt 0 view .LVU261
+ 741 0002 B0F93630 		ldrsh	r3, [r0, #54]
+ 433:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 742              		.loc 1 433 35 view .LVU262
+ 743 0006 0122     		movs	r2, #1
+ 744 0008 80F82C20 		strb	r2, [r0, #44]
+ 745              		.loc 1 435 7 is_stmt 1 view .LVU263
+ 746              		.loc 1 435 10 is_stmt 0 view .LVU264
+ 747 000c 23B9     		cbnz	r3, .L53
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 437:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->bTransitionEnded = true;
+ 748              		.loc 1 437 9 is_stmt 1 view .LVU265
+ 749              		.loc 1 437 35 is_stmt 0 view .LVU266
+ 750 000e 80F82D20 		strb	r2, [r0, #45]
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         pHandle->_Super.bSpeedErrorNumber = 0U;
+ 751              		.loc 1 438 9 is_stmt 1 view .LVU267
+ 752              		.loc 1 438 43 is_stmt 0 view .LVU268
+ 753 0012 0370     		strb	r3, [r0]
+ 439:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         bAux = false;
+ 754              		.loc 1 439 9 is_stmt 1 view .LVU269
+ 755              	.LVL48:
+ 756              		.loc 1 439 14 is_stmt 0 view .LVU270
+ 757 0014 1846     		mov	r0, r3
+ 758              	.LVL49:
+ 440:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 441:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       else
+ 442:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       {
+ 443:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****         /* Nothing to do */
+ 444:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       }
+ 445:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 446:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 447:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 448:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Nothing to do */
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 759              		.loc 1 449 5 is_stmt 1 view .LVU271
+ 450:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ARM GAS  /tmp/cckRd7il.s 			page 25
+
+
+ 451:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 452:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 453:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (bAux);
+ 760              		.loc 1 453 3 view .LVU272
+ 454:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 761              		.loc 1 454 1 is_stmt 0 view .LVU273
+ 762 0016 7047     		bx	lr
+ 763              	.LVL50:
+ 764              	.L53:
+ 422:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 765              		.loc 1 422 8 view .LVU274
+ 766 0018 0120     		movs	r0, #1
+ 767              	.LVL51:
+ 422:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 768              		.loc 1 422 8 view .LVU275
+ 769 001a 7047     		bx	lr
+ 770              		.cfi_endproc
+ 771              	.LFE1447:
+ 773              		.section	.text.VSS_IsTransitionOngoing,"ax",%progbits
+ 774              		.align	1
+ 775              		.p2align 2,,3
+ 776              		.weak	VSS_IsTransitionOngoing
+ 777              		.syntax unified
+ 778              		.thumb
+ 779              		.thumb_func
+ 780              		.fpu fpv4-sp-d16
+ 782              	VSS_IsTransitionOngoing:
+ 783              	.LVL52:
+ 784              	.LFB1448:
+ 455:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 456:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 457:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Returns the status of the transition phase by checking the status of the two parameters
+ 458:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         @ref VirtualSpeedSensor_Handle_t::bTransitionStarted "bTransitionStarted" and
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         @ref VirtualSpeedSensor_Handle_t::bTransitionEnded "bTransitionEnded".
+ 460:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor components
+ 461:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval bool: true if Transition phase is ongoing, false otherwise.
+ 462:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 463:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Not used into current implementation.
+ 464:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 465:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** //cstat !MISRAC2012-Rule-8.13
+ 466:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak bool VSS_IsTransitionOngoing(VirtualSpeedSensor_Handle_t *pHandle)
+ 467:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 785              		.loc 1 467 1 is_stmt 1 view -0
+ 786              		.cfi_startproc
+ 787              		@ args = 0, pretend = 0, frame = 0
+ 788              		@ frame_needed = 0, uses_anonymous_args = 0
+ 789              		@ link register save eliminated.
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   bool retVal = false;
+ 790              		.loc 1 468 3 view .LVU277
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 470:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if (MC_NULL == pHandle)
+ 471:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 472:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* nothing to do */
+ 473:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 474:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 476:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ARM GAS  /tmp/cckRd7il.s 			page 26
+
+
+ 477:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     uint16_t hTS = 0U;
+ 791              		.loc 1 477 5 view .LVU278
+ 478:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     uint16_t hTE = 0U;
+ 792              		.loc 1 478 5 view .LVU279
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     uint16_t hAux;
+ 793              		.loc 1 479 5 view .LVU280
+ 480:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 481:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (true == pHandle->bTransitionStarted)
+ 794              		.loc 1 481 5 view .LVU281
+ 795              		.loc 1 481 8 is_stmt 0 view .LVU282
+ 796 0000 90F82C30 		ldrb	r3, [r0, #44]	@ zero_extendqisi2
+ 797 0004 90F82D00 		ldrb	r0, [r0, #45]	@ zero_extendqisi2
+ 798              	.LVL53:
+ 799              		.loc 1 481 8 view .LVU283
+ 800 0008 1BB9     		cbnz	r3, .L55
+ 482:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 483:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       hTS = 1U;
+ 484:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 485:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 486:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 487:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Nothing to do */
+ 488:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 801              		.loc 1 488 5 is_stmt 1 view .LVU284
+ 489:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (true == pHandle->bTransitionEnded)
+ 802              		.loc 1 489 5 view .LVU285
+ 803              		.loc 1 489 8 is_stmt 0 view .LVU286
+ 804 000a 0028     		cmp	r0, #0
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 805              		.loc 1 468 8 view .LVU287
+ 806 000c 18BF     		it	ne
+ 807 000e 0120     		movne	r0, #1
+ 808 0010 7047     		bx	lr
+ 809              	.L55:
+ 483:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 810              		.loc 1 483 7 is_stmt 1 view .LVU288
+ 811              	.LVL54:
+ 488:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (true == pHandle->bTransitionEnded)
+ 812              		.loc 1 488 5 view .LVU289
+ 813              		.loc 1 489 5 view .LVU290
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 814              		.loc 1 468 8 is_stmt 0 view .LVU291
+ 815 0012 B0FA80F0 		clz	r0, r0
+ 816 0016 4009     		lsrs	r0, r0, #5
+ 490:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 491:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       hTE = 1U;
+ 492:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 493:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 494:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 495:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Nothing to do */
+ 496:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 497:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     hAux = hTS ^ hTE;
+ 498:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     if (hAux != 0U)
+ 499:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ 500:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       retVal = true;
+ 501:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 502:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     else
+ 503:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     {
+ARM GAS  /tmp/cckRd7il.s 			page 27
+
+
+ 504:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****       /* Nothing to do */
+ 505:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     }
+ 506:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 507:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 508:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 509:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (retVal);
+ 510:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 817              		.loc 1 510 1 view .LVU292
+ 818 0018 7047     		bx	lr
+ 819              		.cfi_endproc
+ 820              	.LFE1448:
+ 822 001a 00BF     		.section	.text.VSS_TransitionEnded,"ax",%progbits
+ 823              		.align	1
+ 824              		.p2align 2,,3
+ 825              		.weak	VSS_TransitionEnded
+ 826              		.syntax unified
+ 827              		.thumb
+ 828              		.thumb_func
+ 829              		.fpu fpv4-sp-d16
+ 831              	VSS_TransitionEnded:
+ 832              	.LVL55:
+ 833              	.LFB1449:
+ 511:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 512:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 513:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Returns the ending status of the transition phase by checking the parameter
+ 514:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *         @ref VirtualSpeedSensor_Handle_t::bTransitionEnded "bTransitionEnded".
+ 515:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor components
+ 516:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval bool: true if Transition phase ended, false otherwise.
+ 517:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 518:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Called into SWITCH_OVER state of MC tasks state machine into TSK_MediumFrequencyTask.
+ 519:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 520:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak bool VSS_TransitionEnded(VirtualSpeedSensor_Handle_t *pHandle)
+ 521:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 834              		.loc 1 521 1 is_stmt 1 view -0
+ 835              		.cfi_startproc
+ 836              		@ args = 0, pretend = 0, frame = 0
+ 837              		@ frame_needed = 0, uses_anonymous_args = 0
+ 838              		@ link register save eliminated.
+ 522:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 523:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return ((MC_NULL == pHandle) ? false : pHandle->bTransitionEnded);
+ 524:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #else
+ 525:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   return (pHandle->bTransitionEnded);
+ 839              		.loc 1 525 3 view .LVU294
+ 526:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 527:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 840              		.loc 1 527 1 is_stmt 0 view .LVU295
+ 841 0000 90F82D00 		ldrb	r0, [r0, #45]	@ zero_extendqisi2
+ 842              	.LVL56:
+ 843              		.loc 1 527 1 view .LVU296
+ 844 0004 7047     		bx	lr
+ 845              		.cfi_endproc
+ 846              	.LFE1449:
+ 848 0006 00BF     		.section	.text.VSS_SetElAngle,"ax",%progbits
+ 849              		.align	1
+ 850              		.p2align 2,,3
+ 851              		.weak	VSS_SetElAngle
+ 852              		.syntax unified
+ARM GAS  /tmp/cckRd7il.s 			page 28
+
+
+ 853              		.thumb
+ 854              		.thumb_func
+ 855              		.fpu fpv4-sp-d16
+ 857              	VSS_SetElAngle:
+ 858              	.LVL57:
+ 859              	.LFB1450:
+ 528:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** 
+ 529:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** /**
+ 530:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @brief  Sets instantaneous information on rotor electrical angle.
+ 531:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 532:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @param  hElAngle instantaneous measure of rotor electrical angle in [s16degrees](measurement_un
+ 533:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * @retval none
+ 534:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   *
+ 535:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   * - Not used into current implementation.
+ 536:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   */
+ 537:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** __weak void VSS_SetElAngle(VirtualSpeedSensor_Handle_t *pHandle, int16_t hElAngle)
+ 538:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** {
+ 860              		.loc 1 538 1 is_stmt 1 view -0
+ 861              		.cfi_startproc
+ 862              		@ args = 0, pretend = 0, frame = 0
+ 863              		@ frame_needed = 0, uses_anonymous_args = 0
+ 864              		@ link register save eliminated.
+ 539:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 540:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   if (MC_NULL == pHandle)
+ 541:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     /* Nothing to do */
+ 543:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 544:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   else
+ 545:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   {
+ 546:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 547:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->hElAngleAccu = hElAngle;
+ 865              		.loc 1 547 5 view .LVU298
+ 866              		.loc 1 547 27 is_stmt 0 view .LVU299
+ 867 0000 0186     		strh	r1, [r0, #48]	@ movhi
+ 548:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****     pHandle->_Super.hElAngle = hElAngle;
+ 868              		.loc 1 548 5 is_stmt 1 view .LVU300
+ 869              		.loc 1 548 30 is_stmt 0 view .LVU301
+ 870 0002 8180     		strh	r1, [r0, #4]	@ movhi
+ 549:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 550:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c ****   }
+ 551:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** #endif
+ 552:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_speed_sensor.c **** }
+ 871              		.loc 1 552 1 view .LVU302
+ 872 0004 7047     		bx	lr
+ 873              		.cfi_endproc
+ 874              	.LFE1450:
+ 876 0006 00BF     		.text
+ 877              	.Letext0:
+ 878              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 879              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+ 880              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 881              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 882              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 883              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 884              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 885              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 886              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ARM GAS  /tmp/cckRd7il.s 			page 29
+
+
+ 887              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 888              		.file 12 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 889              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+ARM GAS  /tmp/cckRd7il.s 			page 30
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 virtual_speed_sensor.c
+     /tmp/cckRd7il.s:18     .text.VSS_Clear:0000000000000000 $t
+     /tmp/cckRd7il.s:27     .text.VSS_Clear:0000000000000000 VSS_Clear
+     /tmp/cckRd7il.s:78     .text.VSS_Init:0000000000000000 $t
+     /tmp/cckRd7il.s:86     .text.VSS_Init:0000000000000000 VSS_Init
+     /tmp/cckRd7il.s:109    .text.VSS_CalcElAngle:0000000000000000 $t
+     /tmp/cckRd7il.s:117    .text.VSS_CalcElAngle:0000000000000000 VSS_CalcElAngle
+     /tmp/cckRd7il.s:325    .text.VSS_CalcAvrgMecSpeedUnit:0000000000000000 $t
+     /tmp/cckRd7il.s:333    .text.VSS_CalcAvrgMecSpeedUnit:0000000000000000 VSS_CalcAvrgMecSpeedUnit
+     /tmp/cckRd7il.s:494    .text.VSS_SetMecAcceleration:0000000000000000 $t
+     /tmp/cckRd7il.s:502    .text.VSS_SetMecAcceleration:0000000000000000 VSS_SetMecAcceleration
+     /tmp/cckRd7il.s:655    .text.VSS_SetMecAcceleration:0000000000000070 $d
+     /tmp/cckRd7il.s:660    .text.VSS_RampCompleted:0000000000000000 $t
+     /tmp/cckRd7il.s:668    .text.VSS_RampCompleted:0000000000000000 VSS_RampCompleted
+     /tmp/cckRd7il.s:693    .text.VSS_GetLastRampFinalSpeed:0000000000000000 $t
+     /tmp/cckRd7il.s:701    .text.VSS_GetLastRampFinalSpeed:0000000000000000 VSS_GetLastRampFinalSpeed
+     /tmp/cckRd7il.s:719    .text.VSS_SetStartTransition:0000000000000000 $t
+     /tmp/cckRd7il.s:727    .text.VSS_SetStartTransition:0000000000000000 VSS_SetStartTransition
+     /tmp/cckRd7il.s:774    .text.VSS_IsTransitionOngoing:0000000000000000 $t
+     /tmp/cckRd7il.s:782    .text.VSS_IsTransitionOngoing:0000000000000000 VSS_IsTransitionOngoing
+     /tmp/cckRd7il.s:823    .text.VSS_TransitionEnded:0000000000000000 $t
+     /tmp/cckRd7il.s:831    .text.VSS_TransitionEnded:0000000000000000 VSS_TransitionEnded
+     /tmp/cckRd7il.s:849    .text.VSS_SetElAngle:0000000000000000 $t
+     /tmp/cckRd7il.s:857    .text.VSS_SetElAngle:0000000000000000 VSS_SetElAngle
+
+UNDEFINED SYMBOLS
+SPD_IsMecSpeedReliable

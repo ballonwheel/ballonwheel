@@ -1,0 +1,53 @@
+# Makefile for STM32 project
+
+# Toolchain
+CC = arm-none-eabi-gcc
+OBJCOPY = arm-none-eabi-objcopy
+STFLASH = st-flash
+
+# Paths
+HAL_DIR = /home/imre/stm32/STM32CubeG4/Drivers/STM32G4xx_HAL_Driver
+CMSIS_DIR = /home/imre/stm32/STM32CubeG4/Drivers/CMSIS
+DEVICE_DIR = $(CMSIS_DIR)/Device/ST/STM32G4xx
+LINKER_SCRIPT = STM32G431CBTX_FLASH.ld
+
+# Source files
+SRCS = main.c system_stm32g4xx.c $(HAL_DIR)/Src/stm32g4xx_hal.c \
+       $(HAL_DIR)/Src/stm32g4xx_hal_rcc.c $(HAL_DIR)/Src/stm32g4xx_hal_gpio.c \
+       $(HAL_DIR)/Src/stm32g4xx_hal_cortex.c $(HAL_DIR)/Src/stm32g4xx_hal_tim.c
+
+# Object files
+OBJS = $(SRCS:.c=.o)
+
+# Includes
+INCLUDES = -I$(HAL_DIR)/Inc -I$(CMSIS_DIR)/Include -I$(DEVICE_DIR)/Include
+
+# Compiler flags
+CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -O2 $(INCLUDES)
+
+# Linker flags
+LDFLAGS = -T$(LINKER_SCRIPT) -Wl,--gc-sections
+
+# Output file
+TARGET = main.elf
+BIN_TARGET = main.bin
+
+# Rules
+all: $(TARGET) $(BIN_TARGET)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
+
+$(BIN_TARGET): $(TARGET)
+	$(OBJCOPY) -O binary $< $@
+
+flash: $(BIN_TARGET)
+	$(STFLASH) write $(BIN_TARGET) 0x08000000
+
+clean:
+	rm -f $(OBJS) $(TARGET) $(BIN_TARGET)
+
+.PHONY: all clean flash

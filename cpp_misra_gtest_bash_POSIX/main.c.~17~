@@ -1,0 +1,91 @@
+#include<stdio.h>
+int sumdig(int);
+int main()
+{
+    int a, b;
+    a = sumdig(123);
+    b = sumdig(123);
+    printf("%d, %d\n", a, b);
+    return 0;
+}
+int sumdig(int n)
+{
+    int s, d;
+    if(n!=0)
+    {
+        d = n%10;
+        n = n/10;
+        s = d+sumdig(n);
+    }
+    else
+        return 0;
+    return s;
+}
+
+
+
+
+/*****************************************************************************/
+#include<stdio.h>
+void fact(int*);
+
+int main()
+{
+    int i=5;
+    fact(&i);
+    printf("%d\n", i);
+    return 0;
+}
+void fact(int *j)
+{
+    static int s=1;
+    if(*j!=0)
+    {
+        s = s**j;
+        *j = *j-1;
+        fact(j);
+        /* Add a statement here */
+		*j=s;
+    }
+}
+
+
+
+/*****************************************************************************/
+
+#include<stdio.h>
+void fun(int);
+
+int main(int argc)
+{
+    printf("%d ", argc);
+    fun(argc);
+    return 0;
+}
+void fun(int i)
+{
+    if(i!=4)
+        main(++i);
+}
+
+
+
+/*****************************************************************************/
+
+
+#include<stdio.h>
+
+int main()
+{
+    printf("IndiaBIX");
+    main();
+    return 0;
+}
+
+ A call stack or function stack is used for several related purposes, but the main reason for having one is to keep track of the point to which each active subroutine should return control when it finishes executing.
+
+A stack overflow occurs when too much memory is used on the call stack.
+
+Here function main() is called repeatedly and its return address is stored in the stack. After stack memory is full. It shows stack overflow error.
+
+

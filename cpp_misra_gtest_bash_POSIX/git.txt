@@ -1,0 +1,26 @@
+
+
+
+git repos on 55h file server
+1048577 drwxr-xr-x 10 git  git_group 4096 2015 szept 20 .
+      2 drwxr-xr-x 12 root root      4096 2019 jan   26 ..
+1048588 drwxrwx---  7 git  git_group 4096 2014 ápr   16 55hBBB.git
+1049469 -rw-rw----  1 git  git_group   49 2015 szept 20 .bash_history
+1048578 -rw-rw-r--  1 git  git_group  220 2015 szept 11 .bash_logout
+1048580 -rw-rw-r--  1 git  git_group 3184 2015 szept 11 .bashrc
+1048624 drwxrwx---  7 git  git_group 4096 2014 máj   11 BashTry.git
+1049173 drwxrwx---  7 git  git_group 4096 2014 nov   22 blogsite.git
+1048808 drwxrwx---  7 git  git_group 4096 2014 máj   11 C_try.git
+1049369 drwxrwx---  7 git  git_group 4096 2014 jún   27 git_try.git
+1048581 drwxrw----  2 git  git_group 4096 2014 ápr   16 .mc
+1048579 -rw-rw-r--  1 git  git_group  675 2015 szept 11 .profile
+1048586 drwxr-xr-x  2 git  git_group 4096 2015 szept 20 .ssh
+9701638 drwxrwxr-x  7 git  git_group 4096 2015 szept 20 trytry.git
+
+
+# git clone ssh://git@192.168.1.253/home/git/git_try.git/
+vagy
+debian@beaglebone:~$ git clone ssh://dobany:/home/git/git_try
+
+
+

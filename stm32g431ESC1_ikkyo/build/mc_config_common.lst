@@ -1,0 +1,177 @@
+ARM GAS  /tmp/ccU1miAz.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mc_config_common.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	ESC_M1
+  18              		.comm	pwmcHandle,4,4
+  19              		.global	BusVoltageSensor_M1
+  20              		.global	VbusRegConv_M1
+  21              		.global	TempSensor_M1
+  22              		.global	TempRegConv_M1
+  23              		.global	VirtualSpeedSensorM1
+  24              		.section	.bss.RealBusVoltageSensorFilterBufferM1,"aw",%nobits
+  25              		.align	2
+  28              	RealBusVoltageSensorFilterBufferM1:
+  29 0000 00000000 		.space	12
+  29      00000000 
+  29      00000000 
+  30              		.section	.data.BusVoltageSensor_M1,"aw"
+  31              		.align	2
+  34              	BusVoltageSensor_M1:
+  35 0000 00       		.byte	0
+  36 0001 00       		.space	1
+  37 0002 2200     		.short	34
+  38 0004 00000000 		.space	6
+  38      0000
+  39 000a 0600     		.short	6
+  40 000c 13D1     		.short	-12013
+  41 000e 13D1     		.short	-12013
+  42 0010 01       		.byte	1
+  43 0011 00       		.space	1
+  44 0012 3C3C     		.short	15420
+  45 0014 00000000 		.word	RealBusVoltageSensorFilterBufferM1
+  46 0018 00000000 		.space	4
+  47              		.section	.data.ESC_M1,"aw"
+  48              		.align	2
+  51              	ESC_M1:
+  52 0000 00000000 		.word	ESC_ParamsM1
+  53 0004 00000000 		.space	56
+  53      00000000 
+  53      00000000 
+  53      00000000 
+  53      00000000 
+  54              		.section	.data.TempRegConv_M1,"aw"
+  55              		.align	2
+  58              	TempRegConv_M1:
+ARM GAS  /tmp/ccU1miAz.s 			page 2
+
+
+  59 0000 00000050 		.word	1342177280
+  60 0004 05       		.byte	5
+  61 0005 000000   		.space	3
+  62 0008 04000000 		.word	4
+  63 000c 00000000 		.space	4
+  64              		.section	.data.TempSensor_M1,"aw"
+  65              		.align	2
+  68              	TempSensor_M1:
+  69 0000 00       		.byte	0
+  70 0001 00000000 		.space	9
+  70      00000000 
+  70      00
+  71 000a FA00     		.short	250
+  72 000c EEAE     		.short	-20754
+  73 000e 30A0     		.short	-24528
+  74 0010 AD00     		.short	173
+  75 0012 0000     		.space	2
+  76 0014 9B6C0000 		.word	27803
+  77 0018 1900     		.short	25
+  78 001a 0000     		.space	2
+  79              		.section	.data.VbusRegConv_M1,"aw"
+  80              		.align	2
+  83              	VbusRegConv_M1:
+  84 0000 00000050 		.word	1342177280
+  85 0004 01       		.byte	1
+  86 0005 000000   		.space	3
+  87 0008 04000000 		.word	4
+  88 000c 00000000 		.space	4
+  89              		.section	.data.VirtualSpeedSensorM1,"aw"
+  90              		.align	2
+  93              	VirtualSpeedSensorM1:
+  94 0000 00       		.space	1
+  95 0001 02       		.byte	2
+  96 0002 00       		.space	1
+  97 0003 03       		.byte	3
+  98 0004 00000000 		.space	16
+  98      00000000 
+  98      00000000 
+  98      00000000 
+  99 0014 3F02     		.short	575
+ 100 0016 0000     		.short	0
+ 101 0018 FFFF     		.short	-1
+ 102 001a 204E     		.short	20000
+ 103 001c 00000100 		.word	65536
+ 104 0020 00000000 		.space	20
+ 104      00000000 
+ 104      00000000 
+ 104      00000000 
+ 104      00000000 
+ 105 0034 E803     		.short	1000
+ 106 0036 F401     		.short	500
+ 107              		.text
+ 108              	.Letext0:
+ 109              		.file 1 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 110              		.file 2 "Drivers/CMSIS/Include/core_cm4.h"
+ 111              		.file 3 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 112              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ARM GAS  /tmp/ccU1miAz.s 			page 3
+
+
+ 113              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 114              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 115              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 116              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 117              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 118              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 119              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 120              		.file 12 "Inc/mc_type.h"
+ 121              		.file 13 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 122              		.file 14 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 123              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ 124              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+ 125              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+ 126              		.file 18 "Inc/pwm_curr_fdbk.h"
+ 127              		.file 19 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+ 128              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+ 129              		.file 21 "Inc/mc_interface.h"
+ 130              		.file 22 "Inc/mc_configuration_registers.h"
+ 131              		.file 23 "Inc/regular_conversion_manager.h"
+ 132              		.file 24 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+ 133              		.file 25 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ 134              		.file 26 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 135              		.file 27 "Inc/mc_config_common.h"
+ 136              		.file 28 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pqd_motor_power_measurement.h"
+ 137              		.file 29 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 138              		.file 30 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ramp_ext_mngr.h"
+ 139              		.file 31 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/circle_limitation.h"
+ 140              		.file 32 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_pll_speed_pos_fdbk.h"
+ 141              		.file 33 "Inc/mc_config.h"
+ 142              		.file 34 "Inc/mc_parameters.h"
+ 143              		.file 35 "Src/mc_config_common.c"
+ARM GAS  /tmp/ccU1miAz.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mc_config_common.c
+     /tmp/ccU1miAz.s:51     .data.ESC_M1:0000000000000000 ESC_M1
+                            *COM*:0000000000000004 pwmcHandle
+     /tmp/ccU1miAz.s:34     .data.BusVoltageSensor_M1:0000000000000000 BusVoltageSensor_M1
+     /tmp/ccU1miAz.s:83     .data.VbusRegConv_M1:0000000000000000 VbusRegConv_M1
+     /tmp/ccU1miAz.s:68     .data.TempSensor_M1:0000000000000000 TempSensor_M1
+     /tmp/ccU1miAz.s:58     .data.TempRegConv_M1:0000000000000000 TempRegConv_M1
+     /tmp/ccU1miAz.s:93     .data.VirtualSpeedSensorM1:0000000000000000 VirtualSpeedSensorM1
+     /tmp/ccU1miAz.s:25     .bss.RealBusVoltageSensorFilterBufferM1:0000000000000000 $d
+     /tmp/ccU1miAz.s:28     .bss.RealBusVoltageSensorFilterBufferM1:0000000000000000 RealBusVoltageSensorFilterBufferM1
+     /tmp/ccU1miAz.s:31     .data.BusVoltageSensor_M1:0000000000000000 $d
+     /tmp/ccU1miAz.s:48     .data.ESC_M1:0000000000000000 $d
+     /tmp/ccU1miAz.s:55     .data.TempRegConv_M1:0000000000000000 $d
+     /tmp/ccU1miAz.s:65     .data.TempSensor_M1:0000000000000000 $d
+     /tmp/ccU1miAz.s:80     .data.VbusRegConv_M1:0000000000000000 $d
+     /tmp/ccU1miAz.s:90     .data.VirtualSpeedSensorM1:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+ESC_ParamsM1

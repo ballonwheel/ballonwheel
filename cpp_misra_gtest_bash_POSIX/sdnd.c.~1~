@@ -1,0 +1,281 @@
+/* linux/drivers/gpio/hdmi_out_pw.c
+ *
+ * Copyright (C) 2013 Dension Audio Systems
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/platform_device.h>
+#include <linux/gpio.h>
+#include <linux/fs.h>
+#include <linux/errno.h>
+#include <asm/uaccess.h>
+#include <linux/delay.h>
+
+#include <asm/io.h>
+#include <asm/uaccess.h>
+#include <asm/div64.h>
+
+
+#include <linux/input.h>
+#include <asm/mach-types.h>
+#include <asm/mach/arch.h>
+#include <asm/mach/map.h>
+#include <asm/mach/flash.h>
+ 
+#include <mach/gpio.h>
+#include <mach/bsp.h>
+#include <mach/ohci.h>
+#include <mach/tcc_fb.h>
+#include <plat/tcc_ts.h>
+ 
+#define SDND_PIO_DATA 8
+#define SDND_PIO_CLK 9
+#define SDND_PIO_RESET 5
+
+
+static int init_result;
+
+/*
+ *   a
+ *   -
+ * f| |b
+ *   -
+ * e| |c
+ *   -
+ *   d
+ */
+ 
+enum {
+    _A_ = 0x01,
+    _B_ = 0x02,
+    _C_ = 0x04,
+    _D_ = 0x08,
+    _E_ = 0x10,
+    _F_ = 0x20,
+    _G_ = 0x40,
+    _DP_ = 0x8000, /* decimal point */
+};
+
+typedef struct {
+    char displayed;
+    uint8_t converted; 
+} segment_t;
+
+const segment_t segment[] = {
+    {'0', ( _A_ | _B_ | _C_ | _D_ | _E_ | _F_)},
+    {'1', ( _B_ | _C_)},
+    {'2', ( _A_ | _B_ | _D_ | _E_ | _G_)},
+    {'3', ( _A_ | _B_ | _C_ | _D_ | _G_)},
+    {'4', ( _B_ | _C_ | _F_ | _G_)},
+    {'5', ( _A_ | _C_ | _D_ | _F_ | _G_)},
+    {'6', ( _A_ | _C_ | _D_ | _E_ | _F_ | _G_)},
+    {'7', ( _A_ | _B_ | _C_ )},
+    {'8', ( _A_ | _B_ | _C_ | _D_ | _E_ | _F_ | _G_)},
+    {'9', ( _A_ | _B_ | _C_ | _D_ | _F_ | _G_)},
+    {'A', ( _A_ | _B_ | _C_ | _E_ | _F_ | _G_)},
+    {'B', ( _A_ | _B_ | _C_ | _D_ | _E_ | _F_ | _G_)},
+    {'C', ( _A_ | _D_ | _E_ | _F_ )},
+    {'D', ( _A_ | _B_ | _C_ | _D_ | _E_ | _F_)},
+    {'E', ( _A_ | _D_ | _E_ | _F_ | _G_)},
+    {'F', ( _A_ | _E_ | _F_ | _G_)},
+    {'H', ( _B_ | _C_ | _E_ | _F_ | _G_)},
+    {'I', ( _E_ | _F_)},
+    {'J', ( _B_ | _C_ | _D_ | _E_)},
+    {'L', ( _D_ | _E_ | _F_)},
+    {'O', ( _A_ | _B_ | _C_ | _D_ | _E_ | _F_)},
+    {'P', ( _A_ | _B_ | _E_ | _F_ | _G_)},
+    {'S', ( _A_ | _C_ | _D_ | _F_ | _G_)},
+    {'U', ( _B_ | _C_ | _D_ | _E_ | _F_)},
+    {'Y', ( _B_ | _C_ | _D_ | _F_ | _G_)},
+    {'b', ( _C_ | _D_ | _E_ | _F_ | _G_)},
+    {'c', ( _D_ | _E_ | _G_)},
+    {'d', ( _B_ | _C_ | _D_ | _E_ | _G_)},
+    {'h', ( _C_ | _E_ | _F_ | _G_)},
+    {'n', ( _C_ | _E_ | _G_)},
+    {'o', ( _C_ | _D_ | _E_ | _G_)},
+    {'r', ( _E_ | _G_)},
+    {'t', ( _D_ | _E_ | _F_ | _G_)},
+    {'_', ( _D_)},
+    {'-', ( _G_)},
+    {'=', ( _D_ | _G_)},
+
+    {'!', 0},//empty
+    { 0, 0},
+};
+
+/*******************************************************************************
+ *
+ ******************************************************************************/
+
+static ssize_t gpio_read( struct file* F, char *buf, size_t count, loff_t *f_pos )
+{
+    char buffer[600];
+    uint32_t i = 0;
+    
+    memset( buffer, 0, sizeof(buffer));
+     
+    sprintf( buffer, "Simple Digit Numeric Display - sdnd v1.3\n ");
+
+    while(segment[i].displayed)
+        sprintf( &buffer[strlen(buffer)], "%c", segment[i++].displayed);
+    sprintf( &buffer[strlen(buffer)], "\n '.' means both decimal display.");
+    sprintf( &buffer[strlen(buffer)], "\n '!' means blank display.");
+    sprintf( &buffer[strlen(buffer)], "\n example: # echo 12 > /dev/sdnd");
+    sprintf( &buffer[strlen(buffer)], "\n example: # echo !2 > /dev/sdnd");
+    sprintf( &buffer[strlen(buffer)], "\n example: # echo 34. > /dev/sdnd\n");
+     
+    count = sizeof( buffer );
+       
+    if( copy_to_user( buf, buffer, count ) )
+    {
+        return -EFAULT;
+    }
+        
+    if( *f_pos == 0 )
+    {
+        *f_pos += 1;
+        return count;
+    }
+    else
+    {
+        return 0;
+    }
+}
+          
+
+static ssize_t gpio_write( struct file* F, const char *buf, size_t count, loff_t *f_pos )
+{
+const uint16_t mask = 0x0001;
+uint32_t i;
+uint32_t disp; 
+uint16_t DispConvertedBuff;
+char buff[4];
+
+    printk(KERN_INFO "sdnd device driver executing WRITE: %s\n", buf);
+ 
+    gpio_set_value(TCC_GPF(SDND_PIO_RESET), 1);
+
+    /**************
+     * convert input to shift data
+     **************/
+    //chk
+    memset(buff, 0, sizeof(buff));
+    memcpy(buff, buf, 4); /* buf['1']['2']['.']['\0']*/
+    //input parameter: disp nothing : "" -> "!!"
+    if(!buff[0])
+        strcpy(buff, "!!");//empty disp
+    //input parameter: disp only one : "1" ->"1!"
+    if(strlen(buff) == 1){
+        buff[1] = '!';
+        buff[2] = '\0';
+    }
+
+    //convert
+    i = 0;
+    disp = 0; /* display right and left */
+    DispConvertedBuff = 0; /* default empty */
+    while(segment[i].displayed){
+        if(!disp){//left side disp
+            if(segment[i].displayed == buff[disp]){
+                DispConvertedBuff = ((uint16_t)segment[i].converted) << 8;
+
+                disp++;
+                i = 0;        
+                continue;
+            }
+        }
+        else{ //right side disp
+            if(segment[i].displayed == buff[disp]){
+                DispConvertedBuff += ((uint16_t)segment[i].converted);
+                if(buff[2] == '.')
+                    DispConvertedBuff |= _DP_; /* decimal point set */
+                break;
+            }       
+        }
+        i++;         
+    }
+
+    /****************
+     * shift to 74164
+     ***************/
+    i = 15;
+    do{        
+        gpio_set_value(TCC_GPF(SDND_PIO_CLK), 0);
+        
+        if(DispConvertedBuff & (mask << i))
+            gpio_set_value(TCC_GPF(SDND_PIO_DATA), 0);/* inverted logic */
+        else
+            gpio_set_value(TCC_GPF(SDND_PIO_DATA), 1);/* inverted logic */
+        
+        udelay(50);
+        
+        gpio_set_value(TCC_GPF(SDND_PIO_CLK), 1);
+        
+        udelay(50);
+    }while(i--);
+
+    gpio_set_value(TCC_GPF(SDND_PIO_CLK), 0);
+    gpio_set_value(TCC_GPF(SDND_PIO_DATA), 0);
+
+    return count;
+}
+                
+static int gpio_open( struct inode *inode, struct file *file )
+{
+    return 0;
+}
+                 
+static int gpio_close( struct inode *inode, struct file *file )
+{
+    return 0;
+}
+                  
+static struct file_operations FileOps =
+{
+    .open         = gpio_open,
+    .read         = gpio_read,
+    .write         = gpio_write,
+    .release     = gpio_close,
+};
+                   
+static int init_gpio(void)
+{
+    init_result = register_chrdev( 0, "sdnd", &FileOps );
+                   
+    if( 0 > init_result )
+    {
+        printk(KERN_ALERT "sdnd device registration failed\n");
+        return -1;
+    }
+    else
+    {
+        printk(KERN_ALERT "sdnd major number is: %d\n",init_result);
+        return 0;
+    }
+}
+                     
+void cleanup_gpio(void)
+{
+    unregister_chrdev( init_result, "sdnd" );
+    printk(KERN_ALERT "sdnd device unregistered\n");
+}
+                       
+module_init(init_gpio);
+module_exit(cleanup_gpio);
+
+MODULE_AUTHOR("idobany@dension.com");
+MODULE_LICENSE("GPL");
+
+
+

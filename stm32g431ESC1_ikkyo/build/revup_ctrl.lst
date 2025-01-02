@@ -1,0 +1,2765 @@
+ARM GAS  /tmp/ccvkByR8.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"revup_ctrl.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.RUC_Init,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	RUC_Init
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	RUC_Init:
+  28              	.LVL0:
+  29              	.LFB1457:
+  30              		.file 1 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   ******************************************************************************
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @file    revup_ctrl.c
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @author  Motor Control SDK Team, ST Microelectronics
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief   This file provides firmware functions that implement the features
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *          of the Rev-Up Control component of the Motor Control SDK:
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *          * Main Rev-Up procedure to execute programmed phases
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *          * On the Fly (OTF)
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   ******************************************************************************
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @attention
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics International N.V.
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * All rights reserved.</center></h2>
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * Redistribution and use in source and binary forms, with or without
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * modification, are permitted, provided that the following conditions are met:
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * 1. Redistribution of source code must retain the above copyright notice,
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    this list of conditions and the following disclaimer.
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * 2. Redistributions in binary form must reproduce the above copyright notice,
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    this list of conditions and the following disclaimer in the documentation
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    and/or other materials provided with the distribution.
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * 3. Neither the name of STMicroelectronics nor the names of other
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    contributors to this software may be used to endorse or promote products
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    derived from this software without specific written permission.
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * 4. This software, including modifications and/or derivative works of this
+ARM GAS  /tmp/ccvkByR8.s 			page 2
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    software, must execute solely and exclusively on microcontroller or
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    microprocessor devices manufactured by or for STMicroelectronics.
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * 5. Redistribution and use of this software other than as permitted under
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    this license is void and will automatically terminate your rights under
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *    this license.
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   ******************************************************************************
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @ingroup RevUpCtrlFOC
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /* Includes ------------------------------------------------------------------*/
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #include "revup_ctrl.h"
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /** @addtogroup MCSDK
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @{
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /** @defgroup RevUpCtrl Rev-Up Control
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief Rev-Up Control component of the Motor Control SDK
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * Used to start up the motor with a set of pre-programmed phases.
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * The number of phases of the Rev-Up procedure range is from 0 to 5.
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * The Rev-Up controller must be called at speed loop frequency.
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @{
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /** @defgroup RevUpCtrlFOC FOC Rev-Up Control component
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief Rev-Up control component used to start motor driven with 
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *        the Field Oriented Control technique
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @{
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /* Private defines -----------------------------------------------------------*/
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief Timeout used to reset integral term of PLL.
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  It is expressed in ms.
+ARM GAS  /tmp/ccvkByR8.s 			page 3
+
+
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #define RUC_OTF_PLL_RESET_TIMEOUT 100u
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /* Private functions ----------------------------------------------------------*/
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /* Returns the  mechanical speed of a selected phase */
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** static inline int16_t RUC_GetPhaseFinalMecSpeed01Hz(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase)
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return (pHandle->ParamsData[bPhase].hFinalMecSpeedUnit);
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Initialize and configure the FOC RevUpCtrl Component
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of FOC RevUp controller.
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pSTC: Pointer on speed and torque controller structure.
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pVSS: Pointer on virtual speed sensor structure.
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pSNSL: Pointer on sensorless state observer structure.
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pPWM: Pointer on the PWM structure.
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak void RUC_Init(RevUpCtrl_Handle_t *pHandle,
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                      SpeednTorqCtrl_Handle_t *pSTC,
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                      VirtualSpeedSensor_Handle_t *pVSS,
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                      STO_Handle_t *pSNSL,
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                      PWMC_Handle_t *pPWM)
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+  31              		.loc 1 114 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 4, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		@ link register save eliminated.
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     RevUpCtrl_PhaseParams_t *pRUCPhaseParams = &pHandle->ParamsData[0];
+  36              		.loc 1 123 5 view .LVU1
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     uint8_t bPhase = 0U;
+  37              		.loc 1 124 5 view .LVU2
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->pSTC = pSTC;
+  38              		.loc 1 126 5 view .LVU3
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+  39              		.loc 1 114 1 is_stmt 0 view .LVU4
+  40 0000 30B4     		push	{r4, r5}
+  41              	.LCFI0:
+  42              		.cfi_def_cfa_offset 8
+  43              		.cfi_offset 4, -8
+  44              		.cfi_offset 5, -4
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ARM GAS  /tmp/ccvkByR8.s 			page 4
+
+
+  45              		.loc 1 114 1 view .LVU5
+  46 0002 029C     		ldr	r4, [sp, #8]
+  47              		.loc 1 126 19 view .LVU6
+  48 0004 8166     		str	r1, [r0, #104]
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->pVSS = pVSS;
+  49              		.loc 1 127 5 is_stmt 1 view .LVU7
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->pSNSL = pSNSL;
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->pPWM = pPWM;
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->OTFSCLowside = false;
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     while ((pRUCPhaseParams != MC_NULL) && (bPhase < RUC_MAX_PHASE_NUMBER))
+  50              		.loc 1 133 11 is_stmt 0 view .LVU8
+  51 0006 10F10C0F 		cmn	r0, #12
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+  52              		.loc 1 130 27 view .LVU9
+  53 000a 4FF00001 		mov	r1, #0
+  54              	.LVL1:
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->pSNSL = pSNSL;
+  55              		.loc 1 128 20 view .LVU10
+  56 000e C0E91B23 		strd	r2, r3, [r0, #108]
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->OTFSCLowside = false;
+  57              		.loc 1 129 5 is_stmt 1 view .LVU11
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->OTFSCLowside = false;
+  58              		.loc 1 129 19 is_stmt 0 view .LVU12
+  59 0012 4467     		str	r4, [r0, #116]
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+  60              		.loc 1 130 5 is_stmt 1 view .LVU13
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+  61              		.loc 1 131 5 view .LVU14
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+  62              		.loc 1 130 27 is_stmt 0 view .LVU15
+  63 0014 A0F85410 		strh	r1, [r0, #84]	@ movhi
+  64              		.loc 1 133 5 is_stmt 1 view .LVU16
+  65              		.loc 1 133 11 is_stmt 0 view .LVU17
+  66 0018 1ED0     		beq	.L1
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Dump HF data for now HF data are forced to 16 bits */
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       pRUCPhaseParams = (RevUpCtrl_PhaseParams_t *)pRUCPhaseParams->pNext;  //cstat !MISRAC2012-Rul
+  67              		.loc 1 136 7 is_stmt 1 view .LVU18
+  68              		.loc 1 136 23 is_stmt 0 view .LVU19
+  69 001a 4369     		ldr	r3, [r0, #20]
+  70              	.LVL2:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  71              		.loc 1 137 7 is_stmt 1 view .LVU20
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+  72              		.loc 1 133 11 is_stmt 0 view .LVU21
+  73 001c 0BB3     		cbz	r3, .L5
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  74              		.loc 1 136 7 is_stmt 1 view .LVU22
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  75              		.loc 1 136 23 is_stmt 0 view .LVU23
+  76 001e 9B68     		ldr	r3, [r3, #8]
+  77              	.LVL3:
+  78              		.loc 1 137 7 is_stmt 1 view .LVU24
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+  79              		.loc 1 133 11 is_stmt 0 view .LVU25
+ARM GAS  /tmp/ccvkByR8.s 			page 5
+
+
+  80 0020 0BB3     		cbz	r3, .L6
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  81              		.loc 1 136 7 is_stmt 1 view .LVU26
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  82              		.loc 1 136 23 is_stmt 0 view .LVU27
+  83 0022 9B68     		ldr	r3, [r3, #8]
+  84              	.LVL4:
+  85              		.loc 1 137 7 is_stmt 1 view .LVU28
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+  86              		.loc 1 133 11 is_stmt 0 view .LVU29
+  87 0024 0BB3     		cbz	r3, .L7
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  88              		.loc 1 136 7 is_stmt 1 view .LVU30
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  89              		.loc 1 136 23 is_stmt 0 view .LVU31
+  90 0026 9B68     		ldr	r3, [r3, #8]
+  91              	.LVL5:
+  92              		.loc 1 137 7 is_stmt 1 view .LVU32
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+  93              		.loc 1 133 11 is_stmt 0 view .LVU33
+  94 0028 C3B1     		cbz	r3, .L8
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       bPhase++;
+  95              		.loc 1 136 7 is_stmt 1 view .LVU34
+  96              	.LVL6:
+  97              		.loc 1 137 7 view .LVU35
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+  98              		.loc 1 133 11 is_stmt 0 view .LVU36
+  99 002a 9B68     		ldr	r3, [r3, #8]
+ 100              	.LVL7:
+ 101              		.loc 1 137 13 view .LVU37
+ 102 002c 0521     		movs	r1, #5
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 103              		.loc 1 133 11 view .LVU38
+ 104 002e B3B1     		cbz	r3, .L3
+ 105 0030 0422     		movs	r2, #4
+ 106              	.LVL8:
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 107              		.loc 1 133 11 view .LVU39
+ 108 0032 0521     		movs	r1, #5
+ 109              	.LVL9:
+ 110              	.L4:
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (0U == bPhase)
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* nothing to do error */
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     else
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       pHandle->ParamsData[bPhase - 1u].pNext = MC_NULL;
+ 111              		.loc 1 146 7 is_stmt 1 view .LVU40
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       pHandle->bPhaseNbr = bPhase;
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       pHandle->bResetPLLTh = (uint8_t)((RUC_OTF_PLL_RESET_TIMEOUT * pHandle->hRUCFrequencyHz) / 100
+ 112              		.loc 1 150 76 is_stmt 0 view .LVU41
+ 113 0034 0588     		ldrh	r5, [r0]
+ARM GAS  /tmp/ccvkByR8.s 			page 6
+
+
+ 114              		.loc 1 150 95 view .LVU42
+ 115 0036 0E4C     		ldr	r4, .L15
+ 116              		.loc 1 150 67 view .LVU43
+ 117 0038 6423     		movs	r3, #100
+ 118              	.LVL10:
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 119              		.loc 1 146 46 view .LVU44
+ 120 003a 02EB4202 		add	r2, r2, r2, lsl #1
+ 121              		.loc 1 150 67 view .LVU45
+ 122 003e 03FB05F3 		mul	r3, r3, r5
+ 123              		.loc 1 150 95 view .LVU46
+ 124 0042 A4FB0343 		umull	r4, r3, r4, r3
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 125              		.loc 1 146 46 view .LVU47
+ 126 0046 00EB8202 		add	r2, r0, r2, lsl #2
+ 127 004a 0024     		movs	r4, #0
+ 128              		.loc 1 150 95 view .LVU48
+ 129 004c 9B09     		lsrs	r3, r3, #6
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 130              		.loc 1 146 46 view .LVU49
+ 131 004e 5461     		str	r4, [r2, #20]
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 132              		.loc 1 148 7 is_stmt 1 view .LVU50
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 133              		.loc 1 148 26 is_stmt 0 view .LVU51
+ 134 0050 80F84810 		strb	r1, [r0, #72]
+ 135              		.loc 1 150 7 is_stmt 1 view .LVU52
+ 136              		.loc 1 150 30 is_stmt 0 view .LVU53
+ 137 0054 80F85630 		strb	r3, [r0, #86]
+ 138              	.L1:
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 139              		.loc 1 155 1 view .LVU54
+ 140 0058 30BC     		pop	{r4, r5}
+ 141              	.LCFI1:
+ 142              		.cfi_remember_state
+ 143              		.cfi_restore 5
+ 144              		.cfi_restore 4
+ 145              		.cfi_def_cfa_offset 0
+ 146              	.LVL11:
+ 147              		.loc 1 155 1 view .LVU55
+ 148 005a 7047     		bx	lr
+ 149              	.LVL12:
+ 150              	.L8:
+ 151              	.LCFI2:
+ 152              		.cfi_restore_state
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 153              		.loc 1 137 13 view .LVU56
+ 154 005c 0421     		movs	r1, #4
+ 155              	.LVL13:
+ 156              	.L3:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 157              		.loc 1 137 13 view .LVU57
+ 158 005e 4A1E     		subs	r2, r1, #1
+ARM GAS  /tmp/ccvkByR8.s 			page 7
+
+
+ 159              	.LVL14:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 160              		.loc 1 137 13 view .LVU58
+ 161 0060 E8E7     		b	.L4
+ 162              	.LVL15:
+ 163              	.L5:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 164              		.loc 1 137 13 view .LVU59
+ 165 0062 0121     		movs	r1, #1
+ 166 0064 FBE7     		b	.L3
+ 167              	.LVL16:
+ 168              	.L6:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 169              		.loc 1 137 13 view .LVU60
+ 170 0066 0221     		movs	r1, #2
+ 171 0068 F9E7     		b	.L3
+ 172              	.LVL17:
+ 173              	.L7:
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 174              		.loc 1 137 13 view .LVU61
+ 175 006a 0321     		movs	r1, #3
+ 176 006c F7E7     		b	.L3
+ 177              	.L16:
+ 178 006e 00BF     		.align	2
+ 179              	.L15:
+ 180 0070 D34D6210 		.word	274877907
+ 181              		.cfi_endproc
+ 182              	.LFE1457:
+ 184              		.section	.text.RUC_Clear,"ax",%progbits
+ 185              		.align	1
+ 186              		.p2align 2,,3
+ 187              		.weak	RUC_Clear
+ 188              		.syntax unified
+ 189              		.thumb
+ 190              		.thumb_func
+ 191              		.fpu fpv4-sp-d16
+ 193              	RUC_Clear:
+ 194              	.LVL18:
+ 195              	.LFB1458:
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 158:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Initialize internal FOC RevUp controller state.
+ 159:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 160:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  hMotorDirection: Rotor rotation direction.
+ 161:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be -1 or +1.
+ 162:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 163:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak void RUC_Clear(RevUpCtrl_Handle_t *pHandle, int16_t hMotorDirection)
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 196              		.loc 1 164 1 is_stmt 1 view -0
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 0
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 166:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 167:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 168:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 169:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ARM GAS  /tmp/ccvkByR8.s 			page 8
+
+
+ 170:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 171:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 172:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 173:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     VirtualSpeedSensor_Handle_t *pVSS = pHandle->pVSS;
+ 200              		.loc 1 173 5 view .LVU63
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 201              		.loc 1 164 1 is_stmt 0 view .LVU64
+ 202 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 203              	.LCFI3:
+ 204              		.cfi_def_cfa_offset 24
+ 205              		.cfi_offset 4, -24
+ 206              		.cfi_offset 5, -20
+ 207              		.cfi_offset 6, -16
+ 208              		.cfi_offset 7, -12
+ 209              		.cfi_offset 8, -8
+ 210              		.cfi_offset 14, -4
+ 174:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     SpeednTorqCtrl_Handle_t *pSTC = pHandle->pSTC;
+ 211              		.loc 1 174 30 view .LVU65
+ 212 0004 D0E91A76 		ldrd	r7, r6, [r0, #104]
+ 213              	.LVL19:
+ 175:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     RevUpCtrl_PhaseParams_t *pPhaseParams = pHandle->ParamsData;
+ 214              		.loc 1 175 5 is_stmt 1 view .LVU66
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 215              		.loc 1 164 1 is_stmt 0 view .LVU67
+ 216 0008 0446     		mov	r4, r0
+ 217              	.LVL20:
+ 176:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->hDirection = hMotorDirection;
+ 218              		.loc 1 177 5 is_stmt 1 view .LVU68
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+ 179:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 180:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Initializes the rev up stages counter */
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->bStageCnt = 0U;
+ 219              		.loc 1 181 24 is_stmt 0 view .LVU69
+ 220 000a 0025     		movs	r5, #0
+ 177:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+ 221              		.loc 1 177 25 view .LVU70
+ 222 000c E180     		strh	r1, [r4, #6]	@ movhi
+ 178:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->EnteredZone1 = false;
+ 223              		.loc 1 178 5 is_stmt 1 view .LVU71
+ 224              		.loc 1 181 5 view .LVU72
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->bOTFRelCounter = 0U;
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->OTFSCLowside = false;
+ 184:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 185:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Calls the clear method of VSS */
+ 186:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     VSS_Clear(pVSS);
+ 225              		.loc 1 186 5 is_stmt 0 view .LVU73
+ 226 000e 3046     		mov	r0, r6
+ 227              	.LVL21:
+ 181:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->bOTFRelCounter = 0U;
+ 228              		.loc 1 181 24 view .LVU74
+ 229 0010 84F85850 		strb	r5, [r4, #88]
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->bOTFRelCounter = 0U;
+ 230              		.loc 1 182 5 is_stmt 1 view .LVU75
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 231              		.loc 1 183 5 view .LVU76
+ 182:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->bOTFRelCounter = 0U;
+ARM GAS  /tmp/ccvkByR8.s 			page 9
+
+
+ 232              		.loc 1 182 29 is_stmt 0 view .LVU77
+ 233 0014 84F85350 		strb	r5, [r4, #83]
+ 183:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 234              		.loc 1 183 27 view .LVU78
+ 235 0018 A4F85450 		strh	r5, [r4, #84]	@ movhi
+ 236              		.loc 1 186 5 is_stmt 1 view .LVU79
+ 164:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 237              		.loc 1 164 1 is_stmt 0 view .LVU80
+ 238 001c 8846     		mov	r8, r1
+ 239              		.loc 1 186 5 view .LVU81
+ 240 001e FFF7FEFF 		bl	VSS_Clear
+ 241              	.LVL22:
+ 187:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 188:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Sets the STC in torque mode */
+ 189:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     STC_SetControlMode(pSTC, MCM_TORQUE_MODE);
+ 242              		.loc 1 189 5 is_stmt 1 view .LVU82
+ 243 0022 3846     		mov	r0, r7
+ 244 0024 0421     		movs	r1, #4
+ 245 0026 FFF7FEFF 		bl	STC_SetControlMode
+ 246              	.LVL23:
+ 190:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 191:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Sets the mechanical starting angle of VSS */
+ 192:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     VSS_SetMecAngle(pVSS, pHandle->hStartingMecAngle * hMotorDirection);
+ 247              		.loc 1 192 5 view .LVU83
+ 248              		.loc 1 192 54 is_stmt 0 view .LVU84
+ 249 002a 6388     		ldrh	r3, [r4, #2]
+ 250              	.LBB11:
+ 251              	.LBB12:
+ 252              		.file 2 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+   1:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /**
+   2:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   ******************************************************************************
+   3:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @file    virtual_speed_sensor.h
+   4:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @author  Motor Control SDK Team, ST Microelectronics
+   5:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @brief   This file contains all definitions and functions prototypes for the
+   6:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *          Virtual Speed Sensor component of the Motor Control SDK.
+   7:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   ******************************************************************************
+   8:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @attention
+   9:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *
+  10:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  11:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * All rights reserved.</center></h2>
+  12:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *
+  13:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * This software component is licensed by ST under Ultimate Liberty license
+  14:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  15:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * the License. You may obtain a copy of the License at:
+  16:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *                             www.st.com/SLA0044
+  17:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *
+  18:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   ******************************************************************************
+  19:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @ingroup VirtualSpeedSensor
+  20:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+  21:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Define to prevent recursive inclusion -------------------------------------*/
+  22:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #ifndef VIRTUALSPEEDSENSOR_H
+  23:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #define VIRTUALSPEEDSENSOR_H
+  24:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  25:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #ifdef __cplusplus
+  26:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** extern "C" {
+  27:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #endif /* __cplusplus */
+  28:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ARM GAS  /tmp/ccvkByR8.s 			page 10
+
+
+  29:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Includes ------------------------------------------------------------------*/
+  30:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #include "speed_pos_fdbk.h"
+  31:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  32:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /** @addtogroup MCSDK
+  33:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @{
+  34:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+  35:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  36:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /** @addtogroup SpeednPosFdbk
+  37:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @{
+  38:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+  39:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  40:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /** @addtogroup VirtualSpeedSensor
+  41:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @{
+  42:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+  43:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  44:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Exported types ------------------------------------------------------------*/
+  45:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  46:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /**
+  47:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @brief  This structure is used to handle an instance of the Virtual Speed
+  48:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *         sensor component.
+  49:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+  50:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** typedef struct
+  51:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** {
+  52:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   SpeednPosFdbk_Handle_t _Super;
+  53:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   int32_t wElAccDppP32;              /*!< Delta electrical speed expressed in [dpp](measurement_uni
+  54:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           sampling period to be applied each time is called
+  55:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           SPD_calcAvrgMecSpeedUnit multiplied by scaling
+  56:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           factor of 65536. */
+  57:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   int32_t wElSpeedDpp32;             /*!< Electrical speed expressed in [dpp](measurement_units.md)
+  58:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           scaling factor 65536. */
+  59:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   uint16_t hRemainingStep;           /*!< Number of steps remaining to reach the final
+  60:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           speed. */
+  61:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   int16_t hFinalMecSpeedUnit;        /*!< Backup of hFinalMecSpeedUnit to be applied in
+  62:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           the last step.*/
+  63:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   bool bTransitionStarted;           /*!< Retaining information about started Transition status.*/
+  64:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   bool bTransitionEnded;             /*!< Retaining information about ended transition status.*/
+  65:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   int16_t hTransitionRemainingSteps; /*!< Number of steps remaining to end
+  66:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           transition from Virtual Speed Sensor module to other spee
+  67:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   int16_t hElAngleAccu;              /*!< Electrical angle accumulator */
+  68:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   bool bTransitionLocked;            /*!< Transition acceleration started */
+  69:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   bool bCopyObserver;                /*!< Command to set Virtual Speed Sensor module output same as
+  70:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  71:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   uint16_t hSpeedSamplingFreqHz;     /*!< Frequency (Hz) at which motor speed is to
+  72:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           be computed. It must be equal to the frequency
+  73:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           at which function SPD_calcAvrgMecSpeedUnit
+  74:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                           is called. */
+  75:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   int16_t hTransitionSteps;          /*< Number of steps to perform the transition phase
+  76:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                          from from Virtual Speed Sensor module to other speed senso
+  77:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                          If the Transition PHase should last TPH milliseconds, and 
+  78:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****                                          Frequency is set to FEF kHz, then #hTransitionSteps = TPH 
+  79:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** } VirtualSpeedSensor_Handle_t;
+  80:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  81:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* It initializes the Virtual Speed Sensor component */
+  82:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** void VSS_Init(VirtualSpeedSensor_Handle_t *pHandle);
+  83:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  84:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* It clears Virtual Speed Sensor by re-initializing private variables*/
+  85:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** void VSS_Clear(VirtualSpeedSensor_Handle_t *pHandle);
+ARM GAS  /tmp/ccvkByR8.s 			page 11
+
+
+  86:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  87:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* It compute a theorical speed and update the theorical electrical angle */
+  88:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** int16_t VSS_CalcElAngle(VirtualSpeedSensor_Handle_t *pHandle, int16_t *pInputVars_str);
+  89:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  90:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Computes the rotor average theoretical mechanical speed in the unit defined by SPEED_UNIT and
+  91:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****  * returns it in pMecSpeedUnit */
+  92:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** bool VSS_CalcAvrgMecSpeedUnit(VirtualSpeedSensor_Handle_t *pHandle, int16_t *hMecSpeedUnit);
+  93:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  94:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Set the mechanical acceleration of virtual sensor */
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** void  VSS_SetMecAcceleration(VirtualSpeedSensor_Handle_t *pHandle, int16_t  hFinalMecSpeedUnit, uin
+  96:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Checks if the ramp executed after a VSPD_SetMecAcceleration command has been completed */
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** bool VSS_RampCompleted(VirtualSpeedSensor_Handle_t *pHandle);
+  98:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+  99:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Get the final speed of last setled ramp of virtual sensor expressed in 0.1Hz */
+ 100:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** int16_t  VSS_GetLastRampFinalSpeed(VirtualSpeedSensor_Handle_t *pHandle);
+ 101:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ 102:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Set the command to Start the transition phase from VirtualSpeedSensor to other SpeedSensor */
+ 103:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** bool VSS_SetStartTransition(VirtualSpeedSensor_Handle_t *pHandle, bool bCommand);
+ 104:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ 105:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* Return the status of the transition phase */
+ 106:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** bool VSS_IsTransitionOngoing(VirtualSpeedSensor_Handle_t *pHandle);
+ 107:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ 108:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** bool VSS_TransitionEnded(VirtualSpeedSensor_Handle_t *pHandle);
+ 109:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ 110:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /* It sets istantaneous information on rotor electrical angle */
+ 111:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** void VSS_SetElAngle(VirtualSpeedSensor_Handle_t *pHandle, int16_t hElAngle);
+ 112:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ 113:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /**
+ 114:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @brief  Sets instantaneous information on VSS mechanical and electrical angle.
+ 115:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 116:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @param  hMecAngle: instantaneous measure of rotor mechanical angle.
+ 117:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @retval none
+ 118:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *
+ 119:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * - Called during @ref RevUpCtrl "Rev-Up Control" and
+ 120:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @ref EncAlignCtrl "Encoder Alignment Controller procedure" initialization.
+ 121:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** static inline void VSS_SetMecAngle(VirtualSpeedSensor_Handle_t *pHandle, int16_t hMecAngle)
+ 123:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** {
+ 124:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 125:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   if (MC_NULL == pHandle)
+ 126:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   {
+ 127:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     /* Nothing to do */
+ 128:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   }
+ 129:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   else
+ 130:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   {
+ 131:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #endif
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->hElAngleAccu = hMecAngle;
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hMecAngle = pHandle->hElAngleAccu / ((int16_t)pHandle->_Super.bElToMecRatio);
+ 253              		.loc 2 133 58 view .LVU85
+ 254 002c 7278     		ldrb	r2, [r6, #1]	@ zero_extendqisi2
+ 255              	.LBE12:
+ 256              	.LBE11:
+ 257              		.loc 1 192 54 view .LVU86
+ 258 002e 1FFA88F8 		uxth	r8, r8
+ 259 0032 13FB08F3 		smulbb	r3, r3, r8
+ 260              		.loc 1 192 5 view .LVU87
+ 261 0036 1BB2     		sxth	r3, r3
+ARM GAS  /tmp/ccvkByR8.s 			page 12
+
+
+ 262              	.LVL24:
+ 263              	.LBB16:
+ 264              	.LBI11:
+ 122:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** {
+ 265              		.loc 2 122 20 is_stmt 1 view .LVU88
+ 266              	.LBB13:
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hMecAngle = pHandle->hElAngleAccu / ((int16_t)pHandle->_Super.bElToMecRatio);
+ 267              		.loc 2 132 5 view .LVU89
+ 132:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hMecAngle = pHandle->hElAngleAccu / ((int16_t)pHandle->_Super.bElToMecRatio);
+ 268              		.loc 2 132 27 is_stmt 0 view .LVU90
+ 269 0038 3386     		strh	r3, [r6, #48]	@ movhi
+ 270              		.loc 2 133 5 is_stmt 1 view .LVU91
+ 134:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hElAngle = hMecAngle;
+ 271              		.loc 2 134 30 is_stmt 0 view .LVU92
+ 272 003a B380     		strh	r3, [r6, #4]	@ movhi
+ 273              	.LBE13:
+ 274              	.LBE16:
+ 193:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 194:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Sets to zero the starting torque of STC */
+ 195:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     (void)STC_ExecRamp(pSTC, 0, 0U);
+ 275              		.loc 1 195 11 view .LVU93
+ 276 003c 2946     		mov	r1, r5
+ 277              	.LBB17:
+ 278              	.LBB14:
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hElAngle = hMecAngle;
+ 279              		.loc 2 133 55 view .LVU94
+ 280 003e 93FBF2F3 		sdiv	r3, r3, r2
+ 281              	.LVL25:
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hElAngle = hMecAngle;
+ 282              		.loc 2 133 55 view .LVU95
+ 283              	.LBE14:
+ 284              	.LBE17:
+ 285              		.loc 1 195 11 view .LVU96
+ 286 0042 3846     		mov	r0, r7
+ 287              	.LBB18:
+ 288              	.LBB15:
+ 133:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->_Super.hElAngle = hMecAngle;
+ 289              		.loc 2 133 31 view .LVU97
+ 290 0044 F380     		strh	r3, [r6, #6]	@ movhi
+ 291              		.loc 2 134 5 is_stmt 1 view .LVU98
+ 292              	.LVL26:
+ 293              		.loc 2 134 5 is_stmt 0 view .LVU99
+ 294              	.LBE15:
+ 295              	.LBE18:
+ 296              		.loc 1 195 5 is_stmt 1 view .LVU100
+ 297              		.loc 1 195 11 is_stmt 0 view .LVU101
+ 298 0046 2A46     		mov	r2, r5
+ 299 0048 FFF7FEFF 		bl	STC_ExecRamp
+ 300              	.LVL27:
+ 196:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 197:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Gives the first command to STC and VSS */
+ 198:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     (void)STC_ExecRamp(pSTC, pPhaseParams->hFinalTorque * hMotorDirection, (uint32_t)(pPhaseParams-
+ 301              		.loc 1 198 5 is_stmt 1 view .LVU102
+ 302              		.loc 1 198 57 is_stmt 0 view .LVU103
+ 303 004c 218A     		ldrh	r1, [r4, #16]
+ 304              		.loc 1 198 11 view .LVU104
+ 305 004e A289     		ldrh	r2, [r4, #12]
+ARM GAS  /tmp/ccvkByR8.s 			page 13
+
+
+ 306              		.loc 1 198 57 view .LVU105
+ 307 0050 11FB08F1 		smulbb	r1, r1, r8
+ 308              		.loc 1 198 11 view .LVU106
+ 309 0054 09B2     		sxth	r1, r1
+ 310 0056 3846     		mov	r0, r7
+ 311 0058 FFF7FEFF 		bl	STC_ExecRamp
+ 312              	.LVL28:
+ 199:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 200:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     VSS_SetMecAcceleration(pVSS, pPhaseParams->hFinalMecSpeedUnit * hMotorDirection, pPhaseParams->
+ 313              		.loc 1 200 5 is_stmt 1 view .LVU107
+ 314              		.loc 1 200 67 is_stmt 0 view .LVU108
+ 315 005c E189     		ldrh	r1, [r4, #14]
+ 316              		.loc 1 200 5 view .LVU109
+ 317 005e A289     		ldrh	r2, [r4, #12]
+ 318              		.loc 1 200 67 view .LVU110
+ 319 0060 11FB08F1 		smulbb	r1, r1, r8
+ 320              		.loc 1 200 5 view .LVU111
+ 321 0064 3046     		mov	r0, r6
+ 322 0066 09B2     		sxth	r1, r1
+ 323 0068 FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 324              	.LVL29:
+ 201:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 202:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Compute hPhaseRemainingTicks */
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->hPhaseRemainingTicks = (uint16_t)((((uint32_t)pPhaseParams->hDurationms)
+ 325              		.loc 1 203 5 is_stmt 1 view .LVU112
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                               * ((uint32_t)pHandle->hRUCFrequencyHz))
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                               / 1000U );
+ 206:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->hPhaseRemainingTicks++;
+ 326              		.loc 1 207 5 view .LVU113
+ 203:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                               * ((uint32_t)pHandle->hRUCFrequencyHz))
+ 327              		.loc 1 203 50 is_stmt 0 view .LVU114
+ 328 006c A089     		ldrh	r0, [r4, #12]
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                               * ((uint32_t)pHandle->hRUCFrequencyHz))
+ 329              		.loc 1 204 50 view .LVU115
+ 330 006e 2388     		ldrh	r3, [r4]
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 331              		.loc 1 205 47 view .LVU116
+ 332 0070 0649     		ldr	r1, .L19
+ 208:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 209:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Set the next phases parameter pointer */
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->pCurrentPhaseParams = (RevUpCtrl_PhaseParams_t *)pPhaseParams->pNext;  //cstat !MISRAC
+ 333              		.loc 1 210 34 view .LVU117
+ 334 0072 6269     		ldr	r2, [r4, #20]
+ 211:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 212:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Timeout counter for PLL reset during OTF */
+ 213:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->bResetPLLCnt = 0U;
+ 335              		.loc 1 213 27 view .LVU118
+ 336 0074 84F85750 		strb	r5, [r4, #87]
+ 204:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                               / 1000U );
+ 337              		.loc 1 204 47 view .LVU119
+ 338 0078 03FB00F3 		mul	r3, r3, r0
+ 205:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 339              		.loc 1 205 47 view .LVU120
+ 340 007c A1FB0313 		umull	r1, r3, r1, r3
+ 341 0080 9B09     		lsrs	r3, r3, #6
+ 207:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ARM GAS  /tmp/ccvkByR8.s 			page 14
+
+
+ 342              		.loc 1 207 34 view .LVU121
+ 343 0082 0133     		adds	r3, r3, #1
+ 344 0084 A380     		strh	r3, [r4, #4]	@ movhi
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 345              		.loc 1 210 5 is_stmt 1 view .LVU122
+ 210:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 346              		.loc 1 210 34 is_stmt 0 view .LVU123
+ 347 0086 A260     		str	r2, [r4, #8]
+ 348              		.loc 1 213 5 is_stmt 1 view .LVU124
+ 214:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 215:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 216:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 217:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 349              		.loc 1 217 1 is_stmt 0 view .LVU125
+ 350 0088 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 351              	.LVL30:
+ 352              	.L20:
+ 353              		.loc 1 217 1 view .LVU126
+ 354              		.align	2
+ 355              	.L19:
+ 356 008c D34D6210 		.word	274877907
+ 357              		.cfi_endproc
+ 358              	.LFE1458:
+ 360              		.section	.text.RUC_OTF_Exec,"ax",%progbits
+ 361              		.align	1
+ 362              		.p2align 2,,3
+ 363              		.weak	RUC_OTF_Exec
+ 364              		.syntax unified
+ 365              		.thumb
+ 366              		.thumb_func
+ 367              		.fpu fpv4-sp-d16
+ 369              	RUC_OTF_Exec:
+ 370              	.LVL31:
+ 371              	.LFB1459:
+ 218:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 219:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 220:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  FOC Main Rev-Up controller procedure executing overall programmed phases and
+ 221:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         on-the-fly startup handling.
+ 222:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 223:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  @retval Boolean set to false when entire Rev-Up phases have been completed.
+ 224:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 225:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak bool RUC_OTF_Exec(RevUpCtrl_Handle_t *pHandle)
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 372              		.loc 1 226 1 is_stmt 1 view -0
+ 373              		.cfi_startproc
+ 374              		@ args = 0, pretend = 0, frame = 0
+ 375              		@ frame_needed = 0, uses_anonymous_args = 0
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   bool retVal = true;
+ 376              		.loc 1 227 3 view .LVU128
+ 228:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 229:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 230:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 231:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 232:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 233:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 234:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 235:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ARM GAS  /tmp/ccvkByR8.s 			page 15
+
+
+ 236:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     bool IsSpeedReliable;
+ 377              		.loc 1 236 5 view .LVU129
+ 237:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     bool condition = false;
+ 378              		.loc 1 237 5 view .LVU130
+ 238:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 239:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (pHandle->hPhaseRemainingTicks > 0u)
+ 379              		.loc 1 239 5 view .LVU131
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   bool retVal = true;
+ 380              		.loc 1 226 1 is_stmt 0 view .LVU132
+ 381 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 382              	.LCFI4:
+ 383              		.cfi_def_cfa_offset 24
+ 384              		.cfi_offset 3, -24
+ 385              		.cfi_offset 4, -20
+ 386              		.cfi_offset 5, -16
+ 387              		.cfi_offset 6, -12
+ 388              		.cfi_offset 7, -8
+ 389              		.cfi_offset 14, -4
+ 390              		.loc 1 239 16 view .LVU133
+ 391 0002 8388     		ldrh	r3, [r0, #4]
+ 392 0004 90F85850 		ldrb	r5, [r0, #88]	@ zero_extendqisi2
+ 226:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   bool retVal = true;
+ 393              		.loc 1 226 1 view .LVU134
+ 394 0008 0446     		mov	r4, r0
+ 395              		.loc 1 239 8 view .LVU135
+ 396 000a 4BB1     		cbz	r3, .L22
+ 240:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 241:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Decrease the hPhaseRemainingTicks */
+ 242:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       pHandle->hPhaseRemainingTicks--;
+ 397              		.loc 1 242 7 is_stmt 1 view .LVU136
+ 398              		.loc 1 242 36 is_stmt 0 view .LVU137
+ 399 000c 013B     		subs	r3, r3, #1
+ 400 000e 9BB2     		uxth	r3, r3
+ 401 0010 8380     		strh	r3, [r0, #4]	@ movhi
+ 243:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 244:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* OTF start-up */
+ 245:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       if (0U == pHandle->bStageCnt)
+ 402              		.loc 1 245 7 is_stmt 1 view .LVU138
+ 403              		.loc 1 245 10 is_stmt 0 view .LVU139
+ 404 0012 002D     		cmp	r5, #0
+ 405 0014 33D0     		beq	.L72
+ 406              	.LVL32:
+ 407              	.L23:
+ 246:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         if (false ==  pHandle->EnteredZone1)
+ 248:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           if (pHandle->pSNSL->pFctStoOtfResetPLL != MC_NULL)
+ 250:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             pHandle->bResetPLLCnt++;
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bResetPLLCnt > pHandle->bResetPLLTh)
+ 253:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 254:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->pSNSL->pFctStoOtfResetPLL(pHandle->pSNSL);
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bOTFRelCounter = 0U;
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bResetPLLCnt = 0U;
+ 257:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 258:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             else
+ 259:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ARM GAS  /tmp/ccvkByR8.s 			page 16
+
+
+ 260:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               /* Nothing to do */
+ 261:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 262:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 263:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           else
+ 264:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 265:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             /* Nothing to do */
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 267:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           IsSpeedReliable = pHandle->pSNSL->pFctSTO_SpeedReliabilityCheck(pHandle->pSNSL);
+ 269:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           if (IsSpeedReliable)
+ 271:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bOTFRelCounter < 127U)
+ 273:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bOTFRelCounter++;
+ 275:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 276:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             else
+ 277:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 278:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               /* Nothing to do */
+ 279:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 280:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 281:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           else
+ 282:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             pHandle->bOTFRelCounter = 0U;
+ 284:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 285:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           if (pHandle->pSNSL->pFctStoOtfResetPLL != MC_NULL)
+ 287:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bOTFRelCounter == (pHandle->bResetPLLTh >> 1))
+ 289:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 290:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               condition = true;
+ 291:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 292:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             else
+ 293:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 294:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               /* Nothing to do */
+ 295:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 296:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 297:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           else
+ 298:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (127U == pHandle->bOTFRelCounter)
+ 300:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 301:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               condition = true;
+ 302:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 303:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             else
+ 304:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 305:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               /* Nothing to do */
+ 306:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 307:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 308:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 309:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           if (true == condition)
+ 310:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             bool bCollinearSpeed = false;
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnit = SPD_GetAvrgMecSpeedUnit(pHandle->pSNSL->_Super);
+ 313:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnitAbsValue =
+ 314:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     ((hObsSpeedUnit < 0) ? (-hObsSpeedUnit) : (hObsSpeedUnit)); /* hObsSpeedUnit ab
+ 315:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->hDirection > 0)
+ARM GAS  /tmp/ccvkByR8.s 			page 17
+
+
+ 317:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 318:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               if (hObsSpeedUnit > 0)
+ 319:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 320:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 bCollinearSpeed = true; /* Actual and reference speed are collinear */
+ 321:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 322:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               else
+ 323:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 324:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 /* Nothing to do */
+ 325:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 326:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 327:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             else
+ 328:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               if (hObsSpeedUnit < 0)
+ 330:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 331:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 bCollinearSpeed = true; /* Actual and reference speed are collinear */
+ 332:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 333:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               else
+ 334:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 335:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 /* Nothing to do */
+ 336:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 337:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 338:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 339:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (false == bCollinearSpeed)
+ 340:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 341:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               /*reverse speed management*/
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bOTFRelCounter = 0U;
+ 343:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 344:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             else /* Speeds are collinear */
+ 345:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               if ((uint16_t)(hObsSpeedUnitAbsValue) > pHandle->hMinStartUpValidSpeed)
+ 347:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 348:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 /* Startup end, go to run */
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->pSNSL->pFctForceConvergency1(pHandle->pSNSL);
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->EnteredZone1 = true;
+ 351:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               else if ((uint16_t)(hObsSpeedUnitAbsValue) > pHandle->hMinStartUpFlySpeed)
+ 353:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 354:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 /* Synch with startup */
+ 355:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 /* Nearest phase search */
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int16_t hOldFinalMecSpeedUnit = 0;
+ 357:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int16_t hOldFinalTorque = 0;
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int32_t wDeltaSpeedRevUp;
+ 359:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int32_t wDeltaTorqueRevUp;
+ 360:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 bool bError = false;
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 VSS_SetCopyObserver(pHandle->pVSS);
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->pSNSL->pFctForceConvergency2(pHandle->pSNSL);
+ 363:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 if (MC_NULL == pHandle->pCurrentPhaseParams)
+ 365:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 366:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   bError = true;
+ 367:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   pHandle->hPhaseRemainingTicks = 0U;
+ 368:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 }
+ 369:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 else
+ 370:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   while (pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit < hObsSpeedUnitAbsValue)
+ 372:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     if (pHandle->pCurrentPhaseParams->pNext == MC_NULL)
+ARM GAS  /tmp/ccvkByR8.s 			page 18
+
+
+ 374:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 375:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       /* Sets for Revup fail error */
+ 376:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       bError = true;
+ 377:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       pHandle->hPhaseRemainingTicks = 0U;
+ 378:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       break;
+ 379:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     }
+ 380:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     else
+ 381:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 382:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       /* Skips this phase */
+ 383:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       hOldFinalMecSpeedUnit = pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit;
+ 384:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       hOldFinalTorque = pHandle->pCurrentPhaseParams->hFinalTorque;
+ 385:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       //cstat !MISRAC2012-Rule-11.5
+ 386:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       pHandle->pCurrentPhaseParams = (RevUpCtrl_PhaseParams_t *)pHandle->pCurrentPh
+ 387:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       pHandle->bStageCnt++;
+ 388:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     }
+ 389:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 390:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 }
+ 391:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 if (false == bError)
+ 392:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 393:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   /* Calculation of the transition phase from OTF to standard revup */
+ 394:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   int16_t hTorqueReference;
+ 395:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 396:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   wDeltaSpeedRevUp = ((int32_t)(pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit))
+ 397:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                    - ((int32_t)(hOldFinalMecSpeedUnit));
+ 398:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   wDeltaTorqueRevUp = ((int32_t)(pHandle->pCurrentPhaseParams->hFinalTorque))
+ 399:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                     - ((int32_t)(hOldFinalTorque));
+ 400:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 401:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   if ((int32_t)0 == wDeltaSpeedRevUp)
+ 402:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 403:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     /* Nothing to do */
+ 404:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 405:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   else
+ 406:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 407:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     hTorqueReference = (int16_t)((((int32_t)hObsSpeedUnit) * wDeltaTorqueRevUp) / w
+ 408:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                      + hOldFinalTorque;
+ 409:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     (void)STC_ExecRamp(pHandle->pSTC, pHandle->hDirection * hTorqueReference, 0U);
+ 411:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 412:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 413:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   pHandle->hPhaseRemainingTicks = 1U;
+ 414:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 415:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   pHandle->pCurrentPhaseParams = &pHandle->OTFPhaseParams;
+ 416:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 417:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   pHandle->bStageCnt = 6U;
+ 418:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 } /* No MC_NULL error */
+ 419:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               } /* Speed > MinStartupFly */
+ 420:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               else
+ 421:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 422:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 /* Nothing to do */
+ 423:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 424:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             } /* Speeds are collinear */
+ 425:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           } /* Speed is reliable */
+ 426:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }/* EnteredZone1 1 is false */
+ 427:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         else
+ 428:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 429:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->pSNSL->pFctForceConvergency1(pHandle->pSNSL);
+ 430:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ARM GAS  /tmp/ccvkByR8.s 			page 19
+
+
+ 431:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       } /* Stage 0 */
+ 432:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     } /* hPhaseRemainingTicks > 0 */
+ 433:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (0U == pHandle->hPhaseRemainingTicks)
+ 408              		.loc 1 434 5 is_stmt 1 view .LVU140
+ 409              		.loc 1 434 8 is_stmt 0 view .LVU141
+ 410 0016 002B     		cmp	r3, #0
+ 411 0018 00F00F81 		beq	.L46
+ 412              	.L71:
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 413              		.loc 1 227 8 view .LVU142
+ 414 001c 0120     		movs	r0, #1
+ 435:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       if (pHandle->pCurrentPhaseParams != MC_NULL)
+ 437:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         if (0U == pHandle->bStageCnt)
+ 439:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 440:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           /* End of OTF */
+ 441:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           PWMC_SwitchOffPWM(pHandle->pPWM);
+ 442:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->OTFSCLowside = true;
+ 443:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           PWMC_TurnOnLowSides(pHandle->pPWM, 0u);
+ 444:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->bOTFRelCounter = 0U;
+ 445:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 446:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         else if (1U == pHandle->bStageCnt)
+ 447:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 448:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           PWMC_SwitchOnPWM(pHandle->pPWM);
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->OTFSCLowside = false;
+ 450:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 451:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         else
+ 452:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 453:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           /* Nothing to do */
+ 454:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 455:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 456:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 457:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* If it becomes zero the current phase has been completed */
+ 458:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Gives the next command to STC and VSS */
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         (void)STC_ExecRamp(pHandle->pSTC, pHandle->pCurrentPhaseParams->hFinalTorque * pHandle->hDi
+ 460:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ 461:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 462:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         VSS_SetMecAcceleration(pHandle->pVSS,
+ 463:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 464:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hDurationms);
+ 465:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 466:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Compute hPhaseRemainingTicks */
+ 467:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks = (uint16_t)((((uint32_t)pHandle->pCurrentPhaseParams->hDurat
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                  * (uint32_t)pHandle->hRUCFrequencyHz) / 1000U);
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 470:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 471:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Set the next phases parameter pointer */
+ 472:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->pCurrentPhaseParams = pHandle->pCurrentPhaseParams->pNext; //cstat !MISRAC2012-Rul
+ 473:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 474:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Increases the rev up stages counter */
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->bStageCnt++;
+ 476:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 477:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       else
+ 478:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         if (pHandle->bStageCnt == (pHandle->bPhaseNbr - (uint8_t)1)) /* End of user programmed revu
+ARM GAS  /tmp/ccvkByR8.s 			page 20
+
+
+ 480:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 481:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           retVal = false;
+ 482:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 483:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         else if (7U == pHandle->bStageCnt) /* End of first OTF runs */
+ 484:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 485:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->bStageCnt = 0U; /* Breaking state */
+ 486:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->hPhaseRemainingTicks = 0U;
+ 487:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 488:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         else
+ 489:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 490:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           /* Nothing to do */
+ 491:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 492:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 493:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 494:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 495:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 496:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 497:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return (retVal);
+ 498:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 415              		.loc 1 498 1 view .LVU143
+ 416 001e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 417              	.LVL33:
+ 418              	.L22:
+ 419              		.loc 1 498 1 view .LVU144
+ 420 0020 8368     		ldr	r3, [r0, #8]
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 421              		.loc 1 434 5 is_stmt 1 view .LVU145
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 422              		.loc 1 436 7 view .LVU146
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 423              		.loc 1 436 10 is_stmt 0 view .LVU147
+ 424 0022 002B     		cmp	r3, #0
+ 425 0024 70D0     		beq	.L40
+ 426              	.LVL34:
+ 427              	.L42:
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 428              		.loc 1 438 9 is_stmt 1 view .LVU148
+ 438:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 429              		.loc 1 438 12 is_stmt 0 view .LVU149
+ 430 0026 002D     		cmp	r5, #0
+ 431 0028 7ED0     		beq	.L73
+ 446:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 432              		.loc 1 446 14 is_stmt 1 view .LVU150
+ 446:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 433              		.loc 1 446 17 is_stmt 0 view .LVU151
+ 434 002a 012D     		cmp	r5, #1
+ 435 002c 00F09380 		beq	.L74
+ 436              	.L48:
+ 454:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 437              		.loc 1 454 9 is_stmt 1 view .LVU152
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ 438              		.loc 1 459 9 view .LVU153
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ 439              		.loc 1 459 86 is_stmt 0 view .LVU154
+ 440 0030 E588     		ldrh	r5, [r4, #6]
+ 441 0032 9988     		ldrh	r1, [r3, #4]
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ARM GAS  /tmp/ccvkByR8.s 			page 21
+
+
+ 442              		.loc 1 459 15 view .LVU155
+ 443 0034 1A88     		ldrh	r2, [r3]
+ 444 0036 A06E     		ldr	r0, [r4, #104]
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ 445              		.loc 1 459 86 view .LVU156
+ 446 0038 11FB05F1 		smulbb	r1, r1, r5
+ 459:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ 447              		.loc 1 459 15 view .LVU157
+ 448 003c 09B2     		sxth	r1, r1
+ 449 003e FFF7FEFF 		bl	STC_ExecRamp
+ 450              	.LVL35:
+ 462:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 451              		.loc 1 462 9 is_stmt 1 view .LVU158
+ 463:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hDurationms);
+ 452              		.loc 1 463 39 is_stmt 0 view .LVU159
+ 453 0042 A368     		ldr	r3, [r4, #8]
+ 463:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hDurationms);
+ 454              		.loc 1 463 81 view .LVU160
+ 455 0044 E588     		ldrh	r5, [r4, #6]
+ 456 0046 5988     		ldrh	r1, [r3, #2]
+ 462:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 457              		.loc 1 462 9 view .LVU161
+ 458 0048 1A88     		ldrh	r2, [r3]
+ 459 004a E06E     		ldr	r0, [r4, #108]
+ 463:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hDurationms);
+ 460              		.loc 1 463 81 view .LVU162
+ 461 004c 11FB05F1 		smulbb	r1, r1, r5
+ 462:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 462              		.loc 1 462 9 view .LVU163
+ 463 0050 09B2     		sxth	r1, r1
+ 464 0052 FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 465              	.LVL36:
+ 467:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                  * (uint32_t)pHandle->hRUCFrequencyHz) / 1000U);
+ 466              		.loc 1 467 9 is_stmt 1 view .LVU164
+ 467:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                  * (uint32_t)pHandle->hRUCFrequencyHz) / 1000U);
+ 467              		.loc 1 467 71 is_stmt 0 view .LVU165
+ 468 0056 A268     		ldr	r2, [r4, #8]
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 469              		.loc 1 469 9 is_stmt 1 view .LVU166
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 470              		.loc 1 468 52 is_stmt 0 view .LVU167
+ 471 0058 2388     		ldrh	r3, [r4]
+ 467:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                  * (uint32_t)pHandle->hRUCFrequencyHz) / 1000U);
+ 472              		.loc 1 467 54 view .LVU168
+ 473 005a 1088     		ldrh	r0, [r2]
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 474              		.loc 1 468 88 view .LVU169
+ 475 005c 7A49     		ldr	r1, .L79
+ 472:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 476              		.loc 1 472 38 view .LVU170
+ 477 005e 9268     		ldr	r2, [r2, #8]
+ 478 0060 A260     		str	r2, [r4, #8]
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 479              		.loc 1 468 50 view .LVU171
+ 480 0062 03FB00F3 		mul	r3, r3, r0
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 481              		.loc 1 468 88 view .LVU172
+ARM GAS  /tmp/ccvkByR8.s 			page 22
+
+
+ 482 0066 A1FB0323 		umull	r2, r3, r1, r3
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 483              		.loc 1 475 27 view .LVU173
+ 484 006a 94F85820 		ldrb	r2, [r4, #88]	@ zero_extendqisi2
+ 468:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 485              		.loc 1 468 88 view .LVU174
+ 486 006e 9B09     		lsrs	r3, r3, #6
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 487              		.loc 1 475 27 view .LVU175
+ 488 0070 0132     		adds	r2, r2, #1
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 489              		.loc 1 469 38 view .LVU176
+ 490 0072 0133     		adds	r3, r3, #1
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 491              		.loc 1 475 27 view .LVU177
+ 492 0074 84F85820 		strb	r2, [r4, #88]
+ 469:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 493              		.loc 1 469 38 view .LVU178
+ 494 0078 A380     		strh	r3, [r4, #4]	@ movhi
+ 472:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 495              		.loc 1 472 9 is_stmt 1 view .LVU179
+ 475:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 496              		.loc 1 475 9 view .LVU180
+ 227:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 497              		.loc 1 227 8 is_stmt 0 view .LVU181
+ 498 007a 0120     		movs	r0, #1
+ 499              		.loc 1 498 1 view .LVU182
+ 500 007c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 501              	.LVL37:
+ 502              	.L72:
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 503              		.loc 1 247 9 is_stmt 1 view .LVU183
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 504              		.loc 1 247 12 is_stmt 0 view .LVU184
+ 505 007e 90F85530 		ldrb	r3, [r0, #85]	@ zero_extendqisi2
+ 506 0082 006F     		ldr	r0, [r0, #112]
+ 507              	.LVL38:
+ 247:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 508              		.loc 1 247 12 view .LVU185
+ 509 0084 002B     		cmp	r3, #0
+ 510 0086 4BD1     		bne	.L24
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 511              		.loc 1 249 11 is_stmt 1 view .LVU186
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 512              		.loc 1 249 29 is_stmt 0 view .LVU187
+ 513 0088 C268     		ldr	r2, [r0, #12]
+ 249:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 514              		.loc 1 249 14 view .LVU188
+ 515 008a 4AB1     		cbz	r2, .L25
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bResetPLLCnt > pHandle->bResetPLLTh)
+ 516              		.loc 1 251 13 is_stmt 1 view .LVU189
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bResetPLLCnt > pHandle->bResetPLLTh)
+ 517              		.loc 1 251 34 is_stmt 0 view .LVU190
+ 518 008c 94F85730 		ldrb	r3, [r4, #87]	@ zero_extendqisi2
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 519              		.loc 1 252 16 view .LVU191
+ 520 0090 94F85610 		ldrb	r1, [r4, #86]	@ zero_extendqisi2
+ARM GAS  /tmp/ccvkByR8.s 			page 23
+
+
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bResetPLLCnt > pHandle->bResetPLLTh)
+ 521              		.loc 1 251 34 view .LVU192
+ 522 0094 0133     		adds	r3, r3, #1
+ 523 0096 DBB2     		uxtb	r3, r3
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 524              		.loc 1 252 16 view .LVU193
+ 525 0098 9942     		cmp	r1, r3
+ 251:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             if (pHandle->bResetPLLCnt > pHandle->bResetPLLTh)
+ 526              		.loc 1 251 34 view .LVU194
+ 527 009a 84F85730 		strb	r3, [r4, #87]
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 528              		.loc 1 252 13 is_stmt 1 view .LVU195
+ 252:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 529              		.loc 1 252 16 is_stmt 0 view .LVU196
+ 530 009e 62D3     		bcc	.L75
+ 531              	.L25:
+ 266:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 532              		.loc 1 266 11 is_stmt 1 view .LVU197
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 533              		.loc 1 268 11 view .LVU198
+ 268:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 534              		.loc 1 268 29 is_stmt 0 view .LVU199
+ 535 00a0 0369     		ldr	r3, [r0, #16]
+ 536 00a2 9847     		blx	r3
+ 537              	.LVL39:
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 538              		.loc 1 270 11 is_stmt 1 view .LVU200
+ 270:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 539              		.loc 1 270 14 is_stmt 0 view .LVU201
+ 540 00a4 0028     		cmp	r0, #0
+ 541 00a6 4DD0     		beq	.L26
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 542              		.loc 1 272 13 is_stmt 1 view .LVU202
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 543              		.loc 1 272 24 is_stmt 0 view .LVU203
+ 544 00a8 94F85350 		ldrb	r5, [r4, #83]	@ zero_extendqisi2
+ 272:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 545              		.loc 1 272 16 view .LVU204
+ 546 00ac 7E2D     		cmp	r5, #126
+ 547 00ae 03D8     		bhi	.L27
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 548              		.loc 1 274 15 is_stmt 1 view .LVU205
+ 274:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 549              		.loc 1 274 38 is_stmt 0 view .LVU206
+ 550 00b0 0135     		adds	r5, r5, #1
+ 551 00b2 EDB2     		uxtb	r5, r5
+ 552 00b4 84F85350 		strb	r5, [r4, #83]
+ 553              	.L27:
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 554              		.loc 1 286 11 is_stmt 1 view .LVU207
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 555              		.loc 1 286 22 is_stmt 0 view .LVU208
+ 556 00b8 236F     		ldr	r3, [r4, #112]
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 557              		.loc 1 286 14 view .LVU209
+ 558 00ba DA68     		ldr	r2, [r3, #12]
+ 559 00bc 002A     		cmp	r2, #0
+ARM GAS  /tmp/ccvkByR8.s 			page 24
+
+
+ 560 00be 59D0     		beq	.L29
+ 561              	.L28:
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 562              		.loc 1 288 13 is_stmt 1 view .LVU210
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 563              		.loc 1 288 41 is_stmt 0 view .LVU211
+ 564 00c0 94F85620 		ldrb	r2, [r4, #86]	@ zero_extendqisi2
+ 288:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 565              		.loc 1 288 16 view .LVU212
+ 566 00c4 B5EB520F 		cmp	r5, r2, lsr #1
+ 567 00c8 2CD1     		bne	.L70
+ 568              	.L30:
+ 569              	.LBB19:
+ 311:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnit = SPD_GetAvrgMecSpeedUnit(pHandle->pSNSL->_Super);
+ 570              		.loc 1 311 13 is_stmt 1 view .LVU213
+ 571              	.LVL40:
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnitAbsValue =
+ 572              		.loc 1 312 13 view .LVU214
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnitAbsValue =
+ 573              		.loc 1 312 37 is_stmt 0 view .LVU215
+ 574 00ca 1868     		ldr	r0, [r3]
+ 575              	.LVL41:
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnitAbsValue =
+ 576              		.loc 1 312 37 view .LVU216
+ 577 00cc FFF7FEFF 		bl	SPD_GetAvrgMecSpeedUnit
+ 578              	.LVL42:
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 579              		.loc 1 316 16 view .LVU217
+ 580 00d0 B4F90630 		ldrsh	r3, [r4, #6]
+ 581 00d4 002B     		cmp	r3, #0
+ 312:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             int16_t hObsSpeedUnitAbsValue =
+ 582              		.loc 1 312 37 view .LVU218
+ 583 00d6 0646     		mov	r6, r0
+ 584              	.LVL43:
+ 313:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     ((hObsSpeedUnit < 0) ? (-hObsSpeedUnit) : (hObsSpeedUnit)); /* hObsSpeedUnit ab
+ 585              		.loc 1 313 13 is_stmt 1 view .LVU219
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 586              		.loc 1 316 13 view .LVU220
+ 316:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 587              		.loc 1 316 16 is_stmt 0 view .LVU221
+ 588 00d8 4FDD     		ble	.L31
+ 318:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 589              		.loc 1 318 15 is_stmt 1 view .LVU222
+ 318:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 590              		.loc 1 318 18 is_stmt 0 view .LVU223
+ 591 00da 0028     		cmp	r0, #0
+ 592 00dc 4FDD     		ble	.L33
+ 593              	.L32:
+ 314:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 594              		.loc 1 314 61 view .LVU224
+ 595 00de 86EAE677 		eor	r7, r6, r6, asr #31
+ 596 00e2 A7EBE677 		sub	r7, r7, r6, asr #31
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 597              		.loc 1 346 15 is_stmt 1 view .LVU225
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 598              		.loc 1 346 18 is_stmt 0 view .LVU226
+ 599 00e6 B4F84A20 		ldrh	r2, [r4, #74]
+ARM GAS  /tmp/ccvkByR8.s 			page 25
+
+
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 600              		.loc 1 346 53 view .LVU227
+ 601 00ea BBB2     		uxth	r3, r7
+ 346:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 602              		.loc 1 346 18 view .LVU228
+ 603 00ec 9A42     		cmp	r2, r3
+ 604 00ee 4BD2     		bcs	.L34
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->EnteredZone1 = true;
+ 605              		.loc 1 349 17 is_stmt 1 view .LVU229
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->EnteredZone1 = true;
+ 606              		.loc 1 349 24 is_stmt 0 view .LVU230
+ 607 00f0 206F     		ldr	r0, [r4, #112]
+ 608              	.LVL44:
+ 349:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->EnteredZone1 = true;
+ 609              		.loc 1 349 17 view .LVU231
+ 610 00f2 4368     		ldr	r3, [r0, #4]
+ 611 00f4 9847     		blx	r3
+ 612              	.LVL45:
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 613              		.loc 1 350 17 is_stmt 1 view .LVU232
+ 350:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               }
+ 614              		.loc 1 350 39 is_stmt 0 view .LVU233
+ 615 00f6 0123     		movs	r3, #1
+ 616 00f8 84F85530 		strb	r3, [r4, #85]
+ 617 00fc A388     		ldrh	r3, [r4, #4]
+ 618 00fe 8AE7     		b	.L23
+ 619              	.LVL46:
+ 620              	.L36:
+ 621              	.LBB20:
+ 366:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   pHandle->hPhaseRemainingTicks = 0U;
+ 622              		.loc 1 366 19 is_stmt 1 view .LVU234
+ 367:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 }
+ 623              		.loc 1 367 19 view .LVU235
+ 624 0100 94F85850 		ldrb	r5, [r4, #88]	@ zero_extendqisi2
+ 367:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 }
+ 625              		.loc 1 367 49 is_stmt 0 view .LVU236
+ 626 0104 A4F804C0 		strh	ip, [r4, #4]	@ movhi
+ 391:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 627              		.loc 1 391 17 is_stmt 1 view .LVU237
+ 628              	.LBE20:
+ 629              	.LBE19:
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 630              		.loc 1 434 5 view .LVU238
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 631              		.loc 1 436 7 view .LVU239
+ 632              	.LVL47:
+ 633              	.L40:
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 634              		.loc 1 479 9 view .LVU240
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 635              		.loc 1 479 43 is_stmt 0 view .LVU241
+ 636 0108 94F84830 		ldrb	r3, [r4, #72]	@ zero_extendqisi2
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 637              		.loc 1 479 55 view .LVU242
+ 638 010c 013B     		subs	r3, r3, #1
+ 479:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 639              		.loc 1 479 12 view .LVU243
+ARM GAS  /tmp/ccvkByR8.s 			page 26
+
+
+ 640 010e 9D42     		cmp	r5, r3
+ 641 0110 1FD0     		beq	.L54
+ 483:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 642              		.loc 1 483 14 is_stmt 1 view .LVU244
+ 483:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         {
+ 643              		.loc 1 483 17 is_stmt 0 view .LVU245
+ 644 0112 072D     		cmp	r5, #7
+ 645 0114 82D1     		bne	.L71
+ 485:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->hPhaseRemainingTicks = 0U;
+ 646              		.loc 1 485 11 is_stmt 1 view .LVU246
+ 485:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->hPhaseRemainingTicks = 0U;
+ 647              		.loc 1 485 30 is_stmt 0 view .LVU247
+ 648 0116 0023     		movs	r3, #0
+ 649 0118 84F85830 		strb	r3, [r4, #88]
+ 486:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 650              		.loc 1 486 11 is_stmt 1 view .LVU248
+ 486:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 651              		.loc 1 486 41 is_stmt 0 view .LVU249
+ 652 011c A380     		strh	r3, [r4, #4]	@ movhi
+ 653 011e 7DE7     		b	.L71
+ 654              	.L24:
+ 429:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 655              		.loc 1 429 11 is_stmt 1 view .LVU250
+ 656 0120 4368     		ldr	r3, [r0, #4]
+ 657 0122 9847     		blx	r3
+ 658              	.LVL48:
+ 659              	.L70:
+ 660 0124 A388     		ldrh	r3, [r4, #4]
+ 661 0126 76E7     		b	.L23
+ 662              	.L73:
+ 441:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->OTFSCLowside = true;
+ 663              		.loc 1 441 11 view .LVU251
+ 664 0128 606F     		ldr	r0, [r4, #116]
+ 665 012a FFF7FEFF 		bl	PWMC_SwitchOffPWM
+ 666              	.LVL49:
+ 442:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           PWMC_TurnOnLowSides(pHandle->pPWM, 0u);
+ 667              		.loc 1 442 11 view .LVU252
+ 442:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           PWMC_TurnOnLowSides(pHandle->pPWM, 0u);
+ 668              		.loc 1 442 33 is_stmt 0 view .LVU253
+ 669 012e 0123     		movs	r3, #1
+ 670 0130 84F85430 		strb	r3, [r4, #84]
+ 443:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->bOTFRelCounter = 0U;
+ 671              		.loc 1 443 11 is_stmt 1 view .LVU254
+ 672 0134 2946     		mov	r1, r5
+ 673 0136 606F     		ldr	r0, [r4, #116]
+ 674 0138 FFF7FEFF 		bl	PWMC_TurnOnLowSides
+ 675              	.LVL50:
+ 444:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 676              		.loc 1 444 11 view .LVU255
+ 444:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 677              		.loc 1 444 35 is_stmt 0 view .LVU256
+ 678 013c 84F85350 		strb	r5, [r4, #83]
+ 679 0140 A368     		ldr	r3, [r4, #8]
+ 680 0142 75E7     		b	.L48
+ 681              	.LVL51:
+ 682              	.L26:
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ARM GAS  /tmp/ccvkByR8.s 			page 27
+
+
+ 683              		.loc 1 283 13 is_stmt 1 view .LVU257
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 684              		.loc 1 286 22 is_stmt 0 view .LVU258
+ 685 0144 236F     		ldr	r3, [r4, #112]
+ 283:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           }
+ 686              		.loc 1 283 37 view .LVU259
+ 687 0146 84F85300 		strb	r0, [r4, #83]
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 688              		.loc 1 286 11 is_stmt 1 view .LVU260
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 689              		.loc 1 286 14 is_stmt 0 view .LVU261
+ 690 014a DA68     		ldr	r2, [r3, #12]
+ 691 014c 002A     		cmp	r2, #0
+ 692 014e B7D1     		bne	.L28
+ 286:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           {
+ 693              		.loc 1 286 14 view .LVU262
+ 694 0150 E8E7     		b	.L70
+ 695              	.LVL52:
+ 696              	.L54:
+ 481:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 697              		.loc 1 481 18 view .LVU263
+ 698 0152 0020     		movs	r0, #0
+ 699              	.LVL53:
+ 491:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 700              		.loc 1 491 9 is_stmt 1 view .LVU264
+ 497:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 701              		.loc 1 497 3 view .LVU265
+ 702              		.loc 1 498 1 is_stmt 0 view .LVU266
+ 703 0154 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 704              	.LVL54:
+ 705              	.L74:
+ 448:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****           pHandle->OTFSCLowside = false;
+ 706              		.loc 1 448 11 is_stmt 1 view .LVU267
+ 707 0156 606F     		ldr	r0, [r4, #116]
+ 708 0158 FFF7FEFF 		bl	PWMC_SwitchOnPWM
+ 709              	.LVL55:
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 710              		.loc 1 449 11 view .LVU268
+ 449:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         }
+ 711              		.loc 1 449 33 is_stmt 0 view .LVU269
+ 712 015c 0022     		movs	r2, #0
+ 713 015e A368     		ldr	r3, [r4, #8]
+ 714 0160 84F85420 		strb	r2, [r4, #84]
+ 715 0164 64E7     		b	.L48
+ 716              	.L75:
+ 254:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bOTFRelCounter = 0U;
+ 717              		.loc 1 254 15 is_stmt 1 view .LVU270
+ 718 0166 9047     		blx	r2
+ 719              	.LVL56:
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bResetPLLCnt = 0U;
+ 720              		.loc 1 255 15 view .LVU271
+ 721 0168 206F     		ldr	r0, [r4, #112]
+ 255:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               pHandle->bResetPLLCnt = 0U;
+ 722              		.loc 1 255 39 is_stmt 0 view .LVU272
+ 723 016a 84F85350 		strb	r5, [r4, #83]
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 724              		.loc 1 256 15 is_stmt 1 view .LVU273
+ARM GAS  /tmp/ccvkByR8.s 			page 28
+
+
+ 256:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 725              		.loc 1 256 37 is_stmt 0 view .LVU274
+ 726 016e 84F85750 		strb	r5, [r4, #87]
+ 727 0172 95E7     		b	.L25
+ 728              	.LVL57:
+ 729              	.L29:
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 730              		.loc 1 299 13 is_stmt 1 view .LVU275
+ 299:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             {
+ 731              		.loc 1 299 16 is_stmt 0 view .LVU276
+ 732 0174 7F2D     		cmp	r5, #127
+ 733 0176 A8D0     		beq	.L30
+ 734 0178 D4E7     		b	.L70
+ 735              	.LVL58:
+ 736              	.L31:
+ 737              	.LBB31:
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 738              		.loc 1 329 15 is_stmt 1 view .LVU277
+ 329:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 739              		.loc 1 329 18 is_stmt 0 view .LVU278
+ 740 017a 0028     		cmp	r0, #0
+ 741 017c AFDB     		blt	.L32
+ 742              	.L33:
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 743              		.loc 1 342 15 is_stmt 1 view .LVU279
+ 342:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****             }
+ 744              		.loc 1 342 39 is_stmt 0 view .LVU280
+ 745 017e 0023     		movs	r3, #0
+ 746 0180 84F85330 		strb	r3, [r4, #83]
+ 747 0184 A388     		ldrh	r3, [r4, #4]
+ 748 0186 46E7     		b	.L23
+ 749              	.L34:
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 750              		.loc 1 352 20 is_stmt 1 view .LVU281
+ 352:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****               {
+ 751              		.loc 1 352 23 is_stmt 0 view .LVU282
+ 752 0188 B4F84C20 		ldrh	r2, [r4, #76]
+ 753 018c 9A42     		cmp	r2, r3
+ 754 018e C9D2     		bcs	.L70
+ 755              	.LBB27:
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int16_t hOldFinalTorque = 0;
+ 756              		.loc 1 356 17 is_stmt 1 view .LVU283
+ 757              	.LVL59:
+ 357:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int32_t wDeltaSpeedRevUp;
+ 758              		.loc 1 357 17 view .LVU284
+ 358:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int32_t wDeltaTorqueRevUp;
+ 759              		.loc 1 358 17 view .LVU285
+ 359:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 bool bError = false;
+ 760              		.loc 1 359 17 view .LVU286
+ 360:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 VSS_SetCopyObserver(pHandle->pVSS);
+ 761              		.loc 1 360 17 view .LVU287
+ 361:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 pHandle->pSNSL->pFctForceConvergency2(pHandle->pSNSL);
+ 762              		.loc 1 361 17 view .LVU288
+ 763              	.LBB21:
+ 764              	.LBI21:
+ 135:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 136:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   }
+ARM GAS  /tmp/ccvkByR8.s 			page 29
+
+
+ 137:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #endif
+ 138:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** }
+ 139:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** 
+ 140:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** /**
+ 141:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @brief  Sets instantaneous information on rotor electrical angle same as copied by state observ
+ 142:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component.
+ 143:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * @retval none
+ 144:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   *
+ 145:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   * - Not used into current implementation.
+ 146:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   */
+ 147:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** static inline void VSS_SetCopyObserver(VirtualSpeedSensor_Handle_t *pHandle)
+ 765              		.loc 2 147 20 view .LVU289
+ 766              	.LBB22:
+ 148:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** {
+ 149:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #ifdef NULL_PTR_CHECK_VIR_SPD_SEN
+ 150:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   if (MC_NULL == pHandle)
+ 151:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   {
+ 152:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     /* Nothing to do */
+ 153:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   }
+ 154:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   else
+ 155:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****   {
+ 156:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h **** #endif
+ 157:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h ****     pHandle->bCopyObserver = true;
+ 767              		.loc 2 157 5 view .LVU290
+ 768              	.LBE22:
+ 769              	.LBE21:
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 770              		.loc 1 362 24 is_stmt 0 view .LVU291
+ 771 0190 D4E91B30 		ldrd	r3, r0, [r4, #108]
+ 772              	.LVL60:
+ 773              	.LBB24:
+ 774              	.LBB23:
+ 775              		.loc 2 157 28 view .LVU292
+ 776 0194 0122     		movs	r2, #1
+ 777 0196 83F83320 		strb	r2, [r3, #51]
+ 778              	.LBE23:
+ 779              	.LBE24:
+ 362:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 780              		.loc 1 362 17 is_stmt 1 view .LVU293
+ 781 019a 8368     		ldr	r3, [r0, #8]
+ 782 019c 9847     		blx	r3
+ 783              	.LVL61:
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 784              		.loc 1 364 17 view .LVU294
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 785              		.loc 1 364 39 is_stmt 0 view .LVU295
+ 786 019e D4F808C0 		ldr	ip, [r4, #8]
+ 364:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 787              		.loc 1 364 20 view .LVU296
+ 788 01a2 BCF1000F 		cmp	ip, #0
+ 789 01a6 ABD0     		beq	.L36
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 790              		.loc 1 371 54 view .LVU297
+ 791 01a8 BCF902E0 		ldrsh	lr, [ip, #2]
+ 792              	.LBE27:
+ 313:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     ((hObsSpeedUnit < 0) ? (-hObsSpeedUnit) : (hObsSpeedUnit)); /* hObsSpeedUnit ab
+ 793              		.loc 1 313 21 view .LVU298
+ARM GAS  /tmp/ccvkByR8.s 			page 30
+
+
+ 794 01ac 3FB2     		sxth	r7, r7
+ 795              	.LBB28:
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 796              		.loc 1 371 25 view .LVU299
+ 797 01ae 7745     		cmp	r7, lr
+ 798 01b0 3DDD     		ble	.L51
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 799              		.loc 1 373 21 is_stmt 1 view .LVU300
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 800              		.loc 1 373 53 is_stmt 0 view .LVU301
+ 801 01b2 DCF80830 		ldr	r3, [ip, #8]
+ 802 01b6 94F85850 		ldrb	r5, [r4, #88]	@ zero_extendqisi2
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 803              		.loc 1 373 24 view .LVU302
+ 804 01ba 002B     		cmp	r3, #0
+ 805 01bc 35D0     		beq	.L76
+ 806 01be 0135     		adds	r5, r5, #1
+ 807 01c0 EDB2     		uxtb	r5, r5
+ 808 01c2 06E0     		b	.L41
+ 809              	.LVL62:
+ 810              	.L43:
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 811              		.loc 1 373 53 view .LVU303
+ 812 01c4 9868     		ldr	r0, [r3, #8]
+ 813              	.LVL63:
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 814              		.loc 1 373 53 view .LVU304
+ 815 01c6 D2B2     		uxtb	r2, r2
+ 816 01c8 8E46     		mov	lr, r1
+ 817 01ca 9C46     		mov	ip, r3
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 818              		.loc 1 373 24 view .LVU305
+ 819 01cc C0B1     		cbz	r0, .L77
+ 820 01ce 1546     		mov	r5, r2
+ 821 01d0 0346     		mov	r3, r0
+ 822              	.L41:
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 823              		.loc 1 373 21 is_stmt 1 view .LVU306
+ 824              	.LVL64:
+ 383:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       hOldFinalTorque = pHandle->pCurrentPhaseParams->hFinalTorque;
+ 825              		.loc 1 383 23 view .LVU307
+ 384:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       //cstat !MISRAC2012-Rule-11.5
+ 826              		.loc 1 384 23 view .LVU308
+ 384:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       //cstat !MISRAC2012-Rule-11.5
+ 827              		.loc 1 384 39 is_stmt 0 view .LVU309
+ 828 01d2 BCF90400 		ldrsh	r0, [ip, #4]
+ 829              	.LVL65:
+ 386:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       pHandle->bStageCnt++;
+ 830              		.loc 1 386 23 is_stmt 1 view .LVU310
+ 387:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     }
+ 831              		.loc 1 387 23 view .LVU311
+ 387:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     }
+ 832              		.loc 1 387 41 is_stmt 0 view .LVU312
+ 833 01d6 84F85850 		strb	r5, [r4, #88]
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 834              		.loc 1 371 54 view .LVU313
+ 835 01da B3F90210 		ldrsh	r1, [r3, #2]
+ARM GAS  /tmp/ccvkByR8.s 			page 31
+
+
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 836              		.loc 1 371 25 view .LVU314
+ 837 01de B942     		cmp	r1, r7
+ 838 01e0 05F10102 		add	r2, r5, #1
+ 839 01e4 EEDB     		blt	.L43
+ 840 01e6 A360     		str	r3, [r4, #8]
+ 841              	.LVL66:
+ 842              	.L37:
+ 391:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 843              		.loc 1 391 17 is_stmt 1 view .LVU315
+ 844              	.LBB25:
+ 394:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 845              		.loc 1 394 19 view .LVU316
+ 396:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                    - ((int32_t)(hOldFinalMecSpeedUnit));
+ 846              		.loc 1 396 19 view .LVU317
+ 398:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                     - ((int32_t)(hOldFinalTorque));
+ 847              		.loc 1 398 19 view .LVU318
+ 401:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 848              		.loc 1 401 19 view .LVU319
+ 401:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 849              		.loc 1 401 22 is_stmt 0 view .LVU320
+ 850 01e8 B1EB0E01 		subs	r1, r1, lr
+ 851              	.LVL67:
+ 401:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 852              		.loc 1 401 22 view .LVU321
+ 853 01ec 0CD1     		bne	.L78
+ 854              	.LVL68:
+ 855              	.L44:
+ 413:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 856              		.loc 1 413 19 is_stmt 1 view .LVU322
+ 417:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 } /* No MC_NULL error */
+ 857              		.loc 1 417 38 is_stmt 0 view .LVU323
+ 858 01ee 0623     		movs	r3, #6
+ 413:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 859              		.loc 1 413 49 view .LVU324
+ 860 01f0 0120     		movs	r0, #1
+ 415:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 861              		.loc 1 415 50 view .LVU325
+ 862 01f2 04F15C02 		add	r2, r4, #92
+ 417:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 } /* No MC_NULL error */
+ 863              		.loc 1 417 38 view .LVU326
+ 864 01f6 84F85830 		strb	r3, [r4, #88]
+ 413:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 865              		.loc 1 413 49 view .LVU327
+ 866 01fa A080     		strh	r0, [r4, #4]	@ movhi
+ 415:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 867              		.loc 1 415 19 is_stmt 1 view .LVU328
+ 415:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 868              		.loc 1 415 48 is_stmt 0 view .LVU329
+ 869 01fc A260     		str	r2, [r4, #8]
+ 417:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 } /* No MC_NULL error */
+ 870              		.loc 1 417 19 is_stmt 1 view .LVU330
+ 871              	.LBE25:
+ 872              	.LBE28:
+ 873              	.LBE31:
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 874              		.loc 1 434 5 view .LVU331
+ARM GAS  /tmp/ccvkByR8.s 			page 32
+
+
+ 875              		.loc 1 498 1 is_stmt 0 view .LVU332
+ 876 01fe F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 877              	.LVL69:
+ 878              	.L77:
+ 879              		.loc 1 498 1 view .LVU333
+ 880 0200 A360     		str	r3, [r4, #8]
+ 881              	.L38:
+ 882              	.LBB32:
+ 883              	.LBB29:
+ 376:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       pHandle->hPhaseRemainingTicks = 0U;
+ 884              		.loc 1 376 23 is_stmt 1 view .LVU334
+ 885              	.LVL70:
+ 377:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       break;
+ 886              		.loc 1 377 23 view .LVU335
+ 377:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                       break;
+ 887              		.loc 1 377 53 is_stmt 0 view .LVU336
+ 888 0202 0022     		movs	r2, #0
+ 889 0204 A280     		strh	r2, [r4, #4]	@ movhi
+ 378:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     }
+ 890              		.loc 1 378 23 is_stmt 1 view .LVU337
+ 891              	.LVL71:
+ 391:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 {
+ 892              		.loc 1 391 17 view .LVU338
+ 893              	.LBE29:
+ 894              	.LBE32:
+ 434:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 895              		.loc 1 434 5 view .LVU339
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 896              		.loc 1 436 7 view .LVU340
+ 897 0206 0EE7     		b	.L42
+ 898              	.LVL72:
+ 899              	.L78:
+ 900              	.LBB33:
+ 901              	.LBB30:
+ 902              	.LBB26:
+ 407:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                      + hOldFinalTorque;
+ 903              		.loc 1 407 21 view .LVU341
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 904              		.loc 1 410 21 view .LVU342
+ 398:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                     - ((int32_t)(hOldFinalTorque));
+ 905              		.loc 1 398 40 is_stmt 0 view .LVU343
+ 906 0208 B3F90430 		ldrsh	r3, [r3, #4]
+ 907              	.LVL73:
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 908              		.loc 1 410 75 view .LVU344
+ 909 020c E288     		ldrh	r2, [r4, #6]
+ 398:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                     - ((int32_t)(hOldFinalTorque));
+ 910              		.loc 1 398 37 view .LVU345
+ 911 020e 1B1A     		subs	r3, r3, r0
+ 912              	.LVL74:
+ 407:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                      + hOldFinalTorque;
+ 913              		.loc 1 407 76 view .LVU346
+ 914 0210 06FB03F3 		mul	r3, r6, r3
+ 407:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                      + hOldFinalTorque;
+ 915              		.loc 1 407 97 view .LVU347
+ 916 0214 93FBF1F3 		sdiv	r3, r3, r1
+ 408:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ARM GAS  /tmp/ccvkByR8.s 			page 33
+
+
+ 917              		.loc 1 408 38 view .LVU348
+ 918 0218 0344     		add	r3, r3, r0
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 919              		.loc 1 410 75 view .LVU349
+ 920 021a 12FB03F3 		smulbb	r3, r2, r3
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 921              		.loc 1 410 27 view .LVU350
+ 922 021e 19B2     		sxth	r1, r3
+ 923              	.LVL75:
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 924              		.loc 1 410 27 view .LVU351
+ 925 0220 0022     		movs	r2, #0
+ 926 0222 A06E     		ldr	r0, [r4, #104]
+ 927              	.LVL76:
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 928              		.loc 1 410 27 view .LVU352
+ 929 0224 FFF7FEFF 		bl	STC_ExecRamp
+ 930              	.LVL77:
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 931              		.loc 1 410 27 view .LVU353
+ 932 0228 E1E7     		b	.L44
+ 933              	.LVL78:
+ 934              	.L76:
+ 410:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   }
+ 935              		.loc 1 410 27 view .LVU354
+ 936              	.LBE26:
+ 373:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                     {
+ 937              		.loc 1 373 24 view .LVU355
+ 938 022a 6346     		mov	r3, ip
+ 939 022c E9E7     		b	.L38
+ 940              	.L51:
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 941              		.loc 1 371 25 view .LVU356
+ 942 022e 7146     		mov	r1, lr
+ 357:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int32_t wDeltaSpeedRevUp;
+ 943              		.loc 1 357 25 view .LVU357
+ 944 0230 4FF0000E 		mov	lr, #0
+ 371:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                   {
+ 945              		.loc 1 371 25 view .LVU358
+ 946 0234 6346     		mov	r3, ip
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int16_t hOldFinalTorque = 0;
+ 947              		.loc 1 356 25 view .LVU359
+ 948 0236 7046     		mov	r0, lr
+ 949 0238 D6E7     		b	.L37
+ 950              	.LVL79:
+ 951              	.L46:
+ 356:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                 int16_t hOldFinalTorque = 0;
+ 952              		.loc 1 356 25 view .LVU360
+ 953 023a A368     		ldr	r3, [r4, #8]
+ 954 023c 94F85850 		ldrb	r5, [r4, #88]	@ zero_extendqisi2
+ 955              	.LBE30:
+ 956              	.LBE33:
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 957              		.loc 1 436 7 is_stmt 1 view .LVU361
+ 436:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 958              		.loc 1 436 10 is_stmt 0 view .LVU362
+ 959 0240 002B     		cmp	r3, #0
+ARM GAS  /tmp/ccvkByR8.s 			page 34
+
+
+ 960 0242 7FF4F0AE 		bne	.L42
+ 961 0246 5FE7     		b	.L40
+ 962              	.L80:
+ 963              		.align	2
+ 964              	.L79:
+ 965 0248 D34D6210 		.word	274877907
+ 966              		.cfi_endproc
+ 967              	.LFE1459:
+ 969              		.section	.text.RUC_Exec,"ax",%progbits
+ 970              		.align	1
+ 971              		.p2align 2,,3
+ 972              		.weak	RUC_Exec
+ 973              		.syntax unified
+ 974              		.thumb
+ 975              		.thumb_func
+ 976              		.fpu fpv4-sp-d16
+ 978              	RUC_Exec:
+ 979              	.LVL80:
+ 980              	.LFB1460:
+ 499:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 500:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 501:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  FOC Main Rev-Up controller procedure executing overall programmed phases.
+ 502:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 503:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  @retval Boolean set to false when entire Rev-Up phases have been completed.
+ 504:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 505:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak bool RUC_Exec(RevUpCtrl_Handle_t *pHandle)
+ 506:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 981              		.loc 1 506 1 is_stmt 1 view -0
+ 982              		.cfi_startproc
+ 983              		@ args = 0, pretend = 0, frame = 0
+ 984              		@ frame_needed = 0, uses_anonymous_args = 0
+ 507:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   bool retVal = true;
+ 985              		.loc 1 507 3 view .LVU364
+ 508:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 509:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 510:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 511:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     retVal = false;
+ 512:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 513:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 514:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 515:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 516:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (pHandle->hPhaseRemainingTicks > 0U)
+ 986              		.loc 1 516 5 view .LVU365
+ 506:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   bool retVal = true;
+ 987              		.loc 1 506 1 is_stmt 0 view .LVU366
+ 988 0000 38B5     		push	{r3, r4, r5, lr}
+ 989              	.LCFI5:
+ 990              		.cfi_def_cfa_offset 16
+ 991              		.cfi_offset 3, -16
+ 992              		.cfi_offset 4, -12
+ 993              		.cfi_offset 5, -8
+ 994              		.cfi_offset 14, -4
+ 995              		.loc 1 516 16 view .LVU367
+ 996 0002 8388     		ldrh	r3, [r0, #4]
+ 997              		.loc 1 516 8 view .LVU368
+ 998 0004 5BBB     		cbnz	r3, .L82
+ 999              	.L85:
+ARM GAS  /tmp/ccvkByR8.s 			page 35
+
+
+ 517:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 518:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Decrease the hPhaseRemainingTicks */
+ 519:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       pHandle->hPhaseRemainingTicks--;
+ 520:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 521:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     } /* hPhaseRemainingTicks > 0 */
+ 522:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     else
+ 523:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 524:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Nothing to do */
+ 525:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 526:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 527:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (0U == pHandle->hPhaseRemainingTicks)
+ 528:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 529:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       if (pHandle->pCurrentPhaseParams != MC_NULL)
+ 1000              		.loc 1 529 7 is_stmt 1 view .LVU369
+ 1001              		.loc 1 529 18 is_stmt 0 view .LVU370
+ 1002 0006 8368     		ldr	r3, [r0, #8]
+ 1003              		.loc 1 529 10 view .LVU371
+ 1004 0008 3BB3     		cbz	r3, .L91
+ 530:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 531:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* If it becomes zero the current phase has been completed */
+ 532:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Gives the next command to STC and VSS */
+ 533:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         (void)STC_ExecRamp(pHandle->pSTC, pHandle->pCurrentPhaseParams->hFinalTorque * pHandle->hDi
+ 1005              		.loc 1 533 9 is_stmt 1 view .LVU372
+ 1006              		.loc 1 533 86 is_stmt 0 view .LVU373
+ 1007 000a C588     		ldrh	r5, [r0, #6]
+ 1008 000c 9988     		ldrh	r1, [r3, #4]
+ 1009              		.loc 1 533 15 view .LVU374
+ 1010 000e 1A88     		ldrh	r2, [r3]
+ 1011 0010 0446     		mov	r4, r0
+ 1012              		.loc 1 533 86 view .LVU375
+ 1013 0012 11FB05F1 		smulbb	r1, r1, r5
+ 1014              		.loc 1 533 15 view .LVU376
+ 1015 0016 09B2     		sxth	r1, r1
+ 1016 0018 806E     		ldr	r0, [r0, #104]
+ 1017              	.LVL81:
+ 1018              		.loc 1 533 15 view .LVU377
+ 1019 001a FFF7FEFF 		bl	STC_ExecRamp
+ 1020              	.LVL82:
+ 534:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                            (uint32_t)(pHandle->pCurrentPhaseParams->hDurationms));
+ 535:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 536:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         VSS_SetMecAcceleration(pHandle->pVSS,
+ 1021              		.loc 1 536 9 is_stmt 1 view .LVU378
+ 537:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 1022              		.loc 1 537 39 is_stmt 0 view .LVU379
+ 1023 001e A368     		ldr	r3, [r4, #8]
+ 1024              		.loc 1 537 81 view .LVU380
+ 1025 0020 E588     		ldrh	r5, [r4, #6]
+ 1026 0022 5988     		ldrh	r1, [r3, #2]
+ 536:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 1027              		.loc 1 536 9 view .LVU381
+ 1028 0024 1A88     		ldrh	r2, [r3]
+ 1029 0026 E06E     		ldr	r0, [r4, #108]
+ 1030              		.loc 1 537 81 view .LVU382
+ 1031 0028 11FB05F1 		smulbb	r1, r1, r5
+ 536:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirecti
+ 1032              		.loc 1 536 9 view .LVU383
+ 1033 002c 09B2     		sxth	r1, r1
+ARM GAS  /tmp/ccvkByR8.s 			page 36
+
+
+ 1034 002e FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 1035              	.LVL83:
+ 538:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                pHandle->pCurrentPhaseParams->hDurationms);
+ 539:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 540:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Compute hPhaseRemainingTicks */
+ 541:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks = (uint16_t)((((uint32_t)pHandle->pCurrentPhaseParams->hDurat
+ 1036              		.loc 1 541 9 is_stmt 1 view .LVU384
+ 1037              		.loc 1 541 71 is_stmt 0 view .LVU385
+ 1038 0032 A268     		ldr	r2, [r4, #8]
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                   * ((uint32_t)pHandle->hRUCFrequencyHz)) / 1000U )
+ 543:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 1039              		.loc 1 543 9 is_stmt 1 view .LVU386
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                   * ((uint32_t)pHandle->hRUCFrequencyHz)) / 1000U )
+ 1040              		.loc 1 542 54 is_stmt 0 view .LVU387
+ 1041 0034 2388     		ldrh	r3, [r4]
+ 541:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                   * ((uint32_t)pHandle->hRUCFrequencyHz)) / 1000U )
+ 1042              		.loc 1 541 54 view .LVU388
+ 1043 0036 1088     		ldrh	r0, [r2]
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****                                                   * ((uint32_t)pHandle->hRUCFrequencyHz)) / 1000U )
+ 1044              		.loc 1 542 91 view .LVU389
+ 1045 0038 0C49     		ldr	r1, .L92
+ 544:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 545:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Set the next phases parameter pointer */
+ 546:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->pCurrentPhaseParams = pHandle->pCurrentPhaseParams->pNext; //cstat !MISRAC2012-Rul
+ 1046              		.loc 1 546 38 view .LVU390
+ 1047 003a 9268     		ldr	r2, [r2, #8]
+ 1048 003c A260     		str	r2, [r4, #8]
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 1049              		.loc 1 542 51 view .LVU391
+ 1050 003e 03FB00F3 		mul	r3, r3, r0
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 1051              		.loc 1 542 91 view .LVU392
+ 1052 0042 A1FB0323 		umull	r2, r3, r1, r3
+ 547:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 548:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         /* Increases the rev up stages counter */
+ 549:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->bStageCnt++;
+ 1053              		.loc 1 549 27 view .LVU393
+ 1054 0046 94F85820 		ldrb	r2, [r4, #88]	@ zero_extendqisi2
+ 542:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks++;
+ 1055              		.loc 1 542 91 view .LVU394
+ 1056 004a 9B09     		lsrs	r3, r3, #6
+ 543:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 1057              		.loc 1 543 38 view .LVU395
+ 1058 004c 0133     		adds	r3, r3, #1
+ 1059              		.loc 1 549 27 view .LVU396
+ 1060 004e 0132     		adds	r2, r2, #1
+ 543:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 1061              		.loc 1 543 38 view .LVU397
+ 1062 0050 A380     		strh	r3, [r4, #4]	@ movhi
+ 546:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 1063              		.loc 1 546 9 is_stmt 1 view .LVU398
+ 1064              		.loc 1 549 9 view .LVU399
+ 1065              		.loc 1 549 27 is_stmt 0 view .LVU400
+ 1066 0052 84F85820 		strb	r2, [r4, #88]
+ 1067              	.LVL84:
+ 1068              	.L90:
+ 507:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ARM GAS  /tmp/ccvkByR8.s 			page 37
+
+
+ 1069              		.loc 1 507 8 view .LVU401
+ 1070 0056 0120     		movs	r0, #1
+ 1071              	.LVL85:
+ 550:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 551:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       else
+ 552:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       {
+ 553:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****         retVal = false;
+ 554:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 555:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 556:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     else
+ 557:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 558:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Nothing to do */
+ 559:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 1072              		.loc 1 559 5 is_stmt 1 view .LVU402
+ 560:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 561:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 562:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 563:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return (retVal);
+ 1073              		.loc 1 563 3 view .LVU403
+ 564:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1074              		.loc 1 564 1 is_stmt 0 view .LVU404
+ 1075 0058 38BD     		pop	{r3, r4, r5, pc}
+ 1076              	.LVL86:
+ 1077              	.L91:
+ 553:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       }
+ 1078              		.loc 1 553 16 view .LVU405
+ 1079 005a 1846     		mov	r0, r3
+ 1080              	.LVL87:
+ 559:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 1081              		.loc 1 559 5 is_stmt 1 view .LVU406
+ 563:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1082              		.loc 1 563 3 view .LVU407
+ 1083              		.loc 1 564 1 is_stmt 0 view .LVU408
+ 1084 005c 38BD     		pop	{r3, r4, r5, pc}
+ 1085              	.LVL88:
+ 1086              	.L82:
+ 519:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 1087              		.loc 1 519 7 is_stmt 1 view .LVU409
+ 519:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 1088              		.loc 1 519 36 is_stmt 0 view .LVU410
+ 1089 005e 013B     		subs	r3, r3, #1
+ 1090 0060 9BB2     		uxth	r3, r3
+ 1091 0062 8380     		strh	r3, [r0, #4]	@ movhi
+ 525:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 1092              		.loc 1 525 5 is_stmt 1 view .LVU411
+ 527:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 1093              		.loc 1 527 5 view .LVU412
+ 527:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 1094              		.loc 1 527 8 is_stmt 0 view .LVU413
+ 1095 0064 002B     		cmp	r3, #0
+ 1096 0066 F6D1     		bne	.L90
+ 1097 0068 CDE7     		b	.L85
+ 1098              	.L93:
+ 1099 006a 00BF     		.align	2
+ 1100              	.L92:
+ 1101 006c D34D6210 		.word	274877907
+ 1102              		.cfi_endproc
+ARM GAS  /tmp/ccvkByR8.s 			page 38
+
+
+ 1103              	.LFE1460:
+ 1105              		.section	.text.RUC_IsAlignStageNow,"ax",%progbits
+ 1106              		.align	1
+ 1107              		.p2align 2,,3
+ 1108              		.global	RUC_IsAlignStageNow
+ 1109              		.syntax unified
+ 1110              		.thumb
+ 1111              		.thumb_func
+ 1112              		.fpu fpv4-sp-d16
+ 1114              	RUC_IsAlignStageNow:
+ 1115              	.LVL89:
+ 1116              	.LFB1461:
+ 565:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 566:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 567:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  It checks if this stage is used for align motor.
+ 568:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 569:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @retval Returns 1 if the alignment is correct otherwise it returns 0
+ 570:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 571:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** //cstat !MISRAC2012-Rule-8.13
+ 572:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** uint8_t RUC_IsAlignStageNow(RevUpCtrl_Handle_t *pHandle)
+ 573:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1117              		.loc 1 573 1 is_stmt 1 view -0
+ 1118              		.cfi_startproc
+ 1119              		@ args = 0, pretend = 0, frame = 0
+ 1120              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1121              		@ link register save eliminated.
+ 574:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   uint8_t align_flag = 0;
+ 1122              		.loc 1 574 3 view .LVU415
+ 575:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 576:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 577:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 578:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 579:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 580:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 581:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 582:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 583:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     int16_t speed;
+ 1123              		.loc 1 583 5 view .LVU416
+ 584:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     speed = RUC_GetPhaseFinalMecSpeed01Hz(pHandle, pHandle->bStageCnt);
+ 1124              		.loc 1 584 5 view .LVU417
+ 1125              	.LBB34:
+ 1126              	.LBI34:
+  95:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1127              		.loc 1 95 23 view .LVU418
+ 1128              	.LBB35:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1129              		.loc 1 97 3 view .LVU419
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1130              		.loc 1 97 3 is_stmt 0 view .LVU420
+ 1131              	.LBE35:
+ 1132              	.LBE34:
+ 585:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (0 == speed)
+ 1133              		.loc 1 585 5 is_stmt 1 view .LVU421
+ 586:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 587:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       align_flag = 1;
+ 588:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 589:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     else
+ARM GAS  /tmp/ccvkByR8.s 			page 39
+
+
+ 590:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 591:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Nothing to do */
+ 592:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 1134              		.loc 1 592 5 view .LVU422
+ 593:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 594:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 595:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 596:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return (align_flag);
+ 1135              		.loc 1 596 3 view .LVU423
+ 1136              	.LBB37:
+ 1137              	.LBB36:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1138              		.loc 1 97 38 is_stmt 0 view .LVU424
+ 1139 0000 90F85830 		ldrb	r3, [r0, #88]	@ zero_extendqisi2
+ 1140              	.LVL90:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1141              		.loc 1 97 38 view .LVU425
+ 1142 0004 03EB4303 		add	r3, r3, r3, lsl #1
+ 1143              	.LVL91:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1144              		.loc 1 97 38 view .LVU426
+ 1145 0008 00EB8300 		add	r0, r0, r3, lsl #2
+ 1146              	.LVL92:
+  97:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1147              		.loc 1 97 38 view .LVU427
+ 1148              	.LBE36:
+ 1149              	.LBE37:
+ 585:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 1150              		.loc 1 585 8 view .LVU428
+ 1151 000c B0F90E00 		ldrsh	r0, [r0, #14]
+ 597:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1152              		.loc 1 597 1 view .LVU429
+ 1153 0010 B0FA80F0 		clz	r0, r0
+ 1154 0014 4009     		lsrs	r0, r0, #5
+ 1155 0016 7047     		bx	lr
+ 1156              		.cfi_endproc
+ 1157              	.LFE1461:
+ 1159              		.section	.text.RUC_FirstAccelerationStageReached,"ax",%progbits
+ 1160              		.align	1
+ 1161              		.p2align 2,,3
+ 1162              		.weak	RUC_FirstAccelerationStageReached
+ 1163              		.syntax unified
+ 1164              		.thumb
+ 1165              		.thumb_func
+ 1166              		.fpu fpv4-sp-d16
+ 1168              	RUC_FirstAccelerationStageReached:
+ 1169              	.LVL93:
+ 1170              	.LFB1462:
+ 598:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 599:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #if defined (CCMRAM)
+ 600:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #if defined (__ICCARM__)
+ 601:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #pragma location = ".ccmram"
+ 602:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #elif defined (__CC_ARM) || defined(__GNUC__)
+ 603:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __attribute__((section(".ccmram")))
+ 604:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 605:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 606:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ARM GAS  /tmp/ccvkByR8.s 			page 40
+
+
+ 607:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 608:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Check that alignment and first acceleration stage are completed.
+ 609:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 610:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  @retval Boolean set to true when first acceleration stage has been reached.
+ 611:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 612:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak bool RUC_FirstAccelerationStageReached(RevUpCtrl_Handle_t *pHandle)
+ 613:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1171              		.loc 1 613 1 is_stmt 1 view -0
+ 1172              		.cfi_startproc
+ 1173              		@ args = 0, pretend = 0, frame = 0
+ 1174              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1175              		@ link register save eliminated.
+ 614:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   bool retVal = false;
+ 1176              		.loc 1 614 3 view .LVU431
+ 615:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 616:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 617:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 618:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 619:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 620:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 621:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 622:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 623:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     if (pHandle->bStageCnt >= pHandle->bFirstAccelerationStage)
+ 1177              		.loc 1 623 5 view .LVU432
+ 624:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 625:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       retVal = true;
+ 626:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 627:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     else
+ 628:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 629:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****       /* Nothing to do */
+ 630:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     }
+ 1178              		.loc 1 630 5 view .LVU433
+ 631:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 632:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 633:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 634:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return (retVal);
+ 1179              		.loc 1 634 3 view .LVU434
+ 623:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     {
+ 1180              		.loc 1 623 8 is_stmt 0 view .LVU435
+ 1181 0000 90F85820 		ldrb	r2, [r0, #88]	@ zero_extendqisi2
+ 1182 0004 90F84900 		ldrb	r0, [r0, #73]	@ zero_extendqisi2
+ 1183              	.LVL94:
+ 635:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1184              		.loc 1 635 1 view .LVU436
+ 1185 0008 8242     		cmp	r2, r0
+ 1186 000a 34BF     		ite	cc
+ 1187 000c 0020     		movcc	r0, #0
+ 1188              	.LVL95:
+ 1189              		.loc 1 635 1 view .LVU437
+ 1190 000e 0120     		movcs	r0, #1
+ 1191 0010 7047     		bx	lr
+ 1192              		.cfi_endproc
+ 1193              	.LFE1462:
+ 1195 0012 00BF     		.section	.text.RUC_SetPhaseDurationms,"ax",%progbits
+ 1196              		.align	1
+ 1197              		.p2align 2,,3
+ 1198              		.weak	RUC_SetPhaseDurationms
+ARM GAS  /tmp/ccvkByR8.s 			page 41
+
+
+ 1199              		.syntax unified
+ 1200              		.thumb
+ 1201              		.thumb_func
+ 1202              		.fpu fpv4-sp-d16
+ 1204              	RUC_SetPhaseDurationms:
+ 1205              	.LVL96:
+ 1206              	.LFB1463:
+ 636:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 637:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 638:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Allow to modify duration of a selected phase.
+ 639:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 640:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  bPhase: RevUp phase where new duration shall be modified.
+ 641:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 642:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  hDurationms: new duration value required for associated phase.
+ 643:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be set in millisecond.
+ 644:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 645:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak void RUC_SetPhaseDurationms(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase, uint16_t hDurationm
+ 646:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1207              		.loc 1 646 1 is_stmt 1 view -0
+ 1208              		.cfi_startproc
+ 1209              		@ args = 0, pretend = 0, frame = 0
+ 1210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1211              		@ link register save eliminated.
+ 647:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 648:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 649:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 650:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 651:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 652:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 653:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 654:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 655:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->ParamsData[bPhase].hDurationms = hDurationms;
+ 1212              		.loc 1 655 5 view .LVU439
+ 1213              		.loc 1 655 45 is_stmt 0 view .LVU440
+ 1214 0000 01EB4101 		add	r1, r1, r1, lsl #1
+ 1215              	.LVL97:
+ 1216              		.loc 1 655 45 view .LVU441
+ 1217 0004 00EB8101 		add	r1, r0, r1, lsl #2
+ 1218 0008 8A81     		strh	r2, [r1, #12]	@ movhi
+ 656:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 657:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 658:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 659:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1219              		.loc 1 659 1 view .LVU442
+ 1220 000a 7047     		bx	lr
+ 1221              		.cfi_endproc
+ 1222              	.LFE1463:
+ 1224              		.section	.text.RUC_SetPhaseFinalMecSpeedUnit,"ax",%progbits
+ 1225              		.align	1
+ 1226              		.p2align 2,,3
+ 1227              		.weak	RUC_SetPhaseFinalMecSpeedUnit
+ 1228              		.syntax unified
+ 1229              		.thumb
+ 1230              		.thumb_func
+ 1231              		.fpu fpv4-sp-d16
+ 1233              	RUC_SetPhaseFinalMecSpeedUnit:
+ 1234              	.LVL98:
+ARM GAS  /tmp/ccvkByR8.s 			page 42
+
+
+ 1235              	.LFB1464:
+ 660:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 661:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 662:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Allow to modify targeted mechanical speed of a selected phase.
+ 663:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 664:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  bPhase: RevUp phase where new mechanical speed shall be modified.
+ 665:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 666:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  hFinalMecSpeedUnit: new targeted mechanical speed.
+ 667:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be expressed in 0.1Hz.
+ 668:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 669:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak void RUC_SetPhaseFinalMecSpeedUnit(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase, int16_t hFin
+ 670:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1236              		.loc 1 670 1 is_stmt 1 view -0
+ 1237              		.cfi_startproc
+ 1238              		@ args = 0, pretend = 0, frame = 0
+ 1239              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1240              		@ link register save eliminated.
+ 671:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 672:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 673:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 674:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 675:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 676:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 677:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 678:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 679:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->ParamsData[bPhase].hFinalMecSpeedUnit = hFinalMecSpeedUnit;
+ 1241              		.loc 1 679 5 view .LVU444
+ 1242              		.loc 1 679 52 is_stmt 0 view .LVU445
+ 1243 0000 01EB4101 		add	r1, r1, r1, lsl #1
+ 1244              	.LVL99:
+ 1245              		.loc 1 679 52 view .LVU446
+ 1246 0004 00EB8101 		add	r1, r0, r1, lsl #2
+ 1247 0008 CA81     		strh	r2, [r1, #14]	@ movhi
+ 680:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 681:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 682:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 683:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1248              		.loc 1 683 1 view .LVU447
+ 1249 000a 7047     		bx	lr
+ 1250              		.cfi_endproc
+ 1251              	.LFE1464:
+ 1253              		.section	.text.RUC_SetPhaseFinalTorque,"ax",%progbits
+ 1254              		.align	1
+ 1255              		.p2align 2,,3
+ 1256              		.weak	RUC_SetPhaseFinalTorque
+ 1257              		.syntax unified
+ 1258              		.thumb
+ 1259              		.thumb_func
+ 1260              		.fpu fpv4-sp-d16
+ 1262              	RUC_SetPhaseFinalTorque:
+ 1263              	.LVL100:
+ 1264              	.LFB1465:
+ 684:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 685:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 686:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Allow to modify targeted the motor torque of a selected phase.
+ 687:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 688:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  bPhase: RevUp phase where new the motor torque shall be modified.
+ARM GAS  /tmp/ccvkByR8.s 			page 43
+
+
+ 689:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 690:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  hFinalTorque: new targeted motor torque.
+ 691:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 692:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak void RUC_SetPhaseFinalTorque(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase, int16_t hFinalTorq
+ 693:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1265              		.loc 1 693 1 is_stmt 1 view -0
+ 1266              		.cfi_startproc
+ 1267              		@ args = 0, pretend = 0, frame = 0
+ 1268              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1269              		@ link register save eliminated.
+ 694:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 695:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   if (MC_NULL == pHandle)
+ 696:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 697:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     /* Nothing to do */
+ 698:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 699:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   else
+ 700:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   {
+ 701:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 702:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****     pHandle->ParamsData[bPhase].hFinalTorque = hFinalTorque;
+ 1270              		.loc 1 702 5 view .LVU449
+ 1271              		.loc 1 702 46 is_stmt 0 view .LVU450
+ 1272 0000 01EB4101 		add	r1, r1, r1, lsl #1
+ 1273              	.LVL101:
+ 1274              		.loc 1 702 46 view .LVU451
+ 1275 0004 00EB8101 		add	r1, r0, r1, lsl #2
+ 1276 0008 0A82     		strh	r2, [r1, #16]	@ movhi
+ 703:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 704:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   }
+ 705:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 706:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1277              		.loc 1 706 1 view .LVU452
+ 1278 000a 7047     		bx	lr
+ 1279              		.cfi_endproc
+ 1280              	.LFE1465:
+ 1282              		.section	.text.RUC_GetPhaseDurationms,"ax",%progbits
+ 1283              		.align	1
+ 1284              		.p2align 2,,3
+ 1285              		.weak	RUC_GetPhaseDurationms
+ 1286              		.syntax unified
+ 1287              		.thumb
+ 1288              		.thumb_func
+ 1289              		.fpu fpv4-sp-d16
+ 1291              	RUC_GetPhaseDurationms:
+ 1292              	.LVL102:
+ 1293              	.LFB1466:
+ 707:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 708:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 709:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Allow to read duration set in selected phase.
+ 710:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 711:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  bPhase: RevUp phase from where duration is read.
+ 712:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 713:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  @retval Returns duration used in selected phase in ms unit.
+ 714:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 715:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak uint16_t RUC_GetPhaseDurationms(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase)
+ 716:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1294              		.loc 1 716 1 is_stmt 1 view -0
+ 1295              		.cfi_startproc
+ARM GAS  /tmp/ccvkByR8.s 			page 44
+
+
+ 1296              		@ args = 0, pretend = 0, frame = 0
+ 1297              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1298              		@ link register save eliminated.
+ 717:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 718:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return ((MC_NULL == pHandle) ? 0U : (uint16_t)pHandle->ParamsData[bPhase].hDurationms);
+ 719:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #else
+ 720:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return ((uint16_t)pHandle->ParamsData[bPhase].hDurationms);
+ 1299              		.loc 1 720 3 view .LVU454
+ 1300              		.loc 1 720 11 is_stmt 0 view .LVU455
+ 1301 0000 01EB4101 		add	r1, r1, r1, lsl #1
+ 1302              	.LVL103:
+ 1303              		.loc 1 720 11 view .LVU456
+ 1304 0004 00EB8101 		add	r1, r0, r1, lsl #2
+ 721:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 722:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1305              		.loc 1 722 1 view .LVU457
+ 1306 0008 8889     		ldrh	r0, [r1, #12]
+ 1307              	.LVL104:
+ 1308              		.loc 1 722 1 view .LVU458
+ 1309 000a 7047     		bx	lr
+ 1310              		.cfi_endproc
+ 1311              	.LFE1466:
+ 1313              		.section	.text.RUC_GetPhaseFinalMecSpeedUnit,"ax",%progbits
+ 1314              		.align	1
+ 1315              		.p2align 2,,3
+ 1316              		.weak	RUC_GetPhaseFinalMecSpeedUnit
+ 1317              		.syntax unified
+ 1318              		.thumb
+ 1319              		.thumb_func
+ 1320              		.fpu fpv4-sp-d16
+ 1322              	RUC_GetPhaseFinalMecSpeedUnit:
+ 1323              	.LVL105:
+ 1324              	.LFB1467:
+ 723:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 724:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 725:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Allow to read targeted rotor speed set in selected phase.
+ 726:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 727:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  bPhase: RevUp phase from where targeted rotor speed is read.
+ 728:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 729:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  @retval Returns targeted rotor speed set for a selected phase.
+ 730:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 731:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak int16_t RUC_GetPhaseFinalMecSpeedUnit(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase)
+ 732:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1325              		.loc 1 732 1 is_stmt 1 view -0
+ 1326              		.cfi_startproc
+ 1327              		@ args = 0, pretend = 0, frame = 0
+ 1328              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1329              		@ link register save eliminated.
+ 733:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 734:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : (int16_t)pHandle->ParamsData[bPhase].hFinalMecSpeedUnit);
+ 735:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #else
+ 736:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return ((int16_t)pHandle->ParamsData[bPhase].hFinalMecSpeedUnit);
+ 1330              		.loc 1 736 3 view .LVU460
+ 1331              		.loc 1 736 11 is_stmt 0 view .LVU461
+ 1332 0000 01EB4101 		add	r1, r1, r1, lsl #1
+ 1333              	.LVL106:
+ 1334              		.loc 1 736 11 view .LVU462
+ARM GAS  /tmp/ccvkByR8.s 			page 45
+
+
+ 1335 0004 00EB8101 		add	r1, r0, r1, lsl #2
+ 737:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 738:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1336              		.loc 1 738 1 view .LVU463
+ 1337 0008 B1F90E00 		ldrsh	r0, [r1, #14]
+ 1338              	.LVL107:
+ 1339              		.loc 1 738 1 view .LVU464
+ 1340 000c 7047     		bx	lr
+ 1341              		.cfi_endproc
+ 1342              	.LFE1467:
+ 1344 000e 00BF     		.section	.text.RUC_GetPhaseFinalTorque,"ax",%progbits
+ 1345              		.align	1
+ 1346              		.p2align 2,,3
+ 1347              		.weak	RUC_GetPhaseFinalTorque
+ 1348              		.syntax unified
+ 1349              		.thumb
+ 1350              		.thumb_func
+ 1351              		.fpu fpv4-sp-d16
+ 1353              	RUC_GetPhaseFinalTorque:
+ 1354              	.LVL108:
+ 1355              	.LFB1468:
+ 739:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 740:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** /**
+ 741:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @brief  Allow to read targeted motor torque set in selected phase.
+ 742:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 743:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   * @param  bPhase: RevUp phase from where targeted motor torque is read.
+ 744:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 745:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   *  @retval Returns targeted motor torque set for a selected phase.
+ 746:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   */
+ 747:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** __weak int16_t RUC_GetPhaseFinalTorque(RevUpCtrl_Handle_t *pHandle, uint8_t bPhase)
+ 748:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** {
+ 1356              		.loc 1 748 1 is_stmt 1 view -0
+ 1357              		.cfi_startproc
+ 1358              		@ args = 0, pretend = 0, frame = 0
+ 1359              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1360              		@ link register save eliminated.
+ 749:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** 
+ 750:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #ifdef NULL_PTR_CHECK_REV_UP_CTL
+ 751:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return ((MC_NULL == pHandle) ? 0 : (int16_t)pHandle->ParamsData[bPhase].hFinalTorque);
+ 752:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #else
+ 753:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c ****   return ((int16_t)pHandle->ParamsData[bPhase].hFinalTorque);
+ 1361              		.loc 1 753 3 view .LVU466
+ 1362              		.loc 1 753 11 is_stmt 0 view .LVU467
+ 1363 0000 01EB4101 		add	r1, r1, r1, lsl #1
+ 1364              	.LVL109:
+ 1365              		.loc 1 753 11 view .LVU468
+ 1366 0004 00EB8101 		add	r1, r0, r1, lsl #2
+ 754:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** #endif
+ 755:MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Src/revup_ctrl.c **** }
+ 1367              		.loc 1 755 1 view .LVU469
+ 1368 0008 B1F91000 		ldrsh	r0, [r1, #16]
+ 1369              	.LVL110:
+ 1370              		.loc 1 755 1 view .LVU470
+ 1371 000c 7047     		bx	lr
+ 1372              		.cfi_endproc
+ 1373              	.LFE1468:
+ 1375 000e 00BF     		.text
+ARM GAS  /tmp/ccvkByR8.s 			page 46
+
+
+ 1376              	.Letext0:
+ 1377              		.file 3 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 1378              		.file 4 "Drivers/CMSIS/Include/core_cm4.h"
+ 1379              		.file 5 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 1380              		.file 6 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ 1381              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 1382              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 1383              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 1384              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 1385              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 1386              		.file 12 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 1387              		.file 13 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 1388              		.file 14 "Inc/mc_type.h"
+ 1389              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 1390              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 1391              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ 1392              		.file 18 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+ 1393              		.file 19 "Inc/pwm_curr_fdbk.h"
+ 1394              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+ARM GAS  /tmp/ccvkByR8.s 			page 47
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 revup_ctrl.c
+     /tmp/ccvkByR8.s:18     .text.RUC_Init:0000000000000000 $t
+     /tmp/ccvkByR8.s:27     .text.RUC_Init:0000000000000000 RUC_Init
+     /tmp/ccvkByR8.s:180    .text.RUC_Init:0000000000000070 $d
+     /tmp/ccvkByR8.s:185    .text.RUC_Clear:0000000000000000 $t
+     /tmp/ccvkByR8.s:193    .text.RUC_Clear:0000000000000000 RUC_Clear
+     /tmp/ccvkByR8.s:356    .text.RUC_Clear:000000000000008c $d
+     /tmp/ccvkByR8.s:361    .text.RUC_OTF_Exec:0000000000000000 $t
+     /tmp/ccvkByR8.s:369    .text.RUC_OTF_Exec:0000000000000000 RUC_OTF_Exec
+     /tmp/ccvkByR8.s:965    .text.RUC_OTF_Exec:0000000000000248 $d
+     /tmp/ccvkByR8.s:970    .text.RUC_Exec:0000000000000000 $t
+     /tmp/ccvkByR8.s:978    .text.RUC_Exec:0000000000000000 RUC_Exec
+     /tmp/ccvkByR8.s:1101   .text.RUC_Exec:000000000000006c $d
+     /tmp/ccvkByR8.s:1106   .text.RUC_IsAlignStageNow:0000000000000000 $t
+     /tmp/ccvkByR8.s:1114   .text.RUC_IsAlignStageNow:0000000000000000 RUC_IsAlignStageNow
+     /tmp/ccvkByR8.s:1160   .text.RUC_FirstAccelerationStageReached:0000000000000000 $t
+     /tmp/ccvkByR8.s:1168   .text.RUC_FirstAccelerationStageReached:0000000000000000 RUC_FirstAccelerationStageReached
+     /tmp/ccvkByR8.s:1196   .text.RUC_SetPhaseDurationms:0000000000000000 $t
+     /tmp/ccvkByR8.s:1204   .text.RUC_SetPhaseDurationms:0000000000000000 RUC_SetPhaseDurationms
+     /tmp/ccvkByR8.s:1225   .text.RUC_SetPhaseFinalMecSpeedUnit:0000000000000000 $t
+     /tmp/ccvkByR8.s:1233   .text.RUC_SetPhaseFinalMecSpeedUnit:0000000000000000 RUC_SetPhaseFinalMecSpeedUnit
+     /tmp/ccvkByR8.s:1254   .text.RUC_SetPhaseFinalTorque:0000000000000000 $t
+     /tmp/ccvkByR8.s:1262   .text.RUC_SetPhaseFinalTorque:0000000000000000 RUC_SetPhaseFinalTorque
+     /tmp/ccvkByR8.s:1283   .text.RUC_GetPhaseDurationms:0000000000000000 $t
+     /tmp/ccvkByR8.s:1291   .text.RUC_GetPhaseDurationms:0000000000000000 RUC_GetPhaseDurationms
+     /tmp/ccvkByR8.s:1314   .text.RUC_GetPhaseFinalMecSpeedUnit:0000000000000000 $t
+     /tmp/ccvkByR8.s:1322   .text.RUC_GetPhaseFinalMecSpeedUnit:0000000000000000 RUC_GetPhaseFinalMecSpeedUnit
+     /tmp/ccvkByR8.s:1345   .text.RUC_GetPhaseFinalTorque:0000000000000000 $t
+     /tmp/ccvkByR8.s:1353   .text.RUC_GetPhaseFinalTorque:0000000000000000 RUC_GetPhaseFinalTorque
+
+UNDEFINED SYMBOLS
+VSS_Clear
+STC_SetControlMode
+STC_ExecRamp
+VSS_SetMecAcceleration
+SPD_GetAvrgMecSpeedUnit
+PWMC_SwitchOffPWM
+PWMC_TurnOnLowSides
+PWMC_SwitchOnPWM

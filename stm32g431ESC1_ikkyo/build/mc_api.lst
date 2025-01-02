@@ -1,0 +1,2529 @@
+ARM GAS  /tmp/ccgpOCYZ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mc_api.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.MC_StartMotor1,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.weak	MC_StartMotor1
+  21              		.arch armv7e-m
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  25              		.fpu fpv4-sp-d16
+  27              	MC_StartMotor1:
+  28              	.LFB1464:
+  29              		.file 1 "Src/mc_api.c"
+   1:Src/mc_api.c  **** 
+   2:Src/mc_api.c  **** /**
+   3:Src/mc_api.c  ****   ******************************************************************************
+   4:Src/mc_api.c  ****   * @file    mc_api.c
+   5:Src/mc_api.c  ****   * @author  Motor Control SDK Team, ST Microelectronics
+   6:Src/mc_api.c  ****   * @brief   This file implements the high level interface of the Motor Control SDK.
+   7:Src/mc_api.c  ****   ******************************************************************************
+   8:Src/mc_api.c  ****   * @attention
+   9:Src/mc_api.c  ****   *
+  10:Src/mc_api.c  ****   * <h2><center>&copy; Copyright (c) 2024 STMicroelectronics.
+  11:Src/mc_api.c  ****   * All rights reserved.</center></h2>
+  12:Src/mc_api.c  ****   *
+  13:Src/mc_api.c  ****   * This software component is licensed by ST under Ultimate Liberty license
+  14:Src/mc_api.c  ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  15:Src/mc_api.c  ****   * the License. You may obtain a copy of the License at:
+  16:Src/mc_api.c  ****   *                             www.st.com/SLA0044
+  17:Src/mc_api.c  ****   *
+  18:Src/mc_api.c  ****   ******************************************************************************
+  19:Src/mc_api.c  ****   * @ingroup MCIAPI
+  20:Src/mc_api.c  ****   */
+  21:Src/mc_api.c  **** 
+  22:Src/mc_api.c  **** #include "mc_interface.h"
+  23:Src/mc_api.c  **** #include "mc_api.h"
+  24:Src/mc_api.c  **** #include "mc_config.h"
+  25:Src/mc_api.c  **** #include "mcp.h"
+  26:Src/mc_api.c  **** 
+  27:Src/mc_api.c  **** /** @addtogroup MCSDK
+  28:Src/mc_api.c  ****   * @{
+  29:Src/mc_api.c  ****   */
+ARM GAS  /tmp/ccgpOCYZ.s 			page 2
+
+
+  30:Src/mc_api.c  **** 
+  31:Src/mc_api.c  **** /**
+  32:Src/mc_api.c  ****   * @defgroup CAI Application Programming Interface
+  33:Src/mc_api.c  ****   * @brief Interface for Motor Control applications using the classic SDK
+  34:Src/mc_api.c  ****   *
+  35:Src/mc_api.c  ****   * @{
+  36:Src/mc_api.c  ****   */
+  37:Src/mc_api.c  **** 
+  38:Src/mc_api.c  **** /** @defgroup MCIAPI Motor Control API
+  39:Src/mc_api.c  ****   *
+  40:Src/mc_api.c  ****   * @brief High level Programming Interface of the Motor Control SDK
+  41:Src/mc_api.c  ****   *
+  42:Src/mc_api.c  ****   *  This interface allows for performing basic operations on the motor(s) driven by an
+  43:Src/mc_api.c  ****   * Motor Control SDK based application. With it, motors can be started and stopped, speed or
+  44:Src/mc_api.c  ****   * torque ramps can be programmed and executed and information on the state of the motors can
+  45:Src/mc_api.c  ****   * be retrieved, among others.
+  46:Src/mc_api.c  ****   *
+  47:Src/mc_api.c  ****   *  This interface consists in functions that target a specific motor, indicated in their name.
+  48:Src/mc_api.c  ****   * These functions aims at being the main interface used by an Application to control motors.
+  49:Src/mc_api.c  ****   *
+  50:Src/mc_api.c  ****   *  The current Motor Control API can cope with up to 2 motors.
+  51:Src/mc_api.c  ****   * @{
+  52:Src/mc_api.c  ****   */
+  53:Src/mc_api.c  **** 
+  54:Src/mc_api.c  **** /**
+  55:Src/mc_api.c  ****   * @brief  Initiates the start-up procedure for Motor 1
+  56:Src/mc_api.c  ****   *
+  57:Src/mc_api.c  ****   *  If the state machine of Motor 1 is in #IDLE state, the command is immediately
+  58:Src/mc_api.c  ****   * executed. Otherwise the command is discarded. The Application can check the
+  59:Src/mc_api.c  ****   * return value to know whether the command was executed or discarded.
+  60:Src/mc_api.c  ****   *
+  61:Src/mc_api.c  ****   *  One of the following commands must be executed before calling MC_StartMotor1()
+  62:Src/mc_api.c  ****   * in order to set a torque or a speed reference:
+  63:Src/mc_api.c  ****   *
+  64:Src/mc_api.c  ****   * - MC_ProgramSpeedRampMotor1()
+  65:Src/mc_api.c  ****   * - MC_ProgramTorqueRampMotor1()
+  66:Src/mc_api.c  ****   * - MC_SetCurrentReferenceMotor1()
+  67:Src/mc_api.c  ****   *
+  68:Src/mc_api.c  ****   * Failing to do so results in an unpredictable behaviour.
+  69:Src/mc_api.c  ****   *
+  70:Src/mc_api.c  ****   * If the offsets of the current measurement circuitry offsets are not known yet,
+  71:Src/mc_api.c  ****   * an offset calibration procedure is executed to measure them prior to acutally
+  72:Src/mc_api.c  ****   * starting up the motor.
+  73:Src/mc_api.c  ****   *
+  74:Src/mc_api.c  ****   * @note The MCI_StartMotor1 command only triggers the execution of the start-up
+  75:Src/mc_api.c  ****   * procedure (or eventually the offset calibration procedure) and returns
+  76:Src/mc_api.c  ****   * immediately after. It is not blocking the execution of the application until
+  77:Src/mc_api.c  ****   * the motor is indeed running in steady state. If the application needs to wait
+  78:Src/mc_api.c  ****   * for the motor to be running in steady state, the application has to check the
+  79:Src/mc_api.c  ****   * state machine of the motor and verify that the #RUN state has been reached.
+  80:Src/mc_api.c  ****   * Note also that if the startup sequence fails the #RUN state may never be reached.
+  81:Src/mc_api.c  ****   *
+  82:Src/mc_api.c  ****   * @retval returns true if the command is successfully executed, false otherwise.
+  83:Src/mc_api.c  ****   */
+  84:Src/mc_api.c  **** __weak bool MC_StartMotor1(void)
+  85:Src/mc_api.c  **** {
+  30              		.loc 1 85 1 view -0
+ARM GAS  /tmp/ccgpOCYZ.s 			page 3
+
+
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  86:Src/mc_api.c  ****   return (MCI_StartMotor(pMCI[M1]));
+  35              		.loc 1 86 3 view .LVU1
+  36              		.loc 1 86 11 is_stmt 0 view .LVU2
+  37 0000 014B     		ldr	r3, .L3
+  38 0002 1868     		ldr	r0, [r3]
+  39 0004 FFF7FEBF 		b	MCI_StartMotor
+  40              	.LVL0:
+  41              	.L4:
+  42              		.align	2
+  43              	.L3:
+  44 0008 00000000 		.word	pMCI
+  45              		.cfi_endproc
+  46              	.LFE1464:
+  48              		.section	.text.MC_StopMotor1,"ax",%progbits
+  49              		.align	1
+  50              		.p2align 2,,3
+  51              		.weak	MC_StopMotor1
+  52              		.syntax unified
+  53              		.thumb
+  54              		.thumb_func
+  55              		.fpu fpv4-sp-d16
+  57              	MC_StopMotor1:
+  58              	.LFB1465:
+  87:Src/mc_api.c  **** }
+  88:Src/mc_api.c  **** 
+  89:Src/mc_api.c  **** /**
+  90:Src/mc_api.c  ****   * @brief  Initiates the stop procedure for Motor 1.
+  91:Src/mc_api.c  ****   *
+  92:Src/mc_api.c  ****   *  If the state machine is in any state but the #ICLWAIT, #IDLE, FAULT_NOW and
+  93:Src/mc_api.c  ****   * #FAULT_OVER states, the command is immediately executed. Otherwise, it is
+  94:Src/mc_api.c  ****   * discarded. The Application can check the return value to know whether the
+  95:Src/mc_api.c  ****   * command was executed or discarded.
+  96:Src/mc_api.c  ****   *
+  97:Src/mc_api.c  ****   * @note The MC_StopMotor1() command only triggers the stop motor procedure
+  98:Src/mc_api.c  ****   * and then returns. It is not blocking the application until the motor is indeed
+  99:Src/mc_api.c  ****   * stopped. To know if it has stopped, the application can query the motor's state
+ 100:Src/mc_api.c  ****   * machine and check if the #IDLE state has been reached.
+ 101:Src/mc_api.c  ****   *
+ 102:Src/mc_api.c  ****   * @retval returns true if the command is successfully executed, false otherwise.
+ 103:Src/mc_api.c  ****   */
+ 104:Src/mc_api.c  **** __weak bool MC_StopMotor1(void)
+ 105:Src/mc_api.c  **** {
+  59              		.loc 1 105 1 is_stmt 1 view -0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+  63              		@ link register save eliminated.
+ 106:Src/mc_api.c  ****   return (MCI_StopMotor(pMCI[M1]));
+  64              		.loc 1 106 3 view .LVU4
+  65              		.loc 1 106 11 is_stmt 0 view .LVU5
+  66 0000 014B     		ldr	r3, .L6
+  67 0002 1868     		ldr	r0, [r3]
+  68 0004 FFF7FEBF 		b	MCI_StopMotor
+ARM GAS  /tmp/ccgpOCYZ.s 			page 4
+
+
+  69              	.LVL1:
+  70              	.L7:
+  71              		.align	2
+  72              	.L6:
+  73 0008 00000000 		.word	pMCI
+  74              		.cfi_endproc
+  75              	.LFE1465:
+  77              		.section	.text.MC_ProgramSpeedRampMotor1,"ax",%progbits
+  78              		.align	1
+  79              		.p2align 2,,3
+  80              		.weak	MC_ProgramSpeedRampMotor1
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  84              		.fpu fpv4-sp-d16
+  86              	MC_ProgramSpeedRampMotor1:
+  87              	.LVL2:
+  88              	.LFB1466:
+ 107:Src/mc_api.c  **** }
+ 108:Src/mc_api.c  **** 
+ 109:Src/mc_api.c  **** /**
+ 110:Src/mc_api.c  ****   * @brief Programs a speed ramp for Motor 1 for later or immediate execution.
+ 111:Src/mc_api.c  ****   *
+ 112:Src/mc_api.c  ****   *  A speed ramp is a linear change from the current speed reference to the @p hFinalSpeed
+ 113:Src/mc_api.c  ****   * target speed in the given @p hDurationms time.
+ 114:Src/mc_api.c  ****   *
+ 115:Src/mc_api.c  ****   *  Invoking the MC_ProgramSpeedRampMotor1() function programs a new speed ramp
+ 116:Src/mc_api.c  ****   * with the provided parameters. The programmed ramp is executed immediately if
+ 117:Src/mc_api.c  ****   * Motor 1's state machine is in the #RUN states. Otherwise, the ramp is buffered
+ 118:Src/mc_api.c  ****   * and will be executed when the state machine reaches any of the aforementioned state.
+ 119:Src/mc_api.c  ****   *
+ 120:Src/mc_api.c  ****   *  The Application can check the status of the command with the MC_GetCommandStateMotor1()
+ 121:Src/mc_api.c  ****   * to know whether the last command was executed immediately or not.
+ 122:Src/mc_api.c  ****   *
+ 123:Src/mc_api.c  ****   * Only one command can be buffered at any given time. If another ramp - whether a
+ 124:Src/mc_api.c  ****   * speed or a torque one - or if another buffered command is programmed before the
+ 125:Src/mc_api.c  ****   * current one has completed, the latter replaces the former.
+ 126:Src/mc_api.c  ****   *
+ 127:Src/mc_api.c  ****   * @note A ramp cannot reverse the rotation direction if the Application is using
+ 128:Src/mc_api.c  ****   * sensorless motor control techniques. If the sign of the hFinalSpeed parameter
+ 129:Src/mc_api.c  ****   * differs from that of the current speed, the ramp will not complete and a Speed
+ 130:Src/mc_api.c  ****   * Feedback error (#MC_SPEED_FDBK) will occur when the rotation speed is about to
+ 131:Src/mc_api.c  ****   * reach 0 rpm.
+ 132:Src/mc_api.c  ****   *
+ 133:Src/mc_api.c  ****   * @param  hFinalSpeed Mechanical rotor speed reference at the end of the ramp.
+ 134:Src/mc_api.c  ****   *                     Expressed in the unit defined by #SPEED_UNIT.
+ 135:Src/mc_api.c  ****   * @param  hDurationms Duration of the ramp expressed in milliseconds. It
+ 136:Src/mc_api.c  ****   *         is possible to set 0 to perform an instantaneous change in the speed
+ 137:Src/mc_api.c  ****   *         value.
+ 138:Src/mc_api.c  ****   */
+ 139:Src/mc_api.c  **** __weak void MC_ProgramSpeedRampMotor1(int16_t hFinalSpeed, uint16_t hDurationms)
+ 140:Src/mc_api.c  **** {
+  89              		.loc 1 140 1 is_stmt 1 view -0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  93              		@ link register save eliminated.
+ARM GAS  /tmp/ccgpOCYZ.s 			page 5
+
+
+ 141:Src/mc_api.c  ****   MCI_ExecSpeedRamp(pMCI[M1], hFinalSpeed, hDurationms);
+  94              		.loc 1 141 3 view .LVU7
+  95 0000 024B     		ldr	r3, .L9
+  96 0002 0A46     		mov	r2, r1
+  97 0004 0146     		mov	r1, r0
+  98              	.LVL3:
+  99              		.loc 1 141 3 is_stmt 0 view .LVU8
+ 100 0006 1868     		ldr	r0, [r3]
+ 101              	.LVL4:
+ 102              		.loc 1 141 3 view .LVU9
+ 103 0008 FFF7FEBF 		b	MCI_ExecSpeedRamp
+ 104              	.LVL5:
+ 105              	.L10:
+ 106              		.align	2
+ 107              	.L9:
+ 108 000c 00000000 		.word	pMCI
+ 109              		.cfi_endproc
+ 110              	.LFE1466:
+ 112              		.section	.text.MC_ProgramSpeedRampMotor1_F,"ax",%progbits
+ 113              		.align	1
+ 114              		.p2align 2,,3
+ 115              		.weak	MC_ProgramSpeedRampMotor1_F
+ 116              		.syntax unified
+ 117              		.thumb
+ 118              		.thumb_func
+ 119              		.fpu fpv4-sp-d16
+ 121              	MC_ProgramSpeedRampMotor1_F:
+ 122              	.LVL6:
+ 123              	.LFB1467:
+ 142:Src/mc_api.c  **** }
+ 143:Src/mc_api.c  **** 
+ 144:Src/mc_api.c  **** /**
+ 145:Src/mc_api.c  ****   * @brief Programs a speed ramp for Motor 1 for later or immediate execution.
+ 146:Src/mc_api.c  ****   *
+ 147:Src/mc_api.c  ****   *  A speed ramp is a linear change from the current speed reference to the @p FinalSpeed
+ 148:Src/mc_api.c  ****   * target speed in the given @p hDurationms time.
+ 149:Src/mc_api.c  ****   *
+ 150:Src/mc_api.c  ****   *  Invoking the MC_ProgramSpeedRampMotor1() function programs a new speed ramp
+ 151:Src/mc_api.c  ****   * with the provided parameters. The programmed ramp is executed immediately if
+ 152:Src/mc_api.c  ****   * Motor 1's state machine is in the #RUN states. Otherwise, the ramp is buffered
+ 153:Src/mc_api.c  ****   * and will be executed when the state machine reaches any of the aforementioned state.
+ 154:Src/mc_api.c  ****   *
+ 155:Src/mc_api.c  ****   *  The Application can check the status of the command with the MC_GetCommandStateMotor1()
+ 156:Src/mc_api.c  ****   * to know whether the last command was executed immediately or not.
+ 157:Src/mc_api.c  ****   *
+ 158:Src/mc_api.c  ****   * Only one command can be buffered at any given time. If another ramp - whether a
+ 159:Src/mc_api.c  ****   * speed or a torque one - or if another buffered command is programmed before the
+ 160:Src/mc_api.c  ****   * current one has completed, the latter replaces the former.
+ 161:Src/mc_api.c  ****   *
+ 162:Src/mc_api.c  ****   * @note A ramp cannot reverse the rotation direction if the Application is using
+ 163:Src/mc_api.c  ****   * sensorless motor control techniques. If the sign of the hFinalSpeed parameter
+ 164:Src/mc_api.c  ****   * differs from that of the current speed, the ramp will not complete and a Speed
+ 165:Src/mc_api.c  ****   * Feedback error (#MC_SPEED_FDBK) will occur when the rotation speed is about to
+ 166:Src/mc_api.c  ****   * reach 0 rpm.
+ 167:Src/mc_api.c  ****   *
+ 168:Src/mc_api.c  ****   * @param  FinalSpeed Mechanical rotor speed reference at the end of the ramp.
+ 169:Src/mc_api.c  ****   *         Expressed in rpm.
+ARM GAS  /tmp/ccgpOCYZ.s 			page 6
+
+
+ 170:Src/mc_api.c  ****   * @param  hDurationms Duration of the ramp expressed in milliseconds. It
+ 171:Src/mc_api.c  ****   *         is possible to set 0 to perform an instantaneous change in the speed
+ 172:Src/mc_api.c  ****   *         value.
+ 173:Src/mc_api.c  ****   */
+ 174:Src/mc_api.c  **** __weak void MC_ProgramSpeedRampMotor1_F(float_t FinalSpeed, uint16_t hDurationms)
+ 175:Src/mc_api.c  **** {
+ 124              		.loc 1 175 1 is_stmt 1 view -0
+ 125              		.cfi_startproc
+ 126              		@ args = 0, pretend = 0, frame = 0
+ 127              		@ frame_needed = 0, uses_anonymous_args = 0
+ 128              		@ link register save eliminated.
+ 176:Src/mc_api.c  ****   MCI_ExecSpeedRamp_F(pMCI[M1], FinalSpeed, hDurationms);
+ 129              		.loc 1 176 3 view .LVU11
+ 130 0000 024B     		ldr	r3, .L12
+ 131 0002 0146     		mov	r1, r0
+ 132 0004 1868     		ldr	r0, [r3]
+ 133              	.LVL7:
+ 134              		.loc 1 176 3 is_stmt 0 view .LVU12
+ 135 0006 FFF7FEBF 		b	MCI_ExecSpeedRamp_F
+ 136              	.LVL8:
+ 137              	.L13:
+ 138              		.loc 1 176 3 view .LVU13
+ 139 000a 00BF     		.align	2
+ 140              	.L12:
+ 141 000c 00000000 		.word	pMCI
+ 142              		.cfi_endproc
+ 143              	.LFE1467:
+ 145              		.section	.text.MC_ProgramTorqueRampMotor1,"ax",%progbits
+ 146              		.align	1
+ 147              		.p2align 2,,3
+ 148              		.weak	MC_ProgramTorqueRampMotor1
+ 149              		.syntax unified
+ 150              		.thumb
+ 151              		.thumb_func
+ 152              		.fpu fpv4-sp-d16
+ 154              	MC_ProgramTorqueRampMotor1:
+ 155              	.LVL9:
+ 156              	.LFB1468:
+ 177:Src/mc_api.c  **** }
+ 178:Src/mc_api.c  **** 
+ 179:Src/mc_api.c  **** /**
+ 180:Src/mc_api.c  ****   * @brief Programs a torque ramp for Motor 1 for later or immediate execution.
+ 181:Src/mc_api.c  ****   *
+ 182:Src/mc_api.c  ****   *  A torque ramp is a linear change from the current torque reference to the @p hFinalTorque
+ 183:Src/mc_api.c  ****   * target torque reference in the given @p hDurationms time.
+ 184:Src/mc_api.c  ****   *
+ 185:Src/mc_api.c  ****   *  Invoking the MC_ProgramTorqueRampMotor1() function programs a new torque ramp
+ 186:Src/mc_api.c  ****   * with the provided parameters. The programmed ramp is executed immediately if
+ 187:Src/mc_api.c  ****   * Motor 1's state machine is in the #RUN states. Otherwise, the ramp is buffered
+ 188:Src/mc_api.c  ****   * and will be executed when the state machine reaches any of the aforementioned state.
+ 189:Src/mc_api.c  ****   *
+ 190:Src/mc_api.c  ****   *  The Application can check the status of the command with the MC_GetCommandStateMotor1()
+ 191:Src/mc_api.c  ****   * to know whether the last command was executed immediately or not.
+ 192:Src/mc_api.c  ****   *
+ 193:Src/mc_api.c  ****   * Only one command can be buffered at any given time. If another ramp - whether a
+ 194:Src/mc_api.c  ****   * torque or a speed one - or if another buffered command is programmed before the
+ 195:Src/mc_api.c  ****   * current one has completed, the latter replaces the former.
+ARM GAS  /tmp/ccgpOCYZ.s 			page 7
+
+
+ 196:Src/mc_api.c  ****   *
+ 197:Src/mc_api.c  ****   * @note A ramp cannot reverse the rotation direction if the Application is using
+ 198:Src/mc_api.c  ****   * sensorless motor control techniques. If the sign of the hFinalTorque parameter
+ 199:Src/mc_api.c  ****   * differs from that of the current torque, the ramp will not complete and a Speed
+ 200:Src/mc_api.c  ****   * Feedback error (#MC_SPEED_FDBK) will occur when the rotation speed is about to
+ 201:Src/mc_api.c  ****   * reach 0 rpm.
+ 202:Src/mc_api.c  ****   *
+ 203:Src/mc_api.c  ****   * @param  hFinalTorque Mechanical motor torque reference at the end of the ramp.
+ 204:Src/mc_api.c  ****   *         This value represents actually the Iq current expressed in digit.
+ 205:Src/mc_api.c  ****   * @param  hDurationms Duration of the ramp expressed in milliseconds. It
+ 206:Src/mc_api.c  ****   *         is possible to set 0 to perform an instantaneous change in the torque
+ 207:Src/mc_api.c  ****   *         value.
+ 208:Src/mc_api.c  ****   */
+ 209:Src/mc_api.c  **** __weak void MC_ProgramTorqueRampMotor1(int16_t hFinalTorque, uint16_t hDurationms)
+ 210:Src/mc_api.c  **** {
+ 157              		.loc 1 210 1 is_stmt 1 view -0
+ 158              		.cfi_startproc
+ 159              		@ args = 0, pretend = 0, frame = 0
+ 160              		@ frame_needed = 0, uses_anonymous_args = 0
+ 161              		@ link register save eliminated.
+ 211:Src/mc_api.c  ****   MCI_ExecTorqueRamp(pMCI[M1], hFinalTorque, hDurationms);
+ 162              		.loc 1 211 3 view .LVU15
+ 163 0000 024B     		ldr	r3, .L15
+ 164 0002 0A46     		mov	r2, r1
+ 165 0004 0146     		mov	r1, r0
+ 166              	.LVL10:
+ 167              		.loc 1 211 3 is_stmt 0 view .LVU16
+ 168 0006 1868     		ldr	r0, [r3]
+ 169              	.LVL11:
+ 170              		.loc 1 211 3 view .LVU17
+ 171 0008 FFF7FEBF 		b	MCI_ExecTorqueRamp
+ 172              	.LVL12:
+ 173              	.L16:
+ 174              		.align	2
+ 175              	.L15:
+ 176 000c 00000000 		.word	pMCI
+ 177              		.cfi_endproc
+ 178              	.LFE1468:
+ 180              		.section	.text.MC_ProgramTorqueRampMotor1_F,"ax",%progbits
+ 181              		.align	1
+ 182              		.p2align 2,,3
+ 183              		.weak	MC_ProgramTorqueRampMotor1_F
+ 184              		.syntax unified
+ 185              		.thumb
+ 186              		.thumb_func
+ 187              		.fpu fpv4-sp-d16
+ 189              	MC_ProgramTorqueRampMotor1_F:
+ 190              	.LVL13:
+ 191              	.LFB1469:
+ 212:Src/mc_api.c  **** }
+ 213:Src/mc_api.c  **** 
+ 214:Src/mc_api.c  **** /**
+ 215:Src/mc_api.c  ****   * @brief Programs a torque ramp for Motor 1 for later or immediate execution.
+ 216:Src/mc_api.c  ****   *
+ 217:Src/mc_api.c  ****   *  A torque ramp is a linear change from the current torque reference to the @p FinalTorque
+ 218:Src/mc_api.c  ****   * target torque reference in the given @p hDurationms time.
+ 219:Src/mc_api.c  ****   *
+ARM GAS  /tmp/ccgpOCYZ.s 			page 8
+
+
+ 220:Src/mc_api.c  ****   *  Invoking the MC_ProgramTorqueRampMotor1() function programs a new torque ramp
+ 221:Src/mc_api.c  ****   * with the provided parameters. The programmed ramp is executed immediately if
+ 222:Src/mc_api.c  ****   * Motor 1's state machine is in the #RUN states. Otherwise, the ramp is buffered
+ 223:Src/mc_api.c  ****   * and will be executed when the state machine reaches any of the aforementioned state.
+ 224:Src/mc_api.c  ****   *
+ 225:Src/mc_api.c  ****   *  The Application can check the status of the command with the MC_GetCommandStateMotor1()
+ 226:Src/mc_api.c  ****   * to know whether the last command was executed immediately or not.
+ 227:Src/mc_api.c  ****   *
+ 228:Src/mc_api.c  ****   * Only one command can be buffered at any given time. If another ramp - whether a
+ 229:Src/mc_api.c  ****   * torque or a speed one - or if another buffered command is programmed before the
+ 230:Src/mc_api.c  ****   * current one has completed, the latter replaces the former.
+ 231:Src/mc_api.c  ****   *
+ 232:Src/mc_api.c  ****   * @note A ramp cannot reverse the rotation direction if the Application is using
+ 233:Src/mc_api.c  ****   * sensorless motor control techniques. If the sign of the FinalTorque parameter
+ 234:Src/mc_api.c  ****   * differs from that of the current torque, the ramp will not complete and a Speed
+ 235:Src/mc_api.c  ****   * Feedback error (#MC_SPEED_FDBK) will occur when the rotation speed is about to
+ 236:Src/mc_api.c  ****   * reach 0 rpm.
+ 237:Src/mc_api.c  ****   *
+ 238:Src/mc_api.c  ****   * @param  FinalTorque Mechanical motor torque reference at the end of the ramp.
+ 239:Src/mc_api.c  ****   *         This value represents actually the Iq current expressed in Ampere.
+ 240:Src/mc_api.c  ****   * @param  hDurationms Duration of the ramp expressed in milliseconds. It
+ 241:Src/mc_api.c  ****   *         is possible to set 0 to perform an instantaneous change in the torque
+ 242:Src/mc_api.c  ****   *         value.
+ 243:Src/mc_api.c  ****   */
+ 244:Src/mc_api.c  **** __weak void MC_ProgramTorqueRampMotor1_F(float_t FinalTorque, uint16_t hDurationms)
+ 245:Src/mc_api.c  **** {
+ 192              		.loc 1 245 1 is_stmt 1 view -0
+ 193              		.cfi_startproc
+ 194              		@ args = 0, pretend = 0, frame = 0
+ 195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 196              		@ link register save eliminated.
+ 246:Src/mc_api.c  ****   MCI_ExecTorqueRamp_F(pMCI[M1], FinalTorque, hDurationms);
+ 197              		.loc 1 246 3 view .LVU19
+ 198 0000 024B     		ldr	r3, .L18
+ 199 0002 0146     		mov	r1, r0
+ 200 0004 1868     		ldr	r0, [r3]
+ 201              	.LVL14:
+ 202              		.loc 1 246 3 is_stmt 0 view .LVU20
+ 203 0006 FFF7FEBF 		b	MCI_ExecTorqueRamp_F
+ 204              	.LVL15:
+ 205              	.L19:
+ 206              		.loc 1 246 3 view .LVU21
+ 207 000a 00BF     		.align	2
+ 208              	.L18:
+ 209 000c 00000000 		.word	pMCI
+ 210              		.cfi_endproc
+ 211              	.LFE1469:
+ 213              		.section	.text.MC_SetCurrentReferenceMotor1,"ax",%progbits
+ 214              		.align	1
+ 215              		.p2align 2,,3
+ 216              		.weak	MC_SetCurrentReferenceMotor1
+ 217              		.syntax unified
+ 218              		.thumb
+ 219              		.thumb_func
+ 220              		.fpu fpv4-sp-d16
+ 222              	MC_SetCurrentReferenceMotor1:
+ 223              	.LFB1470:
+ARM GAS  /tmp/ccgpOCYZ.s 			page 9
+
+
+ 247:Src/mc_api.c  **** }
+ 248:Src/mc_api.c  **** 
+ 249:Src/mc_api.c  **** /**
+ 250:Src/mc_api.c  ****   * @brief Programs the current reference to Motor 1 for later or immediate execution.
+ 251:Src/mc_api.c  ****   *
+ 252:Src/mc_api.c  ****   *  The current reference to consider is made of the $I_d$ and $I_q$ current components.
+ 253:Src/mc_api.c  ****   *
+ 254:Src/mc_api.c  ****   *  Invoking the MC_SetCurrentReferenceMotor1() function programs a current reference
+ 255:Src/mc_api.c  ****   * with the provided parameters. The programmed reference is executed immediately if
+ 256:Src/mc_api.c  ****   * Motor 1's state machine is in the #RUN states. Otherwise, the command is buffered
+ 257:Src/mc_api.c  ****   * and will be executed when the state machine reaches any of the aforementioned state.
+ 258:Src/mc_api.c  ****   *
+ 259:Src/mc_api.c  ****   *  The Application can check the status of the command with the MC_GetCommandStateMotor1()
+ 260:Src/mc_api.c  ****   * to know whether the last command was executed immediately or not.
+ 261:Src/mc_api.c  ****   *
+ 262:Src/mc_api.c  ****   * Only one command can be buffered at any given time. If another buffered command is
+ 263:Src/mc_api.c  ****   * programmed before the current one has completed, the latter replaces the former.
+ 264:Src/mc_api.c  ****   *
+ 265:Src/mc_api.c  ****   * @param  Iqdref current reference in the Direct-Quadratic reference frame. Expressed
+ 266:Src/mc_api.c  ****   *         in the qd_t format.
+ 267:Src/mc_api.c  ****   */
+ 268:Src/mc_api.c  **** __weak void MC_SetCurrentReferenceMotor1(qd_t Iqdref)
+ 269:Src/mc_api.c  **** {
+ 224              		.loc 1 269 1 is_stmt 1 view -0
+ 225              		.cfi_startproc
+ 226              		@ args = 0, pretend = 0, frame = 8
+ 227              		@ frame_needed = 0, uses_anonymous_args = 0
+ 228              		@ link register save eliminated.
+ 270:Src/mc_api.c  ****   MCI_SetCurrentReferences(pMCI[M1], Iqdref);
+ 229              		.loc 1 270 3 view .LVU23
+ 269:Src/mc_api.c  ****   MCI_SetCurrentReferences(pMCI[M1], Iqdref);
+ 230              		.loc 1 269 1 is_stmt 0 view .LVU24
+ 231 0000 82B0     		sub	sp, sp, #8
+ 232              	.LCFI0:
+ 233              		.cfi_def_cfa_offset 8
+ 234              		.loc 1 270 3 view .LVU25
+ 235 0002 034B     		ldr	r3, .L22
+ 269:Src/mc_api.c  ****   MCI_SetCurrentReferences(pMCI[M1], Iqdref);
+ 236              		.loc 1 269 1 view .LVU26
+ 237 0004 0190     		str	r0, [sp, #4]
+ 238              		.loc 1 270 3 view .LVU27
+ 239 0006 0146     		mov	r1, r0
+ 240 0008 1868     		ldr	r0, [r3]
+ 271:Src/mc_api.c  **** }
+ 241              		.loc 1 271 1 view .LVU28
+ 242 000a 02B0     		add	sp, sp, #8
+ 243              	.LCFI1:
+ 244              		.cfi_def_cfa_offset 0
+ 245              		@ sp needed
+ 270:Src/mc_api.c  ****   MCI_SetCurrentReferences(pMCI[M1], Iqdref);
+ 246              		.loc 1 270 3 view .LVU29
+ 247 000c FFF7FEBF 		b	MCI_SetCurrentReferences
+ 248              	.LVL16:
+ 249              	.L23:
+ 250              		.align	2
+ 251              	.L22:
+ 252 0010 00000000 		.word	pMCI
+ARM GAS  /tmp/ccgpOCYZ.s 			page 10
+
+
+ 253              		.cfi_endproc
+ 254              	.LFE1470:
+ 256              		.section	.text.MC_SetCurrentReferenceMotor1_F,"ax",%progbits
+ 257              		.align	1
+ 258              		.p2align 2,,3
+ 259              		.weak	MC_SetCurrentReferenceMotor1_F
+ 260              		.syntax unified
+ 261              		.thumb
+ 262              		.thumb_func
+ 263              		.fpu fpv4-sp-d16
+ 265              	MC_SetCurrentReferenceMotor1_F:
+ 266              	.LFB1471:
+ 272:Src/mc_api.c  **** 
+ 273:Src/mc_api.c  **** /**
+ 274:Src/mc_api.c  ****   * @brief Programs the current reference to Motor 1 for later or immediate execution.
+ 275:Src/mc_api.c  ****   *
+ 276:Src/mc_api.c  ****   *  The current reference to consider is made of the $I_d$ and $I_q$ current components.
+ 277:Src/mc_api.c  ****   *
+ 278:Src/mc_api.c  ****   *  Invoking the MC_SetCurrentReferenceMotor1_F() function programs a current reference
+ 279:Src/mc_api.c  ****   * with the provided parameters. The programmed reference is executed immediately if
+ 280:Src/mc_api.c  ****   * Motor 1's state machine is in the #RUN states. Otherwise, the command is buffered
+ 281:Src/mc_api.c  ****   * and will be executed when the state machine reaches any of the aforementioned state.
+ 282:Src/mc_api.c  ****   *
+ 283:Src/mc_api.c  ****   *  The Application can check the status of the command with the MC_GetCommandStateMotor1()
+ 284:Src/mc_api.c  ****   * to know whether the last command was executed immediately or not.
+ 285:Src/mc_api.c  ****   *
+ 286:Src/mc_api.c  ****   * Only one command can be buffered at any given time. If another buffered command is
+ 287:Src/mc_api.c  ****   * programmed before the current one has completed, the latter replaces the former.
+ 288:Src/mc_api.c  ****   *
+ 289:Src/mc_api.c  ****   * @param  IqdRef current reference in the Direct-Quadratic reference frame. Expressed
+ 290:Src/mc_api.c  ****   *         in the qd_f_t format.
+ 291:Src/mc_api.c  ****   */
+ 292:Src/mc_api.c  **** __weak void MC_SetCurrentReferenceMotor1_F(qd_f_t IqdRef)
+ 293:Src/mc_api.c  **** {
+ 267              		.loc 1 293 1 is_stmt 1 view -0
+ 268              		.cfi_startproc
+ 269              		@ args = 0, pretend = 0, frame = 8
+ 270              		@ frame_needed = 0, uses_anonymous_args = 0
+ 271              		@ link register save eliminated.
+ 294:Src/mc_api.c  ****   MCI_SetCurrentReferences_F(pMCI[M1], IqdRef);
+ 272              		.loc 1 294 3 view .LVU31
+ 273 0000 024B     		ldr	r3, .L26
+ 274 0002 1868     		ldr	r0, [r3]
+ 293:Src/mc_api.c  ****   MCI_SetCurrentReferences_F(pMCI[M1], IqdRef);
+ 275              		.loc 1 293 1 is_stmt 0 view .LVU32
+ 276 0004 82B0     		sub	sp, sp, #8
+ 277              	.LCFI2:
+ 278              		.cfi_def_cfa_offset 8
+ 295:Src/mc_api.c  **** }
+ 279              		.loc 1 295 1 view .LVU33
+ 280 0006 02B0     		add	sp, sp, #8
+ 281              	.LCFI3:
+ 282              		.cfi_def_cfa_offset 0
+ 283              		@ sp needed
+ 294:Src/mc_api.c  ****   MCI_SetCurrentReferences_F(pMCI[M1], IqdRef);
+ 284              		.loc 1 294 3 view .LVU34
+ 285 0008 FFF7FEBF 		b	MCI_SetCurrentReferences_F
+ARM GAS  /tmp/ccgpOCYZ.s 			page 11
+
+
+ 286              	.LVL17:
+ 287              	.L27:
+ 288              		.align	2
+ 289              	.L26:
+ 290 000c 00000000 		.word	pMCI
+ 291              		.cfi_endproc
+ 292              	.LFE1471:
+ 294              		.section	.text.MC_GetCommandStateMotor1,"ax",%progbits
+ 295              		.align	1
+ 296              		.p2align 2,,3
+ 297              		.weak	MC_GetCommandStateMotor1
+ 298              		.syntax unified
+ 299              		.thumb
+ 300              		.thumb_func
+ 301              		.fpu fpv4-sp-d16
+ 303              	MC_GetCommandStateMotor1:
+ 304              	.LFB1472:
+ 296:Src/mc_api.c  **** 
+ 297:Src/mc_api.c  **** /**
+ 298:Src/mc_api.c  ****   * @brief  Returns the status of the last buffered command for Motor 1.
+ 299:Src/mc_api.c  ****   *
+ 300:Src/mc_api.c  ****   * The status can be one of the following values:
+ 301:Src/mc_api.c  ****   * - #MCI_BUFFER_EMPTY: no buffered command is currently programmed.
+ 302:Src/mc_api.c  ****   * - #MCI_COMMAND_NOT_ALREADY_EXECUTED: A command has been buffered but the conditions for its
+ 303:Src/mc_api.c  ****   *   execution have not occurred yet. The command is still in the buffer, pending execution.
+ 304:Src/mc_api.c  ****   * - #MCI_COMMAND_EXECUTED_SUCCESSFULLY: the last buffered command has been executed successfully.
+ 305:Src/mc_api.c  ****   *   In this case calling this function resets the command state to #MCI_BUFFER_EMPTY.
+ 306:Src/mc_api.c  ****   * - #MCI_COMMAND_EXECUTED_UNSUCCESSFULLY: the buffered command has been executed unsuccessfully.
+ 307:Src/mc_api.c  ****   *   In this case calling this function resets the command state to #MCI_BUFFER_EMPTY.
+ 308:Src/mc_api.c  ****   */
+ 309:Src/mc_api.c  **** __weak MCI_CommandState_t  MC_GetCommandStateMotor1(void)
+ 310:Src/mc_api.c  **** {
+ 305              		.loc 1 310 1 is_stmt 1 view -0
+ 306              		.cfi_startproc
+ 307              		@ args = 0, pretend = 0, frame = 0
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309              		@ link register save eliminated.
+ 311:Src/mc_api.c  ****   return (MCI_IsCommandAcknowledged(pMCI[M1]));
+ 310              		.loc 1 311 3 view .LVU36
+ 311              		.loc 1 311 11 is_stmt 0 view .LVU37
+ 312 0000 014B     		ldr	r3, .L29
+ 313 0002 1868     		ldr	r0, [r3]
+ 314 0004 FFF7FEBF 		b	MCI_IsCommandAcknowledged
+ 315              	.LVL18:
+ 316              	.L30:
+ 317              		.align	2
+ 318              	.L29:
+ 319 0008 00000000 		.word	pMCI
+ 320              		.cfi_endproc
+ 321              	.LFE1472:
+ 323              		.section	.text.MC_StopSpeedRampMotor1,"ax",%progbits
+ 324              		.align	1
+ 325              		.p2align 2,,3
+ 326              		.weak	MC_StopSpeedRampMotor1
+ 327              		.syntax unified
+ 328              		.thumb
+ 329              		.thumb_func
+ARM GAS  /tmp/ccgpOCYZ.s 			page 12
+
+
+ 330              		.fpu fpv4-sp-d16
+ 332              	MC_StopSpeedRampMotor1:
+ 333              	.LFB1473:
+ 312:Src/mc_api.c  **** }
+ 313:Src/mc_api.c  **** 
+ 314:Src/mc_api.c  **** /**
+ 315:Src/mc_api.c  ****  * @brief Stops the execution of the on-going speed ramp for Motor 1, if any.
+ 316:Src/mc_api.c  ****  *
+ 317:Src/mc_api.c  ****  *  If a speed ramp is currently being executed, it is immediately stopped, the rotation
+ 318:Src/mc_api.c  ****  * speed of Motor 1 is maintained to its current value and true is returned. If no speed
+ 319:Src/mc_api.c  ****  * ramp is on-going, nothing is done and false is returned.
+ 320:Src/mc_api.c  ****  *
+ 321:Src/mc_api.c  ****  * @deprecated This function is deprecated and should not be used anymore. It will be
+ 322:Src/mc_api.c  ****  *             removed in a future version of the MCSDK. Use MC_StopRampMotor1() instead.
+ 323:Src/mc_api.c  ****  */
+ 324:Src/mc_api.c  **** __weak bool MC_StopSpeedRampMotor1(void)
+ 325:Src/mc_api.c  **** {
+ 334              		.loc 1 325 1 is_stmt 1 view -0
+ 335              		.cfi_startproc
+ 336              		@ args = 0, pretend = 0, frame = 0
+ 337              		@ frame_needed = 0, uses_anonymous_args = 0
+ 338              		@ link register save eliminated.
+ 326:Src/mc_api.c  ****   return (MCI_StopSpeedRamp(pMCI[M1]));
+ 339              		.loc 1 326 3 view .LVU39
+ 340              		.loc 1 326 11 is_stmt 0 view .LVU40
+ 341 0000 014B     		ldr	r3, .L32
+ 342 0002 1868     		ldr	r0, [r3]
+ 343 0004 FFF7FEBF 		b	MCI_StopSpeedRamp
+ 344              	.LVL19:
+ 345              	.L33:
+ 346              		.align	2
+ 347              	.L32:
+ 348 0008 00000000 		.word	pMCI
+ 349              		.cfi_endproc
+ 350              	.LFE1473:
+ 352              		.section	.text.MC_StopRampMotor1,"ax",%progbits
+ 353              		.align	1
+ 354              		.p2align 2,,3
+ 355              		.weak	MC_StopRampMotor1
+ 356              		.syntax unified
+ 357              		.thumb
+ 358              		.thumb_func
+ 359              		.fpu fpv4-sp-d16
+ 361              	MC_StopRampMotor1:
+ 362              	.LFB1474:
+ 327:Src/mc_api.c  **** }
+ 328:Src/mc_api.c  **** 
+ 329:Src/mc_api.c  **** /**
+ 330:Src/mc_api.c  ****  * @brief Stops the execution of the on-going ramp for Motor 1, if any.
+ 331:Src/mc_api.c  ****  *
+ 332:Src/mc_api.c  ****  *  If a ramp is currently being executed, it is immediately stopped, the torque or the speed
+ 333:Src/mc_api.c  ****  *  of Motor 1 is maintained to its current value.
+ 334:Src/mc_api.c  ****  */
+ 335:Src/mc_api.c  **** __weak void MC_StopRampMotor1(void)
+ 336:Src/mc_api.c  **** {
+ 363              		.loc 1 336 1 is_stmt 1 view -0
+ 364              		.cfi_startproc
+ARM GAS  /tmp/ccgpOCYZ.s 			page 13
+
+
+ 365              		@ args = 0, pretend = 0, frame = 0
+ 366              		@ frame_needed = 0, uses_anonymous_args = 0
+ 367              		@ link register save eliminated.
+ 337:Src/mc_api.c  ****   MCI_StopRamp(pMCI[M1]);
+ 368              		.loc 1 337 3 view .LVU42
+ 369 0000 014B     		ldr	r3, .L35
+ 370 0002 1868     		ldr	r0, [r3]
+ 371 0004 FFF7FEBF 		b	MCI_StopRamp
+ 372              	.LVL20:
+ 373              	.L36:
+ 374              		.align	2
+ 375              	.L35:
+ 376 0008 00000000 		.word	pMCI
+ 377              		.cfi_endproc
+ 378              	.LFE1474:
+ 380              		.section	.text.MC_HasRampCompletedMotor1,"ax",%progbits
+ 381              		.align	1
+ 382              		.p2align 2,,3
+ 383              		.weak	MC_HasRampCompletedMotor1
+ 384              		.syntax unified
+ 385              		.thumb
+ 386              		.thumb_func
+ 387              		.fpu fpv4-sp-d16
+ 389              	MC_HasRampCompletedMotor1:
+ 390              	.LFB1475:
+ 338:Src/mc_api.c  **** }
+ 339:Src/mc_api.c  **** 
+ 340:Src/mc_api.c  **** /**
+ 341:Src/mc_api.c  ****  * @brief Returns true if the last ramp submited for Motor 1 has completed, false otherwise
+ 342:Src/mc_api.c  ****  */
+ 343:Src/mc_api.c  **** __weak bool MC_HasRampCompletedMotor1(void)
+ 344:Src/mc_api.c  **** {
+ 391              		.loc 1 344 1 view -0
+ 392              		.cfi_startproc
+ 393              		@ args = 0, pretend = 0, frame = 0
+ 394              		@ frame_needed = 0, uses_anonymous_args = 0
+ 395              		@ link register save eliminated.
+ 345:Src/mc_api.c  ****   return (MCI_RampCompleted(pMCI[M1]));
+ 396              		.loc 1 345 3 view .LVU44
+ 397              		.loc 1 345 11 is_stmt 0 view .LVU45
+ 398 0000 014B     		ldr	r3, .L38
+ 399 0002 1868     		ldr	r0, [r3]
+ 400 0004 FFF7FEBF 		b	MCI_RampCompleted
+ 401              	.LVL21:
+ 402              	.L39:
+ 403              		.align	2
+ 404              	.L38:
+ 405 0008 00000000 		.word	pMCI
+ 406              		.cfi_endproc
+ 407              	.LFE1475:
+ 409              		.section	.text.MC_GetMecSpeedReferenceMotor1,"ax",%progbits
+ 410              		.align	1
+ 411              		.p2align 2,,3
+ 412              		.weak	MC_GetMecSpeedReferenceMotor1
+ 413              		.syntax unified
+ 414              		.thumb
+ 415              		.thumb_func
+ARM GAS  /tmp/ccgpOCYZ.s 			page 14
+
+
+ 416              		.fpu fpv4-sp-d16
+ 418              	MC_GetMecSpeedReferenceMotor1:
+ 419              	.LFB1476:
+ 346:Src/mc_api.c  **** }
+ 347:Src/mc_api.c  **** 
+ 348:Src/mc_api.c  **** /**
+ 349:Src/mc_api.c  ****  *  @brief Returns the current mechanical rotor speed reference set for Motor 1, expressed in the u
+ 350:Src/mc_api.c  ****  */
+ 351:Src/mc_api.c  **** __weak int16_t MC_GetMecSpeedReferenceMotor1(void)
+ 352:Src/mc_api.c  **** {
+ 420              		.loc 1 352 1 is_stmt 1 view -0
+ 421              		.cfi_startproc
+ 422              		@ args = 0, pretend = 0, frame = 0
+ 423              		@ frame_needed = 0, uses_anonymous_args = 0
+ 424              		@ link register save eliminated.
+ 353:Src/mc_api.c  ****   return (MCI_GetMecSpeedRefUnit(pMCI[M1]));
+ 425              		.loc 1 353 3 view .LVU47
+ 426              		.loc 1 353 11 is_stmt 0 view .LVU48
+ 427 0000 014B     		ldr	r3, .L41
+ 428 0002 1868     		ldr	r0, [r3]
+ 429 0004 FFF7FEBF 		b	MCI_GetMecSpeedRefUnit
+ 430              	.LVL22:
+ 431              	.L42:
+ 432              		.align	2
+ 433              	.L41:
+ 434 0008 00000000 		.word	pMCI
+ 435              		.cfi_endproc
+ 436              	.LFE1476:
+ 438              		.section	.text.MC_GetMecSpeedReferenceMotor1_F,"ax",%progbits
+ 439              		.align	1
+ 440              		.p2align 2,,3
+ 441              		.weak	MC_GetMecSpeedReferenceMotor1_F
+ 442              		.syntax unified
+ 443              		.thumb
+ 444              		.thumb_func
+ 445              		.fpu fpv4-sp-d16
+ 447              	MC_GetMecSpeedReferenceMotor1_F:
+ 448              	.LFB1477:
+ 354:Src/mc_api.c  **** }
+ 355:Src/mc_api.c  **** 
+ 356:Src/mc_api.c  **** /**
+ 357:Src/mc_api.c  ****  *  @brief Returns the current mechanical rotor speed reference set for Motor 1, expressed in rpm.
+ 358:Src/mc_api.c  ****  */
+ 359:Src/mc_api.c  **** __weak float_t MC_GetMecSpeedReferenceMotor1_F(void)
+ 360:Src/mc_api.c  **** {
+ 449              		.loc 1 360 1 is_stmt 1 view -0
+ 450              		.cfi_startproc
+ 451              		@ args = 0, pretend = 0, frame = 0
+ 452              		@ frame_needed = 0, uses_anonymous_args = 0
+ 453              		@ link register save eliminated.
+ 361:Src/mc_api.c  ****   return (MCI_GetMecSpeedRef_F(pMCI[M1]));
+ 454              		.loc 1 361 3 view .LVU50
+ 455              		.loc 1 361 11 is_stmt 0 view .LVU51
+ 456 0000 014B     		ldr	r3, .L44
+ 457 0002 1868     		ldr	r0, [r3]
+ 458 0004 FFF7FEBF 		b	MCI_GetMecSpeedRef_F
+ 459              	.LVL23:
+ARM GAS  /tmp/ccgpOCYZ.s 			page 15
+
+
+ 460              	.L45:
+ 461              		.align	2
+ 462              	.L44:
+ 463 0008 00000000 		.word	pMCI
+ 464              		.cfi_endproc
+ 465              	.LFE1477:
+ 467              		.section	.text.MC_GetMecSpeedAverageMotor1,"ax",%progbits
+ 468              		.align	1
+ 469              		.p2align 2,,3
+ 470              		.weak	MC_GetMecSpeedAverageMotor1
+ 471              		.syntax unified
+ 472              		.thumb
+ 473              		.thumb_func
+ 474              		.fpu fpv4-sp-d16
+ 476              	MC_GetMecSpeedAverageMotor1:
+ 477              	.LFB1478:
+ 362:Src/mc_api.c  **** }
+ 363:Src/mc_api.c  **** 
+ 364:Src/mc_api.c  **** /**
+ 365:Src/mc_api.c  ****  * @brief Returns the last computed average mechanical rotor speed for Motor 1, expressed in the un
+ 366:Src/mc_api.c  ****  */
+ 367:Src/mc_api.c  **** __weak int16_t MC_GetMecSpeedAverageMotor1(void)
+ 368:Src/mc_api.c  **** {
+ 478              		.loc 1 368 1 is_stmt 1 view -0
+ 479              		.cfi_startproc
+ 480              		@ args = 0, pretend = 0, frame = 0
+ 481              		@ frame_needed = 0, uses_anonymous_args = 0
+ 482              		@ link register save eliminated.
+ 369:Src/mc_api.c  ****   return (MCI_GetAvrgMecSpeedUnit(pMCI[M1]));
+ 483              		.loc 1 369 3 view .LVU53
+ 484              		.loc 1 369 11 is_stmt 0 view .LVU54
+ 485 0000 014B     		ldr	r3, .L47
+ 486 0002 1868     		ldr	r0, [r3]
+ 487 0004 FFF7FEBF 		b	MCI_GetAvrgMecSpeedUnit
+ 488              	.LVL24:
+ 489              	.L48:
+ 490              		.align	2
+ 491              	.L47:
+ 492 0008 00000000 		.word	pMCI
+ 493              		.cfi_endproc
+ 494              	.LFE1478:
+ 496              		.section	.text.MC_GetAverageMecSpeedMotor1_F,"ax",%progbits
+ 497              		.align	1
+ 498              		.p2align 2,,3
+ 499              		.weak	MC_GetAverageMecSpeedMotor1_F
+ 500              		.syntax unified
+ 501              		.thumb
+ 502              		.thumb_func
+ 503              		.fpu fpv4-sp-d16
+ 505              	MC_GetAverageMecSpeedMotor1_F:
+ 506              	.LFB1479:
+ 370:Src/mc_api.c  **** }
+ 371:Src/mc_api.c  **** 
+ 372:Src/mc_api.c  **** /**
+ 373:Src/mc_api.c  ****  * @brief Returns the last computed average mechanical rotor speed for Motor 1, expressed in rpm.
+ 374:Src/mc_api.c  ****  */
+ 375:Src/mc_api.c  **** __weak float_t MC_GetAverageMecSpeedMotor1_F(void)
+ARM GAS  /tmp/ccgpOCYZ.s 			page 16
+
+
+ 376:Src/mc_api.c  **** {
+ 507              		.loc 1 376 1 is_stmt 1 view -0
+ 508              		.cfi_startproc
+ 509              		@ args = 0, pretend = 0, frame = 0
+ 510              		@ frame_needed = 0, uses_anonymous_args = 0
+ 511              		@ link register save eliminated.
+ 377:Src/mc_api.c  ****   return (MCI_GetAvrgMecSpeed_F(pMCI[M1]));
+ 512              		.loc 1 377 3 view .LVU56
+ 513              		.loc 1 377 11 is_stmt 0 view .LVU57
+ 514 0000 014B     		ldr	r3, .L50
+ 515 0002 1868     		ldr	r0, [r3]
+ 516 0004 FFF7FEBF 		b	MCI_GetAvrgMecSpeed_F
+ 517              	.LVL25:
+ 518              	.L51:
+ 519              		.align	2
+ 520              	.L50:
+ 521 0008 00000000 		.word	pMCI
+ 522              		.cfi_endproc
+ 523              	.LFE1479:
+ 525              		.section	.text.MC_GetLastRampFinalSpeedMotor1,"ax",%progbits
+ 526              		.align	1
+ 527              		.p2align 2,,3
+ 528              		.weak	MC_GetLastRampFinalSpeedMotor1
+ 529              		.syntax unified
+ 530              		.thumb
+ 531              		.thumb_func
+ 532              		.fpu fpv4-sp-d16
+ 534              	MC_GetLastRampFinalSpeedMotor1:
+ 535              	.LFB1480:
+ 378:Src/mc_api.c  **** }
+ 379:Src/mc_api.c  **** 
+ 380:Src/mc_api.c  **** /**
+ 381:Src/mc_api.c  ****  * @brief Returns the final speed of the last ramp programmed for Motor 1 if this ramp was a speed 
+ 382:Src/mc_api.c  ****  */
+ 383:Src/mc_api.c  **** __weak int16_t MC_GetLastRampFinalSpeedMotor1(void)
+ 384:Src/mc_api.c  **** {
+ 536              		.loc 1 384 1 is_stmt 1 view -0
+ 537              		.cfi_startproc
+ 538              		@ args = 0, pretend = 0, frame = 0
+ 539              		@ frame_needed = 0, uses_anonymous_args = 0
+ 540              		@ link register save eliminated.
+ 385:Src/mc_api.c  ****   return (MCI_GetLastRampFinalSpeed(pMCI[M1]));
+ 541              		.loc 1 385 3 view .LVU59
+ 542              		.loc 1 385 11 is_stmt 0 view .LVU60
+ 543 0000 014B     		ldr	r3, .L53
+ 544 0002 1868     		ldr	r0, [r3]
+ 545 0004 FFF7FEBF 		b	MCI_GetLastRampFinalSpeed
+ 546              	.LVL26:
+ 547              	.L54:
+ 548              		.align	2
+ 549              	.L53:
+ 550 0008 00000000 		.word	pMCI
+ 551              		.cfi_endproc
+ 552              	.LFE1480:
+ 554              		.section	.text.MC_GetLastRampFinalSpeedM1_F,"ax",%progbits
+ 555              		.align	1
+ 556              		.p2align 2,,3
+ARM GAS  /tmp/ccgpOCYZ.s 			page 17
+
+
+ 557              		.weak	MC_GetLastRampFinalSpeedM1_F
+ 558              		.syntax unified
+ 559              		.thumb
+ 560              		.thumb_func
+ 561              		.fpu fpv4-sp-d16
+ 563              	MC_GetLastRampFinalSpeedM1_F:
+ 564              	.LFB1481:
+ 386:Src/mc_api.c  **** }
+ 387:Src/mc_api.c  **** 
+ 388:Src/mc_api.c  **** /**
+ 389:Src/mc_api.c  ****  * @brief Returns the final speed of the last ramp programmed for Motor 1 if this ramp was a speed 
+ 390:Src/mc_api.c  ****  */
+ 391:Src/mc_api.c  **** __weak float_t MC_GetLastRampFinalSpeedM1_F(void)
+ 392:Src/mc_api.c  **** {
+ 565              		.loc 1 392 1 is_stmt 1 view -0
+ 566              		.cfi_startproc
+ 567              		@ args = 0, pretend = 0, frame = 0
+ 568              		@ frame_needed = 0, uses_anonymous_args = 0
+ 569              		@ link register save eliminated.
+ 393:Src/mc_api.c  ****   return (MCI_GetLastRampFinalSpeed_F(pMCI[M1]));
+ 570              		.loc 1 393 3 view .LVU62
+ 571              		.loc 1 393 11 is_stmt 0 view .LVU63
+ 572 0000 014B     		ldr	r3, .L56
+ 573 0002 1868     		ldr	r0, [r3]
+ 574 0004 FFF7FEBF 		b	MCI_GetLastRampFinalSpeed_F
+ 575              	.LVL27:
+ 576              	.L57:
+ 577              		.align	2
+ 578              	.L56:
+ 579 0008 00000000 		.word	pMCI
+ 580              		.cfi_endproc
+ 581              	.LFE1481:
+ 583              		.section	.text.MC_GetFinalTorqueReferenceMotor1_F,"ax",%progbits
+ 584              		.align	1
+ 585              		.p2align 2,,3
+ 586              		.weak	MC_GetFinalTorqueReferenceMotor1_F
+ 587              		.syntax unified
+ 588              		.thumb
+ 589              		.thumb_func
+ 590              		.fpu fpv4-sp-d16
+ 592              	MC_GetFinalTorqueReferenceMotor1_F:
+ 593              	.LFB1482:
+ 394:Src/mc_api.c  **** }
+ 395:Src/mc_api.c  **** /**
+ 396:Src/mc_api.c  ****  * @brief Returns the final torque reference for Motor 1, expressed in Ampere.
+ 397:Src/mc_api.c  ****  */
+ 398:Src/mc_api.c  **** __weak float_t MC_GetFinalTorqueReferenceMotor1_F(void)
+ 399:Src/mc_api.c  **** {
+ 594              		.loc 1 399 1 is_stmt 1 view -0
+ 595              		.cfi_startproc
+ 596              		@ args = 0, pretend = 0, frame = 0
+ 597              		@ frame_needed = 0, uses_anonymous_args = 0
+ 598              		@ link register save eliminated.
+ 400:Src/mc_api.c  ****   return (MCI_GetLastRampFinalTorque_F(pMCI[M1]));
+ 599              		.loc 1 400 3 view .LVU65
+ 600              		.loc 1 400 11 is_stmt 0 view .LVU66
+ 601 0000 014B     		ldr	r3, .L59
+ARM GAS  /tmp/ccgpOCYZ.s 			page 18
+
+
+ 602 0002 1868     		ldr	r0, [r3]
+ 603 0004 FFF7FEBF 		b	MCI_GetLastRampFinalTorque_F
+ 604              	.LVL28:
+ 605              	.L60:
+ 606              		.align	2
+ 607              	.L59:
+ 608 0008 00000000 		.word	pMCI
+ 609              		.cfi_endproc
+ 610              	.LFE1482:
+ 612              		.section	.text.MC_GetFinalTorqueReferenceMotor1,"ax",%progbits
+ 613              		.align	1
+ 614              		.p2align 2,,3
+ 615              		.weak	MC_GetFinalTorqueReferenceMotor1
+ 616              		.syntax unified
+ 617              		.thumb
+ 618              		.thumb_func
+ 619              		.fpu fpv4-sp-d16
+ 621              	MC_GetFinalTorqueReferenceMotor1:
+ 622              	.LFB1483:
+ 401:Src/mc_api.c  **** }
+ 402:Src/mc_api.c  **** 
+ 403:Src/mc_api.c  **** /**
+ 404:Src/mc_api.c  ****  * @brief Returns the final torque reference for Motor 1, expressed in digit.
+ 405:Src/mc_api.c  ****  */
+ 406:Src/mc_api.c  **** __weak int16_t MC_GetFinalTorqueReferenceMotor1(void)
+ 407:Src/mc_api.c  **** {
+ 623              		.loc 1 407 1 is_stmt 1 view -0
+ 624              		.cfi_startproc
+ 625              		@ args = 0, pretend = 0, frame = 0
+ 626              		@ frame_needed = 0, uses_anonymous_args = 0
+ 627              		@ link register save eliminated.
+ 408:Src/mc_api.c  ****   return (MCI_GetLastRampFinalTorque(pMCI[M1]));
+ 628              		.loc 1 408 3 view .LVU68
+ 629              		.loc 1 408 11 is_stmt 0 view .LVU69
+ 630 0000 014B     		ldr	r3, .L62
+ 631 0002 1868     		ldr	r0, [r3]
+ 632 0004 FFF7FEBF 		b	MCI_GetLastRampFinalTorque
+ 633              	.LVL29:
+ 634              	.L63:
+ 635              		.align	2
+ 636              	.L62:
+ 637 0008 00000000 		.word	pMCI
+ 638              		.cfi_endproc
+ 639              	.LFE1483:
+ 641              		.section	.text.MC_GetControlModeMotor1,"ax",%progbits
+ 642              		.align	1
+ 643              		.p2align 2,,3
+ 644              		.weak	MC_GetControlModeMotor1
+ 645              		.syntax unified
+ 646              		.thumb
+ 647              		.thumb_func
+ 648              		.fpu fpv4-sp-d16
+ 650              	MC_GetControlModeMotor1:
+ 651              	.LFB1484:
+ 409:Src/mc_api.c  **** }
+ 410:Src/mc_api.c  **** /**
+ 411:Src/mc_api.c  ****  * @brief Returns the Control Mode used for Motor 1 (either Speed or Torque)
+ARM GAS  /tmp/ccgpOCYZ.s 			page 19
+
+
+ 412:Src/mc_api.c  ****  */
+ 413:Src/mc_api.c  **** __weak MC_ControlMode_t MC_GetControlModeMotor1(void)
+ 414:Src/mc_api.c  **** {
+ 652              		.loc 1 414 1 is_stmt 1 view -0
+ 653              		.cfi_startproc
+ 654              		@ args = 0, pretend = 0, frame = 0
+ 655              		@ frame_needed = 0, uses_anonymous_args = 0
+ 656              		@ link register save eliminated.
+ 415:Src/mc_api.c  ****   return (MCI_GetControlMode(pMCI[M1]));
+ 657              		.loc 1 415 3 view .LVU71
+ 658              		.loc 1 415 11 is_stmt 0 view .LVU72
+ 659 0000 014B     		ldr	r3, .L65
+ 660 0002 1868     		ldr	r0, [r3]
+ 661 0004 FFF7FEBF 		b	MCI_GetControlMode
+ 662              	.LVL30:
+ 663              	.L66:
+ 664              		.align	2
+ 665              	.L65:
+ 666 0008 00000000 		.word	pMCI
+ 667              		.cfi_endproc
+ 668              	.LFE1484:
+ 670              		.section	.text.MC_GetImposedDirectionMotor1,"ax",%progbits
+ 671              		.align	1
+ 672              		.p2align 2,,3
+ 673              		.weak	MC_GetImposedDirectionMotor1
+ 674              		.syntax unified
+ 675              		.thumb
+ 676              		.thumb_func
+ 677              		.fpu fpv4-sp-d16
+ 679              	MC_GetImposedDirectionMotor1:
+ 680              	.LFB1485:
+ 416:Src/mc_api.c  **** }
+ 417:Src/mc_api.c  **** 
+ 418:Src/mc_api.c  **** /**
+ 419:Src/mc_api.c  ****  * @brief Returns the rotation direction imposed by the last command on Motor 1
+ 420:Src/mc_api.c  ****  *
+ 421:Src/mc_api.c  ****  * The last command is either MC_ProgramSpeedRampMotor1(), MC_ProgramTorqueRampMotor1() or
+ 422:Src/mc_api.c  ****  * MC_SetCurrentReferenceMotor1().
+ 423:Src/mc_api.c  ****  *
+ 424:Src/mc_api.c  ****  * The function returns -1 if the sign of the final speed, the final torque or the Iq current
+ 425:Src/mc_api.c  ****  * reference component of the last command is negative. Otherwise, 1 is returned.
+ 426:Src/mc_api.c  ****  *
+ 427:Src/mc_api.c  ****  * @note if no such command has ever been submitted, 1 is returned as well.
+ 428:Src/mc_api.c  ****  */
+ 429:Src/mc_api.c  **** __weak int16_t MC_GetImposedDirectionMotor1(void)
+ 430:Src/mc_api.c  **** {
+ 681              		.loc 1 430 1 is_stmt 1 view -0
+ 682              		.cfi_startproc
+ 683              		@ args = 0, pretend = 0, frame = 0
+ 684              		@ frame_needed = 0, uses_anonymous_args = 0
+ 685              		@ link register save eliminated.
+ 431:Src/mc_api.c  ****   return (MCI_GetImposedMotorDirection(pMCI[M1]));
+ 686              		.loc 1 431 3 view .LVU74
+ 687              		.loc 1 431 11 is_stmt 0 view .LVU75
+ 688 0000 014B     		ldr	r3, .L68
+ 689 0002 1868     		ldr	r0, [r3]
+ 690 0004 FFF7FEBF 		b	MCI_GetImposedMotorDirection
+ARM GAS  /tmp/ccgpOCYZ.s 			page 20
+
+
+ 691              	.LVL31:
+ 692              	.L69:
+ 693              		.align	2
+ 694              	.L68:
+ 695 0008 00000000 		.word	pMCI
+ 696              		.cfi_endproc
+ 697              	.LFE1485:
+ 699              		.section	.text.MC_GetSpeedSensorReliabilityMotor1,"ax",%progbits
+ 700              		.align	1
+ 701              		.p2align 2,,3
+ 702              		.weak	MC_GetSpeedSensorReliabilityMotor1
+ 703              		.syntax unified
+ 704              		.thumb
+ 705              		.thumb_func
+ 706              		.fpu fpv4-sp-d16
+ 708              	MC_GetSpeedSensorReliabilityMotor1:
+ 709              	.LFB1486:
+ 432:Src/mc_api.c  **** }
+ 433:Src/mc_api.c  **** 
+ 434:Src/mc_api.c  **** /**
+ 435:Src/mc_api.c  ****  * @brief Returns true if the speed sensor used for Motor 1 is reliable, false otherwise
+ 436:Src/mc_api.c  ****  */
+ 437:Src/mc_api.c  **** __weak bool MC_GetSpeedSensorReliabilityMotor1(void)
+ 438:Src/mc_api.c  **** {
+ 710              		.loc 1 438 1 is_stmt 1 view -0
+ 711              		.cfi_startproc
+ 712              		@ args = 0, pretend = 0, frame = 0
+ 713              		@ frame_needed = 0, uses_anonymous_args = 0
+ 714              		@ link register save eliminated.
+ 439:Src/mc_api.c  ****   return (MCI_GetSpdSensorReliability(pMCI[M1]));
+ 715              		.loc 1 439 3 view .LVU77
+ 716              		.loc 1 439 11 is_stmt 0 view .LVU78
+ 717 0000 014B     		ldr	r3, .L71
+ 718 0002 1868     		ldr	r0, [r3]
+ 719 0004 FFF7FEBF 		b	MCI_GetSpdSensorReliability
+ 720              	.LVL32:
+ 721              	.L72:
+ 722              		.align	2
+ 723              	.L71:
+ 724 0008 00000000 		.word	pMCI
+ 725              		.cfi_endproc
+ 726              	.LFE1486:
+ 728              		.section	.text.MC_GetPhaseCurrentAmplitudeMotor1,"ax",%progbits
+ 729              		.align	1
+ 730              		.p2align 2,,3
+ 731              		.weak	MC_GetPhaseCurrentAmplitudeMotor1
+ 732              		.syntax unified
+ 733              		.thumb
+ 734              		.thumb_func
+ 735              		.fpu fpv4-sp-d16
+ 737              	MC_GetPhaseCurrentAmplitudeMotor1:
+ 738              	.LFB1487:
+ 440:Src/mc_api.c  **** }
+ 441:Src/mc_api.c  **** 
+ 442:Src/mc_api.c  **** /**
+ 443:Src/mc_api.c  ****  * @brief returns the amplitude of the phase current injected in Motor 1
+ 444:Src/mc_api.c  ****  *
+ARM GAS  /tmp/ccgpOCYZ.s 			page 21
+
+
+ 445:Src/mc_api.c  ****  * The returned amplitude (0-to-peak) is expressed in s16A unit. To convert it to amperes, use the 
+ 446:Src/mc_api.c  ****  *
+ 447:Src/mc_api.c  ****  * @f[
+ 448:Src/mc_api.c  ****  * I_{Amps} = \frac{ I_{s16A} \times V_{dd}}{ 65536 \times R_{shunt} \times A_{op} }
+ 449:Src/mc_api.c  ****  * @f]
+ 450:Src/mc_api.c  ****  *
+ 451:Src/mc_api.c  ****  */
+ 452:Src/mc_api.c  **** __weak int16_t MC_GetPhaseCurrentAmplitudeMotor1(void)
+ 453:Src/mc_api.c  **** {
+ 739              		.loc 1 453 1 is_stmt 1 view -0
+ 740              		.cfi_startproc
+ 741              		@ args = 0, pretend = 0, frame = 0
+ 742              		@ frame_needed = 0, uses_anonymous_args = 0
+ 743              		@ link register save eliminated.
+ 454:Src/mc_api.c  ****   return (MCI_GetPhaseCurrentAmplitude(pMCI[M1]));
+ 744              		.loc 1 454 3 view .LVU80
+ 745              		.loc 1 454 11 is_stmt 0 view .LVU81
+ 746 0000 014B     		ldr	r3, .L74
+ 747 0002 1868     		ldr	r0, [r3]
+ 748 0004 FFF7FEBF 		b	MCI_GetPhaseCurrentAmplitude
+ 749              	.LVL33:
+ 750              	.L75:
+ 751              		.align	2
+ 752              	.L74:
+ 753 0008 00000000 		.word	pMCI
+ 754              		.cfi_endproc
+ 755              	.LFE1487:
+ 757              		.section	.text.MC_GetPhaseVoltageAmplitudeMotor1,"ax",%progbits
+ 758              		.align	1
+ 759              		.p2align 2,,3
+ 760              		.weak	MC_GetPhaseVoltageAmplitudeMotor1
+ 761              		.syntax unified
+ 762              		.thumb
+ 763              		.thumb_func
+ 764              		.fpu fpv4-sp-d16
+ 766              	MC_GetPhaseVoltageAmplitudeMotor1:
+ 767              	.LFB1488:
+ 455:Src/mc_api.c  **** }
+ 456:Src/mc_api.c  **** 
+ 457:Src/mc_api.c  **** /**
+ 458:Src/mc_api.c  ****  * @brief returns the amplitude of the phase voltage applied to Motor 1
+ 459:Src/mc_api.c  ****  *
+ 460:Src/mc_api.c  ****  * The returned amplitude (0-to-peak) is expressed in s16V unit. To convert it to volts, use the fo
+ 461:Src/mc_api.c  ****  *
+ 462:Src/mc_api.c  ****  * @f[
+ 463:Src/mc_api.c  ****  * U_{Volts} = \frac{ U_{s16V} \times V_{bus}}{ \sqrt{3} \times 32768  }
+ 464:Src/mc_api.c  ****  * @f]
+ 465:Src/mc_api.c  ****  *
+ 466:Src/mc_api.c  ****  */
+ 467:Src/mc_api.c  **** __weak int16_t MC_GetPhaseVoltageAmplitudeMotor1(void)
+ 468:Src/mc_api.c  **** {
+ 768              		.loc 1 468 1 is_stmt 1 view -0
+ 769              		.cfi_startproc
+ 770              		@ args = 0, pretend = 0, frame = 0
+ 771              		@ frame_needed = 0, uses_anonymous_args = 0
+ 772              		@ link register save eliminated.
+ 469:Src/mc_api.c  ****   return (MCI_GetPhaseVoltageAmplitude(pMCI[M1]));
+ARM GAS  /tmp/ccgpOCYZ.s 			page 22
+
+
+ 773              		.loc 1 469 3 view .LVU83
+ 774              		.loc 1 469 11 is_stmt 0 view .LVU84
+ 775 0000 014B     		ldr	r3, .L77
+ 776 0002 1868     		ldr	r0, [r3]
+ 777 0004 FFF7FEBF 		b	MCI_GetPhaseVoltageAmplitude
+ 778              	.LVL34:
+ 779              	.L78:
+ 780              		.align	2
+ 781              	.L77:
+ 782 0008 00000000 		.word	pMCI
+ 783              		.cfi_endproc
+ 784              	.LFE1488:
+ 786              		.section	.text.MC_GetIabMotor1,"ax",%progbits
+ 787              		.align	1
+ 788              		.p2align 2,,3
+ 789              		.weak	MC_GetIabMotor1
+ 790              		.syntax unified
+ 791              		.thumb
+ 792              		.thumb_func
+ 793              		.fpu fpv4-sp-d16
+ 795              	MC_GetIabMotor1:
+ 796              	.LFB1489:
+ 470:Src/mc_api.c  **** }
+ 471:Src/mc_api.c  **** 
+ 472:Src/mc_api.c  **** /**
+ 473:Src/mc_api.c  ****  * @brief returns Ia and Ib current values for Motor 1 in ab_t format
+ 474:Src/mc_api.c  ****  */
+ 475:Src/mc_api.c  **** __weak ab_t MC_GetIabMotor1(void)
+ 476:Src/mc_api.c  **** {
+ 797              		.loc 1 476 1 is_stmt 1 view -0
+ 798              		.cfi_startproc
+ 799              		@ args = 0, pretend = 0, frame = 8
+ 800              		@ frame_needed = 0, uses_anonymous_args = 0
+ 801              		@ link register save eliminated.
+ 477:Src/mc_api.c  ****   return (MCI_GetIab(pMCI[M1]));
+ 802              		.loc 1 477 3 view .LVU86
+ 803              		.loc 1 477 11 is_stmt 0 view .LVU87
+ 804 0000 024B     		ldr	r3, .L81
+ 805 0002 1868     		ldr	r0, [r3]
+ 476:Src/mc_api.c  ****   return (MCI_GetIab(pMCI[M1]));
+ 806              		.loc 1 476 1 view .LVU88
+ 807 0004 82B0     		sub	sp, sp, #8
+ 808              	.LCFI4:
+ 809              		.cfi_def_cfa_offset 8
+ 478:Src/mc_api.c  **** }
+ 810              		.loc 1 478 1 view .LVU89
+ 811 0006 02B0     		add	sp, sp, #8
+ 812              	.LCFI5:
+ 813              		.cfi_def_cfa_offset 0
+ 814              		@ sp needed
+ 477:Src/mc_api.c  ****   return (MCI_GetIab(pMCI[M1]));
+ 815              		.loc 1 477 11 view .LVU90
+ 816 0008 FFF7FEBF 		b	MCI_GetIab
+ 817              	.LVL35:
+ 818              	.L82:
+ 819              		.align	2
+ 820              	.L81:
+ARM GAS  /tmp/ccgpOCYZ.s 			page 23
+
+
+ 821 000c 00000000 		.word	pMCI
+ 822              		.cfi_endproc
+ 823              	.LFE1489:
+ 825              		.section	.text.MC_GetIabMotor1_F,"ax",%progbits
+ 826              		.align	1
+ 827              		.p2align 2,,3
+ 828              		.weak	MC_GetIabMotor1_F
+ 829              		.syntax unified
+ 830              		.thumb
+ 831              		.thumb_func
+ 832              		.fpu fpv4-sp-d16
+ 834              	MC_GetIabMotor1_F:
+ 835              	.LFB1490:
+ 479:Src/mc_api.c  **** 
+ 480:Src/mc_api.c  **** /**
+ 481:Src/mc_api.c  ****  * @brief returns Ia and Ib current values for Motor 1 in ab_f_t format
+ 482:Src/mc_api.c  ****  */
+ 483:Src/mc_api.c  **** __weak ab_f_t MC_GetIabMotor1_F(void)
+ 484:Src/mc_api.c  **** {
+ 836              		.loc 1 484 1 is_stmt 1 view -0
+ 837              		.cfi_startproc
+ 838              		@ args = 0, pretend = 0, frame = 8
+ 839              		@ frame_needed = 0, uses_anonymous_args = 0
+ 840              		@ link register save eliminated.
+ 485:Src/mc_api.c  ****   return (MCI_GetIab_F(pMCI[M1]));
+ 841              		.loc 1 485 3 view .LVU92
+ 842              		.loc 1 485 11 is_stmt 0 view .LVU93
+ 843 0000 024B     		ldr	r3, .L85
+ 844 0002 1868     		ldr	r0, [r3]
+ 484:Src/mc_api.c  ****   return (MCI_GetIab_F(pMCI[M1]));
+ 845              		.loc 1 484 1 view .LVU94
+ 846 0004 82B0     		sub	sp, sp, #8
+ 847              	.LCFI6:
+ 848              		.cfi_def_cfa_offset 8
+ 486:Src/mc_api.c  **** }
+ 849              		.loc 1 486 1 view .LVU95
+ 850 0006 02B0     		add	sp, sp, #8
+ 851              	.LCFI7:
+ 852              		.cfi_def_cfa_offset 0
+ 853              		@ sp needed
+ 485:Src/mc_api.c  ****   return (MCI_GetIab_F(pMCI[M1]));
+ 854              		.loc 1 485 11 view .LVU96
+ 855 0008 FFF7FEBF 		b	MCI_GetIab_F
+ 856              	.LVL36:
+ 857              	.L86:
+ 858              		.align	2
+ 859              	.L85:
+ 860 000c 00000000 		.word	pMCI
+ 861              		.cfi_endproc
+ 862              	.LFE1490:
+ 864              		.section	.text.MC_GetIalphabetaMotor1,"ax",%progbits
+ 865              		.align	1
+ 866              		.p2align 2,,3
+ 867              		.weak	MC_GetIalphabetaMotor1
+ 868              		.syntax unified
+ 869              		.thumb
+ 870              		.thumb_func
+ARM GAS  /tmp/ccgpOCYZ.s 			page 24
+
+
+ 871              		.fpu fpv4-sp-d16
+ 873              	MC_GetIalphabetaMotor1:
+ 874              	.LFB1491:
+ 487:Src/mc_api.c  **** 
+ 488:Src/mc_api.c  **** /**
+ 489:Src/mc_api.c  ****  * @brief returns Ialpha and Ibeta current values for Motor 1 in alphabeta_t format
+ 490:Src/mc_api.c  ****  */
+ 491:Src/mc_api.c  **** __weak alphabeta_t MC_GetIalphabetaMotor1(void)
+ 492:Src/mc_api.c  **** {
+ 875              		.loc 1 492 1 is_stmt 1 view -0
+ 876              		.cfi_startproc
+ 877              		@ args = 0, pretend = 0, frame = 8
+ 878              		@ frame_needed = 0, uses_anonymous_args = 0
+ 879              		@ link register save eliminated.
+ 493:Src/mc_api.c  ****   return (MCI_GetIalphabeta(pMCI[M1]));
+ 880              		.loc 1 493 3 view .LVU98
+ 881              		.loc 1 493 11 is_stmt 0 view .LVU99
+ 882 0000 024B     		ldr	r3, .L89
+ 883 0002 1868     		ldr	r0, [r3]
+ 492:Src/mc_api.c  ****   return (MCI_GetIalphabeta(pMCI[M1]));
+ 884              		.loc 1 492 1 view .LVU100
+ 885 0004 82B0     		sub	sp, sp, #8
+ 886              	.LCFI8:
+ 887              		.cfi_def_cfa_offset 8
+ 494:Src/mc_api.c  **** }
+ 888              		.loc 1 494 1 view .LVU101
+ 889 0006 02B0     		add	sp, sp, #8
+ 890              	.LCFI9:
+ 891              		.cfi_def_cfa_offset 0
+ 892              		@ sp needed
+ 493:Src/mc_api.c  ****   return (MCI_GetIalphabeta(pMCI[M1]));
+ 893              		.loc 1 493 11 view .LVU102
+ 894 0008 FFF7FEBF 		b	MCI_GetIalphabeta
+ 895              	.LVL37:
+ 896              	.L90:
+ 897              		.align	2
+ 898              	.L89:
+ 899 000c 00000000 		.word	pMCI
+ 900              		.cfi_endproc
+ 901              	.LFE1491:
+ 903              		.section	.text.MC_GetIqdMotor1,"ax",%progbits
+ 904              		.align	1
+ 905              		.p2align 2,,3
+ 906              		.weak	MC_GetIqdMotor1
+ 907              		.syntax unified
+ 908              		.thumb
+ 909              		.thumb_func
+ 910              		.fpu fpv4-sp-d16
+ 912              	MC_GetIqdMotor1:
+ 913              	.LFB1492:
+ 495:Src/mc_api.c  **** 
+ 496:Src/mc_api.c  **** /**
+ 497:Src/mc_api.c  ****  * @brief returns Iq and Id current values for Motor 1 in qd_t format
+ 498:Src/mc_api.c  ****  */
+ 499:Src/mc_api.c  **** __weak qd_t MC_GetIqdMotor1(void)
+ 500:Src/mc_api.c  **** {
+ 914              		.loc 1 500 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccgpOCYZ.s 			page 25
+
+
+ 915              		.cfi_startproc
+ 916              		@ args = 0, pretend = 0, frame = 8
+ 917              		@ frame_needed = 0, uses_anonymous_args = 0
+ 918              		@ link register save eliminated.
+ 501:Src/mc_api.c  ****   return (MCI_GetIqd(pMCI[M1]));
+ 919              		.loc 1 501 3 view .LVU104
+ 920              		.loc 1 501 11 is_stmt 0 view .LVU105
+ 921 0000 024B     		ldr	r3, .L93
+ 922 0002 1868     		ldr	r0, [r3]
+ 500:Src/mc_api.c  ****   return (MCI_GetIqd(pMCI[M1]));
+ 923              		.loc 1 500 1 view .LVU106
+ 924 0004 82B0     		sub	sp, sp, #8
+ 925              	.LCFI10:
+ 926              		.cfi_def_cfa_offset 8
+ 502:Src/mc_api.c  **** }
+ 927              		.loc 1 502 1 view .LVU107
+ 928 0006 02B0     		add	sp, sp, #8
+ 929              	.LCFI11:
+ 930              		.cfi_def_cfa_offset 0
+ 931              		@ sp needed
+ 501:Src/mc_api.c  ****   return (MCI_GetIqd(pMCI[M1]));
+ 932              		.loc 1 501 11 view .LVU108
+ 933 0008 FFF7FEBF 		b	MCI_GetIqd
+ 934              	.LVL38:
+ 935              	.L94:
+ 936              		.align	2
+ 937              	.L93:
+ 938 000c 00000000 		.word	pMCI
+ 939              		.cfi_endproc
+ 940              	.LFE1492:
+ 942              		.section	.text.MC_GetIqdMotor1_F,"ax",%progbits
+ 943              		.align	1
+ 944              		.p2align 2,,3
+ 945              		.weak	MC_GetIqdMotor1_F
+ 946              		.syntax unified
+ 947              		.thumb
+ 948              		.thumb_func
+ 949              		.fpu fpv4-sp-d16
+ 951              	MC_GetIqdMotor1_F:
+ 952              	.LFB1493:
+ 503:Src/mc_api.c  **** 
+ 504:Src/mc_api.c  **** /**
+ 505:Src/mc_api.c  ****  * @brief returns Iq and Id current values for Motor 1 in float_t type
+ 506:Src/mc_api.c  ****  */
+ 507:Src/mc_api.c  **** __weak qd_f_t MC_GetIqdMotor1_F(void)
+ 508:Src/mc_api.c  **** {
+ 953              		.loc 1 508 1 is_stmt 1 view -0
+ 954              		.cfi_startproc
+ 955              		@ args = 0, pretend = 0, frame = 8
+ 956              		@ frame_needed = 0, uses_anonymous_args = 0
+ 957              		@ link register save eliminated.
+ 509:Src/mc_api.c  ****   return (MCI_GetIqd_F(pMCI[M1]));
+ 958              		.loc 1 509 3 view .LVU110
+ 959              		.loc 1 509 11 is_stmt 0 view .LVU111
+ 960 0000 024B     		ldr	r3, .L97
+ 961 0002 1868     		ldr	r0, [r3]
+ 508:Src/mc_api.c  ****   return (MCI_GetIqd_F(pMCI[M1]));
+ARM GAS  /tmp/ccgpOCYZ.s 			page 26
+
+
+ 962              		.loc 1 508 1 view .LVU112
+ 963 0004 82B0     		sub	sp, sp, #8
+ 964              	.LCFI12:
+ 965              		.cfi_def_cfa_offset 8
+ 510:Src/mc_api.c  **** }
+ 966              		.loc 1 510 1 view .LVU113
+ 967 0006 02B0     		add	sp, sp, #8
+ 968              	.LCFI13:
+ 969              		.cfi_def_cfa_offset 0
+ 970              		@ sp needed
+ 509:Src/mc_api.c  ****   return (MCI_GetIqd_F(pMCI[M1]));
+ 971              		.loc 1 509 11 view .LVU114
+ 972 0008 FFF7FEBF 		b	MCI_GetIqd_F
+ 973              	.LVL39:
+ 974              	.L98:
+ 975              		.align	2
+ 976              	.L97:
+ 977 000c 00000000 		.word	pMCI
+ 978              		.cfi_endproc
+ 979              	.LFE1493:
+ 981              		.section	.text.MC_GetIqdrefMotor1,"ax",%progbits
+ 982              		.align	1
+ 983              		.p2align 2,,3
+ 984              		.weak	MC_GetIqdrefMotor1
+ 985              		.syntax unified
+ 986              		.thumb
+ 987              		.thumb_func
+ 988              		.fpu fpv4-sp-d16
+ 990              	MC_GetIqdrefMotor1:
+ 991              	.LFB1494:
+ 511:Src/mc_api.c  **** 
+ 512:Src/mc_api.c  **** /**
+ 513:Src/mc_api.c  ****  * @brief returns Iq and Id reference current values for Motor 1 in qd_t format
+ 514:Src/mc_api.c  ****  */
+ 515:Src/mc_api.c  **** __weak qd_t MC_GetIqdrefMotor1(void)
+ 516:Src/mc_api.c  **** {
+ 992              		.loc 1 516 1 is_stmt 1 view -0
+ 993              		.cfi_startproc
+ 994              		@ args = 0, pretend = 0, frame = 8
+ 995              		@ frame_needed = 0, uses_anonymous_args = 0
+ 996              		@ link register save eliminated.
+ 517:Src/mc_api.c  ****   return (MCI_GetIqdref(pMCI[M1]));
+ 997              		.loc 1 517 3 view .LVU116
+ 998              		.loc 1 517 11 is_stmt 0 view .LVU117
+ 999 0000 024B     		ldr	r3, .L101
+ 1000 0002 1868     		ldr	r0, [r3]
+ 516:Src/mc_api.c  ****   return (MCI_GetIqdref(pMCI[M1]));
+ 1001              		.loc 1 516 1 view .LVU118
+ 1002 0004 82B0     		sub	sp, sp, #8
+ 1003              	.LCFI14:
+ 1004              		.cfi_def_cfa_offset 8
+ 518:Src/mc_api.c  **** }
+ 1005              		.loc 1 518 1 view .LVU119
+ 1006 0006 02B0     		add	sp, sp, #8
+ 1007              	.LCFI15:
+ 1008              		.cfi_def_cfa_offset 0
+ 1009              		@ sp needed
+ARM GAS  /tmp/ccgpOCYZ.s 			page 27
+
+
+ 517:Src/mc_api.c  ****   return (MCI_GetIqdref(pMCI[M1]));
+ 1010              		.loc 1 517 11 view .LVU120
+ 1011 0008 FFF7FEBF 		b	MCI_GetIqdref
+ 1012              	.LVL40:
+ 1013              	.L102:
+ 1014              		.align	2
+ 1015              	.L101:
+ 1016 000c 00000000 		.word	pMCI
+ 1017              		.cfi_endproc
+ 1018              	.LFE1494:
+ 1020              		.section	.text.MC_GetIqdrefMotor1_F,"ax",%progbits
+ 1021              		.align	1
+ 1022              		.p2align 2,,3
+ 1023              		.weak	MC_GetIqdrefMotor1_F
+ 1024              		.syntax unified
+ 1025              		.thumb
+ 1026              		.thumb_func
+ 1027              		.fpu fpv4-sp-d16
+ 1029              	MC_GetIqdrefMotor1_F:
+ 1030              	.LFB1495:
+ 519:Src/mc_api.c  **** 
+ 520:Src/mc_api.c  **** /**
+ 521:Src/mc_api.c  ****  * @brief returns Iq and Id reference current values for Motor 1 in float_t type
+ 522:Src/mc_api.c  ****  */
+ 523:Src/mc_api.c  **** __weak qd_f_t MC_GetIqdrefMotor1_F(void)
+ 524:Src/mc_api.c  **** {
+ 1031              		.loc 1 524 1 is_stmt 1 view -0
+ 1032              		.cfi_startproc
+ 1033              		@ args = 0, pretend = 0, frame = 8
+ 1034              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1035              		@ link register save eliminated.
+ 525:Src/mc_api.c  ****   return (MCI_GetIqdref_F(pMCI[M1]));
+ 1036              		.loc 1 525 3 view .LVU122
+ 1037              		.loc 1 525 11 is_stmt 0 view .LVU123
+ 1038 0000 024B     		ldr	r3, .L105
+ 1039 0002 1868     		ldr	r0, [r3]
+ 524:Src/mc_api.c  ****   return (MCI_GetIqdref_F(pMCI[M1]));
+ 1040              		.loc 1 524 1 view .LVU124
+ 1041 0004 82B0     		sub	sp, sp, #8
+ 1042              	.LCFI16:
+ 1043              		.cfi_def_cfa_offset 8
+ 526:Src/mc_api.c  **** }
+ 1044              		.loc 1 526 1 view .LVU125
+ 1045 0006 02B0     		add	sp, sp, #8
+ 1046              	.LCFI17:
+ 1047              		.cfi_def_cfa_offset 0
+ 1048              		@ sp needed
+ 525:Src/mc_api.c  ****   return (MCI_GetIqdref_F(pMCI[M1]));
+ 1049              		.loc 1 525 11 view .LVU126
+ 1050 0008 FFF7FEBF 		b	MCI_GetIqdref_F
+ 1051              	.LVL41:
+ 1052              	.L106:
+ 1053              		.align	2
+ 1054              	.L105:
+ 1055 000c 00000000 		.word	pMCI
+ 1056              		.cfi_endproc
+ 1057              	.LFE1495:
+ARM GAS  /tmp/ccgpOCYZ.s 			page 28
+
+
+ 1059              		.section	.text.MC_GetVqdMotor1,"ax",%progbits
+ 1060              		.align	1
+ 1061              		.p2align 2,,3
+ 1062              		.weak	MC_GetVqdMotor1
+ 1063              		.syntax unified
+ 1064              		.thumb
+ 1065              		.thumb_func
+ 1066              		.fpu fpv4-sp-d16
+ 1068              	MC_GetVqdMotor1:
+ 1069              	.LFB1496:
+ 527:Src/mc_api.c  **** 
+ 528:Src/mc_api.c  **** /**
+ 529:Src/mc_api.c  ****  * @brief returns Vq and Vd voltage values for Motor 1 in qd_t format
+ 530:Src/mc_api.c  ****  */
+ 531:Src/mc_api.c  **** __weak qd_t MC_GetVqdMotor1(void)
+ 532:Src/mc_api.c  **** {
+ 1070              		.loc 1 532 1 is_stmt 1 view -0
+ 1071              		.cfi_startproc
+ 1072              		@ args = 0, pretend = 0, frame = 8
+ 1073              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1074              		@ link register save eliminated.
+ 533:Src/mc_api.c  ****   return (MCI_GetVqd(pMCI[M1]));
+ 1075              		.loc 1 533 3 view .LVU128
+ 1076              		.loc 1 533 11 is_stmt 0 view .LVU129
+ 1077 0000 024B     		ldr	r3, .L109
+ 1078 0002 1868     		ldr	r0, [r3]
+ 532:Src/mc_api.c  ****   return (MCI_GetVqd(pMCI[M1]));
+ 1079              		.loc 1 532 1 view .LVU130
+ 1080 0004 82B0     		sub	sp, sp, #8
+ 1081              	.LCFI18:
+ 1082              		.cfi_def_cfa_offset 8
+ 534:Src/mc_api.c  **** }
+ 1083              		.loc 1 534 1 view .LVU131
+ 1084 0006 02B0     		add	sp, sp, #8
+ 1085              	.LCFI19:
+ 1086              		.cfi_def_cfa_offset 0
+ 1087              		@ sp needed
+ 533:Src/mc_api.c  ****   return (MCI_GetVqd(pMCI[M1]));
+ 1088              		.loc 1 533 11 view .LVU132
+ 1089 0008 FFF7FEBF 		b	MCI_GetVqd
+ 1090              	.LVL42:
+ 1091              	.L110:
+ 1092              		.align	2
+ 1093              	.L109:
+ 1094 000c 00000000 		.word	pMCI
+ 1095              		.cfi_endproc
+ 1096              	.LFE1496:
+ 1098              		.section	.text.MC_GetValphabetaMotor1,"ax",%progbits
+ 1099              		.align	1
+ 1100              		.p2align 2,,3
+ 1101              		.weak	MC_GetValphabetaMotor1
+ 1102              		.syntax unified
+ 1103              		.thumb
+ 1104              		.thumb_func
+ 1105              		.fpu fpv4-sp-d16
+ 1107              	MC_GetValphabetaMotor1:
+ 1108              	.LFB1497:
+ARM GAS  /tmp/ccgpOCYZ.s 			page 29
+
+
+ 535:Src/mc_api.c  **** 
+ 536:Src/mc_api.c  **** /**
+ 537:Src/mc_api.c  ****  * @brief returns Valpha and Vbeta voltage values for Motor 1 in alphabeta_t format
+ 538:Src/mc_api.c  ****  */
+ 539:Src/mc_api.c  **** __weak alphabeta_t MC_GetValphabetaMotor1(void)
+ 540:Src/mc_api.c  **** {
+ 1109              		.loc 1 540 1 is_stmt 1 view -0
+ 1110              		.cfi_startproc
+ 1111              		@ args = 0, pretend = 0, frame = 8
+ 1112              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1113              		@ link register save eliminated.
+ 541:Src/mc_api.c  ****   return (MCI_GetValphabeta(pMCI[M1]));
+ 1114              		.loc 1 541 3 view .LVU134
+ 1115              		.loc 1 541 11 is_stmt 0 view .LVU135
+ 1116 0000 024B     		ldr	r3, .L113
+ 1117 0002 1868     		ldr	r0, [r3]
+ 540:Src/mc_api.c  ****   return (MCI_GetValphabeta(pMCI[M1]));
+ 1118              		.loc 1 540 1 view .LVU136
+ 1119 0004 82B0     		sub	sp, sp, #8
+ 1120              	.LCFI20:
+ 1121              		.cfi_def_cfa_offset 8
+ 542:Src/mc_api.c  **** }
+ 1122              		.loc 1 542 1 view .LVU137
+ 1123 0006 02B0     		add	sp, sp, #8
+ 1124              	.LCFI21:
+ 1125              		.cfi_def_cfa_offset 0
+ 1126              		@ sp needed
+ 541:Src/mc_api.c  ****   return (MCI_GetValphabeta(pMCI[M1]));
+ 1127              		.loc 1 541 11 view .LVU138
+ 1128 0008 FFF7FEBF 		b	MCI_GetValphabeta
+ 1129              	.LVL43:
+ 1130              	.L114:
+ 1131              		.align	2
+ 1132              	.L113:
+ 1133 000c 00000000 		.word	pMCI
+ 1134              		.cfi_endproc
+ 1135              	.LFE1497:
+ 1137              		.section	.text.MC_GetElAngledppMotor1,"ax",%progbits
+ 1138              		.align	1
+ 1139              		.p2align 2,,3
+ 1140              		.weak	MC_GetElAngledppMotor1
+ 1141              		.syntax unified
+ 1142              		.thumb
+ 1143              		.thumb_func
+ 1144              		.fpu fpv4-sp-d16
+ 1146              	MC_GetElAngledppMotor1:
+ 1147              	.LFB1498:
+ 543:Src/mc_api.c  **** 
+ 544:Src/mc_api.c  **** /**
+ 545:Src/mc_api.c  ****  * @brief returns the electrical angle of the rotor of Motor 1, in DDP format
+ 546:Src/mc_api.c  ****  */
+ 547:Src/mc_api.c  **** __weak int16_t MC_GetElAngledppMotor1(void)
+ 548:Src/mc_api.c  **** {
+ 1148              		.loc 1 548 1 is_stmt 1 view -0
+ 1149              		.cfi_startproc
+ 1150              		@ args = 0, pretend = 0, frame = 0
+ 1151              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccgpOCYZ.s 			page 30
+
+
+ 1152              		@ link register save eliminated.
+ 549:Src/mc_api.c  ****   return (MCI_GetElAngledpp(pMCI[M1]));
+ 1153              		.loc 1 549 3 view .LVU140
+ 1154              		.loc 1 549 11 is_stmt 0 view .LVU141
+ 1155 0000 014B     		ldr	r3, .L116
+ 1156 0002 1868     		ldr	r0, [r3]
+ 1157 0004 FFF7FEBF 		b	MCI_GetElAngledpp
+ 1158              	.LVL44:
+ 1159              	.L117:
+ 1160              		.align	2
+ 1161              	.L116:
+ 1162 0008 00000000 		.word	pMCI
+ 1163              		.cfi_endproc
+ 1164              	.LFE1498:
+ 1166              		.section	.text.MC_GetTerefMotor1,"ax",%progbits
+ 1167              		.align	1
+ 1168              		.p2align 2,,3
+ 1169              		.weak	MC_GetTerefMotor1
+ 1170              		.syntax unified
+ 1171              		.thumb
+ 1172              		.thumb_func
+ 1173              		.fpu fpv4-sp-d16
+ 1175              	MC_GetTerefMotor1:
+ 1176              	.LFB1499:
+ 550:Src/mc_api.c  **** }
+ 551:Src/mc_api.c  **** 
+ 552:Src/mc_api.c  **** /**
+ 553:Src/mc_api.c  ****  * @brief returns the electrical torque reference for Motor 1
+ 554:Src/mc_api.c  ****  */
+ 555:Src/mc_api.c  **** __weak int16_t MC_GetTerefMotor1(void)
+ 556:Src/mc_api.c  **** {
+ 1177              		.loc 1 556 1 is_stmt 1 view -0
+ 1178              		.cfi_startproc
+ 1179              		@ args = 0, pretend = 0, frame = 0
+ 1180              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1181              		@ link register save eliminated.
+ 557:Src/mc_api.c  ****   return (MCI_GetTeref(pMCI[M1]));
+ 1182              		.loc 1 557 3 view .LVU143
+ 1183              		.loc 1 557 11 is_stmt 0 view .LVU144
+ 1184 0000 014B     		ldr	r3, .L119
+ 1185 0002 1868     		ldr	r0, [r3]
+ 1186 0004 FFF7FEBF 		b	MCI_GetTeref
+ 1187              	.LVL45:
+ 1188              	.L120:
+ 1189              		.align	2
+ 1190              	.L119:
+ 1191 0008 00000000 		.word	pMCI
+ 1192              		.cfi_endproc
+ 1193              	.LFE1499:
+ 1195              		.section	.text.MC_GetTerefMotor1_F,"ax",%progbits
+ 1196              		.align	1
+ 1197              		.p2align 2,,3
+ 1198              		.weak	MC_GetTerefMotor1_F
+ 1199              		.syntax unified
+ 1200              		.thumb
+ 1201              		.thumb_func
+ 1202              		.fpu fpv4-sp-d16
+ARM GAS  /tmp/ccgpOCYZ.s 			page 31
+
+
+ 1204              	MC_GetTerefMotor1_F:
+ 1205              	.LFB1500:
+ 558:Src/mc_api.c  **** }
+ 559:Src/mc_api.c  **** 
+ 560:Src/mc_api.c  **** /**
+ 561:Src/mc_api.c  ****  * @brief returns the electrical torque reference for Motor 1
+ 562:Src/mc_api.c  ****  */
+ 563:Src/mc_api.c  **** __weak float_t MC_GetTerefMotor1_F(void)
+ 564:Src/mc_api.c  **** {
+ 1206              		.loc 1 564 1 is_stmt 1 view -0
+ 1207              		.cfi_startproc
+ 1208              		@ args = 0, pretend = 0, frame = 0
+ 1209              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1210              		@ link register save eliminated.
+ 565:Src/mc_api.c  ****   return (MCI_GetTeref_F(pMCI[M1]));
+ 1211              		.loc 1 565 3 view .LVU146
+ 1212              		.loc 1 565 11 is_stmt 0 view .LVU147
+ 1213 0000 014B     		ldr	r3, .L122
+ 1214 0002 1868     		ldr	r0, [r3]
+ 1215 0004 FFF7FEBF 		b	MCI_GetTeref_F
+ 1216              	.LVL46:
+ 1217              	.L123:
+ 1218              		.align	2
+ 1219              	.L122:
+ 1220 0008 00000000 		.word	pMCI
+ 1221              		.cfi_endproc
+ 1222              	.LFE1500:
+ 1224              		.section	.text.MC_Clear_IqdrefMotor1,"ax",%progbits
+ 1225              		.align	1
+ 1226              		.p2align 2,,3
+ 1227              		.weak	MC_Clear_IqdrefMotor1
+ 1228              		.syntax unified
+ 1229              		.thumb
+ 1230              		.thumb_func
+ 1231              		.fpu fpv4-sp-d16
+ 1233              	MC_Clear_IqdrefMotor1:
+ 1234              	.LFB1501:
+ 566:Src/mc_api.c  **** }
+ 567:Src/mc_api.c  **** 
+ 568:Src/mc_api.c  **** /**
+ 569:Src/mc_api.c  ****  * @brief re-initializes Iq and Id references to their default values for Motor 1
+ 570:Src/mc_api.c  ****  *
+ 571:Src/mc_api.c  ****  * The default values for the Iq and Id references are coming from the Speed
+ 572:Src/mc_api.c  ****  * or the Torque controller depending on the control mode.
+ 573:Src/mc_api.c  ****  *
+ 574:Src/mc_api.c  ****  * @see   SpeednTorqCtrl for more details.
+ 575:Src/mc_api.c  ****  */
+ 576:Src/mc_api.c  **** __weak void MC_Clear_IqdrefMotor1(void)
+ 577:Src/mc_api.c  **** {
+ 1235              		.loc 1 577 1 is_stmt 1 view -0
+ 1236              		.cfi_startproc
+ 1237              		@ args = 0, pretend = 0, frame = 0
+ 1238              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1239              		@ link register save eliminated.
+ 578:Src/mc_api.c  ****   MCI_Clear_Iqdref(pMCI[M1]);
+ 1240              		.loc 1 578 3 view .LVU149
+ 1241 0000 014B     		ldr	r3, .L125
+ARM GAS  /tmp/ccgpOCYZ.s 			page 32
+
+
+ 1242 0002 1868     		ldr	r0, [r3]
+ 1243 0004 FFF7FEBF 		b	MCI_Clear_Iqdref
+ 1244              	.LVL47:
+ 1245              	.L126:
+ 1246              		.align	2
+ 1247              	.L125:
+ 1248 0008 00000000 		.word	pMCI
+ 1249              		.cfi_endproc
+ 1250              	.LFE1501:
+ 1252              		.section	.text.MC_AcknowledgeFaultMotor1,"ax",%progbits
+ 1253              		.align	1
+ 1254              		.p2align 2,,3
+ 1255              		.weak	MC_AcknowledgeFaultMotor1
+ 1256              		.syntax unified
+ 1257              		.thumb
+ 1258              		.thumb_func
+ 1259              		.fpu fpv4-sp-d16
+ 1261              	MC_AcknowledgeFaultMotor1:
+ 1262              	.LFB1502:
+ 579:Src/mc_api.c  **** }
+ 580:Src/mc_api.c  **** 
+ 581:Src/mc_api.c  **** /**
+ 582:Src/mc_api.c  ****  * @brief Acknowledge a Motor Control fault that occured on Motor 1
+ 583:Src/mc_api.c  ****  *
+ 584:Src/mc_api.c  ****  *  This function informs Motor 1's state machine that the Application has taken
+ 585:Src/mc_api.c  ****  * the error condition that occured into account. If no error condition exists when
+ 586:Src/mc_api.c  ****  * the function is called, nothing is done and false is returned. Otherwise, true is
+ 587:Src/mc_api.c  ****  * returned.
+ 588:Src/mc_api.c  ****  */
+ 589:Src/mc_api.c  **** __weak bool MC_AcknowledgeFaultMotor1(void)
+ 590:Src/mc_api.c  **** {
+ 1263              		.loc 1 590 1 view -0
+ 1264              		.cfi_startproc
+ 1265              		@ args = 0, pretend = 0, frame = 0
+ 1266              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1267              		@ link register save eliminated.
+ 591:Src/mc_api.c  ****   return (MCI_FaultAcknowledged(pMCI[M1]));
+ 1268              		.loc 1 591 3 view .LVU151
+ 1269              		.loc 1 591 11 is_stmt 0 view .LVU152
+ 1270 0000 014B     		ldr	r3, .L128
+ 1271 0002 1868     		ldr	r0, [r3]
+ 1272 0004 FFF7FEBF 		b	MCI_FaultAcknowledged
+ 1273              	.LVL48:
+ 1274              	.L129:
+ 1275              		.align	2
+ 1276              	.L128:
+ 1277 0008 00000000 		.word	pMCI
+ 1278              		.cfi_endproc
+ 1279              	.LFE1502:
+ 1281              		.section	.text.MC_GetOccurredFaultsMotor1,"ax",%progbits
+ 1282              		.align	1
+ 1283              		.p2align 2,,3
+ 1284              		.weak	MC_GetOccurredFaultsMotor1
+ 1285              		.syntax unified
+ 1286              		.thumb
+ 1287              		.thumb_func
+ 1288              		.fpu fpv4-sp-d16
+ARM GAS  /tmp/ccgpOCYZ.s 			page 33
+
+
+ 1290              	MC_GetOccurredFaultsMotor1:
+ 1291              	.LFB1503:
+ 592:Src/mc_api.c  **** }
+ 593:Src/mc_api.c  **** 
+ 594:Src/mc_api.c  **** /**
+ 595:Src/mc_api.c  ****  * @brief Returns a bit-field showing non acknowledged faults that occurred on Motor 1.
+ 596:Src/mc_api.c  ****  *
+ 597:Src/mc_api.c  ****  * This function returns a 16 bit fields containing the Motor Control faults
+ 598:Src/mc_api.c  ****  * that have occurred on Motor 1 since its state machine moved to the #FAULT_NOW state.
+ 599:Src/mc_api.c  ****  *
+ 600:Src/mc_api.c  ****  * See @ref fault_codes "Motor Control Faults" for a list of
+ 601:Src/mc_api.c  ****  * of all possible faults codes.
+ 602:Src/mc_api.c  ****  */
+ 603:Src/mc_api.c  **** __weak uint16_t MC_GetOccurredFaultsMotor1(void)
+ 604:Src/mc_api.c  **** {
+ 1292              		.loc 1 604 1 is_stmt 1 view -0
+ 1293              		.cfi_startproc
+ 1294              		@ args = 0, pretend = 0, frame = 0
+ 1295              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1296              		@ link register save eliminated.
+ 605:Src/mc_api.c  ****   return (MCI_GetOccurredFaults(pMCI[M1]));
+ 1297              		.loc 1 605 3 view .LVU154
+ 1298              		.loc 1 605 11 is_stmt 0 view .LVU155
+ 1299 0000 014B     		ldr	r3, .L131
+ 1300 0002 1868     		ldr	r0, [r3]
+ 1301 0004 FFF7FEBF 		b	MCI_GetOccurredFaults
+ 1302              	.LVL49:
+ 1303              	.L132:
+ 1304              		.align	2
+ 1305              	.L131:
+ 1306 0008 00000000 		.word	pMCI
+ 1307              		.cfi_endproc
+ 1308              	.LFE1503:
+ 1310              		.section	.text.MC_GetCurrentFaultsMotor1,"ax",%progbits
+ 1311              		.align	1
+ 1312              		.p2align 2,,3
+ 1313              		.weak	MC_GetCurrentFaultsMotor1
+ 1314              		.syntax unified
+ 1315              		.thumb
+ 1316              		.thumb_func
+ 1317              		.fpu fpv4-sp-d16
+ 1319              	MC_GetCurrentFaultsMotor1:
+ 1320              	.LFB1504:
+ 606:Src/mc_api.c  **** }
+ 607:Src/mc_api.c  **** 
+ 608:Src/mc_api.c  **** /**
+ 609:Src/mc_api.c  ****  * @brief returns a bitfield showing all current faults on Motor 1
+ 610:Src/mc_api.c  ****  *
+ 611:Src/mc_api.c  ****  * This function returns a 16 bit fields containing the Motor Control faults
+ 612:Src/mc_api.c  ****  * that are currently active.
+ 613:Src/mc_api.c  ****  *
+ 614:Src/mc_api.c  ****  * See @ref fault_codes "Motor Control Faults" for a list of
+ 615:Src/mc_api.c  ****  * of all possible faults codes.
+ 616:Src/mc_api.c  ****  */
+ 617:Src/mc_api.c  **** __weak uint16_t MC_GetCurrentFaultsMotor1(void)
+ 618:Src/mc_api.c  **** {
+ 1321              		.loc 1 618 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccgpOCYZ.s 			page 34
+
+
+ 1322              		.cfi_startproc
+ 1323              		@ args = 0, pretend = 0, frame = 0
+ 1324              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1325              		@ link register save eliminated.
+ 619:Src/mc_api.c  ****   return (MCI_GetCurrentFaults(pMCI[M1]));
+ 1326              		.loc 1 619 3 view .LVU157
+ 1327              		.loc 1 619 11 is_stmt 0 view .LVU158
+ 1328 0000 014B     		ldr	r3, .L134
+ 1329 0002 1868     		ldr	r0, [r3]
+ 1330 0004 FFF7FEBF 		b	MCI_GetCurrentFaults
+ 1331              	.LVL50:
+ 1332              	.L135:
+ 1333              		.align	2
+ 1334              	.L134:
+ 1335 0008 00000000 		.word	pMCI
+ 1336              		.cfi_endproc
+ 1337              	.LFE1504:
+ 1339              		.section	.text.MC_GetSTMStateMotor1,"ax",%progbits
+ 1340              		.align	1
+ 1341              		.p2align 2,,3
+ 1342              		.weak	MC_GetSTMStateMotor1
+ 1343              		.syntax unified
+ 1344              		.thumb
+ 1345              		.thumb_func
+ 1346              		.fpu fpv4-sp-d16
+ 1348              	MC_GetSTMStateMotor1:
+ 1349              	.LFB1505:
+ 620:Src/mc_api.c  **** }
+ 621:Src/mc_api.c  **** 
+ 622:Src/mc_api.c  **** /**
+ 623:Src/mc_api.c  ****  * @brief returns the current state of Motor 1 state machine
+ 624:Src/mc_api.c  ****  */
+ 625:Src/mc_api.c  **** __weak MCI_State_t MC_GetSTMStateMotor1(void)
+ 626:Src/mc_api.c  **** {
+ 1350              		.loc 1 626 1 is_stmt 1 view -0
+ 1351              		.cfi_startproc
+ 1352              		@ args = 0, pretend = 0, frame = 0
+ 1353              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1354              		@ link register save eliminated.
+ 627:Src/mc_api.c  ****   return (MCI_GetSTMState(pMCI[M1]));
+ 1355              		.loc 1 627 3 view .LVU160
+ 1356              		.loc 1 627 11 is_stmt 0 view .LVU161
+ 1357 0000 014B     		ldr	r3, .L137
+ 1358 0002 1868     		ldr	r0, [r3]
+ 1359 0004 FFF7FEBF 		b	MCI_GetSTMState
+ 1360              	.LVL51:
+ 1361              	.L138:
+ 1362              		.align	2
+ 1363              	.L137:
+ 1364 0008 00000000 		.word	pMCI
+ 1365              		.cfi_endproc
+ 1366              	.LFE1505:
+ 1368              		.section	.text.MC_SetPolarizationOffsetsMotor1,"ax",%progbits
+ 1369              		.align	1
+ 1370              		.p2align 2,,3
+ 1371              		.global	MC_SetPolarizationOffsetsMotor1
+ 1372              		.syntax unified
+ARM GAS  /tmp/ccgpOCYZ.s 			page 35
+
+
+ 1373              		.thumb
+ 1374              		.thumb_func
+ 1375              		.fpu fpv4-sp-d16
+ 1377              	MC_SetPolarizationOffsetsMotor1:
+ 1378              	.LVL52:
+ 1379              	.LFB1506:
+ 628:Src/mc_api.c  **** }
+ 629:Src/mc_api.c  **** 
+ 630:Src/mc_api.c  **** /**
+ 631:Src/mc_api.c  ****   * @brief Sets the polarization offset values to use for Motor 1
+ 632:Src/mc_api.c  ****   *
+ 633:Src/mc_api.c  ****   * The Motor Control algorithm relies on a number of current and voltage measures. The hardware
+ 634:Src/mc_api.c  ****   * parts that make these measurements need to be characterized at least once in the course of
+ 635:Src/mc_api.c  ****   * product life, prior to its first activation. This characterization consists in measuring the
+ 636:Src/mc_api.c  ****   * voltage presented to the ADC channels when either no current flows into the phases of the motor
+ 637:Src/mc_api.c  ****   * or no voltage is applied to them. This characterization is named polarization offsets measureme
+ 638:Src/mc_api.c  ****   * and its results are the polarization offsets.
+ 639:Src/mc_api.c  ****   *
+ 640:Src/mc_api.c  ****   * The Motor Control Firmware can performs this polarization offsets measurement procedure which
+ 641:Src/mc_api.c  ****   * results in a number of offset values that the application can store in a non volatile memory an
+ 642:Src/mc_api.c  ****   * then set into the Motor Control subsystem at power-on or after a reset.
+ 643:Src/mc_api.c  ****   *
+ 644:Src/mc_api.c  ****   * The application uses this function to set the polarization offset values that the Motor Control
+ 645:Src/mc_api.c  ****   * subsystem is to use in the current session. This function can only be used when the state machi
+ 646:Src/mc_api.c  ****   * of the motor is in the #IDLE state in which case it returns #MC_SUCCESS. Otherwise, it does not
+ 647:Src/mc_api.c  ****   * and returns the #MC_WRONG_STATE_ERROR error code.
+ 648:Src/mc_api.c  ****   *
+ 649:Src/mc_api.c  ****   *  The Motor Control subsystem needs to know the polarization offsets before the motor can be con
+ 650:Src/mc_api.c  ****   * The MC_SetPolarizationOffsetsMotor1() function provides a way to set these offsets. Alternative
+ 651:Src/mc_api.c  ****   * application can either:
+ 652:Src/mc_api.c  ****   *
+ 653:Src/mc_api.c  ****   *  * Execute the polarization offsets measurement procedure with a call to
+ 654:Src/mc_api.c  ****   *    MC_StartPolarizationOffsetsMeasurementMotor1() after a reset or a power on;
+ 655:Src/mc_api.c  ****   *  * Start the motor control with the MC_StartWithPolarizationMotor1() that will execute the proc
+ 656:Src/mc_api.c  ****   *    before actually starting the motor, on the first time it is called after a reset or a power 
+ 657:Src/mc_api.c  ****   *
+ 658:Src/mc_api.c  ****   * When this function completes successfully, the state of the polarization offsets measurement pr
+ 659:Src/mc_api.c  ****   * is set to #COMPLETED. See MC_GetPolarizationState().
+ 660:Src/mc_api.c  ****   *
+ 661:Src/mc_api.c  ****   * @param PolarizationOffsets an pointer on a structure containing the offset values
+ 662:Src/mc_api.c  ****   */
+ 663:Src/mc_api.c  **** bool MC_SetPolarizationOffsetsMotor1(PolarizationOffsets_t * PolarizationOffsets)
+ 664:Src/mc_api.c  **** {
+ 1380              		.loc 1 664 1 is_stmt 1 view -0
+ 1381              		.cfi_startproc
+ 1382              		@ args = 0, pretend = 0, frame = 0
+ 1383              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1384              		@ link register save eliminated.
+ 665:Src/mc_api.c  ****   return (MCI_SetCalibratedOffsetsMotor(pMCI[M1], PolarizationOffsets));
+ 1385              		.loc 1 665 3 view .LVU163
+ 1386              		.loc 1 665 11 is_stmt 0 view .LVU164
+ 1387 0000 024B     		ldr	r3, .L140
+ 1388 0002 0146     		mov	r1, r0
+ 1389 0004 1868     		ldr	r0, [r3]
+ 1390              	.LVL53:
+ 1391              		.loc 1 665 11 view .LVU165
+ 1392 0006 FFF7FEBF 		b	MCI_SetCalibratedOffsetsMotor
+ARM GAS  /tmp/ccgpOCYZ.s 			page 36
+
+
+ 1393              	.LVL54:
+ 1394              	.L141:
+ 1395              		.loc 1 665 11 view .LVU166
+ 1396 000a 00BF     		.align	2
+ 1397              	.L140:
+ 1398 000c 00000000 		.word	pMCI
+ 1399              		.cfi_endproc
+ 1400              	.LFE1506:
+ 1402              		.section	.text.MC_GetPolarizationOffsetsMotor1,"ax",%progbits
+ 1403              		.align	1
+ 1404              		.p2align 2,,3
+ 1405              		.global	MC_GetPolarizationOffsetsMotor1
+ 1406              		.syntax unified
+ 1407              		.thumb
+ 1408              		.thumb_func
+ 1409              		.fpu fpv4-sp-d16
+ 1411              	MC_GetPolarizationOffsetsMotor1:
+ 1412              	.LVL55:
+ 1413              	.LFB1507:
+ 666:Src/mc_api.c  **** }
+ 667:Src/mc_api.c  **** 
+ 668:Src/mc_api.c  **** /**
+ 669:Src/mc_api.c  ****   * @brief Returns the polarization offset values measured or set for Motor 1
+ 670:Src/mc_api.c  ****   *
+ 671:Src/mc_api.c  ****   *  See MC_SetPolarizationOffsetsMotor1() for more details.
+ 672:Src/mc_api.c  ****   *
+ 673:Src/mc_api.c  ****   *  If the Motor Control Firmware knows the polarization offset values, they are copied into the
+ 674:Src/mc_api.c  ****   * @p PolarizationOffsets structure and #MC_SUCCESS is returned. Otherwise, nothing is done and
+ 675:Src/mc_api.c  ****   * #MC_NO_POLARIZATION_OFFSETS_ERROR is returned.
+ 676:Src/mc_api.c  ****   *
+ 677:Src/mc_api.c  ****   * @param PolarizationOffsets an pointer on the structure into which the polarization offsets will
+ 678:Src/mc_api.c  ****   *        copied
+ 679:Src/mc_api.c  ****   * @return #MC_SUCCESS if calibration data were present and could be copied into @p PolarizationOf
+ 680:Src/mc_api.c  ****   *         #MC_NO_POLARIZATION_OFFSETS_ERROR otherwise.
+ 681:Src/mc_api.c  ****   */
+ 682:Src/mc_api.c  **** bool MC_GetPolarizationOffsetsMotor1(PolarizationOffsets_t * PolarizationOffsets)
+ 683:Src/mc_api.c  **** {
+ 1414              		.loc 1 683 1 is_stmt 1 view -0
+ 1415              		.cfi_startproc
+ 1416              		@ args = 0, pretend = 0, frame = 0
+ 1417              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1418              		@ link register save eliminated.
+ 684:Src/mc_api.c  ****    return (MCI_GetCalibratedOffsetsMotor(pMCI[M1], PolarizationOffsets));
+ 1419              		.loc 1 684 4 view .LVU168
+ 1420              		.loc 1 684 12 is_stmt 0 view .LVU169
+ 1421 0000 024B     		ldr	r3, .L143
+ 1422 0002 0146     		mov	r1, r0
+ 1423 0004 1868     		ldr	r0, [r3]
+ 1424              	.LVL56:
+ 1425              		.loc 1 684 12 view .LVU170
+ 1426 0006 FFF7FEBF 		b	MCI_GetCalibratedOffsetsMotor
+ 1427              	.LVL57:
+ 1428              	.L144:
+ 1429              		.loc 1 684 12 view .LVU171
+ 1430 000a 00BF     		.align	2
+ 1431              	.L143:
+ 1432 000c 00000000 		.word	pMCI
+ARM GAS  /tmp/ccgpOCYZ.s 			page 37
+
+
+ 1433              		.cfi_endproc
+ 1434              	.LFE1507:
+ 1436              		.section	.text.MC_StartPolarizationOffsetsMeasurementMotor1,"ax",%progbits
+ 1437              		.align	1
+ 1438              		.p2align 2,,3
+ 1439              		.global	MC_StartPolarizationOffsetsMeasurementMotor1
+ 1440              		.syntax unified
+ 1441              		.thumb
+ 1442              		.thumb_func
+ 1443              		.fpu fpv4-sp-d16
+ 1445              	MC_StartPolarizationOffsetsMeasurementMotor1:
+ 1446              	.LFB1508:
+ 685:Src/mc_api.c  **** }
+ 686:Src/mc_api.c  **** 
+ 687:Src/mc_api.c  **** /**
+ 688:Src/mc_api.c  ****   * @brief Starts the polarization offsets measurement procedure.
+ 689:Src/mc_api.c  ****   *
+ 690:Src/mc_api.c  ****   * See MC_SetPolarizationOffsetsMotor1() for more details.
+ 691:Src/mc_api.c  ****   *
+ 692:Src/mc_api.c  ****   * If the Motor Control Firmware is in the #IDLE state, the procedure is started, the state machin
+ 693:Src/mc_api.c  ****   * of the motor switches to #OFFSET_CALIB and #MC_SUCCESS is returned. Otherwise, nothing is done
+ 694:Src/mc_api.c  ****   * and the #MC_WRONG_STATE_ERROR error code is returned.
+ 695:Src/mc_api.c  ****   *
+ 696:Src/mc_api.c  ****   * The polarization offsets measurement procedure is only triggered by this function and it is has
+ 697:Src/mc_api.c  ****   * completed when this function returns. The application can use the MC_GetPolarizationState()
+ 698:Src/mc_api.c  ****   * function to query the state of the procedure.
+ 699:Src/mc_api.c  ****   *
+ 700:Src/mc_api.c  ****   * @see MC_GetPolarizationState()
+ 701:Src/mc_api.c  ****   */
+ 702:Src/mc_api.c  **** bool MC_StartPolarizationOffsetsMeasurementMotor1(void)
+ 703:Src/mc_api.c  **** {
+ 1447              		.loc 1 703 1 is_stmt 1 view -0
+ 1448              		.cfi_startproc
+ 1449              		@ args = 0, pretend = 0, frame = 0
+ 1450              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1451              		@ link register save eliminated.
+ 704:Src/mc_api.c  ****   return (MCI_StartOffsetMeasurments(pMCI[M1]));
+ 1452              		.loc 1 704 3 view .LVU173
+ 1453              		.loc 1 704 11 is_stmt 0 view .LVU174
+ 1454 0000 014B     		ldr	r3, .L146
+ 1455 0002 1868     		ldr	r0, [r3]
+ 1456 0004 FFF7FEBF 		b	MCI_StartOffsetMeasurments
+ 1457              	.LVL58:
+ 1458              	.L147:
+ 1459              		.align	2
+ 1460              	.L146:
+ 1461 0008 00000000 		.word	pMCI
+ 1462              		.cfi_endproc
+ 1463              	.LFE1508:
+ 1465              		.section	.text.MC_GetAveragePowerMotor1_F,"ax",%progbits
+ 1466              		.align	1
+ 1467              		.p2align 2,,3
+ 1468              		.weak	MC_GetAveragePowerMotor1_F
+ 1469              		.syntax unified
+ 1470              		.thumb
+ 1471              		.thumb_func
+ 1472              		.fpu fpv4-sp-d16
+ARM GAS  /tmp/ccgpOCYZ.s 			page 38
+
+
+ 1474              	MC_GetAveragePowerMotor1_F:
+ 1475              	.LFB1509:
+ 705:Src/mc_api.c  **** }
+ 706:Src/mc_api.c  **** 
+ 707:Src/mc_api.c  **** /**
+ 708:Src/mc_api.c  ****  * @brief This method is used to get the average measured motor power
+ 709:Src/mc_api.c  ****  *        expressed in watt for Motor 1.
+ 710:Src/mc_api.c  **** 
+ 711:Src/mc_api.c  ****  * @retval float_t The average measured motor power expressed in watt.
+ 712:Src/mc_api.c  ****  */
+ 713:Src/mc_api.c  **** __weak float_t MC_GetAveragePowerMotor1_F(void)
+ 714:Src/mc_api.c  **** {
+ 1476              		.loc 1 714 1 is_stmt 1 view -0
+ 1477              		.cfi_startproc
+ 1478              		@ args = 0, pretend = 0, frame = 0
+ 1479              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1480              		@ link register save eliminated.
+ 715:Src/mc_api.c  ****   return (PQD_GetAvrgElMotorPowerW(pMPM[M1]));
+ 1481              		.loc 1 715 3 view .LVU176
+ 1482              		.loc 1 715 40 is_stmt 0 view .LVU177
+ 1483 0000 014B     		ldr	r3, .L149
+ 1484              		.loc 1 715 11 view .LVU178
+ 1485 0002 1868     		ldr	r0, [r3]
+ 1486 0004 FFF7FEBF 		b	PQD_GetAvrgElMotorPowerW
+ 1487              	.LVL59:
+ 1488              	.L150:
+ 1489              		.align	2
+ 1490              	.L149:
+ 1491 0008 00000000 		.word	pMPM
+ 1492              		.cfi_endproc
+ 1493              	.LFE1509:
+ 1495              		.section	.text.MC_ProfilerCommand,"ax",%progbits
+ 1496              		.align	1
+ 1497              		.p2align 2,,3
+ 1498              		.weak	MC_ProfilerCommand
+ 1499              		.syntax unified
+ 1500              		.thumb
+ 1501              		.thumb_func
+ 1502              		.fpu fpv4-sp-d16
+ 1504              	MC_ProfilerCommand:
+ 1505              	.LVL60:
+ 1506              	.LFB1510:
+ 716:Src/mc_api.c  **** }
+ 717:Src/mc_api.c  **** 
+ 718:Src/mc_api.c  **** /**
+ 719:Src/mc_api.c  ****  * @brief Not implemented MC_Profiler function.
+ 720:Src/mc_api.c  ****  *  */ //cstat !MISRAC2012-Rule-2.7 !RED-unused-param  !MISRAC2012-Rule-2.7  !MISRAC2012-Rule-8.13
+ 721:Src/mc_api.c  **** __weak uint8_t MC_ProfilerCommand(uint16_t rxLength, uint8_t *rxBuffer, int16_t txSyncFreeSpace, ui
+ 722:Src/mc_api.c  **** {
+ 1507              		.loc 1 722 1 is_stmt 1 view -0
+ 1508              		.cfi_startproc
+ 1509              		@ args = 4, pretend = 0, frame = 0
+ 1510              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1511              		@ link register save eliminated.
+ 723:Src/mc_api.c  ****   return (MCP_CMD_UNKNOWN);
+ 1512              		.loc 1 723 3 view .LVU180
+ 724:Src/mc_api.c  **** }
+ARM GAS  /tmp/ccgpOCYZ.s 			page 39
+
+
+ 1513              		.loc 1 724 1 is_stmt 0 view .LVU181
+ 1514 0000 0220     		movs	r0, #2
+ 1515              	.LVL61:
+ 1516              		.loc 1 724 1 view .LVU182
+ 1517 0002 7047     		bx	lr
+ 1518              		.cfi_endproc
+ 1519              	.LFE1510:
+ 1521              		.text
+ 1522              	.Letext0:
+ 1523              		.file 2 "/usr/lib/gcc/arm-none-eabi/8.3.1/include/stdint.h"
+ 1524              		.file 3 "Drivers/CMSIS/Include/core_cm4.h"
+ 1525              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h"
+ 1526              		.file 5 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h"
+ 1527              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 1528              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+ 1529              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+ 1530              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
+ 1531              		.file 10 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_tim.h"
+ 1532              		.file 11 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_usart.h"
+ 1533              		.file 12 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_dma.h"
+ 1534              		.file 13 "Inc/mc_type.h"
+ 1535              		.file 14 "Inc/pwm_curr_fdbk.h"
+ 1536              		.file 15 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pid_regulator.h"
+ 1537              		.file 16 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_pos_fdbk.h"
+ 1538              		.file 17 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/speed_torq_ctrl.h"
+ 1539              		.file 18 "Inc/mc_interface.h"
+ 1540              		.file 19 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/virtual_speed_sensor.h"
+ 1541              		.file 20 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_speed_pos_fdbk.h"
+ 1542              		.file 21 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/revup_ctrl.h"
+ 1543              		.file 22 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ntc_temperature_sensor.h"
+ 1544              		.file 23 "Inc/mc_configuration_registers.h"
+ 1545              		.file 24 "Inc/regular_conversion_manager.h"
+ 1546              		.file 25 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/bus_voltage_sensor.h"
+ 1547              		.file 26 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/r_divider_bus_voltage_sensor.h"
+ 1548              		.file 27 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/esc.h"
+ 1549              		.file 28 "Inc/mc_config_common.h"
+ 1550              		.file 29 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/pqd_motor_power_measurement.h"
+ 1551              		.file 30 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/G4xx/Inc/r3_2_g4xx_pwm_curr_fdbk.h"
+ 1552              		.file 31 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/ramp_ext_mngr.h"
+ 1553              		.file 32 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/circle_limitation.h"
+ 1554              		.file 33 "MCSDK_v6.3.0-Full/MotorControl/MCSDK/MCLib/Any/Inc/sto_pll_speed_pos_fdbk.h"
+ 1555              		.file 34 "Inc/mc_config.h"
+ARM GAS  /tmp/ccgpOCYZ.s 			page 40
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mc_api.c
+     /tmp/ccgpOCYZ.s:18     .text.MC_StartMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:27     .text.MC_StartMotor1:0000000000000000 MC_StartMotor1
+     /tmp/ccgpOCYZ.s:44     .text.MC_StartMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:49     .text.MC_StopMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:57     .text.MC_StopMotor1:0000000000000000 MC_StopMotor1
+     /tmp/ccgpOCYZ.s:73     .text.MC_StopMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:78     .text.MC_ProgramSpeedRampMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:86     .text.MC_ProgramSpeedRampMotor1:0000000000000000 MC_ProgramSpeedRampMotor1
+     /tmp/ccgpOCYZ.s:108    .text.MC_ProgramSpeedRampMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:113    .text.MC_ProgramSpeedRampMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:121    .text.MC_ProgramSpeedRampMotor1_F:0000000000000000 MC_ProgramSpeedRampMotor1_F
+     /tmp/ccgpOCYZ.s:141    .text.MC_ProgramSpeedRampMotor1_F:000000000000000c $d
+     /tmp/ccgpOCYZ.s:146    .text.MC_ProgramTorqueRampMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:154    .text.MC_ProgramTorqueRampMotor1:0000000000000000 MC_ProgramTorqueRampMotor1
+     /tmp/ccgpOCYZ.s:176    .text.MC_ProgramTorqueRampMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:181    .text.MC_ProgramTorqueRampMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:189    .text.MC_ProgramTorqueRampMotor1_F:0000000000000000 MC_ProgramTorqueRampMotor1_F
+     /tmp/ccgpOCYZ.s:209    .text.MC_ProgramTorqueRampMotor1_F:000000000000000c $d
+     /tmp/ccgpOCYZ.s:214    .text.MC_SetCurrentReferenceMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:222    .text.MC_SetCurrentReferenceMotor1:0000000000000000 MC_SetCurrentReferenceMotor1
+     /tmp/ccgpOCYZ.s:252    .text.MC_SetCurrentReferenceMotor1:0000000000000010 $d
+     /tmp/ccgpOCYZ.s:257    .text.MC_SetCurrentReferenceMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:265    .text.MC_SetCurrentReferenceMotor1_F:0000000000000000 MC_SetCurrentReferenceMotor1_F
+     /tmp/ccgpOCYZ.s:290    .text.MC_SetCurrentReferenceMotor1_F:000000000000000c $d
+     /tmp/ccgpOCYZ.s:295    .text.MC_GetCommandStateMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:303    .text.MC_GetCommandStateMotor1:0000000000000000 MC_GetCommandStateMotor1
+     /tmp/ccgpOCYZ.s:319    .text.MC_GetCommandStateMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:324    .text.MC_StopSpeedRampMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:332    .text.MC_StopSpeedRampMotor1:0000000000000000 MC_StopSpeedRampMotor1
+     /tmp/ccgpOCYZ.s:348    .text.MC_StopSpeedRampMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:353    .text.MC_StopRampMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:361    .text.MC_StopRampMotor1:0000000000000000 MC_StopRampMotor1
+     /tmp/ccgpOCYZ.s:376    .text.MC_StopRampMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:381    .text.MC_HasRampCompletedMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:389    .text.MC_HasRampCompletedMotor1:0000000000000000 MC_HasRampCompletedMotor1
+     /tmp/ccgpOCYZ.s:405    .text.MC_HasRampCompletedMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:410    .text.MC_GetMecSpeedReferenceMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:418    .text.MC_GetMecSpeedReferenceMotor1:0000000000000000 MC_GetMecSpeedReferenceMotor1
+     /tmp/ccgpOCYZ.s:434    .text.MC_GetMecSpeedReferenceMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:439    .text.MC_GetMecSpeedReferenceMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:447    .text.MC_GetMecSpeedReferenceMotor1_F:0000000000000000 MC_GetMecSpeedReferenceMotor1_F
+     /tmp/ccgpOCYZ.s:463    .text.MC_GetMecSpeedReferenceMotor1_F:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:468    .text.MC_GetMecSpeedAverageMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:476    .text.MC_GetMecSpeedAverageMotor1:0000000000000000 MC_GetMecSpeedAverageMotor1
+     /tmp/ccgpOCYZ.s:492    .text.MC_GetMecSpeedAverageMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:497    .text.MC_GetAverageMecSpeedMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:505    .text.MC_GetAverageMecSpeedMotor1_F:0000000000000000 MC_GetAverageMecSpeedMotor1_F
+     /tmp/ccgpOCYZ.s:521    .text.MC_GetAverageMecSpeedMotor1_F:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:526    .text.MC_GetLastRampFinalSpeedMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:534    .text.MC_GetLastRampFinalSpeedMotor1:0000000000000000 MC_GetLastRampFinalSpeedMotor1
+     /tmp/ccgpOCYZ.s:550    .text.MC_GetLastRampFinalSpeedMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:555    .text.MC_GetLastRampFinalSpeedM1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:563    .text.MC_GetLastRampFinalSpeedM1_F:0000000000000000 MC_GetLastRampFinalSpeedM1_F
+     /tmp/ccgpOCYZ.s:579    .text.MC_GetLastRampFinalSpeedM1_F:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:584    .text.MC_GetFinalTorqueReferenceMotor1_F:0000000000000000 $t
+ARM GAS  /tmp/ccgpOCYZ.s 			page 41
+
+
+     /tmp/ccgpOCYZ.s:592    .text.MC_GetFinalTorqueReferenceMotor1_F:0000000000000000 MC_GetFinalTorqueReferenceMotor1_F
+     /tmp/ccgpOCYZ.s:608    .text.MC_GetFinalTorqueReferenceMotor1_F:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:613    .text.MC_GetFinalTorqueReferenceMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:621    .text.MC_GetFinalTorqueReferenceMotor1:0000000000000000 MC_GetFinalTorqueReferenceMotor1
+     /tmp/ccgpOCYZ.s:637    .text.MC_GetFinalTorqueReferenceMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:642    .text.MC_GetControlModeMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:650    .text.MC_GetControlModeMotor1:0000000000000000 MC_GetControlModeMotor1
+     /tmp/ccgpOCYZ.s:666    .text.MC_GetControlModeMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:671    .text.MC_GetImposedDirectionMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:679    .text.MC_GetImposedDirectionMotor1:0000000000000000 MC_GetImposedDirectionMotor1
+     /tmp/ccgpOCYZ.s:695    .text.MC_GetImposedDirectionMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:700    .text.MC_GetSpeedSensorReliabilityMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:708    .text.MC_GetSpeedSensorReliabilityMotor1:0000000000000000 MC_GetSpeedSensorReliabilityMotor1
+     /tmp/ccgpOCYZ.s:724    .text.MC_GetSpeedSensorReliabilityMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:729    .text.MC_GetPhaseCurrentAmplitudeMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:737    .text.MC_GetPhaseCurrentAmplitudeMotor1:0000000000000000 MC_GetPhaseCurrentAmplitudeMotor1
+     /tmp/ccgpOCYZ.s:753    .text.MC_GetPhaseCurrentAmplitudeMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:758    .text.MC_GetPhaseVoltageAmplitudeMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:766    .text.MC_GetPhaseVoltageAmplitudeMotor1:0000000000000000 MC_GetPhaseVoltageAmplitudeMotor1
+     /tmp/ccgpOCYZ.s:782    .text.MC_GetPhaseVoltageAmplitudeMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:787    .text.MC_GetIabMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:795    .text.MC_GetIabMotor1:0000000000000000 MC_GetIabMotor1
+     /tmp/ccgpOCYZ.s:821    .text.MC_GetIabMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:826    .text.MC_GetIabMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:834    .text.MC_GetIabMotor1_F:0000000000000000 MC_GetIabMotor1_F
+     /tmp/ccgpOCYZ.s:860    .text.MC_GetIabMotor1_F:000000000000000c $d
+     /tmp/ccgpOCYZ.s:865    .text.MC_GetIalphabetaMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:873    .text.MC_GetIalphabetaMotor1:0000000000000000 MC_GetIalphabetaMotor1
+     /tmp/ccgpOCYZ.s:899    .text.MC_GetIalphabetaMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:904    .text.MC_GetIqdMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:912    .text.MC_GetIqdMotor1:0000000000000000 MC_GetIqdMotor1
+     /tmp/ccgpOCYZ.s:938    .text.MC_GetIqdMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:943    .text.MC_GetIqdMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:951    .text.MC_GetIqdMotor1_F:0000000000000000 MC_GetIqdMotor1_F
+     /tmp/ccgpOCYZ.s:977    .text.MC_GetIqdMotor1_F:000000000000000c $d
+     /tmp/ccgpOCYZ.s:982    .text.MC_GetIqdrefMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:990    .text.MC_GetIqdrefMotor1:0000000000000000 MC_GetIqdrefMotor1
+     /tmp/ccgpOCYZ.s:1016   .text.MC_GetIqdrefMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:1021   .text.MC_GetIqdrefMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1029   .text.MC_GetIqdrefMotor1_F:0000000000000000 MC_GetIqdrefMotor1_F
+     /tmp/ccgpOCYZ.s:1055   .text.MC_GetIqdrefMotor1_F:000000000000000c $d
+     /tmp/ccgpOCYZ.s:1060   .text.MC_GetVqdMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1068   .text.MC_GetVqdMotor1:0000000000000000 MC_GetVqdMotor1
+     /tmp/ccgpOCYZ.s:1094   .text.MC_GetVqdMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:1099   .text.MC_GetValphabetaMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1107   .text.MC_GetValphabetaMotor1:0000000000000000 MC_GetValphabetaMotor1
+     /tmp/ccgpOCYZ.s:1133   .text.MC_GetValphabetaMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:1138   .text.MC_GetElAngledppMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1146   .text.MC_GetElAngledppMotor1:0000000000000000 MC_GetElAngledppMotor1
+     /tmp/ccgpOCYZ.s:1162   .text.MC_GetElAngledppMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1167   .text.MC_GetTerefMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1175   .text.MC_GetTerefMotor1:0000000000000000 MC_GetTerefMotor1
+     /tmp/ccgpOCYZ.s:1191   .text.MC_GetTerefMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1196   .text.MC_GetTerefMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1204   .text.MC_GetTerefMotor1_F:0000000000000000 MC_GetTerefMotor1_F
+     /tmp/ccgpOCYZ.s:1220   .text.MC_GetTerefMotor1_F:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1225   .text.MC_Clear_IqdrefMotor1:0000000000000000 $t
+ARM GAS  /tmp/ccgpOCYZ.s 			page 42
+
+
+     /tmp/ccgpOCYZ.s:1233   .text.MC_Clear_IqdrefMotor1:0000000000000000 MC_Clear_IqdrefMotor1
+     /tmp/ccgpOCYZ.s:1248   .text.MC_Clear_IqdrefMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1253   .text.MC_AcknowledgeFaultMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1261   .text.MC_AcknowledgeFaultMotor1:0000000000000000 MC_AcknowledgeFaultMotor1
+     /tmp/ccgpOCYZ.s:1277   .text.MC_AcknowledgeFaultMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1282   .text.MC_GetOccurredFaultsMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1290   .text.MC_GetOccurredFaultsMotor1:0000000000000000 MC_GetOccurredFaultsMotor1
+     /tmp/ccgpOCYZ.s:1306   .text.MC_GetOccurredFaultsMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1311   .text.MC_GetCurrentFaultsMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1319   .text.MC_GetCurrentFaultsMotor1:0000000000000000 MC_GetCurrentFaultsMotor1
+     /tmp/ccgpOCYZ.s:1335   .text.MC_GetCurrentFaultsMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1340   .text.MC_GetSTMStateMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1348   .text.MC_GetSTMStateMotor1:0000000000000000 MC_GetSTMStateMotor1
+     /tmp/ccgpOCYZ.s:1364   .text.MC_GetSTMStateMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1369   .text.MC_SetPolarizationOffsetsMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1377   .text.MC_SetPolarizationOffsetsMotor1:0000000000000000 MC_SetPolarizationOffsetsMotor1
+     /tmp/ccgpOCYZ.s:1398   .text.MC_SetPolarizationOffsetsMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:1403   .text.MC_GetPolarizationOffsetsMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1411   .text.MC_GetPolarizationOffsetsMotor1:0000000000000000 MC_GetPolarizationOffsetsMotor1
+     /tmp/ccgpOCYZ.s:1432   .text.MC_GetPolarizationOffsetsMotor1:000000000000000c $d
+     /tmp/ccgpOCYZ.s:1437   .text.MC_StartPolarizationOffsetsMeasurementMotor1:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1445   .text.MC_StartPolarizationOffsetsMeasurementMotor1:0000000000000000 MC_StartPolarizationOffsetsMeasurementMotor1
+     /tmp/ccgpOCYZ.s:1461   .text.MC_StartPolarizationOffsetsMeasurementMotor1:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1466   .text.MC_GetAveragePowerMotor1_F:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1474   .text.MC_GetAveragePowerMotor1_F:0000000000000000 MC_GetAveragePowerMotor1_F
+     /tmp/ccgpOCYZ.s:1491   .text.MC_GetAveragePowerMotor1_F:0000000000000008 $d
+     /tmp/ccgpOCYZ.s:1496   .text.MC_ProfilerCommand:0000000000000000 $t
+     /tmp/ccgpOCYZ.s:1504   .text.MC_ProfilerCommand:0000000000000000 MC_ProfilerCommand
+
+UNDEFINED SYMBOLS
+MCI_StartMotor
+pMCI
+MCI_StopMotor
+MCI_ExecSpeedRamp
+MCI_ExecSpeedRamp_F
+MCI_ExecTorqueRamp
+MCI_ExecTorqueRamp_F
+MCI_SetCurrentReferences
+MCI_SetCurrentReferences_F
+MCI_IsCommandAcknowledged
+MCI_StopSpeedRamp
+MCI_StopRamp
+MCI_RampCompleted
+MCI_GetMecSpeedRefUnit
+MCI_GetMecSpeedRef_F
+MCI_GetAvrgMecSpeedUnit
+MCI_GetAvrgMecSpeed_F
+MCI_GetLastRampFinalSpeed
+MCI_GetLastRampFinalSpeed_F
+MCI_GetLastRampFinalTorque_F
+MCI_GetLastRampFinalTorque
+MCI_GetControlMode
+MCI_GetImposedMotorDirection
+MCI_GetSpdSensorReliability
+MCI_GetPhaseCurrentAmplitude
+MCI_GetPhaseVoltageAmplitude
+MCI_GetIab
+ARM GAS  /tmp/ccgpOCYZ.s 			page 43
+
+
+MCI_GetIab_F
+MCI_GetIalphabeta
+MCI_GetIqd
+MCI_GetIqd_F
+MCI_GetIqdref
+MCI_GetIqdref_F
+MCI_GetVqd
+MCI_GetValphabeta
+MCI_GetElAngledpp
+MCI_GetTeref
+MCI_GetTeref_F
+MCI_Clear_Iqdref
+MCI_FaultAcknowledged
+MCI_GetOccurredFaults
+MCI_GetCurrentFaults
+MCI_GetSTMState
+MCI_SetCalibratedOffsetsMotor
+MCI_GetCalibratedOffsetsMotor
+MCI_StartOffsetMeasurments
+PQD_GetAvrgElMotorPowerW
+pMPM

@@ -1,0 +1,74 @@
+
+#if 0
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+
+#define DENSION_SERIAL_MAX_ST_LEN 64
+#define DENSION_DEVICE_CFG_PATH "mnt/device.cfg"
+static int GetDensionDeviceSerial(char * st_DensionDeviceSerial, uint32_t max_len)
+{
+FILE * fp;
+int i;
+char st[max_len + 50]; /* max lenght of a line of config file: serial number + 50 char */
+char *p;
+int ret = 0;
+
+    /* ini for working parameter: st_DensionDeviceSerial */
+	memset(st_DensionDeviceSerial, 0, max_len);
+	strcpy(st_DensionDeviceSerial, "DeviceSerial/");
+	p = st_DensionDeviceSerial + strlen(st_DensionDeviceSerial);
+
+
+    /* get info file */
+    fp = fopen(DENSION_DEVICE_CFG_PATH, "r");
+    if(fp == NULL){
+        ret = -1;
+        goto ret_;
+    }
+
+    /* get '10000yyyy' from 'serial = "10000yyyy"' */
+    while( fgets(st, sizeof(st), fp) != NULL ){
+        if(strstr(st, "serial")){
+			i = 0;
+			while(st[i]){
+				if(st[i++] == '\"'){
+					break;
+				}
+			}
+			if(!st[i]){ /* there is no '\"' or after that there is '\0' */
+				ret = -1;
+				goto ret_;
+			}
+			while(st[i]){
+				if(st[i] == '\"'){ /* can be empty: "" , dont care*/
+					goto ret_;
+				}
+				*p++ = st[i++];
+			}
+			if(!st[i]){ /* there is no '\"' */
+				ret = -1;
+				goto ret_;
+			}
+        }
+    }
+    ret = -1;
+ret_:
+    fclose(fp);
+    return ret;
+}
+
+int main(void)
+{
+char st_DensionDeviceSerial[DENSION_SERIAL_MAX_ST_LEN+1];
+int r;
+	r = GetDensionDeviceSerial(st_DensionDeviceSerial, sizeof(st_DensionDeviceSerial));
+	printf("string: >%s<\n", st_DensionDeviceSerial);
+    printf("return: %i\n", r);
+
+}
+
+
+#endif
+

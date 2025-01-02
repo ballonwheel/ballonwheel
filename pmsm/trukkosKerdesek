@@ -1,0 +1,69 @@
+
+
+egyik kerdes:
+
+csillag vs delta motor design??
+
+a bldc csak csillag?
+
+ 
+
+de a masik kerdesem
+
+ 
+
+https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/SupportingCollateral/HurstDMB0224C10002BLDCMotorDataSheet.pdf
+
+ 
+
+https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/SupportingCollateral/HurstDMA0204024B101BLDCMotorDataSheet.pdf
+
+ 
+
+ket motor
+
+ 
+
+1(300mohm,300uH,4A,282mNm) 
+
+2(2ohm, 2.3mH, 1A, 226mNm)
+
+ 
+
+teaht a kisebb nyomateku motor fizikailag kisebb, mert vekonyabb vezetek kell, tehat nagyobb az ellenallas, jojo...de miert nagyobb az induktivitas
+
+ 
+
+mert tobb a menet
+
+ 
+
+de minek?
+
+ 
+
+gondolkodjunk
+
+ 
+
+indukcio kell azaz B
+
+ 
+
+B ~ Torque
+
+B = u H
+
+ 
+
+H = N * i / l lenyegeben
+
+ 
+
+tehat kisebb nyomatekhoz elegendo a kevesebb menet
+
+ 
+
+de akkor miert nagyobb a kisebb motor induktivitasa? miert kell bele tobb menet?
+
+ 

@@ -1,0 +1,95 @@
+
+
+ 	
+
+A preprocessor directive is a message from programmer to the preprocessor.
+	A. 	
+True 	
+		B. 	
+False
+
+Answer: Option A
+
+Explanation:
+
+True, the programmer tells the compiler to include the preprocessor when compiling.
+
+
+
+
+#include <stdio.h>
+
+
+char haho(char c);
+
+int main (void) 
+{ 
+char a;    
+	
+#define A 'A'
+	a = A;
+	printf("%c", a);
+#undef A
+	a = A;
+	printf("%c", a);
+#define A 'B'
+	a = A;
+	printf("%c", a);
+#undef A
+	a = A;
+	printf("%c", a);
+	
+    return 0; 
+}
+
+
+
+/*****************************************************************************/
+
+
+#include<stdio.h>
+#define SQUARE(x) x*x
+
+int main()
+{
+    float s=10, u=30, t=2, a;
+    a = 2*(s-u*t)/SQUARE(t); -----> -50/2*2!!!!!!!!!!!!!!!!!!!SORBAN!!!
+    printf("Result = %f", a);
+    return 0;
+}
+
+/*****************************************************************************/
+#include<stdio.h>
+#define SQR(x)(x*x)
+
+int main()
+{
+    int a, b=3;
+    a = SQR(b+2);
+    printf("%d\n", a);
+    return 0;
+}
+Explanation:
+
+The macro function SQR(x)(x*x) calculate the square of the given number 'x'. (Eg: 102)
+
+Step 1: int a, b=3; Here the variable a, b are declared as an integer type and the variable b is initialized to 3.
+
+Step 2: a = SQR(b+2); becomes,
+
+=> a = b+2 * b+2; Here SQR(x) is replaced by macro to x*x .
+
+=> a = 3+2 * 3+2;
+
+=> a = 3 + 6 + 2;
+
+=> a = 11;
+
+Step 3: printf("%d\n", a); It prints the value of variable 'a'.
+
+Hence the output of the program is 11 
+
+
+
+
+

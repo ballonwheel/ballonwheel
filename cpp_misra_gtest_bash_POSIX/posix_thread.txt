@@ -1,0 +1,70 @@
+
+
+
+Parallel and concurrent programming encompass various techniques to execute multiple tasks simultaneously or in overlapping time periods. Some common techniques include:
+
+1. **Threads**: Threads are lightweight processes within a program that can execute independently. Multithreading allows different parts of a program to run concurrently.
+
+2. **Fork-Join**: This technique involves dividing a task into smaller sub-tasks that can be executed independently. After the sub-tasks are completed, their results are combined (joined) to produce the final result.
+
+3. **Task Parallelism**: In task parallelism, different tasks are executed concurrently. Each task can be independent of others, allowing for efficient utilization of multiple processing units.
+
+4. **Data Parallelism**: Data parallelism involves distributing data across multiple processing units and performing the same operation on each piece of data simultaneously. This technique is often used in parallel computing environments like GPU programming.
+
+5. **Message Passing**: In message passing, concurrent tasks communicate by sending messages to each other. This allows for coordination and synchronization between different parts of a program running concurrently.
+
+6. **Locking and Synchronization**: In multithreaded programs, synchronization mechanisms such as locks, mutexes, semaphores, and barriers are used to control access to shared resources and prevent data races.
+
+7. **Parallel Algorithms**: Parallel algorithms are specifically designed to take advantage of parallel computing architectures. They often involve techniques such as divide and conquer, parallel loops, and parallel reduction.
+
+8. **Parallel Design Patterns**: Similar to software design patterns, parallel design patterns provide reusable solutions to common problems encountered in parallel programming, such as map-reduce, pipeline, and producer-consumer patterns.
+
+9. **Concurrency Control**: Techniques for managing access to shared resources in concurrent programs, such as transactional memory, optimistic concurrency control, and concurrency control in databases.
+
+10. **Asynchronous Programming**: Asynchronous programming allows tasks to run independently of the main program flow. It is commonly used in event-driven and reactive programming paradigms.
+
+These techniques can be applied in various programming languages and frameworks to take advantage of multicore processors, distributed systems, and other parallel computing architectures.
+
+
+
+
+Scheduling techniques are used in operating systems and parallel computing environments to manage the execution of multiple tasks or processes efficiently. Some common scheduling techniques include:
+
+1. **First-Come, First-Served (FCFS)**: Processes are executed in the order they arrive. It's simple but may lead to poor utilization of resources, especially if long processes arrive first (convoy effect).
+
+2. **Shortest Job Next (SJN) / Shortest Job First (SJF)**: Processes are executed in order of their burst time (time required for execution). It minimizes average waiting time but requires knowledge of process burst times, which might not always be available.
+
+3. **Priority Scheduling**: Each process is assigned a priority, and the scheduler executes the highest priority process first. It can be either preemptive (priority can change dynamically) or non-preemptive (once a process starts execution, it continues until completion or a higher priority process arrives).
+
+4. **Round Robin (RR)**: Each process is assigned a fixed time slice (quantum) for execution. Once a process's time slice expires, it's moved to the back of the queue, and the next process is executed. It ensures fairness but may suffer from high context-switching overhead.
+
+5. **Multilevel Queue Scheduling**: Processes are divided into multiple queues based on criteria such as priority or process type (e.g., foreground and background). Each queue has its own scheduling algorithm.
+
+6. **Multilevel Feedback Queue Scheduling**: Similar to multilevel queue scheduling, but with the flexibility for processes to move between queues based on their behavior (e.g., CPU-bound processes may be moved to a lower priority queue).
+
+7. **Deadline Scheduling**: Processes are assigned deadlines by which they must complete execution. The scheduler ensures that processes meet their deadlines, prioritizing those closest to expiration.
+
+8. **Fair-Share Scheduling**: Resources are allocated fairly among users or groups of users, ensuring that no single user monopolizes the resources.
+
+9. **Work-Stealing Scheduling**: Used in parallel computing environments, tasks are dynamically distributed among available processors. Idle processors "steal" tasks from other processors' queues to keep all processors busy.
+
+10. **Gang Scheduling**: Used in parallel systems, a group of related processes (gang) is scheduled to execute simultaneously on different processors to reduce synchronization overhead.
+
+Each scheduling technique has its strengths and weaknesses, and the choice of technique depends on factors such as system requirements, workload characteristics, and performance objectives.
+
+
+
+
+Preemptive, non-preemptive, and cooperative multitasking are different approaches to managing multiple tasks or processes in a computing environment, and they are closely related to the scheduling techniques mentioned earlier.
+
+1. **Preemptive Multitasking**: In preemptive multitasking, the operating system can interrupt the execution of a task and allocate the CPU to another task. This interruption is known as a context switch, and it occurs at regular intervals or when a higher priority task becomes ready to run. Preemptive multitasking ensures fairness and responsiveness in task execution, as higher-priority tasks can preempt lower-priority ones. Scheduling techniques such as Round Robin, Priority Scheduling, and Multilevel Queue Scheduling often employ preemptive strategies.
+
+2. **Non-preemptive Multitasking**: Also known as cooperative multitasking, non-preemptive multitasking relies on tasks voluntarily yielding control of the CPU to other tasks. A task continues executing until it explicitly relinquishes control, typically by blocking on I/O or completing its execution. Non-preemptive multitasking is simpler to implement but can suffer from lack of responsiveness if a task monopolizes the CPU. Scheduling techniques such as Shortest Job Next (SJN) / Shortest Job First (SJF) and Priority Scheduling can be used in non-preemptive environments.
+
+3. **Cooperative Multitasking**: Cooperative multitasking is a specific form of non-preemptive multitasking where tasks voluntarily yield control to other tasks at specific points during their execution. Tasks must cooperate by yielding control to the operating system or other tasks, typically through explicit yield or wait calls. Cooperative multitasking relies heavily on task cooperation and can be more efficient in terms of context switching overhead compared to preemptive multitasking. However, it requires well-behaved tasks to ensure fairness and responsiveness. Cooperative multitasking is often used in environments where tasks are closely related or tightly controlled, such as early versions of Windows or cooperative multitasking in older Macintosh operating systems.
+
+In summary, preemptive, non-preemptive, and cooperative multitasking represent different approaches to managing task execution in a computing environment, and they are closely intertwined with scheduling techniques. The choice of multitasking model and scheduling technique depends on factors such as system requirements, performance objectives, and the characteristics of the tasks being executed.
+
+
+
+

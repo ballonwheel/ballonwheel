@@ -1,0 +1,62 @@
+
+
+
+sudo apt install mailutils
+ez csak kuldeshez jo, receive mail-hez nem,
+arra fetchmail pl
+
+
+
+
+be kell allitani az smtp-t is
+sudo nano /etc/mail.rc
+
+set smtp=smtp://smtp.gmail.com:587
+set smtp-auth=login
+set smtp-auth-user=your_email@gmail.com
+set smtp-auth-password=your_password
+set ssl-verify=ignore
+set nss-config-dir=/etc/ssl/certs
+
+
+Important: For Gmail, you may need to generate an App Password from your Google Account if you have 2FA enabled.
+
+
+
+sudo nano /usr/local/bin/ssh_login_alert.sh
+#!/bin/bash
+
+# Set the email address to send the alert to
+EMAIL="your_email@example.com"
+
+# Get the username of the user who logged in
+USER=$(whoami)
+
+# Get the IP address of the SSH client
+IP=$(echo $SSH_CLIENT | awk '{print $1}')
+
+# Get the time of the login
+DATE=$(date)
+
+# Send an email notification
+echo -e "User: $USER\nIP: $IP\nTime: $DATE" | mail -s "SSH Login Alert: $USER" $EMAIL
+
+
+
+
+sudo chmod +x /usr/local/bin/ssh_login_alert.sh
+
+1, ha az adott felhasznalo belep
+nano ~/.bashrc
+/usr/local/bin/ssh_login_alert.sh
+
+
+2, barmelyik: Edit the global /etc/profile or /etc/ssh/sshrc file:
+
+sudo nano /etc/profile
+/usr/local/bin/ssh_login_alert.sh
+
+
+
+
+

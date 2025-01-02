@@ -1,0 +1,30 @@
+#include<stdio.h>
+int main()
+{
+    int i=4, j=-1, k=0, w, x, y, y1, y2, y3, z;
+    w = i || j || k;
+    x = i && j && k;
+#if 0    
+kenigen 40.oldal	
+More interesting are the logical operators && and ||. Expressions connected by && or || are
+evaluated left to right, and evaluation stops as soon as the truth or falsehood of the result is
+known.
+As Rohit Maru said: && has higher priority than ||. So left-to-right associativity can not be used.
+Step 4:
+1st substep: "-1 && 0" --> False
+2nd substep: "4 || False" --> True
+So the answer is True, so it is "1".
+#endif
+	
+	y1 = i || j;	//1
+	y2 = 0 &&k;
+	y3 = 1 &&k;
+    y = i || j &&k; //1????????	
+	
+	
+	j = 0;
+	k = 0;
+    z = i && j || k;
+    printf("%d, %d, y:%d, y1:%d, y2:%d, y3:%d, %d\n", w, x, y, y1, y2, y3, z);
+    return 0;
+}
