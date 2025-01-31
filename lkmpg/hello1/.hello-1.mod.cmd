@@ -1,0 +1,1 @@
+cmd_/home/imre/ballonwheel/lkmpg/hello1/hello-1.mod := printf '%s\n'   hello-1.o | awk '!x[$$0]++ { print("/home/imre/ballonwheel/lkmpg/hello1/"$$0) }' > /home/imre/ballonwheel/lkmpg/hello1/hello-1.mod

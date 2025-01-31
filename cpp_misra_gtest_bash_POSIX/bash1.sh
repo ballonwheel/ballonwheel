@@ -7,6 +7,8 @@
 
 
 #du -sh .
+#du -sh /home
+#df -h
 #Also useful is sorting by size:
 #du -sh /* | sort -h
 
