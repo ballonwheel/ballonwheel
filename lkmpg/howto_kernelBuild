@@ -1,0 +1,112 @@
+
+
+
+Processor: Broadcom BCM2710A1, quad-core 64-bit SoC
+(Arm Cortex-A53 @ 1GHz)
+Memory: 512MB LPDDR2
+Connectivity: • 2.4GHz IEEE 802.11b/g/n wireless LAN, Bluetooth 4.2, BLE,
+onboard antenna
+• 1 × USB 2.0 interface with OTG
+• HAT-compatible 40-pin I/O header footprint
+• microSD card slot
+• Mini HDMI port
+• CSI-2 camera connector
+Video: • HDMI interface
+• Composite video
+Multimedia: • H.264, MPEG-4 decode (1080p30)
+• H.264 encode (1080p30)
+• OpenGL ES 1.1, 2.0 graphics
+Input power: 5V DC 2.5A
+Operating temperature: -20°C to +70°C
+Production lifetime: Raspberry Pi Zero 2 W will remain in production until at least
+January 2030
+
+
+imre@raspberrypiZ2w3:~/ballonwheel/lkmpg $ uname -a
+Linux raspberrypiZ2w3 5.15.36-rt41-v8+ #1 SMP PREEMPT Fri May 6 21:32:06 CEST 2022 aarch64 GNU/Linux
+amugy ez egy cross compile volt, de most build-lek egyet localban....
+
+imre@raspberrypiZ2w3:~ $ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root       115G  5.4G  105G   5% /
+devtmpfs        176M     0  176M   0% /dev
+tmpfs           210M     0  210M   0% /dev/shm
+tmpfs            84M  872K   84M   2% /run
+tmpfs           5.0M     0  5.0M   0% /run/lock
+/dev/mmcblk0p1  255M   52M  204M  21% /boot
+tmpfs            42M     0   42M   0% /run/user/1000
+
+
+a kernel 4G kb (2025), jo ha van 20G szabad hely
+
+
+
+---
+
+jo ha hasznalsz sreen progit, ha remote gterminalt hasznalsz
+
+$sudo apt-get install screen
+$screen -S file
+$screen -ls
+detach, attach....??
+
+
+---
+jo ezt kovetni
+https://sarpi.penthux.net/index.php?p=rpi-kernel
+
+whereis bison
+whereis gawk
+whereis git
+whereis flex
+
+mkdir -p /tmp/build-dir
+cd /tmp/build-dir 
+
+
+---
+
+le kell tolteni a kernel source-t
+
+https://www.raspberrypi.com/documentation/computers/linux_kernel.html#kernel
+
+git clone --depth=1 https://github.com/raspberrypi/linux
+
+
+------
+
+https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/preemptrt_setup
+$ wget https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.4.12.tar.xz
+$ wget https://www.kernel.org/pub/linux/kernel/projects/rt/4.4/patch-4.4.12-rt19.patch.xz
+$ xz -cd linux-4.4.12.tar.xz | tar xvf -
+$ cd linux-4.4.12
+$ xzcat ../patch-4.4.12-rt19.patch.xz | patch -p1
+
+
+
+
+imre@raspberrypiZ2w3:~/kernelBuild/linux $ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root       115G  7.2G  103G   7% /
+devtmpfs        176M     0  176M   0% /dev
+tmpfs           210M     0  210M   0% /dev/shm
+tmpfs            84M  860K   84M   2% /run
+tmpfs           5.0M     0  5.0M   0% /run/lock
+/dev/mmcblk0p1  255M   52M  204M  21% /boot
+tmpfs            42M     0   42M   0% /run/user/1000
+
+
+
+
+nyilvan nem ment ez: 
+cd linux
+KERNEL=kernel7
+make bcm2709_defconfig
+
+helsyette:
+cd linux
+KERNEL=kernel8
+make bcm2711_defconfig
+
+
+make bcm2711_defconfig
