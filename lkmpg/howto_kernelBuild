@@ -73,17 +73,88 @@ https://www.raspberrypi.com/documentation/computers/linux_kernel.html#kernel
 git clone --depth=1 https://github.com/raspberrypi/linux
 
 
-------
+---------------
+RT-linux PATCH
+----------------
+igazabol azt irkaljak, hpogy 6.12-tol nem kell a petch, mert benne van a kernelben
+https://github.com/by/RT-Kernel 
+de lenyegeben:
+linux letolt vagy clone
+linux kicsomagol
+ekkor letezni fog egy linux vagy linux_xxxxversion konyvtar
+hozza tartozo patch letolt
+belepni a linux konyvtarba
+es onnan inditani a patch-et
+xzcat ../patch-6.6.74-rt48.patch.xz | patch -p1
 
+
+https://www.raspberrypi.com/documentation/computers/linux_kernel.html#patch-the-kernel
+---> ezt az oldalt bemasoltam lejebb ebbe  fajlba
+
+itt is ez van leirva kb:
 https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/preemptrt_setup
+Getting the sources
+First, the kernel version should be chosen. After this, take a look if the PREEMPT_RT patch is available for this particular version.
+The source of the desired version has to be downloaded (for the Linux kernel as well as for the PREEMPT_RT patch). This example is based on the Linux kernel version 4.4.12.
+
 $ wget https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.4.12.tar.xz
 $ wget https://www.kernel.org/pub/linux/kernel/projects/rt/4.4/patch-4.4.12-rt19.patch.xz
+
+After downloading, unpack the archives and patch the Linux kernel:
+
 $ xz -cd linux-4.4.12.tar.xz | tar xvf -
 $ cd linux-4.4.12
 $ xzcat ../patch-4.4.12-rt19.patch.xz | patch -p1
 
+---
+kezdjuk el:
+
+milyen  verziot toltottem le?
+imre@raspberrypiZ2w3:~/kernelBuild $ cd linux/
+imre@raspberrypiZ2w3:~/kernelBuild/linux $ head Makefile -n 4
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 6
+PATCHLEVEL = 6
+SUBLEVEL = 74
+
+milyen RT patch elerheto?
+https://www.kernel.org/pub/linux/kernel/projects/rt/
+https://www.kernel.org/pub/linux/kernel/projects/rt/6.6/older/patches-6.6.74-rt48.tar.gz
+
+imre@raspberrypiZ2w3:~/kernelBuild $ wget https://www.kernel.org/pub/linux/kernel/projects/rt/6.6/older/patches-6.6.74-rt48.tar.gz
+--2025-02-22 09:51:24--  https://www.kernel.org/pub/linux/kernel/projects/rt/6.6/older/patches-6.6.74-rt48.tar.gz
+Resolving www.kernel.org (www.kernel.org)... 2a04:4e42:41::311, 199.232.17.55
+Connecting to www.kernel.org (www.kernel.org)|2a04:4e42:41::311|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 222010 (217K) [application/x-gzip]
+Saving to: ‘patches-6.6.74-rt48.tar.gz’
+
+patches-6.6.74-rt48.tar.gz              100%[=============================================================================>] 216.81K  --.-KB/s    in 0.07s   
+
+2025-02-22 09:51:24 (3.05 MB/s) - ‘patches-6.6.74-rt48.tar.gz’ saved [222010/222010]
 
 
+
+
+
+
+imre@raspberrypiZ2w3:~/kernelBuild/linux $ xzcat ../patch-6.6.74-rt48.patch.xz | patch -p1
+patching file arch/arm/Kconfig
+patching file arch/arm/mm/fault.c
+patching file arch/arm/vfp/vfpmodule.c
+Hunk #2 succeeded at 271 (offset 3 lines).
+Hunk #3 succeeded at 279 (offset 3 lines).
+Hunk #4 succeeded at 307 (offset 3 lines).
+Hunk #5 succeeded at 353 (offset 3 lines).
+.
+.
+.
+.
+.
+PATCH kesz :)
+-------------------------------------------
+
+mennyi helyem van meg?
 
 imre@raspberrypiZ2w3:~/kernelBuild/linux $ df -h
 Filesystem      Size  Used Avail Use% Mounted on
@@ -95,18 +166,159 @@ tmpfs           5.0M     0  5.0M   0% /run/lock
 /dev/mmcblk0p1  255M   52M  204M  21% /boot
 tmpfs            42M     0   42M   0% /run/user/1000
 
+tehat a linux kb 2G
+
+-------------------------------------------
+
+CONFIG_LOCALVERSION="-v8-MY_CUSTOM_KERNEL"
+CONFIG_LOCALVERSION="-v8-IMI_LKMP_V1"
+
+
+folytassuk a kerneldefconfig-ot
+
+
+https://www.raspberrypi.com/documentation/computers/linux_kernel.html#configure-the-kernel
+The menuconfig tool requires the ncurses development headers to compile properly. To install these headers, run the following command:
+
+sudo apt install libncurses5-dev
 
 
 
-nyilvan nem ment ez: 
-cd linux
-KERNEL=kernel7
-make bcm2709_defconfig
+nano arch/Kconfig
 
-helsyette:
+To enable this flag by default open the file arch/Kconfig and search for the entry: ARCH_SUPPORTS_RT. (in nano press CTRL+W for search)
+Change the entry from
+config ARCH_SUPPORTS_RT
+    bool
+to
+config ARCH_SUPPORTS_RT
+    def_bool y
+
+
 cd linux
 KERNEL=kernel8
 make bcm2711_defconfig
 
 
-make bcm2711_defconfig
+make menuconfig
+
+Fully Preemptible Kernel (Real-Time)" under General Setup -> Preemption Model.
+
+
+----------------------
+
+kozben ilyet talaltam, ezt ki kene probalni...azt irogatja, hogy a boot-ot le kene ellenorizni..
+sudo apt-get install linux-image-rt-arm64
+
+----------------------
+
+
+make -j6 Image.gz modules dtbs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*****************************
+PATCH howto
+***************************
+https://www.raspberrypi.com/documentation/computers/linux_kernel.html#patch-the-kernel
+
+
+Patch the kernel
+
+Edit this on GitHub
+
+When building your custom kernel, you may wish to apply patches or collections of patches (patchsets) to the Linux kernel.
+
+Hardware makers sometimes provide patchsets as a temporary measure to support new hardware before the patches make it into the Linux kernel and the Raspberry Pi kernel. However, patchsets for other purposes exist, for instance to enable a fully pre-emptible kernel for real-time usage.
+Identify your kernel version
+
+To check the kernel version currently running on your device, run the following command:
+
+uname -r
+
+Always check your version of the kernel before applying patches. In a kernel source directory, run the following command to see the kernel version:
+
+head Makefile -n 4
+
+You should see output similar to the following:
+
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 6
+PATCHLEVEL = 1
+SUBLEVEL = 38
+
+In this instance, the sources are for a 6.1.38 kernel.
+Apply patches
+
+The application of patches depends on the format used to distribute the patch.
+
+Developers distribute most patches as a single file. Use the patch utility to apply these patches. The following commands download, uncompress, and patch our example kernel version with real-time kernel patches:
+
+wget https://www.kernel.org/pub/linux/kernel/projects/rt/6.1/patch-6.1.38-rt13-rc1.patch.gz
+
+gunzip patch-6.1.38-rt13-rc1.patch.gz
+
+cat patch-6.1.38-rt13-rc1.patch | patch -p1
+
+Some developers distribute patches in the mailbox format, a folder containing multiple patch files. Use Git to apply these patches.
+Note
+	
+
+Before using Git to apply mailbox patches, configure your local Git installation with a name and email:
+
+git config --global user.name "your name"
+
+git config --global user.email "your email"
+
+To apply the mailbox formatted patches with Git, run the following command:
+
+git am -3 /path/to/patches/*
+
+Always follow the instructions provided by the patch distributor. For instance, some patchsets require patching against a specific commit.
+
+
+
+
+
+
