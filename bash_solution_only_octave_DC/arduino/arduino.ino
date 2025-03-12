@@ -511,7 +511,7 @@ void loop() {
 #else
   //motor_voltage=motor_speedADC;                       //debug poti, a tobbit vedd ki
   motor_voltage = 127;
-  motor_speed = 200;
+  motor_speed = 100;
 #endif  
 
 #if 0
