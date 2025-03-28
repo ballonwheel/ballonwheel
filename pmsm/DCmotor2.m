@@ -280,4 +280,18 @@ grid on;
 
 
 
- 
+#{ 
+% --- Save Data for GNUPLOT ---
+save -ascii "time.dat" time_vec;
+save -ascii "omega_A.dat" omega_A_vec;
+save -ascii "current_A.dat" i_A_vec;
+save -ascii "current_B.dat" i_B_vec;
+save -ascii "torque_B.dat" torque_B_vec;
+
+% --- GNUPLOT Plot Commands ---
+printf("GNUPLOT command example:\n");
+printf("plot 'time.dat' using 1:2 with lines title 'Motor A Speed'\n");
+printf("plot 'time.dat' using 1:3 with lines title 'Motor A Current'\n");
+printf("plot 'time.dat' using 1:4 with lines title 'Motor B Current'\n");
+printf("plot 'time.dat' using 1:5 with lines title 'Braking Torque'\n");
+#}
