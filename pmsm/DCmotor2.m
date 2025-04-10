@@ -1,14 +1,25 @@
 
 
+%igy hasznald: octave --persist myscript.m
 
+
+%v20250410a, motorB elindit-->torque_pid hangolas(ts=10ms, 2%overshoot)
+%v20250404a, motorApid 100ms, motorBpid 10ms,
 %v20250332a
 %v20250326a
 clear;
 
-#setup: MotorA es MotorB egymassal szembe forditva
-#DC Motor Parameters (same for A and B for simplicity)
-#MotorA tipus: N20E-12-4000: 12V 4mNm encoder
-#MotorB tipus: N20 -12-4000 (enkoder nelkul)
+#target:kul. szabalyozas tanulmanyozasa
+
+#date:  2025 marc
+
+#setup: MotorA es MotorB DC motorok egymassal szembe forditva
+#       MotorA szabalyozo a vizsgalt rendszer
+#       MotorB a fek, kul nyomatek profilok beallitasa, pl step func
+
+#DC Motor Parameters: (same for A and B for simplicity)
+#       MotorA tipus: N20E-12-4000: 12V 4mNm encoder
+#       MotorB tipus: N20 -12-4000 (enkoder nelkul)
 
 Vcc = 4;
 
@@ -54,7 +65,7 @@ w_meas = n_meas / 60 * 2 *pi
 #3.7-2.3=1.4V //1.5V/200/100mohm=75mA --> 1.4V/75mA=18.6ohm  =? ~7ohm
 V_meas = 2.338    % V dc average
 Ke = V_meas / w_meas
-%---FOC---
+%---PMSM, FOC---
 %MesaSP = 1000;%measured rotor speed in RPM
 %MeasVllpk = 0.387;%measured line to line voltage peak % from Marco actually the double...0.774V!!!
 %Ke = (MeasVllpk/sqrt(3))/(MesaSP*Rev_Min_to_Rad_Sec);
@@ -78,7 +89,7 @@ J = 0.000001;        % kg·m^2
 
 
 #********************************************
-# MotorA parameters
+# MotorB parameters
 #********************************************
 #DC multimeter
 RrawB=7.47#vezetek nelkul
@@ -128,7 +139,6 @@ P	0.5Kcr  0	  0
 PI	0.45Kcr 1.2Kp/Tcr​ 0
 PID	0.6Kcr  2Kp/Tcr​	  Kp​Tcr​/8
 
-
 %control related parameters
 %damp = 2.0;%damping factor with 2% overshoot
 damp = 1.0;%damping factor with no overshoot
@@ -160,7 +170,8 @@ Ki_torque_B = 0.0;
 % Simulation loop prep
 #********************************************
 dt1 = 1e-4;  % Motor simulation time step
-dt2 = 10e-3;  % PID control update time step
+dtA = 100e-3;  % PID control update time step
+dtB = 10e-3
 t_end = 1.0;     % end time (s)
 
 i_A = 0.0; omega_A = 0.0;
@@ -201,7 +212,8 @@ V_input_B_vec = [];
 
 % Time counters
 t = 0.0;
-t_pid = 0.0;
+t_pidA = 0.0;
+t_pidB = 0.0;
 #********************************************
 % Simulation loop
 #********************************************
@@ -212,34 +224,37 @@ while t <= t_end
     end
 
     % Update PID every td2
-    if t >= t_pid
+    if t >= t_pidA
 	    % --- Motor A Speed PID Controller ---
 	    error_speed = omega_ref - omega_A;
-	    int_error_speed += error_speed * dt2;
+	    int_error_speed += error_speed * dtA;
 	    torque_ref_A = Kp_speed * error_speed + Ki_speed * int_error_speed;
 	    torque_ref_A = 3e-3;
 
 	    % --- Motor A Torque PID Controller ---
 	    torque_A = Kt * i_A;
 	    error_torque_A = torque_ref_A - torque_A;
-	    int_error_torque_A += error_torque_A * dt2;
+	    int_error_torque_A += error_torque_A * dtA;
 	    V_input_A = Kp_torque_A * error_torque_A + Ki_torque_A * int_error_torque_A;
 	    if 1#V_input_A > Vcc
 	      V_input_A = 3.7;#Vcc
-	    endif
+	    end
+	    % Update PID execution time
+	    t_pidA += dtA;
+    end
 
+    if t >= t_pidB
 	    % --- Motor B Torque PID Controller ---
 	    torque_ref_B = 3e-3;
 	    torque_B = Kt * i_B;
 	    error_torque_B = torque_ref_B - torque_B;
-	    int_error_torque_B += error_torque_B * dt2;
+	    int_error_torque_B += error_torque_B * dtB;
 	    V_input_B = Kp_torque_B * error_torque_B + Ki_torque_B * int_error_torque_B;
 	    if 1#V_input_B > Vcc
 	      V_input_B = 3.7;#Vcc
-	    endif
-
+	    end
 	    % Update PID execution time
-	    t_pid += dt2;
+	    t_pidB += dtB;
     end
 
     % --- Motor A Dynamics ---
