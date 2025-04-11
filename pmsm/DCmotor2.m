@@ -1,8 +1,5 @@
 
 
-%igy hasznald: octave --persist myscript.m
-
-
 %v20250410a, motorB elindit-->torque_pid hangolas(ts=10ms, 2%overshoot)
 %v20250404a, motorApid 100ms, motorBpid 10ms,
 %v20250332a
@@ -47,8 +44,8 @@ RmotorA=RrawA+RwireA#vezetekkel
 
 
 #***** 2, L meres *****
-#LRC mero, 1khz, !!! max 100mA !!!
-L = 0.07;         % Henry
+#LRC mero,Agilent 4263B, sorosRL,1khz,1V --> 7ohm, 1.6mH
+L = 1.6e-3;         % Henry
 
 
 #***** 3, Ke, Kt motor konstans meres
