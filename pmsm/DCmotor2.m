@@ -1,5 +1,6 @@
 
 
+%v20250417  octave --persist DCmotor2.m
 %v20250410a, motorB elindit-->torque_pid hangolas(ts=10ms, 2%overshoot)
 %v20250404a, motorApid 100ms, motorBpid 10ms,
 %v20250332a
@@ -167,8 +168,8 @@ Ki_torque_B = 0.0;
 % Simulation loop prep
 #********************************************
 dt1 = 1e-4;  % Motor simulation time step
-dtA = 100e-3;  % PID control update time step
-dtB = 10e-3
+dtA = 10e-3;  % PID control update time step
+dtB = 1e-3
 t_end = 1.0;     % end time (s)
 
 i_A = 0.0; omega_A = 0.0;
@@ -309,6 +310,12 @@ end
 #********************************************
 % plot
 #********************************************
+
+plot = 0 #gui plot
+#plot = 1 #gnuplot
+
+if plot == 0
+
 figure;
 subplot(3,1,1);
 plot(time_vec, omega_A_vec, 'r', time_vec, omega_B_vec, 'g');
@@ -363,11 +370,9 @@ xlabel('Time (s)'); ylabel('V_input');
 grid on;
 
 
+else #gnu plot
 
 
-
-
-#{
 % --- Save Data for GNUPLOT ---
 save -ascii "time.dat" time_vec;
 save -ascii "omega_A.dat" omega_A_vec;
@@ -381,8 +386,8 @@ printf("plot 'time.dat' using 1:2 with lines title 'Motor A Speed'\n");
 printf("plot 'time.dat' using 1:3 with lines title 'Motor A Current'\n");
 printf("plot 'time.dat' using 1:4 with lines title 'Motor B Current'\n");
 printf("plot 'time.dat' using 1:5 with lines title 'Braking Torque'\n");
-#}
 
+end
 
 
 
