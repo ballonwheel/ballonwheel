@@ -1,6 +1,161 @@
 
 
 
+**************************************************
+Learning types Supervised, Reinforcement learning
+***************************************************
+
+| Type                       | Learns from...                        | Goal                                        |
+| -------------------------- | ------------------------------------- | ------------------------------------------- |
+| **Supervised Learning**    | Labeled data (input + correct output) | Learn to predict correct outputs            |
+| **Unsupervised Learning**  | Unlabeled data (only input)           | Find structure (clusters, patterns)         |
+| **Reinforcement Learning** | Feedback from environment             | Learn actions to maximize long-term rewards |
+
+**********************
+Networks: ANN CNN RNN
+**********************
+
+| Network | Full Name                 | Best For                | Key Feature                           |
+| ------- | ------------------------- | ----------------------- | ------------------------------------- |
+| **ANN** | Artificial Neural Network | Structured/tabular data | Fully connected layers                |
+| **CNN** | Convolutional NN          | Images, spatial data	| Convolutional layers extract features |
+| **RNN** | Recurrent NN              | Time-series, sequences  | Has memory of past inputs             |
+
+ANN - feedforward neural network
+
+
+
+
+*************************
+Network vs Learning types
+*************************
+
+Fantastic question — and yes, **you can absolutely combine different types of neural networks (ANN, CNN, RNN)** with **different types of learning (supervised, unsupervised, reinforcement learning)** depending on the task.
+
+Let’s break it down clearly:
+
+---
+
+### ✅ **1. ANN + Reinforcement Learning** — YES
+
+* **How:** You can use **ANNs as function approximators** in reinforcement learning.
+* For example: In **Deep Q-Learning**, the neural network (ANN) learns to estimate Q-values (expected reward for taking an action).
+* **Used in:** Atari game-playing agents, robotics
+* 🔧 Tech: Often called **Deep Q-Networks (DQN)**
+
+---
+
+### ✅ **2. RNN + Supervised Learning** — YES
+
+* **How:** RNNs are commonly trained **with supervised learning** when the task is sequence-based.
+* Input: a sentence
+* Output: next word (language modeling) or label (e.g. sentiment)
+* You train it on labeled sequences using loss functions and backpropagation.
+* **Used in:** Text classification, machine translation, speech recognition
+
+---
+
+### ✅ **3. CNN + Reinforcement Learning** — YES
+
+* **How:** CNNs are used in **vision-based RL** tasks where the input is an image.
+* CNN extracts features (e.g. from game frames or camera input), then those features feed into a reinforcement learning policy.
+* **Used in:** AlphaGo, DeepMind’s Atari game agents
+
+---
+
+### ✅ **4. RNN + Reinforcement Learning** — YES
+
+* **How:** RNNs can handle **partial observability**, where the full state of the environment isn't visible at each step.
+* Useful when decisions must be made based on a **history** of observations.
+* **Used in:** Dialogue agents, trading bots, autonomous navigation in uncertain environments
+
+---
+
+### ✅ **5. CNN or RNN + Unsupervised Learning** — YES (but less common)
+
+* CNN: Can be used in **autoencoders** (unsupervised learning to compress and reconstruct images)
+* RNN: Can be used in **sequence autoencoders**, anomaly detection, or clustering of time-series without labels
+
+---
+
+### Summary Table:
+
+| Neural Network | Supervised Learning | Reinforcement Learning | Unsupervised Learning               	|
+| -------------- | ------------------- | ---------------------- | --------------------------------------- |
+| **ANN**    	| ✅ Yes           	| ✅ Yes (e.g., DQN)  	| ✅ Yes (autoencoders)                	|
+| **CNN**    	| ✅ Yes (image tasks) | ✅ Yes (visual RL)  	| ✅ Yes (unsupervised image learning) 	|
+| **RNN**    	| ✅ Yes (NLP, speech) | ✅ Yes (partial obs.)   | ✅ Yes (sequence modeling, autoencoders) |
+
+---
+
+So yes — **the type of network and the type of learning are separate decisions**, and they are often combined flexibly based on the problem.
+
+Would you like a visual diagram that maps these combinations?
+
+
+
+Epoch
+Excellent question — the term **epoch** is very important in deep learning and appears often in training functions (especially in libraries like TensorFlow and PyTorch).
+
+---
+
+### 🌀 **What is an Epoch?**
+
+An **epoch** is **one complete pass through the entire training dataset** by the learning algorithm.
+
+Imagine you have 1,000 images and you're training a neural network:
+
+* If you set `epochs = 10`, your model will see **each of those 1,000 images 10 times**, in total.
+* It doesn’t mean it trains on all the data at once — it usually processes it in **mini-batches**.
+
+---
+
+### 🧠 Why Do We Train for Multiple Epochs?
+
+* Neural networks **don’t learn everything in one pass**.
+* On each epoch, the model adjusts its internal weights to **reduce the error**.
+* Over time, with multiple epochs, the model gets **better at predicting**.
+
+---
+
+### 🧪 Example in Python (Keras/TensorFlow):
+
+```python
+model.fit(X_train, y_train, epochs=10, batch_size=32)
+```
+
+* `epochs=10`: The model will pass over the entire dataset 10 times.
+* `batch_size=32`: It processes 32 samples at a time before updating the weights.
+
+---
+
+### 📈 What Happens During an Epoch?
+
+1. Model makes predictions on the training data
+2. It compares predictions to the true values (calculates loss)
+3. It adjusts weights to reduce loss (using backpropagation)
+4. This process repeats across all batches
+5. Then it goes to the next epoch and does it all again
+
+---
+
+### 🛑 Important Notes:
+
+* Too **few epochs** → underfitting (model hasn’t learned enough)
+* Too **many epochs** → overfitting (model learns noise, not just patterns)
+* You often monitor **validation loss** to decide when to stop (early stopping)
+
+---
+
+Let me know if you want a graph or visualization to better understand this training process.
+
+
+
+
+
+********************************************************
+
+
 
 https://openann.github.io/OpenANN-apidoc/OtherLibs.html
 
@@ -28,6 +183,9 @@ Key Components:
     Activation Functions:
         Activation functions introduce nonlinearity into the network, enabling it to learn complex patterns in the data.
         Common activation functions include sigmoid, tanh, ReLU (Rectified Linear Unit), and softmax.
+
+
+
 
 Forward Propagation:
 

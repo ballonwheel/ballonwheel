@@ -173,3 +173,52 @@ if __name__=="__main__":
 
 
 
+'''
+Thank you for sharing the code. Based on this implementation, we can **categorize the machine learning type** used in the function `build_and_train` as follows:
+
+---
+
+### 🧠 Neural Network Type: **ANN (Artificial Neural Network)**
+
+* You're using a **feedforward fully connected neural network** with:
+
+  * Input layer (via `input_shape=(X.shape[1],)`)
+  * Two hidden layers (`Dense(128, ...)` and `Dense(64, ...)`)
+  * Output layer (`Dense(3, activation='softmax')`)
+* There are **no convolutional layers** (so it's not a CNN).
+* There’s **no recurrence or time-sequence handling**, so it’s not an RNN.
+
+✅ **So this is an ANN (basic dense neural network).**
+
+---
+
+### 📘 Learning Paradigm: **Supervised Learning**
+
+* You are using:
+
+  * Labeled input `X` and output `y` for training.
+  * Loss function: `categorical_crossentropy` (used for multi-class classification with one-hot labels)
+  * Metrics: `accuracy` (measuring performance against true labels)
+* The model is trained to **predict one of three classes**, based on the `softmax` activation in the output layer.
+
+✅ This clearly places the training approach under **supervised learning**.
+
+---
+
+### ✅ Summary of Classification:
+
+| Feature              | Category                               |
+| -------------------- | -------------------------------------- |
+| Neural Network Type  | ANN (Artificial Neural Network)        |
+| Learning Approach    | Supervised Learning                    |
+| Output Type          | Multi-class classification (3 classes) |
+| Activation Functions | ReLU (hidden layers), Softmax (output) |
+| Loss Function        | Categorical Crossentropy               |
+
+---
+
+If you're interested, I can visualize the model architecture or suggest improvements like adding dropout, early stopping, or converting it to support other ML types. Just let me know!
+
+
+
+'''
