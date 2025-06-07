@@ -1,0 +1,152 @@
+
+
+Nagyszerű ötlet! Egy 100 m²-es fóliasátor automatizálása egy **Arduino Nano-alapú rendszerrel**, amely méri a **hőmérsékletet**, **páratartalmat** és **talajnedvességet**, teljesen megvalósítható otthoni/hobbi szinten is.
+
+---
+
+## ✅ **Cél**
+
+Egy egyszerű rendszer, ami:
+
+* méri a belső **hőmérsékletet** és **páratartalmat**
+* figyeli a **talajnedvességet**
+* rögzíti vagy akár kijelzi az adatokat (opcionálisan felhőbe küldi)
+* (bővítve) vezérelhet pl. szellőztetőt, szivattyút, párásítót
+
+---
+
+## 🧰 **Alkatrészlista (2025-ös árak alapján, becsült Ft-ban)**
+
+| Alkatrész                              | Típus                                   | Ár (Ft)                    | Megjegyzés                         |
+| -------------------------------------- | --------------------------------------- | -------------------------- | ---------------------------------- |
+| **Mikrokontroller**                    | Arduino Nano (klón)                     | 2.500                      | Elegendő teljesítmény              |
+| **Hőmérséklet + páratartalom szenzor** | DHT22 (vagy AM2302)                     | 2.000                      | Pontosabb, mint a DHT11            |
+| **Talajnedvesség-érzékelő**            | Capacitive soil moisture sensor v1.2    | 1.500                      | Kapacitív, nem korrodál            |
+| **LCD kijelző** (opcionális)           | 1602 LCD + I2C adapter                  | 2.000                      | Egyszerű adatmegjelenítés          |
+| **Tápellátás**                         | 5V USB adapter vagy 12V -> 5V konverter | 2.000                      | Függ az energiaforrástól           |
+| **Relé modul (opcionális)**            | 1–2 csatornás 5V relé modul             | 1.200                      | Ventilátor / szivattyú vezérléshez |
+| **Ventilátor (opcionális)**            | 12V PC ventilátor vagy ipari            | 3.000 – 8.000              | Légmozgáshoz                       |
+| **Vezetékek, breadboard, csatlakozók** | –                                       | 2.000                      | Alapszintű kábelezéshez            |
+| **Burkolat, doboz**                    | –                                       | 1.500                      | Vízállóbb kivitelhez               |
+| **Összesen (alap rendszer)**           | –                                       | kb. **11.500 Ft**          |                                    |
+| **Összesen (vezérléssel együtt)**      | –                                       | kb. **16.000 – 22.000 Ft** |                                    |
+
+---
+
+## 🔧 **Kapcsolási terv (egyszerűsítve)**
+
+* **DHT22** → 5V, GND, és adatpin (pl. D2)
+* **Talajnedvesség szenzor** → 5V, GND, A0 (analóg bemenet)
+* **LCD kijelző** (I2C) → SDA (A4), SCL (A5)
+* **Relé kimenet (ventilátor/szivattyú)** → D7
+* Arduino Nano → USB-ről vagy 5V bemenetből tápellátva
+
+---
+
+## 📊 **Mit tud a rendszer?**
+
+* **Kijelzi** a mért adatokat (LCD-n vagy soros porton)
+* **Naplózhatja** vagy továbbíthatja az adatokat (pl. SD kártya, Wi-Fi-vel bővítve ESP8266 segítségével)
+* **Automatizálhat**:
+
+  * Ha túl meleg → kapcsol ventit
+  * Ha túl száraz a talaj → indít öntözést
+
+---
+
+## 🔄 **Későbbi bővítés lehetőségei**
+
+* **Wi-Fi-s adatküldés** (ESP8266 vagy ESP32)
+* **Időzített öntözés**
+* **Napelem + akkumulátor tápellátás**
+* **Több szenzor egyidejűleg**
+* **Webes felület, mobil értesítések**
+
+---
+
+## 📦 Szükséged van rá?
+
+Ha szeretnéd, **rajzolok egy kapcsolási rajzot** és/vagy **adok kész Arduino kódot** az induláshoz.
+Csak szólj: melyik funkciókat szeretnéd **ténylegesen megvalósítani az első verzióban**?
+
+---
+
+
+
+Köszönöm, itt van egy **részletes költség- és anyagbecslés** egy **100 m²-es fóliasátor + talajtakarás** projektedhez. Ez egy **reális, költséghatékony, hobbi- vagy félig intenzív termesztésre alkalmas** összeállítás.
+
+---
+
+## 🌿 **1. Fóliasátor (100 m²)**
+
+### ⚙️ Alap paraméterek:
+
+* Méret: **10 m x 10 m**
+* Magasság: kb. 2,2–2,5 m (íves vagy sátortetős)
+* Alapszintű szerkezet, UV-álló fólia, ajtók
+
+### 🧱 Anyagok és árak:
+
+| Tétel                                   | Mennyiség               | Ár (Ft)          | Megjegyzés                |
+| --------------------------------------- | ----------------------- | ---------------- | ------------------------- |
+| **Szerkezet** (acélcső v. zártszelvény) | \~100 m                 | kb. 120.000 Ft   | Előre gyártott váz esetén |
+| **Rögzítők, bilincsek, csavarok**       | komplett készlet        | kb. 10.000 Ft    | DIY esetén                |
+| **Fólia (UV-stabil, 150–200 µm)**       | 120–130 m²              | kb. 45.000 Ft    | 4 év élettartam           |
+| **Ajtó + szellőzők**                    | 2 db + oldalsó nyílások | kb. 10.000 Ft    | Fa vagy fém               |
+| **Alapozás (talajszegély, cövekek)**    | –                       | kb. 15.000 Ft    | Földbe rögzítéshez        |
+| **Munkadíj** (ha nem saját építés)      | –                       | kb. 50.000 Ft    | Egyszerű szerelés esetén  |
+| **Összesen (saját kivitelezés)**        | –                       | **\~190.000 Ft** |                           |
+| **Összesen (munkadíjjal)**              | –                       | **\~240.000 Ft** |                           |
+
+---
+
+## 🌱 **2. Talajtakarás**
+
+### 🎯 Cél: gyomelnyomás, párolgáscsökkentés, jobb hőháztartás.
+
+### Választható anyagok:
+
+| Takaróanyag                   | Jellemzők           | Ár (100 m²-re) | Élettartam         |
+| ----------------------------- | ------------------- | -------------- | ------------------ |
+| **Fekete geotextil (50g/m²)** | Olcsó, vízáteresztő | \~15.000 Ft    | 2–4 év             |
+| **Agroszövet (100g/m²)**      | Erős, UV-álló       | \~25.000 Ft    | 5–7 év             |
+| **Fekete PE fólia**           | Nem vízáteresztő    | \~10.000 Ft    | 1–2 év             |
+| **Szalma, mulcs**             | Természetes, bomlik | \~0–5.000 Ft   | 1 év (frissítendő) |
+
+### Ajánlás:
+
+* Ha hosszabb távra tervezel: **agroszövet**
+* Ha költséghatékony megoldás kell: **geotextil vagy PE fólia**
+
+---
+
+## 🧾 **Összesített költségbecslés**
+
+| Tétel                        | Ár               |
+| ---------------------------- | ---------------- |
+| Fóliasátor (saját építéssel) | \~190.000 Ft     |
+| Talajtakarás (agroszövettel) | \~25.000 Ft      |
+| **Összesen**                 | **\~215.000 Ft** |
+
+**VAGY**
+
+| Tétel                    | Ár               |
+| ------------------------ | ---------------- |
+| Fóliasátor (építővel)    | \~240.000 Ft     |
+| Talajtakarás (geotextil) | \~15.000 Ft      |
+| **Összesen**             | **\~255.000 Ft** |
+
+---
+
+Ha pontosan tudod:
+
+* milyen növényeket termesztenél,
+* milyen évszakokra tervezel,
+* és mennyi ideig szeretnéd használni,
+
+akkor **még pontosabban testre tudom szabni** az ajánlást, akár vásárlási forrásokkal is.
+
+Szólj, és küldök egy egyszerű **tervrajzot** is!
+
+
+
