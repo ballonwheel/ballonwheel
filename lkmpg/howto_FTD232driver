@@ -1,0 +1,112 @@
+Yes, it's absolutely possible to write a **Linux kernel-space driver** to communicate with an **FT232 USB-to-Serial** interface for low-latency, high-speed communication with an **Arduino Nano**, especially on a **real-time (RT) patched kernel**. However, there are some deep details and hardware constraints that need to be fully understood before diving in.
+
+---
+
+## ✅ Feasibility: Yes, with caveats
+
+The FT232 is a **USB-to-Serial bridge** chip made by FTDI. It normally communicates using a **standard USB CDC ACM or vendor-specific protocol**, and the FTDI Linux kernel module (`ftdi_sio`) already supports it in user-space through `/dev/ttyUSB*`. But you want:
+
+* **Low latency**, ideally under **1 ms** (to match a 1 kHz schedule).
+* **High throughput**, within the limits of USB 2.0 full speed (12 Mbps), and the FT232’s 4-byte latency timer buffer.
+* **Kernel-space access** to avoid user-space scheduling delays.
+* **Interrupt-driven** or **event-based** handling.
+* **Custom frame parsing**, likely with tight timing constraints.
+
+---
+
+## 🧠 Technical Challenges and Options
+
+### 1. **FT232 is a USB device**
+
+So you’re dealing with USB bulk endpoints, not a traditional serial UART. This means your driver needs to:
+
+* Use the **USB core APIs in kernel space**.
+* Handle **URB (USB Request Block)** submissions and completions.
+* Carefully manage the **latency timer** (FT232 allows setting it down to **1 ms** or even **off** in some cases).
+
+### 2. **Driver Type**
+
+There are two main approaches:
+
+#### 🔧 Option A: **Custom kernel-space USB driver**
+
+* Write a new `usb_driver` matching FT232's VID\:PID.
+* Bypass `ftdi_sio` completely.
+* Submit **URBs** manually to IN/OUT bulk endpoints.
+* Implement RX/TX buffering, framing, timing.
+* Can handle custom protocols defined by your Arduino firmware.
+
+#### 🧩 Option B: **Extend/patch `ftdi_sio`**
+
+* Patch the existing FTDI kernel module.
+* Add a custom `ioctl` or `sysfs` interface to control behavior.
+* Not fully kernel-space, but easier and still low-latency.
+
+---
+
+## ⚙️ Implementation Concepts
+
+Here’s what you’d do in a **custom FT232 USB kernel driver**:
+
+### 1. **Detect Device**
+
+```c
+static const struct usb_device_id ft232_table[] = {
+    { USB_DEVICE(0x0403, 0x6001) }, // FT232R VID/PID
+    {} 
+};
+```
+
+### 2. **Allocate Buffers & Submit URBs**
+
+Set up `usb_alloc_urb`, then submit with `usb_submit_urb`. For every 1ms tick from Arduino:
+
+* Arduino sends 4-byte message.
+* FT232 sends it over USB.
+* USB driver gets an interrupt on URB completion.
+* Your callback (`urb->complete`) is called.
+* You process the frame and optionally reply via OUT URB.
+
+### 3. **Real-time Scheduling**
+
+* Use **RT kernel** for proper IRQ/thread prioritization.
+* Pin USB IRQs and your driver's processing threads to isolated CPU cores.
+* Use `hrtimer` or `tasklet` to avoid high-latency kernel threads.
+
+### 4. **Avoid Latency**
+
+* Configure FTDI **latency timer** to 1ms using vendor-specific USB control message (`FTDI_SIO_SET_LATENCY_TIMER`).
+* Disable unnecessary buffering (`SET_FLOW_CTRL`, `SET_EVENT_CHAR`).
+* If allowed by the chip, **lower the USB polling interval**.
+
+---
+
+## ⚠️ Limitations
+
+* **FT232 latency is not sub-1ms guaranteed** due to USB FS limits (1ms polling interval).
+* USB **bulk transfer** is not *truly real-time* even with RT kernel.
+* You may need to *use FTDI's proprietary protocol*, which is partially reverse engineered.
+* The best performance is often achieved using **native SPI/I2C** or **parallel GPIO** rather than USB serial.
+
+---
+
+## ✅ Recommendation
+
+If the FT232 is **required**, here’s what I suggest:
+
+### Minimal Option:
+
+* Patch `ftdi_sio` to optimize latency (1ms timer, large URB pool).
+* Use `select()` or `epoll()` in user-space with `SCHED_FIFO`.
+
+### Advanced Option:
+
+* Write a **custom kernel USB driver**:
+
+  * Handles USB endpoints directly.
+  * Communicates with Arduino on a tight 1kHz loop.
+  * Uses custom framing protocol.
+
+If you're interested, I can sketch out a basic kernel driver skeleton for the FT232 (like a proof of concept). Would you like that?
+
+

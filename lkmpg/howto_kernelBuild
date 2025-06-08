@@ -63,6 +63,7 @@ whereis flex
 mkdir -p /tmp/build-dir
 cd /tmp/build-dir 
 
+ez jo otlet majd, procik szama 4db a raspberry-n, annyival dolgozzon a compile --> make -j4 Image && make -j4 dtbs && make -j4 modules
 
 ---
 

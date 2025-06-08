@@ -1,0 +1,103 @@
+
+
+Great idea! Using `screen` is a smart way to keep your build running safely in the background — even if your SSH session disconnects.
+
+Here’s how to use `screen` to run `make` (or any long-running job) reliably on your Raspberry Pi:
+
+---
+
+## ✅ Step-by-Step: Use `screen` to Run `make`
+
+### 1. **Install `screen` (if not already installed)**
+
+```bash
+sudo apt-get update
+sudo apt-get install screen
+```
+
+---
+
+### 2. **Start a new screen session**
+
+```bash
+screen -S kernelbuild
+```
+
+This creates a new terminal session named `kernelbuild`.
+
+---
+
+### 3. **Run your kernel build in screen**
+
+Inside the screen session, run:
+
+```bash
+make -j3 ARCH=arm64
+```
+
+Now your build will continue to run inside `screen`, even if SSH disconnects.
+
+---
+
+### 4. **Detach from the screen session**
+
+To safely leave the screen and go back to your normal shell:
+
+* Press: `Ctrl` + `a`, then `d`
+
+You'll see:
+
+```
+[detached from kernelbuild]
+```
+
+This means the session is still running in the background.
+
+---
+
+### 5. **Reattach later to check progress**
+
+To get back into the screen session:
+
+```bash
+screen -r kernelbuild
+```
+
+---
+
+### 6. **List all screen sessions (if you forget the name)**
+
+```bash
+screen -ls
+```
+
+Example output:
+
+```
+There is a screen on:
+	12345.kernelbuild	(Detached)
+1 Socket in /run/screen/S-yourusername.
+```
+
+Then reattach with:
+
+```bash
+screen -r 12345
+```
+
+---
+
+### 7. **Exit the session completely (after you're done)**
+
+Once the job is done and you want to close the screen session permanently:
+
+```bash
+exit
+```
+
+That will terminate the session.
+
+---
+
+Let me know if you'd like a little helper script to wrap this all up automatically.
+
