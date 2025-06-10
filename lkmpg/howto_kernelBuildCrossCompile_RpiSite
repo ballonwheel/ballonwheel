@@ -1,0 +1,107 @@
+Perfect — you're now on **Debian 12 (Bookworm)** with a modern host kernel. This is an excellent environment to **cross-compile the latest Real-Time (RT) Raspberry Pi kernel**. Let's outline the steps for building the **latest Raspberry Pi RT kernel for Raspberry Pi Zero 2 W (ARM64)**:
+
+---
+
+### ✅ Step-by-Step: Cross-Compile RT Kernel for Raspberry Pi Zero 2 W
+
+#### 1. **Install Required Packages**
+
+```bash
+sudo apt update
+sudo apt install -y git bc bison flex libssl-dev make libncurses-dev \
+    crossbuild-essential-arm64 python3 dwarves
+```
+
+#### 2. **Clone the Raspberry Pi Kernel Source**
+
+```bash
+git clone --depth=1 -b rpi-6.1.y https://github.com/raspberrypi/linux.git rpi-kernel-rt
+cd rpi-kernel-rt
+```
+
+> 🔁 Replace `rpi-6.1.y` with `rpi-6.6.y` if you want the latest bleeding edge.
+> ✅ This branch includes RT patches when available.
+
+---
+
+#### 3. **Enable Real-Time Support**
+
+Edit the file:
+
+```bash
+nano arch/Kconfig
+```
+
+Search for:
+
+```text
+config ARCH_SUPPORTS_RT
+```
+
+And change:
+
+```text
+    bool
+```
+
+To:
+
+```text
+    def_bool y
+```
+
+---
+
+#### 4. **Configure the Kernel**
+
+```bash
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcmrpi3_defconfig
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
+```
+
+Inside `menuconfig`:
+
+* Go to `General setup` → `Preemption Model`
+* Select: `Fully Preemptible Kernel (Real-Time)`
+* Save and exit
+
+---
+
+#### 5. **Build Kernel, Modules, and DTBs**
+
+```bash
+make -j$(nproc) ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs
+```
+
+> Add `V=1` for verbose output if needed.
+
+---
+
+#### 6. **Install Modules to a Staging Directory**
+
+```bash
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=../rpi-kernel-modules modules_install
+```
+
+---
+
+#### 7. **Prepare Boot Files for SD Card**
+
+Copy the following to the boot partition of your Pi SD card (e.g., mounted at `/media/imre/boot`):
+
+```bash
+cp arch/arm64/boot/Image /media/imre/boot/kernel8.img
+cp arch/arm64/boot/dts/broadcom/*.dtb /media/imre/boot/
+cp arch/arm64/boot/dts/overlays/*.dtb* /media/imre/boot/overlays/
+cp arch/arm64/boot/dts/overlays/README /media/imre/boot/overlays/
+```
+
+And copy the modules to the root partition (e.g., `/media/imre/rootfs`):
+
+```bash
+sudo cp -r ../rpi-kernel-modules/lib /media/imre/rootfs/
+```
+
+---
+
+Let me know if you want to automate this or want to include support for specific GPIO or drivers (e.g., your `LEDline` module).
