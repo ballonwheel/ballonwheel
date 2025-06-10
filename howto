@@ -1,0 +1,70 @@
+Jelenleg **nincs hivatalos támogatás** arra, hogy a ChatGPT-t közvetlenül „Hey ChatGPT!” hangutasítással lehessen vezérelni, mint egy natív hangasszisztens (pl. Alexa, Google Assistant vagy Siri). Ugyanakkor **lehetőség van hasonló működés megvalósítására saját rendszerrel**, különösen, ha Home Assistantot és némi fejlesztői ismeretet is használsz.
+
+Itt van néhány lehetőség és irány:
+
+---
+
+### 🔧 1. **ESPHome + Wake Word + Home Assistant + OpenAI API**
+
+#### Röviden:
+
+* Használhatsz **mikrofont** és **wake word detektálást** (`Hey ChatGPT`) egy eszközön (pl. Raspberry Pi vagy ESP32).
+* Ez elindíthat egy rögzítést, majd a szöveget elküldheti az OpenAI ChatGPT API-nak.
+* Válasz visszaolvasható TTS (Text to Speech) segítségével.
+
+#### Eszközök:
+
+* **Home Assistant** (fut már nálad)
+* **Rhasspy** vagy **Porcupine** wake word engine (ez érzékeli a „Hey ChatGPT”-t)
+* **Whisper (vagy más speech-to-text)** a hang szöveggé alakításához
+* **OpenAI API** a kérdés elküldéséhez
+* **TTS** (például Google TTS vagy Piper) a válasz visszamondásához
+
+---
+
+### 📱 2. **Mobiltelefonos megoldás: Tasker + ChatGPT API (Android)**
+
+* Androidon a **Tasker** + **AutoVoice** segítségével létrehozhatsz egy saját „Hey ChatGPT” asszisztenst.
+* Felismeri a hangutasítást, majd elküldi az OpenAI-nek a promptot, és visszamondja a választ.
+* Nem Home Assistant alapú, de jól kombinálható vele webhookokon keresztül.
+
+---
+
+### 🤖 3. **Raspberry Pi alapú DIY hangasszisztens**
+
+* Használhatsz egy **Raspberry Pi 4-et** mikrofonnal és hangszóróval.
+
+* Telepíthetsz rá:
+
+  * **Wake word detektort (pl. Porcupine)**
+  * **Speech-to-text (Whisper)**
+  * **ChatGPT API hívást**
+  * **Text-to-speech (pl. Piper vagy eSpeak)**
+
+* Ez lehet egy **lokális offline rendszer**, csak a ChatGPT API igényel internetet.
+
+---
+
+### 🧠 4. **Node-RED + Home Assistant integráció**
+
+* Node-RED-ben hangfelvételt indíthatsz „wake word” alapján.
+* A rögzített hang mehet STT-re, majd ChatGPT API-ra.
+* Node-RED visszaadja a választ, amit a Home Assistant hangszórón visszajátszik.
+
+---
+
+### Minta munkafolyamat Home Assistant + Node-RED + ChatGPT API-val:
+
+```text
+1. Mikrofon és wake word detektor figyel „Hey ChatGPT”-re.
+2. Felvétel elindul, rögzíted a kérdést.
+3. Átküldöd egy speech-to-text rendszernek.
+4. A kapott szöveget elküldöd az OpenAI ChatGPT API-nak.
+5. A választ TTS-sel visszamondod.
+```
+
+---
+
+Ha szeretnéd, szívesen segítek **egy konkrét rendszer lépésenkénti megépítésében**, például Raspberry Pi + mikrofon + wake word + Home Assistant vagy Node-RED alapokon. Megírhatjuk akár a szkripteket is.
+
+Szeretnél **offline hangvezérlést** is (pl. saját wake word és STT/TTS), vagy nem gond, ha internetkapcsolat kell az STT és ChatGPT miatt?
