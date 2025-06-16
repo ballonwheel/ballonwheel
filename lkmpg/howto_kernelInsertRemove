@@ -1,0 +1,29 @@
+
+
+
+
+sudo insmod ./74hct164.ko
+
+
+
+lsmod | grep 74hct164
+
+
+dmesg | tail -n 20
+
+
+cat /proc/devices
+
+
+✅ 4. (Optional) Create Device Node
+
+If your driver registers a character device (via cdev_add), create a node manually (replace major with your device’s major number):
+
+sudo mknod /dev/shiftreg c <major> 0
+sudo chmod 666 /dev/shiftreg
+
+
+
+sudo rmmod 74hct164
+
+

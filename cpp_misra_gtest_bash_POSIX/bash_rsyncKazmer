@@ -1,0 +1,39 @@
+
+#!/bin/bash
+
+echo "MOUNTing..."
+mount /home/dobany/BackupHDD
+
+if [[ `mount | grep BackupHDD | wc -l` -eq 1 ]];
+    then
+	echo "Sikeres MOUNT!"
+	echo "rsync...";
+	rsync -aAXhve "ssh -i /home/dobany/.ssh/id_rsa -p 99" --progress --delete --bwlimit=10000 root@dobany.duckdns.org:/ --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /home/dobany/BackupHDD &> /home/dobany/rsync/rsync-logs/$(date +"%Y%m%d_%H%M%S").txt
+	if [ "$?" -eq "0" ]
+	    then
+		echo "Sikeres RSYNC!" | mail -a "From: RSYNC info <dobany@nevemsenki.webhop.me>" -a "To: Dobány Imre <dobany.hu@gmail.hu>" -s "`date +%Y\ %h.\ %_d\ @\ %H:%M:%S\ -\ "RSYNC - Sikeres!"`" dobany.hu@gmail.com -b kazmer1998@gmail.com
+	    else
+		echo -e "HIBA az RSYNC futása közben.\nBővebb infó a log fájlban!" | mail -a "From: RSYNC info <dobany@nevemsenki.webhop.me>" -a "To: Dobány Imre <dobany.hu@gmail.hu>" -s "`date +%Y\ %h.\ %_d\ @\ %H:%M:%S\ -\ "RSYNC - Hiba!"`" dobany.hu@gmail.com -b kazmer1998@gmail.com
+	fi
+	echo "rsync vége!";
+    else
+	echo "Sikertelen mount... :("
+	echo "Hiba RSYNC közben: Sikertelen mount a BackupHDD-n." | mail -a "From: RSYNC info <dobany@nevemsenki.webhop.me>" -a "To: Dobány Imre <dobany.hu@gmail.hu>" -s "`date +%Y\ %h.\ %_d\ @\ %H:%M:%S\ -\ "RSYNC állapot"`" dobany.hu@gmail.com -b kazmer1998@gmail.com
+fi
+
+echo "UMOUNTing..."
+umount /home/dobany/BackupHDD
+echo "Sikeres UMOUNT!"
+
+#Régi log fájl törlés
+if [[ `ls /home/dobany/rsync/rsync-logs/ | wc -l` -gt 30 ]]
+then
+    echo "Megvan a mennyiség, tölöm a legrégebbit!"
+    rm "/home/dobany/rsync/rsync-logs/$(ls -t /home/dobany/rsync/rsync-logs | tail -1)"
+else
+    echo "Van még hely itt log-nak! :)"
+fi
+
+echo "VÉGE!!!"
+
+

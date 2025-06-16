@@ -150,3 +150,196 @@ Ha további segítségre van szükséged a modulok kiválasztásában vagy integ
 https://techfun.hu/termek/nrf24l01-pa-lna-2-4-ghz-es-modul-antennaval/
 https://www.instructables.com/Wireless-Remote-Using-24-Ghz-NRF24L01-Simple-Tutor/
 
+
+********************************************
+arduino nano, SMD NRF24L01, RTC(DS1307), akku, napelem, 10 percenkent ebredni egy adasra; milyne napelem es akku lenne elegendo
+
+ 
+
+ 
+
+ 
+
+Szuper projekt, segítek átgondolni az alkatrészeket!
+
+ 
+
+**Feladat összefoglalva:**
+
+ 
+
+* Arduino Nano (kb. 19 mA aktív áram, alvó módban 1-2 mA körül)
+
+* NRF24L01 SMD (átlagosan kb. 11 mA adatküldés közben, alvó módban µA tartomány)
+
+* DS1307 RTC (kb. 1-2 µA, szinte elhanyagolható)
+
+* Akku + napelem
+
+* Cél: 10 percenként ébredjen fel az eszköz, küldjön adatot, majd menjen alvó módba
+
+ 
+
+---
+
+ 
+
+### 1. Energiafogyasztás becslése
+
+ 
+
+**Ébredés és adatküldés:**
+
+ 
+
+* Tegyük fel, hogy az ébredés + adatküldés \~5 másodpercig tart.
+
+* Ebben az időben a fogyasztás kb. 30 mA (Arduino + NRF24L01 max 20-30 mA).
+
+* Alvó módban kb. 1 mA (ez elég magas, érdemes mélyebb alvó módot alkalmazni, akár 10-50 µA-ra is).
+
+ 
+
+**Átlagfogyasztás számítása:**
+
+ 
+
+* 5 s × 30 mA = 150 mAs (milliampermásodperc)
+
+* 595 s × 1 mA = 595 mAs
+
+* Összesen egy 10 perces ciklus alatt = 745 mAs
+
+ 
+
+Átváltva:
+
+ 
+
+* 745 mAs = 745 mA \* s = 745 / 3600 mAh ≈ 0,21 mAh 10 percenként
+
+ 
+
+Naponta (144 ciklus):
+
+ 
+
+* 0,21 mAh × 144 ≈ 30 mAh naponta
+
+ 
+
+---
+
+ 
+
+### 2. Akkumulátor mérete
+
+ 
+
+* Ha a napi fogyasztás kb. 30 mAh, akkor egy 500 mAh-s akkumulátor elméletileg több napig működne töltés nélkül.
+
+* Az akku kapacitásánál számoljunk inkább 1000 mAh körüli értékkel, hogy hosszabb üzemidőt és akku öregedést is kompenzáljon.
+
+ 
+
+**Javaslat:**
+
+ 
+
+* 3,7 V-os Li-ion vagy LiPo akkumulátor, 1000 mAh körüli kapacitás
+
+ 
+
+---
+
+ 
+
+### 3. Napelem mérete
+
+ 
+
+* Az akku feltöltése napi 30 mAh-t igényel, de a napelem hatásfoka, a napsütés ideje és intenzitása miatt érdemes 3-5x-es töltőáramot tervezni.
+
+* Magyarországon egy átlagos napelem kb. 4-5 órát tud optimálisan tölteni naponta (napsütéses órák).
+
+ 
+
+Számolás:
+
+ 
+
+* Kell napi 30 mAh, ha 5 órát tud tölteni, akkor:
+
+ 
+
+$I_{nap} = \frac{30 mAh}{5 h} = 6 mA$
+
+ 
+
+* Tehát legalább 6 mA kimeneti áramú napelem szükséges, jobb a 10-20 mA-es.
+
+ 
+
+**Javaslat:**
+
+ 
+
+* Egy 6V, 1-2 W-os (kb. 150-300 mA rövidzárási áram) napelem már megfelelő lehet, így elegendő áramot biztosít napközben a töltéshez.
+
+ 
+
+---
+
+ 
+
+### Összefoglalás:
+
+ 
+
+| Alkatrész   | Javasolt paraméterek                         |
+
+| ----------- | -------------------------------------------- |
+
+| Akkumulátor | 3,7 V LiPo, legalább 1000 mAh                |
+
+| Napelem     | 6 V, 1-2 W (kb. 150-300 mA rövidzárási áram) |
+
+ 
+
+---
+
+ 
+
+### Egyéb tippek:
+
+ 
+
+* Használj hatékony töltésvezérlőt (pl. TP4056 modul LiPo töltéséhez).
+
+* Az Arduino-t érdemes minél alacsonyabb fogyasztásra állítani (deep sleep mód).
+
+* Az NRF24L01-et is állítsd alvó módba, ha nem használod.
+
+* Szabályozz megfelelő feszültséget, mert az Arduino Nano 5V-os, ha 3,7V-os akkut használsz, kell egy step-up vagy egy Nano 3.3V-os verzió.
+
+ 
+
+Ha szeretnéd, segítek a mély alvó mód beállításában, vagy a pontosabb fogyasztásmérésben! Milyen akkumulátort és napelemet néztél már?
+
+ 
+
+kerek szepen napelem es akku tipus es esetleg magyarorszagi bolt javaslatot
+
+ 
+
+ 
+
+napelem
+
+https://techfun.hu/termek/napelem-12v-1-8w/
+
+110*110mm
+
+
+
+******************************************

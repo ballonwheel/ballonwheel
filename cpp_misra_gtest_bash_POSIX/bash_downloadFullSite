@@ -1,0 +1,29 @@
+
+
+
+wget --mirror --convert-links --adjust-extension --page-requisites --no-parent URL
+
+### Explanation of options:
+
+ 
+
+* `--mirror` — Turns on recursion and time-stamping, sets infinite recursion depth, and keeps FTP directory listings.
+
+* `--convert-links` — After the download, convert the links in the files to make them suitable for local viewing.
+
+* `--adjust-extension` — Adds proper file extensions (like `.html`) to files.
+
+* `--page-requisites` — Downloads all necessary files for displaying the page properly (CSS, images, scripts).
+
+* `--no-parent` — Prevents downloading anything from parent directories.
+
+ 
+
+### Example:
+
+ 
+
+```bash
+
+wget --mirror --convert-links --adjust-extension --page-requisites --no-parent https://example.com
+

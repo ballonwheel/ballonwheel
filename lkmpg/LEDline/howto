@@ -1,5 +1,46 @@
 
 
+
+
+HOST
+imre@thinkpad:~/LEDline_tmp$ make -C ~/rpi-kernel-rt   ARCH=arm64   CROSS_COMPILE=aarch64-linux-gnu-   M=$(pwd)   modules
+imre@thinkpad:~/LEDline_tmp$ scp -v 74hct164.c   imre@192.168.1.22:~/ballonwheel/lkmpg/LEDline
+imre@thinkpad:~/LEDline_tmp$ scp -v 74hct164.ko   imre@192.168.1.22:~/ballonwheel/lkmpg/LEDline
+
+TARGET
+
+insmod 74hct164.ko
+lsmod | grep 74hct164
+dmesg | tail -n 20
+imre@raspberrypiZ2w3:~/ballonwheel/lkmpg/LEDline $ sudo cat /proc/devices 
+
+imre@raspberrypiZ2w3:~/ballonwheel/lkmpg/LEDline $ gcc -o knight knight.c
+
+./knight
+
+imre@raspberrypiZ2w3:~/ballonwheel/lkmpg/LEDline $ sudo rmmod 74hct164 
+
+
+
+
+
+
+
+
+
+
+
+
+*************************************
+
+
+
+
+
+
+
+
+
 Excellent — writing a native **Linux kernel driver** from scratch to control a chain of **74HCT164 shift registers** using GPIO on a **Raspberry Pi Zero 2 W** is a rewarding low-level systems project. Here's a breakdown of what you can do and a basic **character device driver** implementation outline.
 
 ---

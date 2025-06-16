@@ -40,6 +40,7 @@
 #include <linux/uaccess.h>
 #include <linux/gpio.h>
 #include <linux/cdev.h>
+#include <linux/delay.h>
 
 #define DEVICE_NAME "74hct164"
 #define CLASS_NAME "shiftreg"
@@ -66,6 +67,7 @@ static void pulse_clock(void) {
     ndelay(500);
 }
 
+#if 0
 static ssize_t shiftreg_write(struct file *file, const char __user *buf, size_t len, loff_t *off) {
     uint8_t byte;
     int i;
@@ -82,6 +84,29 @@ static ssize_t shiftreg_write(struct file *file, const char __user *buf, size_t 
 
     return 0;
 }
+#else
+static ssize_t shiftreg_write(struct file *file, const char __user *buf, size_t len, loff_t *ppos)
+{
+    uint64_t pattern;
+    int i;
+
+    if (len < sizeof(pattern))
+        return -EINVAL;
+
+    if (copy_from_user(&pattern, buf, sizeof(pattern)))
+        return -EFAULT;
+
+    // Shift out 64 bits, MSB first
+    for (i = 63; i >= 0; i--) {
+        int bit = (pattern >> i) & 1;
+        gpio_set_value(GPIO_DATA, bit);
+        pulse_clock(); // Clock the bit into the shift register
+    }
+
+    return sizeof(pattern);
+}
+#endif
+
 
 static struct file_operations fops = {
     .owner = THIS_MODULE,
