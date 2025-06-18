@@ -1,0 +1,206 @@
+
+
+Nagyon jó ötlet! Egy ilyen rendszer jól skálázható, és a **Raspberry Pi Zero 2 W** lehet a **master**, míg a két **AR-RF-NANO** az **RF24 slave node**.
+
+## 🛠️ Áttekintés
+
+* **Master (Raspberry Pi Zero 2 W)**: küld adatot vagy utasításokat.
+* **Slaves (2× AR-RF-NANO)**: fogadnak adatot, és/vagy válaszolnak.
+
+A kommunikáció az **nRF24L01+** 2.4GHz rádión keresztül zajlik.
+
+---
+
+## 📦 Követelmények
+
+### Raspberry Pi oldalon:
+
+* Python
+* `spidev`, `RPi.GPIO`
+* `RF24` Python könyvtár (C++ wrapper)
+
+Telepítés:
+
+```bash
+sudo apt update
+sudo apt install python3-pip git
+pip3 install spidev
+git clone https://github.com/nRF24/RF24.git
+cd RF24
+sudo python3 setup.py install
+```
+
+---
+
+## 📡 Címek kiosztása
+
+Használjunk 5 bájtos csöveket:
+
+* `0xF0F0F0F0E1` → Slave 1
+* `0xF0F0F0F0D2` → Slave 2
+
+---
+
+## 1️⃣ Raspberry Pi Python kód (master)
+
+```python
+from RF24 import RF24, RF24_PA_LOW
+import time
+
+radio = RF24(22, 0)  # CE=GPIO22, CSN=SPI0_CS0 (GPIO8)
+pipes = [b"1Node", b"2Node"]
+
+radio.begin()
+radio.setPALevel(RF24_PA_LOW)
+radio.setRetries(5, 15)
+radio.openWritingPipe(pipes[0])  # kezdjük Slave 1-gyel
+radio.stopListening()
+
+while True:
+    for i, pipe in enumerate(pipes):
+        radio.openWritingPipe(pipe)
+        message = f"Hello Slave {i+1}"
+        print(f"Küldés: {message}")
+        result = radio.write(message.encode('utf-8'))
+        print("Siker" if result else "Hiba")
+        time.sleep(1)
+```
+
+---
+
+## 2️⃣ AR-RF-NANO (slave) Arduino kód
+
+### Slave 1:
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+
+RF24 radio(9, 10);  // CE, CSN
+const byte address[] = "1Node";
+
+void setup() {
+  Serial.begin(9600);
+  radio.begin();
+  radio.setPALevel(RF24_PA_LOW);
+  radio.openReadingPipe(0, address);
+  radio.startListening();
+}
+
+void loop() {
+  if (radio.available()) {
+    char text[32] = "";
+    radio.read(&text, sizeof(text));
+    Serial.print("Üzenet érkezett: ");
+    Serial.println(text);
+  }
+}
+```
+
+### Slave 2: csak az `address`-t módosítsd:
+
+```cpp
+const byte address[] = "2Node";
+```
+
+---
+
+## 🔌 Kapcsolás emlékeztető
+
+### Pi Zero 2 W ↔ nRF24L01
+
+* VCC → 3.3V
+* GND → GND
+* CE → GPIO22
+* CSN → SPI0 CS0 (GPIO8)
+* SCK → GPIO11
+* MOSI → GPIO10
+* MISO → GPIO9
+
+⚠️ **nRF24L01-hez szükség lehet kondenzátorra** (10 µF – 100 µF a VCC és GND közé), hogy stabil legyen a táp.
+
+---
+
+Ha szeretnéd, bővíthetjük ezt:
+
+* visszairányú kommunikációval (slave válaszol)
+* struktúrált adatcsomagokkal
+* checksum/kézfogással
+* vagy MESH-rendszerre (pl. RF24Network)
+
+Írjam meg a válaszképes változatot is?
+
+
+-------------------------------
+
+Nagyszerű, hogy rákérdeztél!
+
+### 🔗 Mit jelent a **MESH-rendszer** az nRF24L01-nél?
+
+A **MESH-hálózat** olyan hálózati struktúra, ahol **minden node (csomópont) képes más node-okkal közvetlenül vagy közvetve kommunikálni** – tehát ha két eszköz nem látja egymást közvetlenül, akkor egy harmadikon keresztül is továbbmehet az adat. Ez **nem point-to-point**, hanem **többirányú** kapcsolat.
+
+---
+
+### 📦 RF24Network: egy MESH-jellegű hálózati réteg az nRF24L01-hez
+
+Az **[RF24Network](https://github.com/nRF24/RF24Network)** egy **C++ könyvtár Arduino-hoz**, amit az nRF24 modulhoz írtak. Lehetővé teszi egy fa-alapú (tree-like) hálózat felépítését, ahol:
+
+* A **master (node 00)** kommunikálhat több al-node-dal (pl. `01`, `02`, `021`, stb.).
+* Az al-node-ok **továbbíthatják** az adatokat mások felé.
+
+---
+
+### 📡 Példa egy RF24Network hálózatra
+
+```
+        00 (master)
+       /   \
+     01     02
+             \
+             021
+```
+
+* A `00` a központi Raspberry Pi (pl. USB-vel vagy SPI-n Arduino).
+* Az `01`, `02`, `021` alárendelt node-ok.
+* Ha `00` nem látja közvetlenül `021`-et, akkor `02` továbbítja neki az adatot.
+
+---
+
+### 🔁 Miért jó ez?
+
+* **Stabilabb lefedettség**: ha egy node távol van, akkor sem vész el az adat.
+* **Skálázhatóság**: több tucat node is elfér benne.
+* **Képes routingolni** (alap routing, nem dinamikus, de jól működik).
+
+---
+
+### ❗ Fontos:
+
+* **Pythonban nincs hivatalos RF24Network támogatás**. Ha a **master Raspberry Pi**, akkor:
+
+  * Vagy **USB-vel csatlakoztatott Arduino-t** használ masterként (a Pi csak host),
+  * Vagy a teljes MESH hálózatot Arduino-k kezelik, a Pi csak a fővezérlő.
+
+---
+
+### 👉 Ha MESH-t akarsz, két lehetőséged van:
+
+#### 1. **Klasszikus RF24 + saját routing**
+
+Egyszerű hálózat, fix címzéssel. Pi látja a slave-eket → ezt már az előző példában írtuk.
+
+#### 2. **RF24Network + Arduino-only MESH**
+
+Minden eszköz Arduino (pl. AR-RF-NANO), a Pi max egy UART-on csatlakoztatott master Arduino-n keresztül irányít.
+
+---
+
+Ha érdekel:
+
+* hogyan lehet ilyen MESH-t építeni RF24Network-kel,
+* vagy hogyan lehet a Pi-t MESH masterré tenni egy USB-s Arduino-val,
+
+akkor szívesen mutatok konkrét példákat és kódot.
+
+Érdekel a MESH-es változat Arduino-val vagy inkább maradnál a sima több-slave-es Pi master rendszerben?
+
