@@ -1109,6 +1109,391 @@ Ez **minden egész órában lefut**, és logolja az outputot.
 Készen állsz egy webes vagy CLI-s adatmegjelenítésre is, vagy az exportálásra CSV-be? Szívesen segítek abban is.
 
 
+**********************************
+
+
+Nagyon jó kérdés! A *teljes energiahatékonyság* szempontjából az **AR-RF-NANO (nRF24 + ATmega328P)** + **DS1307** + **DHT11** hármasban a legfontosabb az, hogy az Arduino minél több ideig legyen **mélyalvóban**, és csak **óránként** ébredjen fel, mérjen és küldje az adatot.
+
+### 🔋 1. Lehetséges alvási módok az Arduino részen
+
+#### ✅ ATmega328P alvó módok:
+
+| Mód                 | CPU | Timer | USART | I²C | Fogyasztás (3.3V-on) |
+| ------------------- | --- | ----- | ----- | --- | -------------------- |
+| Idle                | ✖️  | ✅     | ✅     | ✅   | \~1 mA               |
+| Power-down          | ✖️  | ✖️    | ✖️    | ✖️  | **<1 µA**            |
+| ADC Noise Reduction | ✖️  | ❓     | ❌     | ❌   | 200–500 µA           |
+
+**Nekünk a `Power-down` mód a legjobb**, ha külső forrás (pl. RTC) tud ébreszteni.
+
+---
+
+### ⏰ 2. Tudja-e a DS1307 ébreszteni az Arduinót?
+
+Sajnos **nem**. A `DS1307` **nem támogat riasztásokat vagy ébresztést**. Ez egy egyszerű valós idejű óra, **nincs benne ébresztő jel kimenet (pl. SQW/INT)**.
+
+#### 📌 Tehát:
+
+* A **DS1307 nem alkalmas ébresztésre**.
+* Helyette használd a **DS3231**-et vagy a **PCF8523**-at. Ezek támogatják az **óránkénti ébresztést**.
+
+---
+
+### 🔁 3. Alternatíva: DS3231 RTC modul
+
+#### ✅ DS3231 jellemzők:
+
+* **Precíziós RTC** (±2 ppm)
+* **Riasztási funkcióval** (óra/percre, naponként)
+* **`INT/SQW` kimenet**, ami le tudja húzni az Arduino `INT0` (D2) vagy `INT1` (D3) lábát ébresztéshez
+* **Fogyasztása** alvó módban: \~3 µA
+
+#### ⚙️ Alkalmazás:
+
+1. Állítsd be a DS3231 riasztást minden órára
+2. Kösd az `INT/SQW` jelet az Arduino `D2`-re
+3. Az Arduino megy `power-down` alvó módba
+4. Az `INT` ébreszti, majd mér és küld RF-en, aztán visszaalszik
+
+---
+
+### 🌡️ 4. Teljes rendszer alvó fogyasztása
+
+| Eszköz                  | Alvó áramfelvétel (kb.)                        |
+| ----------------------- | ---------------------------------------------- |
+| ATmega328P (power-down) | \~0.1 µA                                       |
+| nRF24L01+               | \~900 nA (power down)                          |
+| DS3231                  | \~3 µA                                         |
+| DHT11                   | nincs külön alvó mód, csak kikapcsolható (\~0) |
+| Összesen:               | **\~4–5 µA**                                   |
+
+➡️ Tehát **jó minőségű 3.7V Li-ion akkuval (pl. 2000 mAh)** a rendszer **akár 1 évig is működhet**.
+
+---
+
+### 🛠️ Kód szinten (vázlat DS3231-hez):
+
+```cpp
+#include <Wire.h>
+#include <DS3232RTC.h>   // Használd a DS3231/32 RTC könyvtárat
+#include <avr/sleep.h>
+#include <avr/power.h>
+#include <RF24.h>
+#include <RF24Network.h>
+
+void setup() {
+  // Init RTC
+  Wire.begin();
+  rtc.begin();
+
+  // Beállítjuk az óránkénti riasztást
+  rtc.setAlarm(ALM1_MATCH_MINUTES, 0, 0, 0, 0); // Minden órakor
+  rtc.alarmInterrupt(1, true);                 // Aktiválja INT-t
+
+  pinMode(2, INPUT_PULLUP); // INT pin
+  attachInterrupt(digitalPinToInterrupt(2), wakeUp, LOW);
+
+  // Init rádió, szenzor stb.
+}
+
+void loop() {
+  // Olvasás és küldés
+  measureAndSend();
+
+  // Alvó mód
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_cpu(); // A megszakítás ébreszt
+  sleep_disable();
+}
+
+void wakeUp() {
+  // üres, csak az ébresztés miatt
+}
+```
+
+---
+
+## ✅ Összegzés
+
+| **Ha cél az ultra alacsony fogyasztás** | **Használd ezeket**                       |
+| --------------------------------------- | ----------------------------------------- |
+| RTC ébresztés                           | ✅ **DS3231** vagy **PCF8523**             |
+| Arduino alvás                           | ✅ `SLEEP_MODE_PWR_DOWN` + `INT` ébresztés |
+| Rádió                                   | ✅ `radio.powerDown()`                     |
+| Szenzor                                 | ✅ Tápját szoftveresen kapcsold le         |
+
+---
+
+Ha kéred, elkészítem a pontos átalakított **Arduino sketch**-et ehhez a riasztás-alapú alvó rendszerhez is. Szólj, melyik RTC modult használod, és indulhatunk.
+
+
+
+******************************
+
+
+elfogadom az ajanlott DS3231 -t, kerlek modositsd az osszes arduino node kodot es a raspberry pi kodot is, ugy , 
+hogy mindeegyik egesz oraban ebredjen fel, vegezzen egy homerseklet, paratartalom merest es utana az arduino-k aludjanak vissza 
+
+
+
+Kiváló választás a **DS3231** – menő lesz az ultra-alacsony fogyasztás! Most pedig jöjjenek a komplett kódok:
+
+---
+
+## 🌙 Arduino MESH node-ok alvó üzemmódra
+
+A következő módosítások történtek:
+
+1. **DS3231** használata: óránkénti riasztásra beállítva
+2. Ébresztés a `INT/SQW` lábon keresztül (D2)
+3. `ATmega328P` mély alvásba (`POWER_DOWN`) kerül, ha nincs tennivaló
+4. Rádió is alvó módba küldve (`radio.powerDown()`)
+5. Mérés → adatküldés → mélyalvás minden órában
+
+### 📄 **Közös könyvtárak**
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+#include <DHT.h>
+#include <Wire.h>
+#include <DS3232RTC.h>
+#include <avr/sleep.h>
+```
+
+---
+
+### 🟦 Node 01
+
+```cpp
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define NODE_ID 01
+
+RF24 radio(9,10);
+RF24Network network(radio);
+DHT dht(DHTPIN, DHTTYPE);
+
+void wakeUp() { /* Interrupt csak ébresztéshez */ }
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  Wire.begin();
+  RTC.begin();
+
+  // Riasztás minden órában
+  RTC.clearAlarm(1);
+  RTC.setAlarm(ALM1_MATCH_MINUTES, 0, 0, 0, 0);
+  RTC.alarmInterrupt(1, true);
+
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), wakeUp, LOW);
+
+  radio.begin();
+  network.begin(90, NODE_ID);
+}
+
+void measureSend() {
+  float h=dht.readHumidity(), t=dht.readTemperature();
+  char ts[9];
+  tmElements_t tm; RTC.read(tm);
+  snprintf(ts,9,"%02d:%02d:%02d", tm.Hour, tm.Minute, tm.Second);
+  char msg[64];
+  snprintf(msg,sizeof(msg),"%02o,%.1f,%.1f,%s", NODE_ID, t, h, ts);
+
+  network.update();
+  RF24NetworkHeader header(00);
+  bool ok=network.write(header, msg, sizeof(msg));
+  Serial.println(ok ? "Küldés OK" : "HIBA");
+}
+
+void loop() {
+  measureSend();
+  radio.powerDown();
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_cpu();
+  sleep_disable();
+  radio.begin(); network.begin(90, NODE_ID);
+}
+```
+
+---
+
+### 🟨 Node 02
+
+```cpp
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define NODE_ID 02
+
+RF24 radio(9,10);
+RF24Network network(radio);
+DHT dht(DHTPIN, DHTTYPE);
+
+void wakeUp() {}
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  Wire.begin();
+  RTC.begin();
+  RTC.clearAlarm(1);
+  RTC.setAlarm(ALM1_MATCH_MINUTES, 0, 0, 0, 0);
+  RTC.alarmInterrupt(1, true);
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), wakeUp, LOW);
+  radio.begin();
+  network.begin(90, NODE_ID);
+}
+
+void measureSend() {
+  float h=dht.readHumidity(), t=dht.readTemperature();
+  char ts[9];
+  tmElements_t tm; RTC.read(tm);
+  snprintf(ts,9,"%02d:%02d:%02d", tm.Hour, tm.Minute, tm.Second);
+  char msg[64];
+  snprintf(msg,sizeof(msg),"%02o,%.1f,%.1f,%s", NODE_ID, t, h, ts);
+  network.update();
+  RF24NetworkHeader header(00);
+  bool ok=network.write(header, msg, sizeof(msg));
+  Serial.println(ok ? "Küldés OK" : "HIBA");
+}
+
+void loop() {
+  measureSend();
+  radio.powerDown();
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_cpu();
+  sleep_disable();
+  radio.begin(); network.begin(90, NODE_ID);
+}
+```
+
+---
+
+### 🟥 Node 03
+
+```cpp
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define NODE_ID 03
+
+RF24 radio(9,10);
+RF24Network network(radio);
+DHT dht(DHTPIN, DHTTYPE);
+
+void wakeUp() {}
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  Wire.begin();
+  RTC.begin();
+  RTC.clearAlarm(1);
+  RTC.setAlarm(ALM1_MATCH_MINUTES, 0, 0, 0, 0);
+  RTC.alarmInterrupt(1, true);
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), wakeUp, LOW);
+  radio.begin();
+  network.begin(90, NODE_ID);
+}
+
+void measureSend() {
+  float h=dht.readHumidity(), t=dht.readTemperature();
+  char ts[9];
+  tmElements_t tm; RTC.read(tm);
+  snprintf(ts,9,"%02d:%02d:%02d", tm.Hour, tm.Minute, tm.Second);
+  char msg[64];
+  snprintf(msg,sizeof(msg),"%02o,%.1f,%.1f,%s", NODE_ID, t, h, ts);
+  network.update();
+  RF24NetworkHeader header(00);
+  bool ok=network.write(header, msg, sizeof(msg));
+  Serial.println(ok ? "Küldés OK" : "HIBA");
+}
+
+void loop() {
+  measureSend();
+  radio.powerDown();
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_cpu();
+  sleep_disable();
+  radio.begin(); network.begin(90, NODE_ID);
+}
+```
+
+---
+
+## 🤖 Raspberry Pi Python-rész – automatikus fogadás
+
+Mivel az Arduino-k maguk ébresztik magukat, a Pi csupán futtatja a GRF24Network update-et és menti az adatokat. Konzisztens változat az előzőhöz:
+
+```python
+# collect_mesh_data.py
+
+import time, sqlite3
+from RF24 import RF24
+from RF24Network import RF24Network
+
+radio = RF24(22,0)  # CE, CSN
+network = RF24Network(radio)
+
+def init():
+    radio.begin(); network.begin(90,0o0)
+    conn=sqlite3.connect("meshdata.db")
+    conn.execute('CREATE TABLE IF NOT EXISTS sensor_data(node_id, temp, hum, timestamp, received_at)')
+    return conn
+
+def loop(conn):
+    for node in [0o1,0o2,0o3]:
+        network.update()
+        # Vár 5 másodpercet, miközben a node küld
+        start = time.time()
+        while time.time()-start < 5:
+            network.update()
+            if network.available():
+                header,payload=network.read(64)
+                try:
+                    node_id,temp,hum,timestamp = payload.decode().split(',',3)
+                    conn.execute('INSERT INTO sensor_data VALUES(?,?,?,?,?)',
+                                 (node_id,float(temp),float(hum),timestamp,time.strftime("%Y-%m-%d %H:%M:%S")))
+                    conn.commit()
+                except:
+                    pass
+                break
+
+def main():
+    conn=init()
+    while True:
+        loop(conn)
+        time.sleep(3600 - time.time()%3600)  # köv. egész óránál
+```
+
+Ezzel óránként egyszer a Pi is lefut a megfelelő időzítéssel – nincs szükség cron-ra.
+
+---
+
+## ✅ Összefoglalás
+
+* **Arduino-k**: DS3231 ébreszt óránként, mér, továbbít, visszaalvás
+* **ATmega328P**: mély alvásban (<5 µA fogyasztás)
+* **Raspberry Pi**: folyamatosan figyeli az adatokat, óránként ment
+
+A rendszer teljesen **open-source**, **lightweight**, **CLI-compatible** – és rendkívül energiatakarékos. Ha szeretnéd, hozzáadok még logolást, hibakezelést, vagy CSV exportot. Hol tovább?
+
+
+
+
+
+
+
+
+
 
 
 
