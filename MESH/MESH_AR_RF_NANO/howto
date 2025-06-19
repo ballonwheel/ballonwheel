@@ -204,3 +204,919 @@ akkor szívesen mutatok konkrét példákat és kódot.
 
 Érdekel a MESH-es változat Arduino-val vagy inkább maradnál a sima több-slave-es Pi master rendszerben?
 
+***************************************************************
+
+tehat akkor legyen ugy, hogy: 
+1. pont, van egy arduino MESH halozat 3 darab allomassal 100m-es lancban: AR-RF-NANO+DS1307-M+DHT11-M0;    
+2. pont, van egy raspberry zero 2w(debian, cli) + NRF-8PA-LNA; cél: orankent egyszer ebredjen a MESH, 
+merjen homersekletet es paratartalmat, es ezt az adatot lancban kommunikaljak fel a raspberry pi-re, ahol adatbazisban tarolodik;
+
+
+
+
+Kiváló és nagyon jól definiált projekt! Összefoglalva, amit szeretnél:
+
+---
+
+## ✅ Rendszerterv
+
+### 1. **Arduino MESH lánc (RF24Network)**
+
+* **3 db AR-RF-NANO**:
+
+  * Minden node-on van:
+
+    * `DHT11` (hőmérséklet + páratartalom)
+    * `DS1307` (RTC, pontos idő biztosítására)
+  * Node ID-k: `01`, `02`, `03`
+  * MESH lánc: `03 → 02 → 01 → master`
+
+### 2. **Raspberry Pi Zero 2 W (Debian, CLI)**
+
+* nRF24L01+ PA+LNA modullal SPI-n
+* Master node (ID: `00`) RF24Network-kel
+* Pi lekérdezi az adatokat óránként
+* Mentés: pl. `SQLite` vagy `PostgreSQL` adatbázisba
+
+---
+
+## 🔌 Kommunikáció
+
+* Az **RF24Network** fa-alapú MESH:
+
+  * A `Pi (00)` nem látja `03`-at közvetlenül.
+  * Adat `03 → 02 → 01 → 00` útvonalon halad.
+* A Pi lekérdezi a node-okat, sorban.
+* Minden node elolvassa a `DHT11` értéket, időbélyegez az `RTC` alapján, és küldi a választ.
+
+---
+
+## 📜 Következő lépések
+
+### 1. Arduino oldalon
+
+* Minden node:
+
+  * `RF24Network` beállítás `node address`-szel
+  * `DHT11` olvasás (Adafruit DHT lib)
+  * `DS1307` időolvasás (RTClib)
+  * Request-re válasz küldés: pl. `"nodeID, temp, humidity, timestamp"`
+
+### 2. Raspberry Pi oldalon (Python)
+
+* `RF24 + RF24Network` Python wrapperrel
+* Minden node-ot lekérdez 1 óránként (pl. `cron`, `systemd timer`)
+* Eredmények mentése adatbázisba
+
+---
+
+## 🔧 Eszközbeállítási tippek
+
+* Használj **külső tápot** az nRF24 PA+LNA modulhoz (nem USB 3.3V!)
+* Tegyél **10–100 µF kondit** a VCC és GND közé
+
+---
+
+## 👉 Készen állsz a kódra?
+
+Tudok hozni:
+
+* ✅ **Arduino kódot** mindhárom node-ra (DHT + RTC + válasz a master-nek)
+* ✅ **Raspberry Pi Python kódot**, ami:
+
+  * lekérdezi a node-okat
+  * feldolgozza a válaszokat
+  * menti SQLite adatbázisba
+
+Szeretnéd, hogy kezdjem az Arduino node kódokkal vagy a Pi oldallal?
+
+
+
+****************************
+
+hogyan kerdezi a pi pedaul a 03-at?
+
+
+
+A Raspberry Pi a `03`-as node-ot **közvetlenül nem éri el**, mert túl messze van (100 méteres lánc). Viszont az **RF24Network** automatikusan továbbítja az adatot a köztes node-okon keresztül, **routinggal**.
+
+---
+
+## 📡 Hogyan működik a lekérdezés a Pi-ről (RF24Network segítségével)?
+
+### RF24Network routing: faalapú címzés
+
+* **Pi (master)**: `00`
+* **1. node**: `01`
+* **2. node**: `02`
+* **3. node**: `03`
+
+📍 A `03`-as cím **nem azt jelenti, hogy "ID 3"**, hanem hogy a fa hierarchiában:
+
+```
+        00
+         |
+        01
+         |
+        02
+         |
+        03
+```
+
+Az `RF24Network` úgy lett tervezve, hogy **routingolja a csomagokat**, ha az útvonal helyesen van felépítve.
+
+---
+
+## 📜 Lekérdezés működése (példa: Python → node 03):
+
+1. Pi (00) létrehoz egy adatcsomagot a `03` node címére (`network.write()`).
+2. Az `RF24Network` automatikusan:
+
+   * továbbítja a csomagot `01`-nek,
+   * `01` továbbadja `02`-nek,
+   * `02` továbbadja `03`-nak.
+3. A `03` node elvégzi a mérést, és küld egy válaszcsomagot visszafelé.
+4. Az `RF24Network` routing visszafelé ugyanazon az útvonalon visszaküldi az adatot `00`-nak.
+
+---
+
+## 🧠 Fontos technikai részlet
+
+A **címek nem decimális számok**, hanem **octálisak** (nyolcas számrendszer), és a routing ezekre épül:
+
+| Node név | Cím (octális) |
+| -------- | ------------- |
+| Pi       | `00`          |
+| Első     | `01`          |
+| Második  | `02`          |
+| Harmadik | `03`          |
+
+---
+
+## ✅ Példa: Pi lekérdezi `03`-at Pythonban
+
+```python
+from RF24 import RF24
+from RF24Network import RF24Network, RF24NetworkHeader
+import time, struct
+
+radio = RF24(22, 0)
+network = RF24Network(radio)
+
+radio.begin()
+network.begin(90, 0)  # 90 = channel, 0 = Pi node ID
+
+node03 = 03  # Octal cím, nem decimális 3!
+
+while True:
+    network.update()
+    header = RF24NetworkHeader(node03)
+    payload = b"REQ"
+    ok = network.write(header, payload)
+
+    if ok:
+        print("Kérés elküldve a node 03-nak")
+    else:
+        print("Sikertelen írás")
+
+    # válasz feldolgozása
+    start = time.time()
+    while time.time() - start < 2:
+        network.update()
+        if network.available():
+            header, payload = network.read(32)
+            print("Válasz jött:", payload.decode())
+            break
+    time.sleep(3600)
+```
+
+---
+
+Ha érdekel, készíthetek:
+
+* Teljes MESH Arduino kódot a node-okra
+* Adatbázis-kezelést is a Pi oldalon
+
+Kezdjük a `03` Arduino node kódjával?
+
+
+**********************************
+
+igen, kerlek
+
+Rendben! Itt van a **`03`-as Arduino node** (AR-RF-NANO) teljes működő példakódja. Ez a node:
+
+* Csatlakozik az RF24Network MESH-hez (node `03`)
+* Lekérdezi a `DHT11` hőmérséklet + páratartalom értékeket
+* Lekérdezi az időt a `DS1307` RTC-ről
+* Figyeli a hálózatot, és ha érkezik egy kérés (`"REQ"`), akkor válaszként visszaküldi a mért adatokat
+
+---
+
+## 📦 Követelmények
+
+### Könyvtárak:
+
+Telepítheted az Arduino IDE-ben a **Library Manager** segítségével:
+
+* `RF24` (TMRh20)
+* `RF24Network` (TMRh20)
+* `DHT sensor library` (Adafruit)
+* `RTClib` (Adafruit)
+
+---
+
+## ✅ Arduino sketch: `node03.ino`
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+#include <DHT.h>
+#include <RTClib.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+RF24 radio(9, 10);              // CE, CSN
+RF24Network network(radio);
+const uint16_t this_node = 03;  // Octális cím! 03 = fa-alapon harmadik alnode
+
+DHT dht(DHTPIN, DHTTYPE);
+RTC_DS1307 rtc;
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+
+  if (!rtc.begin()) {
+    Serial.println("Nem található RTC modul!");
+    while (1);
+  }
+
+  if (!rtc.isrunning()) {
+    Serial.println("RTC nincs beállítva, most beállítom!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // egyszeri időbeállítás
+  }
+
+  radio.begin();
+  network.begin(90, this_node); // Channel 90, node ID = 03
+}
+
+void loop() {
+  network.update();
+
+  while (network.available()) {
+    RF24NetworkHeader header;
+    char request[32] = "";
+    network.read(header, &request, sizeof(request));
+
+    Serial.print("Kérés érkezett: ");
+    Serial.println(request);
+
+    if (strcmp(request, "REQ") == 0) {
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+
+      DateTime now = rtc.now();
+      char response[64];
+      snprintf(response, sizeof(response),
+               "03,%.1f,%.1f,%02d:%02d:%02d",
+               t, h, now.hour(), now.minute(), now.second());
+
+      RF24NetworkHeader replyHeader(header.from_node);
+      bool ok = network.write(replyHeader, &response, sizeof(response));
+
+      Serial.print("Küldés vissza a ");
+      Serial.print(header.from_node, OCT);
+      Serial.print(" node-nak: ");
+      Serial.println(ok ? "Sikeres" : "Sikertelen");
+    }
+  }
+
+  delay(100);  // kíméli a CPU-t
+}
+```
+
+---
+
+## 📥 Minta válasz formátum:
+
+```
+"03,23.4,45.6,13:00:05"
+```
+
+* **03** → node azonosító
+* **23.4** → hőmérséklet °C
+* **45.6** → relatív páratartalom %
+* **13:00:05** → időbélyeg RTC alapján
+
+---
+
+## 🔧 Jegyzetek:
+
+* A `03` egy **octális szám**, nem tizedes (ezért ne `3`-at írj, hanem `03`-at)
+* A `DS1307` csak perc/óra pontosságú, de itt másodpercre is lekérjük
+* Használhatsz `DHT22`-t is, ha nagyobb pontosság kell, csak `DHTTYPE`-ot cseréld
+
+---
+
+❓ Szeretnéd, hogy elkészítsem most a `02` és `01` node kódját is (routerként továbbít + mérés, ha kérik)? Vagy inkább folytassuk a Pi oldali Python programmal?
+
+
+
+*********************
+
+arduino kodokal kerlek
+
+
+Rendben, itt van a teljes **Arduino MESH** hálózat mindhárom node-jára a kód:
+
+---
+
+## 🌲 Hálózat felépítése
+
+```
+        00 (Pi master)
+         |
+        01 (AR-RF-NANO, router)
+         |
+        02 (AR-RF-NANO, router)
+         |
+        03 (AR-RF-NANO, mérő)
+```
+
+* **Node 01**: csak továbbítja a kérést és a választ (nem mér).
+* **Node 02**: csak továbbítja a kérést és a választ (nem mér).
+* **Node 03**: mér hőmérsékletet, páratartalmat, és időbélyeggel válaszol.
+
+---
+
+## 🟦 Node 01 (router)
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+
+RF24 radio(9, 10); // CE, CSN
+RF24Network network(radio);
+const uint16_t this_node = 01;
+
+void setup() {
+  Serial.begin(9600);
+  radio.begin();
+  network.begin(90, this_node);  // channel 90, node 01
+}
+
+void loop() {
+  network.update();
+  delay(100);
+}
+```
+
+---
+
+## 🟨 Node 02 (router)
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+
+RF24 radio(9, 10); // CE, CSN
+RF24Network network(radio);
+const uint16_t this_node = 02;
+
+void setup() {
+  Serial.begin(9600);
+  radio.begin();
+  network.begin(90, this_node);  // channel 90, node 02
+}
+
+void loop() {
+  network.update();
+  delay(100);
+}
+```
+
+> **Miért ilyen rövid?**
+> Az RF24Network automatikusan kezeli a routingot. Ezek a node-ok csak továbbítanak, nem kell nekik semmilyen extra logika, amíg nem csinálnak mérést.
+
+---
+
+## 🟥 Node 03 (érzékelős node)
+
+Ugyanaz a kód, amit korábban küldtem, de itt újra teljesen egyben:
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+#include <DHT.h>
+#include <RTClib.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+RF24 radio(9, 10);              // CE, CSN
+RF24Network network(radio);
+const uint16_t this_node = 03;  // Octális cím!
+
+DHT dht(DHTPIN, DHTTYPE);
+RTC_DS1307 rtc;
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+
+  if (!rtc.begin()) {
+    Serial.println("Nem található RTC modul!");
+    while (1);
+  }
+
+  if (!rtc.isrunning()) {
+    Serial.println("RTC nincs beállítva, most beállítom!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+
+  radio.begin();
+  network.begin(90, this_node); // Channel 90, node 03
+}
+
+void loop() {
+  network.update();
+
+  while (network.available()) {
+    RF24NetworkHeader header;
+    char request[32] = "";
+    network.read(header, &request, sizeof(request));
+
+    Serial.print("Kérés érkezett: ");
+    Serial.println(request);
+
+    if (strcmp(request, "REQ") == 0) {
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+
+      DateTime now = rtc.now();
+      char response[64];
+      snprintf(response, sizeof(response),
+               "03,%.1f,%.1f,%02d:%02d:%02d",
+               t, h, now.hour(), now.minute(), now.second());
+
+      RF24NetworkHeader replyHeader(header.from_node);
+      bool ok = network.write(replyHeader, &response, sizeof(response));
+
+      Serial.print("Küldés vissza a ");
+      Serial.print(header.from_node, OCT);
+      Serial.print(" node-nak: ");
+      Serial.println(ok ? "Sikeres" : "Sikertelen");
+    }
+  }
+
+  delay(100);
+}
+```
+
+---
+
+## ⚠️ Hardver tippek
+
+* Az **AR-RF-NANO**-k megbízhatóan működjenek, ehhez:
+
+  * Adj 10–100 µF kondenzátort a **VCC–GND** közé
+  * Ha hosszú hatótáv kell: használd a PA+LNA antennás modult legalább a Pi-nél
+* A **DS1307** működéséhez CR2032 elem kell a modulon
+* A `DHT11` érzékelőt ne olvasd túl gyakran (2 másodperces minimum ciklus ajánlott)
+
+---
+
+🧩 Most már a teljes Arduino oldal készen áll.
+Szeretnéd, hogy folytassuk a **Raspberry Pi** oldali Python + adatbázis kóddal (ami lekérdezi a node 03-at és menti)?
+
+
+***********************
+
+
+kerlek modositsd a 01 es 02 node kodjat, hogy azok is ugyanugy merjenek mint node 03 + mukodjenek routerkent
+
+
+Kiváló! Íme a módosított kódok a `01` és `02` node-okra, amelyek most már:
+
+1. **Routerként működnek** az RF24Network MESH hálózatban (továbbítanak).
+2. **Hőmérsékletet, páratartalmat és időt mérnek** (mint a `03` node).
+3. **Válaszolnak a `REQ` kérésekre**, ha a Pi őket kérdezi.
+
+---
+
+## 🟦 Node 01 (router + szenzor)
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+#include <DHT.h>
+#include <RTClib.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+RF24 radio(9, 10);
+RF24Network network(radio);
+const uint16_t this_node = 01;
+
+DHT dht(DHTPIN, DHTTYPE);
+RTC_DS1307 rtc;
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+
+  if (!rtc.begin()) {
+    Serial.println("Nem található RTC modul!");
+    while (1);
+  }
+
+  if (!rtc.isrunning()) {
+    Serial.println("RTC nincs beállítva, most beállítom!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+
+  radio.begin();
+  network.begin(90, this_node);
+}
+
+void loop() {
+  network.update();
+
+  while (network.available()) {
+    RF24NetworkHeader header;
+    char request[32] = "";
+    network.read(header, &request, sizeof(request));
+
+    Serial.print("Kérés érkezett: ");
+    Serial.println(request);
+
+    if (strcmp(request, "REQ") == 0) {
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+      DateTime now = rtc.now();
+
+      char response[64];
+      snprintf(response, sizeof(response),
+               "01,%.1f,%.1f,%02d:%02d:%02d",
+               t, h, now.hour(), now.minute(), now.second());
+
+      RF24NetworkHeader replyHeader(header.from_node);
+      bool ok = network.write(replyHeader, &response, sizeof(response));
+
+      Serial.print("Küldés vissza a ");
+      Serial.print(header.from_node, OCT);
+      Serial.print(" node-nak: ");
+      Serial.println(ok ? "Sikeres" : "Sikertelen");
+    }
+  }
+
+  delay(100);
+}
+```
+
+---
+
+## 🟨 Node 02 (router + szenzor)
+
+```cpp
+#include <SPI.h>
+#include <RF24.h>
+#include <RF24Network.h>
+#include <DHT.h>
+#include <RTClib.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+RF24 radio(9, 10);
+RF24Network network(radio);
+const uint16_t this_node = 02;
+
+DHT dht(DHTPIN, DHTTYPE);
+RTC_DS1307 rtc;
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+
+  if (!rtc.begin()) {
+    Serial.println("Nem található RTC modul!");
+    while (1);
+  }
+
+  if (!rtc.isrunning()) {
+    Serial.println("RTC nincs beállítva, most beállítom!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+
+  radio.begin();
+  network.begin(90, this_node);
+}
+
+void loop() {
+  network.update();
+
+  while (network.available()) {
+    RF24NetworkHeader header;
+    char request[32] = "";
+    network.read(header, &request, sizeof(request));
+
+    Serial.print("Kérés érkezett: ");
+    Serial.println(request);
+
+    if (strcmp(request, "REQ") == 0) {
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+      DateTime now = rtc.now();
+
+      char response[64];
+      snprintf(response, sizeof(response),
+               "02,%.1f,%.1f,%02d:%02d:%02d",
+               t, h, now.hour(), now.minute(), now.second());
+
+      RF24NetworkHeader replyHeader(header.from_node);
+      bool ok = network.write(replyHeader, &response, sizeof(response));
+
+      Serial.print("Küldés vissza a ");
+      Serial.print(header.from_node, OCT);
+      Serial.print(" node-nak: ");
+      Serial.println(ok ? "Sikeres" : "Sikertelen");
+    }
+  }
+
+  delay(100);
+}
+```
+
+---
+
+## 🔁 Mi változott az eredeti routerekhez képest?
+
+* **Beépítettük a `DHT11` és `DS1307` kezelést**
+* Az eszközök **válaszolnak a `REQ` kérésekre**, így a Pi közvetlenül lekérdezheti bármelyiket (01, 02, 03)
+* Emellett természetesen **továbbítják a láncban haladó kéréseket és válaszokat is**, a `network.update()` révén
+
+---
+
+Következő lépésként szívesen elkészítem a Raspberry Pi **Python kódját**, amely:
+
+* óránként lekérdezi a `01`, `02`, `03` node-okat
+* kimenti az adatokat egy **SQLite** vagy **PostgreSQL** adatbázisba
+
+Melyiket szeretnéd használni a Pi-n: SQLite (fájl) vagy PostgreSQL (komolyabb adatbázis)?
+
+
+
+*********************************
+
+kovetelmenyek: opensource, free, lightweight, cli 
+
+
+
+Köszönöm, így már egyértelmű.
+
+A követelmények alapján:
+
+✅ **Open source**
+✅ **Ingyenes**
+✅ **Lightweight**
+✅ **CLI-ról kezelhető**
+
+---
+
+## ✅ **Ajánlott választás: `SQLite`**
+
+### 📌 Miért épp SQLite?
+
+* **Könnyű (\~1 MB)**, nincs szükség szerverre vagy háttérfolyamatokra
+* **Egyetlen fájlban tárolja az adatokat** – tökéletes Raspberry Pi-re
+* **Teljes SQL-lekérdezés támogatás**
+* Egyszerűen kezelhető Pythonból (`sqlite3` modul beépítve van)
+* CLI-ből használható (`sqlite3` parancs)
+
+---
+
+## 🧰 Telepítés (valószínűleg már fenn van a Pi-n)
+
+```bash
+sudo apt update
+sudo apt install sqlite3
+```
+
+---
+
+## 🧪 Példa használat CLI-ből:
+
+```bash
+sqlite3 meshdata.db
+```
+
+```sql
+CREATE TABLE sensor_data (
+  node_id TEXT,
+  temperature REAL,
+  humidity REAL,
+  timestamp TEXT
+);
+
+INSERT INTO sensor_data VALUES ('01', 23.5, 50.2, '2025-06-18 13:00:00');
+
+SELECT * FROM sensor_data;
+```
+
+Kilépés: `.exit`
+
+---
+
+## 🧠 Alternatívák – csak összehasonlításként
+
+| Adatbázis     | Szerver kell? | Méret    | CLI? | Megjegyzés                     |
+| ------------- | ------------- | -------- | ---- | ------------------------------ |
+| **SQLite**    | ❌             | \~1 MB   | ✅    | **Ideális**                    |
+| PostgreSQL    | ✅             | \~50 MB+ | ✅    | Túl nagy lehet, overkill       |
+| MySQL/MariaDB | ✅             | \~40 MB+ | ✅    | Nem indokolt                   |
+| InfluxDB      | ✅             | \~60 MB+ | 🟡   | Jó időalapú, de bonyolultabb   |
+| CSV           | ❌             | 0        | 🟡   | Nem adatbázis, de scriptelhető |
+
+---
+
+🟢 **Tehát javaslatom: SQLite**
+Ha szeretnéd, írom a Raspberry Pi Python kódot, amely:
+
+* Lekérdezi a 01/02/03 node-okat
+* Kiolvassa a válaszokat
+* Lementi `meshdata.db` SQLite fájlba
+
+Mehet ez?
+
+
+
+**************************
+
+igen, kerlek
+
+
+
+Nagyszerű! Itt a teljes **Raspberry Pi Python program**, amely:
+
+* Kommunikál a 3 node-dal (`01`, `02`, `03`) az RF24Network segítségével
+* Lekéri tőlük a `"REQ"` kérésre adott válaszokat
+* Kimenti az adatokat egy **SQLite adatbázisba** fájlba: `meshdata.db`
+
+---
+
+## 🐍 Python program: `collect_mesh_data.py`
+
+```python
+import time
+import sqlite3
+from RF24 import RF24
+from RF24Network import RF24Network, RF24NetworkHeader
+
+# Node címek (octális!)
+NODE_IDS = [0o1, 0o2, 0o3]
+
+# Initialize RF24
+radio = RF24(22, 0)  # CE=GPIO22, CSN=SPI0_CS0
+network = RF24Network(radio)
+
+def init_rf24():
+    radio.begin()
+    radio.setPALevel(1)  # RF24_PA_LOW
+    network.begin(90, 0o0)  # channel 90, node 00
+    print("RF24 hálózat elindítva.")
+
+def init_db():
+    conn = sqlite3.connect("meshdata.db")
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS sensor_data (
+            node_id TEXT,
+            temperature REAL,
+            humidity REAL,
+            timestamp TEXT,
+            received_at TEXT
+        )
+    ''')
+    conn.commit()
+    return conn
+
+def send_request(node_id):
+    header = RF24NetworkHeader(node_id)
+    message = b"REQ"
+    ok = network.write(header, message)
+    print(f"[{oct(node_id)}] Kérés küldése: {'OK' if ok else 'HIBA'}")
+    return ok
+
+def listen_for_response(node_id, timeout=3):
+    start = time.time()
+    while time.time() - start < timeout:
+        network.update()
+        if network.available():
+            header, payload = network.read(64)
+            response = payload.decode().strip()
+            print(f"[{oct(node_id)}] Válasz: {response}")
+            return response
+    print(f"[{oct(node_id)}] Nincs válasz.")
+    return None
+
+def parse_response(response):
+    try:
+        node_id, temp, hum, ts = response.split(",", 3)
+        return node_id, float(temp), float(hum), ts
+    except Exception as e:
+        print(f"Hibás válasz formátum: {e}")
+        return None
+
+def store_to_db(conn, node_id, temp, hum, timestamp):
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO sensor_data (node_id, temperature, humidity, timestamp, received_at)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (node_id, temp, hum, timestamp, now))
+    conn.commit()
+    print(f"[{node_id}] Mentve adatbázisba.")
+
+def main():
+    init_rf24()
+    conn = init_db()
+
+    for node in NODE_IDS:
+        if send_request(node):
+            response = listen_for_response(node)
+            if response:
+                parsed = parse_response(response)
+                if parsed:
+                    store_to_db(conn, *parsed)
+
+    conn.close()
+    print("Kész.")
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## 📦 Futtatás
+
+1. Telepítsd a szükséges RF24 könyvtárakat (ha még nem tetted):
+
+```bash
+sudo apt install python3-pip sqlite3 git
+pip3 install spidev
+git clone https://github.com/nRF24/RF24.git
+cd RF24
+sudo python3 setup.py install
+```
+
+2. Mentsd a fenti kódot `collect_mesh_data.py` néven
+3. Futtatás:
+
+```bash
+python3 collect_mesh_data.py
+```
+
+---
+
+## 🔁 Automatikus időzítés (óránként)
+
+Használhatsz `cron`-t:
+
+```bash
+crontab -e
+```
+
+Majd illeszd be:
+
+```
+0 * * * * /usr/bin/python3 /home/pi/collect_mesh_data.py >> /home/pi/meshlog.txt 2>&1
+```
+
+Ez **minden egész órában lefut**, és logolja az outputot.
+
+---
+
+Készen állsz egy webes vagy CLI-s adatmegjelenítésre is, vagy az exportálásra CSV-be? Szívesen segítek abban is.
+
+
+
+
+
+
+
+
+
+
+
+
+
