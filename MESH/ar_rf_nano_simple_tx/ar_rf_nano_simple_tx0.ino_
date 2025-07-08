@@ -51,99 +51,46 @@ $ ARDUINO_DATA_DIR=$HOME/.arduino15 ../../../bow/arduino-cli compile --fqbn ardu
 */
 
 /* tx code */
-
 #if 1
-
-#include <SPI.h>
-#include <nRF24L01.h>
-#include <RF24.h>
-
-RF24 radio(10, 9);  // CE, CSN for Keywish RF-Nano
-
-const byte address[6] = "1Node";
-unsigned long lastPingTime = 0;
-int counter = 0;
-
-void setup() {
-  Serial.begin(9600);
-  while (!Serial);
-
-  Serial.println("TX ready");
-  if (!radio.begin()) {
-    Serial.println("NRF24 init failed");
-    while (1);
-  }
-
-  radio.setPALevel(RF24_PA_LOW);
-  radio.setDataRate(RF24_1MBPS);
-  radio.setChannel(108);
-  radio.setAutoAck(false); //debug
-  radio.openWritingPipe(address);
-  radio.stopListening();
-}
-
-void loop() {
-  unsigned long now = millis();
-  if (now - lastPingTime >= 1000) {
-    lastPingTime = now;
-    counter++;
-    bool ok = radio.write(&counter, sizeof(counter));
-    if (ok) {
-      Serial.print("Sent ping: ");
-      Serial.println(counter);
-    } else {
-      Serial.println("Send failed");
-    }
-  }
-}
-
-
-
-#endif
-
-#if 0
-
-
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 
 RF24 radio(9, 10); // CE, CSN
-const byte address[6] = "1Node";
+
+const byte address[6] = "00001";
+const char message[] = "Hello from TX!";
+const int ledPin = 2;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  
   radio.begin();
   radio.setPALevel(RF24_PA_LOW);
   radio.setChannel(108);
   radio.openWritingPipe(address);
   radio.stopListening();
-
-  if (!radio.isChipConnected()) {
-    Serial.println("NRF24 not connected!");
-  } else {
-    Serial.println("NRF24 is connected."); 
-  }
-
-  radio.printDetails();  // Print radio config
-
 }
 
 void loop() {
-  const char text[] = "ping";
-  bool ok = radio.write(&text, sizeof(text));
-  if (ok) Serial.println("Sent: ping");
-  else Serial.println("Send failed");
-  delay(1000);
+  bool success = radio.write(&message, sizeof(message));
+  if (success) {
+    Serial.println("Message sent.");
+  } else {
+    Serial.println("Send failed.");
+  }
+
+  // Blink once on D13
+  digitalWrite(ledPin, HIGH);
+  delay(100);
+  digitalWrite(ledPin, LOW);
+
+  delay(1000); // Wait 1 second before sending again
 }
 
 
-
-
-
-#endif
-
-#if 0
+#else
 #include <SPI.h>
 #include <RF24.h>
 
@@ -168,8 +115,6 @@ void loop() {
 }
 
 #endif
-
-
 
 
 /*
