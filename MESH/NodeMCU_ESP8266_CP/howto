@@ -1,0 +1,377 @@
+
+
+NodeMCU-ESP8266-CP example code, maybe in arduino cli?
+
+
+
+Here’s a minimal **Arduino CLI**-compatible example code for the **NodeMCU ESP8266** using a **CH340/CP2102 USB-to-Serial** chip, assuming you're using a recent version of the Arduino CLI and core libraries.
+
+---
+
+### ✅ Goal: Blink the onboard LED (usually D0 / GPIO16 or D4 / GPIO2)
+
+---
+
+## 🛠 Prerequisites
+
+1. **Install ESP8266 board support:**
+
+   ```bash
+   arduino-cli core update-index
+   arduino-cli core install esp8266:esp8266
+   ```
+
+2. **Install a basic sketch location:**
+
+   ```bash
+   mkdir -p ~/Arduino/esp8266_blink
+   cd ~/Arduino/esp8266_blink
+   ```
+
+3. **Create the sketch file:**
+
+   ```bash
+   nano esp8266_blink.ino
+   ```
+
+---
+
+### 🔁 Example Code (`esp8266_blink.ino`)
+
+```cpp
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT); // LED is usually on GPIO2 (D4)
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, LOW);  // Turn the LED on (active low)
+  delay(500);
+  digitalWrite(LED_BUILTIN, HIGH); // Turn the LED off
+  delay(500);
+}
+```
+
+---
+
+## 🧪 Compile & Upload via Arduino CLI
+
+Check your port:
+
+```bash
+arduino-cli board list
+```
+
+Should show something like:
+
+```
+/dev/ttyUSB0    esp8266:esp8266:nodemcuv2
+```
+
+Now compile and upload:
+
+```bash
+arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 esp8266_blink
+arduino-cli upload -p /dev/ttyUSB0 --fqbn esp8266:esp8266:nodemcuv2 esp8266_blink
+```
+
+---
+
+## 📝 Notes
+
+* **CH340/CP2102 drivers** are typically already supported on Linux. On Windows/macOS you may need to install drivers.
+* The onboard LED can be GPIO2 (D4), or GPIO16 (D0) depending on NodeMCU version.
+* If your board resets or behaves strangely, try adding a `Serial.begin(115200);` to debug.
+
+Would you like an example with Wi-Fi and HTTP client/server too?
+
+
+
+***********************
+
+ "NodeMCU-ESP8266-CP" how can get / send data from / to a raspberry zero 2w, debian on a common LAN 
+
+ 
+
+Great question! You want to communicate between a **NodeMCU ESP8266** board and a **Raspberry Pi Zero 2 W** running Debian over the same LAN.
+
+ 
+
+### Overview
+
+ 
+
+The most common way to exchange data between these two on a local network is via network protocols like **HTTP**, **MQTT**, or **WebSocket**.
+
+ 
+
+---
+
+ 
+
+### Step-by-step guide for simple communication
+
+ 
+
+#### 1. Set up network connection
+
+ 
+
+* Both devices must be connected to the **same Wi-Fi network** (LAN).
+
+* Make sure the NodeMCU is connected to your Wi-Fi (using SSID and password).
+
+* Raspberry Pi should also be connected to the same Wi-Fi or via Ethernet to the same network.
+
+ 
+
+---
+
+ 
+
+#### 2. Choose your communication method
+
+ 
+
+**Option A: HTTP (REST API)**
+
+ 
+
+* NodeMCU can send HTTP GET/POST requests to the Raspberry Pi server.
+
+* Raspberry Pi runs a small HTTP server to receive requests or send data back.
+
+ 
+
+**Option B: MQTT (Message Queue Telemetry Transport)**
+
+ 
+
+* Install an MQTT broker on Raspberry Pi (e.g., Mosquitto).
+
+* NodeMCU publishes/subscribes to topics on the broker to send/receive messages.
+
+ 
+
+**Option C: WebSocket**
+
+ 
+
+* More interactive two-way communication.
+
+* Raspberry Pi runs WebSocket server; NodeMCU runs client.
+
+ 
+
+---
+
+ 
+
+### Example: Using HTTP POST and GET
+
+ 
+
+#### On NodeMCU side (ESP8266 Arduino code)
+
+ 
+
+```cpp
+
+#include <ESP8266WiFi.h>
+
+#include <ESP8266HTTPClient.h>
+
+ 
+
+const char* ssid = "YOUR_WIFI_SSID";
+
+const char* password = "YOUR_WIFI_PASSWORD";
+
+ 
+
+const char* raspberryPiIP = "192.168.x.x";  // Raspberry Pi IP address on LAN
+
+const int raspberryPiPort = 5000;            // Port your server will listen to
+
+ 
+
+void setup() {
+
+  Serial.begin(115200);
+
+  WiFi.begin(ssid, password);
+
+  Serial.print("Connecting to WiFi...");
+
+  while (WiFi.status() != WL_CONNECTED) {
+
+    delay(500);
+
+    Serial.print(".");
+
+  }
+
+  Serial.println("Connected!");
+
+}
+
+ 
+
+void loop() {
+
+  if (WiFi.status() == WL_CONNECTED) {
+
+    HTTPClient http;
+
+ 
+
+    http.begin(String("http://") + raspberryPiIP + ":" + raspberryPiPort + "/data");  // Your REST API endpoint on Pi
+
+    http.addHeader("Content-Type", "application/json");
+
+ 
+
+    String jsonPayload = "{\"temperature\":24.3,\"humidity\":60}"; // example data
+
+   
+
+    int httpResponseCode = http.POST(jsonPayload);
+
+ 
+
+    if (httpResponseCode > 0) {
+
+      String response = http.getString();
+
+      Serial.println("Response from Raspberry Pi:");
+
+      Serial.println(response);
+
+    } else {
+
+      Serial.print("Error on sending POST: ");
+
+      Serial.println(httpResponseCode);
+
+    }
+
+    http.end();
+
+  }
+
+  delay(10000); // send data every 10 seconds
+
+}
+
+```
+
+ 
+
+---
+
+ 
+
+#### On Raspberry Pi side (Python Flask server)
+
+ 
+
+Install Flask first:
+
+ 
+
+```bash
+
+sudo apt update
+
+sudo apt install python3-pip
+
+pip3 install flask
+
+```
+
+ 
+
+Create a simple Flask app (`server.py`):
+
+ 
+
+```python
+
+from flask import Flask, request, jsonify
+
+ 
+
+app = Flask(__name__)
+
+ 
+
+@app.route('/data', methods=['POST'])
+
+def receive_data():
+
+    data = request.json
+
+    print(f"Received data from NodeMCU: {data}")
+
+    return jsonify({"status": "success", "message": "Data received!"})
+
+ 
+
+@app.route('/data', methods=['GET'])
+
+def send_data():
+
+    # Example: Raspberry Pi sends back some data
+
+    example_data = {"message": "Hello from Raspberry Pi!"}
+
+    return jsonify(example_data)
+
+ 
+
+if __name__ == "__main__":
+
+    app.run(host='0.0.0.0', port=5000)
+
+```
+
+ 
+
+Run it on the Raspberry Pi:
+
+ 
+
+```bash
+
+python3 server.py
+
+```
+
+ 
+
+---
+
+ 
+
+### Summary:
+
+ 
+
+* NodeMCU sends JSON data via HTTP POST to Raspberry Pi.
+
+* Raspberry Pi runs Flask web server to receive and respond.
+
+* Both connected on the same LAN using IP address.
+
+ 
+
+---
+
+ 
+
+If you want, I can also help you set up MQTT or a WebSocket server for more advanced real-time communication. Just ask!
+
+ 
+
+ 
+
+
