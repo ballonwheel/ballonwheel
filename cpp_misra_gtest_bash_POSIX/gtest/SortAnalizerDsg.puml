@@ -1,0 +1,66 @@
+@startuml
+
+' COMPONENT DIAGRAM
+package "Sort Analyzer Application" {
+  [UserInterface] --> [DataGenerator]
+  [UserInterface] --> [Analyzer]
+  [Analyzer] --> [SortStrategy]
+  [SortStrategy] --> [QuickSort]
+  [SortStrategy] --> [MergeSort]
+  [SortStrategy] --> [BubbleSort]
+  [Analyzer] --> [Logger]
+  [UserInterface] --> [Logger]
+}
+
+@enduml
+
+
+@startuml
+
+' CLASS DIAGRAM
+class UserInterface {
+  +getUserInput(): InputConfig
+  +displayResult(data: vector<int>)
+  +displayDecision(msg: string)
+}
+
+class DataGenerator {
+  +generate(config: InputConfig): vector<int>
+}
+
+class Analyzer {
+  +chooseAlgorithm(data: vector<int>): SortStrategy*
+  +isNearlySorted(data: vector<int>): bool
+  +hasManyDuplicates(data: vector<int>): bool
+}
+
+class SortStrategy {
+  +sort(data: vector<int>): vector<int>
+}
+
+class QuickSort extends SortStrategy
+class MergeSort extends SortStrategy
+class BubbleSort extends SortStrategy
+
+class Logger {
+  +log(message: string): void
+}
+
+class InputConfig {
+  +bool allowDuplicates
+  +int dataSize = 100
+}
+
+UserInterface --> DataGenerator
+UserInterface --> Analyzer
+Analyzer --> SortStrategy
+SortStrategy <|-- QuickSort
+SortStrategy <|-- MergeSort
+SortStrategy <|-- BubbleSort
+Analyzer --> Logger
+UserInterface --> Logger
+UserInterface --> InputConfig
+
+@enduml
+
+
