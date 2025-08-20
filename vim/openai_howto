@@ -1,0 +1,90 @@
+
+
+| ChatGPT (browser)                       | OpenAI API (chatgpt CLI)                  |
+| --------------------------------------- | ----------------------------------------- |
+| Uses **ChatGPT credits** from Plus plan | Uses **API billing account**              |
+| Unlimited GPT-4 (within limits)         | Billed per token (unless you have credit) |
+| No API key needed                       | Needs `sk-...` API key                    |
+| Not the same billing system             | Separate from Plus                        |
+
+| Feature               | ChatGPT (browser) | `chatgpt` CLI          | `codex` CLI                |
+| --------------------- | ----------------- | ---------------------- | -------------------------- |
+| Uses API credits?     | ❌ No              | ✅ Yes                  | ✅ Yes                      |
+| Needs API key?        | ❌ No              | ✅ Yes                  | ❌ (if using `codex login`) |
+| Needs payment method? | ✅ For Plus plan   | ✅ For API access       | ✅ (for extra API usage)    |
+| Free credits?         | ❌ Not applicable  | ❌ Not by default       | ✅ (\$5 for Plus users)     |
+| Focus / use case      | Chat in browser   | Prompt from terminal   | Coding in terminal         |
+| Maintainer            | OpenAI            | Community (unofficial) | OpenAI (official)          |
+
+
+
+*************
+(chatgpt CLI) szoval ez kulon token fizetos, nincs benne a Plus elofizetesben
+npm install -g chatgpt
+chatgpt init
+chatgpt "What is systemd?"
+
+
+*****************
+ez a "codex" ez 5$ erejeig benne van a Plus elofizetesben
+sudo npm install -g @openai/codex`
+codex login
+or 
+export OPENAI_API_KEY="sk-your-secret-key"
+echo $OPENAI_API_KEY
+codex
+
+| Task                       | Command / Steps                               |
+| -------------------------- | --------------------------------------------- |
+| **Install CLI**            | `npm install -g @openai/codex`                |
+| **Authenticate (ChatGPT)** | `codex login` → choose "Sign in with ChatGPT" |
+| **Authenticate (API Key)** | `export OPENAI_API_KEY="..."`                 |
+| **Run CLI Suggest mode**   | `codex --approval-mode suggest "…" `          |
+| **Use auto-edit mode**     | `codex --approval-mode auto-edit "…" `        |
+| **Use full-auto mode**     | `codex --approval-mode full-auto "…" `        |
+| **Specify model**          | `codex --model gpt-4.1 "…" `                  |
+| **Use image input**        | `codex --image "path.png" "…" `               |
+
+
+Launch in interactive mode:
+codex
+
+or
+
+codex --approval-mode suggest "Explain this function in detail"
+codex --approval-mode auto-edit "Refactor this file for readability"
+codex --approval-mode full-auto "Fix build errors across the project"
+
+codex --model gpt-4.1 "Generate unit tests for `main.py`"
+
+codex --image "screenshot.png" "Create a similar webpage in HTML/CSS"
+
+
+
+| Feature / Tool               | 🧠 **ChatGPT (browser)**        | 💬 **`chatgpt` CLI**                                                 | 🛠️ **`codex` CLI**                                     |
+| ---------------------------- | ------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------- |
+| Interface                    | Web GUI                         | Terminal (unofficial tool)                                           | Terminal (official OpenAI CLI)                          |
+| Auth method                  | OpenAI account (Plus/Free)      | OpenAI API Key (`sk-...`)                                            | `codex login` (OAuth) or API Key                        |
+| Billing source               | ChatGPT subscription (Plus/Pro) | API billing account (tokens = \$)                                    | API billing or free promo credits (e.g. \$5)            |
+| Free usage                   | Limited GPT-4 (with Plus)       | Only if API credits exist                                            | \$5 credit (Plus), \$50 (Pro) for 30 days (if eligible) |
+| Uses OpenAI API              | ❌ No                            | ✅ Yes                                                                | ✅ Yes                                                   |
+| Models available             | GPT-3.5, GPT-4 (via Plus)       | GPT-3.5, GPT-4                                                       | Codex models (codex-mini), GPT-4.5 (in beta)            |
+| Designed for code assistance | ⚠️ Not specialized              | ❌ General Q\&A only                                                  | ✅ Full coding assistant                                 |
+| File editing                 | ❌ No                            | ❌ No                                                                 | ✅ Yes (auto/suggest modes)                              |
+| Runs shell commands          | ❌ No                            | ❌ No                                                                 | ✅ Yes (with confirmation or full-auto mode)             |
+| Supports ChatGPT Plus login  | ✅ Native                        | ❌ Requires API key manually                                          | ✅ With `codex login`                                    |
+| Needs manual API key         | ❌ No                            | ✅ Yes                                                                | ❌ No (if logged in with ChatGPT)                        |
+| Open-source                  | ❌ No                            | ✅ Yes ([GitHub](https://github.com/transitive-bullshit/chatgpt-cli)) | ✅ Yes ([GitHub](https://github.com/openai/codex))       |
+| Persistent config file       | N/A                             | `~/.chatgpt.json`                                                    | Stored internally via OAuth                             |
+
+
+
+
+
+
+
+
+
+
+
+
