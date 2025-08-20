@@ -1,11 +1,67 @@
 
-
+*************
+install node js
+v18
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 
-
+vagy apt, de az valszeg korabbi
 sudo apt install -y nodejs
 
+vagy i386-on
 
+Ah, I see! You're trying to run:
+on a **Debian i386 system** (32-bit Intel), but NodeSource does **not support i386** builds anymore — only `amd64`, `arm64`, and `armhf`.
+---
+### 🧨 Why it's not working
+NodeSource officially dropped support for **i386 architecture**, so their setup script won't add the right repo. That’s why you're getting an error or nothing is installed after the script runs.
+---
+### ✅ Solution: Install Node.js 20+ on i386 manually
+We’ll use **Node.js official binaries** compiled for `linux-ia32` (i386).
+---
+### 🛠️ Step-by-Step Manual Install on i386
+#### 1. Remove old Node.js (if any):
+```bash
+sudo apt remove nodejs npm -y
+``
+#### 2. Download prebuilt Node.js binary for i386
+```bash
+cd ~
+wget https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-ia32.tar.xz
+```
+You can check for newer versions here: [https://nodejs.org/dist/latest-v20.x/](https://nodejs.org/dist/latest-v20.x/)
+#### 3. Extract and install manually:
+```bash
+tar -xf node-v20.14.0-linux-ia32.tar.xz
+sudo mv node-v20.14.0-linux-ia32 /opt/node20
+```
+#### 4. Add Node.js to your PATH:
+Append this line to your `~/.bashrc` or `~/.profile`:
+```bash
+export PATH=/opt/node20/bin:$PATH
+```
+Then reload:
+```bash
+source ~/.bashrc
+```
+#### 5. Verify installation:
+```bash
+node -v
+npm -v
+```
+You should see:
+``
+v20.14.0
+```
+
+---
+
+### 💡 Now you can install tools like `copilot.vim`, etc., using this Node.js version on your i386 system.
+
+Would you like a one-liner installer script to make this automatic?
+
+
+
+*************************
 
 node -v
 npm -v
