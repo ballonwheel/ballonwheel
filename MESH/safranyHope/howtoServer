@@ -1,0 +1,340 @@
+tudsz ennek a szálnak uj chat-et nyitni? es jussunk el a 3/b-hez pls: 6db RPi(#1 #2 ...#6) van es ebbol a #3 sorszamu a szerver 
+
+
+
+
+
+Nem tudok új chatet nyitni, de megoldjuk itt. Jöhet a **3/B: MQTT (Mosquitto) topológia** 6 db RPi-vel, ahol **#3 a szerver**.
+
+Alább egy végigvihető, minimál, de biztos recept. Ha kimásolod és lefuttatod, működni fog.
+
+# Topológia és névkonvenció
+
+* Hosztnevek: `rpi1` … `rpi6` (a #3 legyen `rpi3`)
+* Site azonosító: `tisza`
+* MQTT topic séma:
+
+  * **talaj**: `sites/tisza/<host>/soil`
+
+    * payload: `ISO8601,v0,v1,v2,v3` (CSV az előző scriptből utolsó sor)
+  * **tuya**: `sites/tisza/<host>/tuya/<dev>` (payload: JSON – hő/pára/batt)
+
+---
+
+# 1) Szerver (#3, `rpi3`): Mosquitto + SQLite + collector
+
+## 1.1 Telepítés
+
+```bash
+sudo apt-get update
+sudo apt-get install -y mosquitto mosquitto-clients sqlite3 jq
+sudo systemctl enable --now mosquitto
+```
+
+## 1.2 Mosquitto biztonság (jelszavak + ACL)
+
+Hozzunk **felhasználókat** `rpi1`…`rpi6`-nak, mindenkinek saját publish-joga a saját prefixére.
+
+```bash
+# jelszót kérni fog egyesével
+sudo mosquitto_passwd -c /etc/mosquitto/passwd rpi1
+sudo mosquitto_passwd    /etc/mosquitto/passwd rpi2
+sudo mosquitto_passwd    /etc/mosquitto/passwd rpi3
+sudo mosquitto_passwd    /etc/mosquitto/passwd rpi4
+sudo mosquitto_passwd    /etc/mosquitto/passwd rpi5
+sudo mosquitto_passwd    /etc/mosquitto/passwd rpi6
+```
+
+ACL fájl:
+
+```bash
+sudo tee /etc/mosquitto/acl >/dev/null <<'ACL'
+# minden gép csak a saját prefixére publikálhat, és olvashat (debughoz)
+user rpi1
+topic write sites/tisza/rpi1/#
+topic read  sites/tisza/+/#
+user rpi2
+topic write sites/tisza/rpi2/#
+topic read  sites/tisza/+/#
+user rpi3
+topic write sites/tisza/rpi3/#
+topic read  sites/tisza/+/#
+user rpi4
+topic write sites/tisza/rpi4/#
+topic read  sites/tisza/+/#
+user rpi5
+topic write sites/tisza/rpi5/#
+topic read  sites/tisza/+/#
+user rpi6
+topic write sites/tisza/rpi6/#
+topic read  sites/tisza/+/#
+ACL
+```
+
+Mosquitto konf:
+
+```bash
+sudo tee /etc/mosquitto/conf.d/10-basic.conf >/dev/null <<'CONF'
+listener 1883
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+acl_file /etc/mosquitto/acl
+persistence true
+persistence_location /var/lib/mosquitto/
+log_timestamp true
+log_type error
+log_type warning
+log_type notice
+log_type information
+CONF
+
+sudo systemctl restart mosquitto
+```
+
+*(Opció: ha interneten is elérhető lesz, állíts tűzfalat és inkább WireGuard/VPN-t vagy TLS-t használj. Most LAN-recept.)*
+
+## 1.3 SQLite séma
+
+```bash
+sudo mkdir -p /srv/iot
+sudo chown "$USER":"$USER" /srv/iot
+sqlite3 /srv/iot/plant.db <<'SQL'
+CREATE TABLE IF NOT EXISTS soil (
+  site TEXT, host TEXT, ts TEXT,
+  v0 REAL, v1 REAL, v2 REAL, v3 REAL
+);
+CREATE INDEX IF NOT EXISTS soil_ts ON soil(ts);
+
+CREATE TABLE IF NOT EXISTS tuya (
+  site TEXT, host TEXT, dev TEXT, ts TEXT,
+  temp REAL, hum REAL, batt REAL
+);
+CREATE INDEX IF NOT EXISTS tuya_ts ON tuya(ts);
+SQL
+```
+
+## 1.4 Collector (MQTT → SQLite)
+
+`/usr/local/bin/mqtt_to_sqlite.sh`:
+
+```bash
+sudo tee /usr/local/bin/mqtt_to_sqlite.sh >/dev/null <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+DB="/srv/iot/plant.db"
+BROKER="localhost"
+SITE="tisza"
+
+# két fő ág: soil (CSV), tuya (JSON)
+mosquitto_sub -h "$BROKER" -v -t "sites/$SITE/+/soil" -t "sites/$SITE/+/tuya/#" | \
+while IFS= read -r line; do
+  topic="${line%% *}"
+  data="${line#* }"
+
+  # topic: sites/<site>/<host>/soil
+  #    v.  sites/<site>/<host>/tuya/<dev>
+  IFS='/' read -r _ site host kind rest <<< "$topic"
+
+  if [[ "$kind" == "soil" ]]; then
+    # payload: ISO8601,v0,v1,v2,v3
+    IFS=',' read -r ts v0 v1 v2 v3 <<< "$data"
+    sqlite3 "$DB" "INSERT INTO soil VALUES ('$site','$host','$ts',$v0,$v1,$v2,$v3);"
+  elif [[ "$kind" == "tuya" ]]; then
+    dev="$rest"
+    ts=$(date -Is)
+    temp=$(echo "$data" | jq -r '.Temperature // .temperature // empty')
+    hum=$( echo "$data" | jq -r '.Humidity    // .humidity    // empty')
+    batt=$(echo "$data" | jq -r '.Battery     // .battery     // empty')
+    # csak ha van adat
+    if [[ -n "${temp:-}" || -n "${hum:-}" || -n "${batt:-}" ]]; then
+      sqlite3 "$DB" "INSERT INTO tuya VALUES ('$site','$host','$dev','$ts',${temp:-NULL},${hum:-NULL},${batt:-NULL});"
+    fi
+  fi
+done
+SH
+
+sudo chmod +x /usr/local/bin/mqtt_to_sqlite.sh
+```
+
+Systemd unit:
+
+```bash
+sudo tee /etc/systemd/system/mqtt-to-sqlite.service >/dev/null <<'UNIT'
+[Unit]
+Description=MQTT collector to SQLite
+After=network-online.target mosquitto.service
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/mqtt_to_sqlite.sh
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now mqtt-to-sqlite.service
+```
+
+Gyors teszt (külön terminálon):
+
+```bash
+mosquitto_sub -h localhost -u rpi3 -P '<a_te_jelszavad>' -t 'sites/tisza/#' -v
+```
+
+---
+
+# 2) Kliensek (#1, #2, #4, #5, #6 – és akár a #3 is mint szenzor)
+
+## 2.1 mosquitto-clients fel
+
+```bash
+sudo apt-get update
+sudo apt-get install -y mosquitto-clients
+```
+
+## 2.2 Publikáló script (soil → MQTT)
+
+Tegyük fel, hogy a korábbi sampler írja a napi CSV-t `/var/log/soil/YYYY-MM-DD.csv`-be.
+
+`/usr/local/bin/soil_publish.sh`:
+
+```bash
+sudo tee /usr/local/bin/soil_publish.sh >/dev/null <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+SITE="tisza"
+HOST="$(hostname)"
+CSV="/var/log/soil/$(date +%F).csv"
+
+BROKER_HOST="rpi3"      # vagy ip-cím
+BROKER_PORT=1883
+USER="$HOST"            # ugyanaz a user mint az ACL-ben (pl. rpi1)
+PASS_FILE="/etc/soil_mqtt_pass"  # csak root olvassa
+
+if [ ! -s "$CSV" ]; then
+  >&2 echo "[WARN] CSV nincs vagy üres: $CSV"
+  exit 0
+fi
+
+line=$(tail -n1 "$CSV")
+topic="sites/${SITE}/${HOST}/soil"
+
+mosquitto_pub -h "$BROKER_HOST" -p "$BROKER_PORT" \
+  -u "$USER" -P "$(cat "$PASS_FILE")" \
+  -t "$topic" -m "$line" -r
+SH
+sudo chmod +x /usr/local/bin/soil_publish.sh
+```
+
+Jelszó fájl (a kliensen) – egyezzen a szerveren beállítottal:
+
+```bash
+echo '<IDE_JON_A_JELSZO_AZ_ADOTT_GEPNEK>' | sudo tee /etc/soil_mqtt_pass >/dev/null
+sudo chmod 600 /etc/soil_mqtt_pass
+```
+
+## 2.3 Időzítő: 15 percenként publish
+
+```bash
+sudo tee /etc/systemd/system/soil-publish.service >/dev/null <<'UNIT'
+[Unit]
+Description=Publish soil CSV last row to MQTT
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/soil_publish.sh
+UNIT
+
+sudo tee /etc/systemd/system/soil-publish.timer >/dev/null <<'UNIT'
+[Unit]
+Description=Publish soil to MQTT every 15 minutes
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now soil-publish.timer
+```
+
+## 2.4 (Opcionális) Tuya → MQTT (flash nélkül TinyTuya-val)
+
+Ha van Wi-Fi Tuya szenzor helyben (LocalKey megvan), íme egy rövid publish példa:
+
+`/usr/local/bin/tuya_publish.py`:
+
+```python
+#!/usr/bin/env python3
+import os, json, sys
+import tinytuya
+SITE = "tisza"
+HOST = os.uname().nodename
+BROKER = "rpi3"
+USER = HOST
+PASS = open("/etc/soil_mqtt_pass").read().strip()
+
+# példa egy eszközre
+DEV_IP = "192.168.1.55"
+DEV_ID = "xxxxxxxxxxxxxxxxxxxx"
+LOCAL_KEY = "yyyyyyyyyyyyyyyy"
+
+d = tinytuya.OutletDevice(DEV_ID, DEV_IP, LOCAL_KEY)
+d.set_version(3.3)
+st = d.status()
+
+# mapeld a hő/pára DP-ket a saját eszközöd szerint:
+payload = {
+    "Temperature": st.get("dps", {}).get("101"),  # példa
+    "Humidity":    st.get("dps", {}).get("102"),
+    "Battery":     st.get("dps", {}).get("15")
+}
+topic = f"sites/{SITE}/{HOST}/tuya/living"
+msg = json.dumps(payload)
+
+os.system(f'mosquitto_pub -h {BROKER} -u {USER} -P {PASS} -t "{topic}" -m \'{msg}\' -r')
+```
+
+Időzítsd 5–10 percenként hasonló `systemd` timerrel, mint a soil publish.
+
+---
+
+# 3) Gyors end-to-end ellenőrzés
+
+Szerveren:
+
+```bash
+# figyeld a bejövő mqtt-t
+mosquitto_sub -h localhost -u rpi3 -P '<rpi3-jelszo>' -t 'sites/tisza/#' -v
+
+# nézd az adatbázist
+sqlite3 /srv/iot/plant.db 'SELECT * FROM soil ORDER BY ts DESC LIMIT 5;'
+sqlite3 /srv/iot/plant.db 'SELECT * FROM tuya ORDER BY ts DESC LIMIT 5;'
+```
+
+---
+
+# 4) (Opcionális) Ha nem egy LAN-on vannak
+
+Három könnyű út:
+
+1. **WireGuard** site-to-site → a kliens `BROKER_HOST` a wg-IP-je `rpi3`-nak.
+2. **autossh reverse tunnel** minden kliensről `rpi3`-ra, és a publish lokális portra megy.
+3. **TLS-es Mosquitto** nyitott 8883 porttal (tanúsítványokkal).
+
+Ha ezt is kéred, adok kész `autossh` vagy `wireguard` unitokat.
+
+---
+
+Ennyi. Ezzel a #3-as Pi „lego-busz” MQTT szerverként gyűjti az 5 másik (és akár a #3 saját) szenzoradatait, és **SQLite-ba** írja. Ha szeretnéd, adok hozzá egy minimál **grafikon generátort** (matplotlib → PNG, nginx szolgálja ki), vagy egy pehelysúlyú **Flask** read-only API-t.
+
+
+
