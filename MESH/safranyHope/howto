@@ -1,0 +1,798 @@
+ontozo egyszeru user space cli kod: raspberry zero 2w, debian, ads1115, device tree --> 4db talajnedvesseg mero (hestore: SMH-13-M) + 2db hordo viz folyadekszint kapcsolo (also , felso) (hestore: FSPP-090084) GPIO17,GPIO18(inputs) +  magnesszelep hestore: RELC-1CH-3V-H (GPIO27 output); Ha a talaj nedvesseg egy definialt szint ala esik, akkor a magnes szelep nyisson, ha egy adott szint folott van, akkor zarjon; a hordo az also kacsolo alatt nyomtassa a kijelzore, hogy tolteni kell, ha felso kapcsolo jelez, akkor nyomtassa azt, hogy szivaggyu kikapcsolas kell;
+
+
+Szuper feladat! Itt egy **egyszerű, user-space CLI** Python program Raspberry Pi Zero 2 W-re (Debian), ami:
+
+* az **ADS1x15** (ADS1115/ADS1015) IIO sysfs-en keresztül olvassa a **4 db talajnedvesség** csatornát,
+* a **hordó két úszókapcsolóját** (GPIO17 alsó, GPIO18 felső) GPIO-n figyeli,
+* a **mágnesszelepet** (GPIO27) vezérli **hiszterézissel**: ha bármely zóna a küszöb alá esik → NYIT, ha mind fölé kerül → ZÁR,
+* a konzolra írja: „**TÖLTENI KELL**” (alsó úszó aktív) és „**SZIVATTYÚ KIKAPCSOLÁS KELL**” (felső úszó aktív).
+
+> **Függőségek:**
+> `sudo apt install python3-rpi.gpio`
+> (IIO már megy nálad: `/sys/bus/iio/devices/iio:device*/in_voltage*_raw` látszik.)
+
+---
+
+### `ontozo.py`
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Egyszerű öntöző vezérlő – ADS1x15 (IIO) + 2 úszókapcsoló + mágnesszelep
+# Pi Zero 2W / Debian
+#
+# GPIO kiosztás (BCM):
+#   - Alsó szintkapcsoló: GPIO17 (bemenet)
+#   - Felső szintkapcsoló: GPIO18 (bemenet)
+#   - Mágnesszelep relé:   GPIO27 (kimenet)
+#
+# Talajnedvesség: ADS1x15 IIO: in_voltage0..3_raw + in_voltage*_scale
+# Hiszterézis: ha bármely zóna < START_PCT  -> NYIT
+#               ha minden zóna >= STOP_PCT  -> ZÁR
+#
+# FONTOS: A kapacitív talajnedvesség szenzorok kimenete eltérhet (nedves->nagyobb V vagy fordítva).
+# Kalibráld a WET_V és DRY_V értékeket a valós mért feszültségekhez!
+# Ha nálad fordított az irány, csak cseréld fel az értékeket, a kód lekezeli.
+#
+import os, glob, time, argparse, sys
+from datetime import datetime
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    print("Hiányzik a RPi.GPIO: sudo apt install python3-rpi.gpio", file=sys.stderr)
+    sys.exit(1)
+
+# ---------- FELHASZNÁLÓI BEÁLLÍTÁSOK (szerkeszthető konstansok) ----------
+# ADS IIO eszköz automatikus keresése; ha tudod a fix elérési utat, írd be ide:
+IIO_DEVICE_PATH = None  # pl. "/sys/bus/iio/devices/iio:device0" vagy None = autodetekció
+
+# Talajnedvesség csatornák (ADS1x15 0..3)
+SOIL_CHANNELS = [0, 1, 2, 3]
+
+# Kalibráció (volt): becsüld meg / mérd ki!  WET_V = „nagyon nedves”, DRY_V = „nagyon száraz”
+# Ha nálad a nedvességgel nő a feszültség, WET_V > DRY_V; ha csökken, WET_V < DRY_V.
+WET_V = [2.0, 2.0, 2.0, 2.0]
+DRY_V = [0.8, 0.8, 0.8, 0.8]
+
+# Hiszterézis küszöbök (%). Példa: 30% alatt indítson, 45% felett álljon le.
+START_PCT = 30.0
+STOP_PCT  = 45.0
+
+# Mintavételi periódus (másodperc)
+INTERVAL_S = 5.0
+
+# GPIO beállítások
+PIN_LOWER  = 17  # alsó szintkapcsoló (üresedés jelzés)
+PIN_UPPER  = 18  # felső szintkapcsoló (tele hordó jelzés)
+PIN_RELAY  = 27  # mágnesszelep relé
+
+# Úszók logikája: legtöbb esetben a kapcsoló GND-re húz záráskor -> PUD_UP + "aktív alacsony".
+LOWER_ACTIVE_LOW = True   # True: zárt (LOW) = aktív
+UPPER_ACTIVE_LOW = True
+
+# Relé logika: egyes modulok "aktív alacsonyak". Állítsd ennek megfelelően.
+RELAY_ACTIVE_HIGH = True  # True: HIGH = bekapcsolt relé; False: LOW = bekapcsolt relé
+# -------------------------------------------------------------------------
+
+
+def autodetect_iio_device():
+    for d in sorted(glob.glob("/sys/bus/iio/devices/iio:device*")):
+        try:
+            name = open(os.path.join(d, "name"), "r", encoding="utf-8").read().strip().lower()
+        except Exception:
+            continue
+        if any(k in name for k in ["ads1115", "ads1015", "ti-ads1015"]):
+            return d
+    # ha nem talált név alapján, de csak egy iio:device van, használjuk azt
+    devs = sorted(glob.glob("/sys/bus/iio/devices/iio:device*"))
+    return devs[0] if devs else None
+
+
+def read_ads_channel(iio_dev, ch):
+    raw_path   = os.path.join(iio_dev, f"in_voltage{ch}_raw")
+    scale_path = os.path.join(iio_dev, f"in_voltage{ch}_scale")
+    with open(raw_path, "r") as f:
+        raw = int(f.read().strip())
+    with open(scale_path, "r") as f:
+        scale = float(f.read().strip())
+    volts = raw * scale
+    return raw, volts
+
+
+def v_to_percent(v, wet_v, dry_v):
+    # Leképezzük 0..100%-ra, bármely irányt kezelve.
+    if wet_v == dry_v:
+        return 0.0
+    lo, hi = (dry_v, wet_v) if dry_v < wet_v else (wet_v, dry_v)
+    # normál irány: dry->0%, wet->100%
+    pct = 100.0 * (v - dry_v) / (wet_v - dry_v)
+    # határok közé szorítás
+    return max(0.0, min(100.0, pct))
+
+
+def setup_gpio():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    GPIO.setup(PIN_LOWER, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(PIN_UPPER, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    initial = GPIO.HIGH if (RELAY_ACTIVE_HIGH is False) else GPIO.LOW  # kezdetben "kikapcsolt"
+    # magyarázat: ha aktív HIGH a relé, a kikapcsolt szint legyen LOW; ha aktív LOW, legyen HIGH
+    GPIO.setup(PIN_RELAY, GPIO.OUT, initial=initial)
+
+
+def is_active(pin, active_low=True):
+    level = GPIO.input(pin)
+    return (level == GPIO.LOW) if active_low else (level == GPIO.HIGH)
+
+
+def set_relay(on: bool):
+    if RELAY_ACTIVE_HIGH:
+        GPIO.output(PIN_RELAY, GPIO.HIGH if on else GPIO.LOW)
+    else:
+        GPIO.output(PIN_RELAY, GPIO.LOW if on else GPIO.HIGH)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Egyszerű öntöző vezérlő – ADS1x15 + GPIO")
+    parser.add_argument("--start", type=float, default=START_PCT, help="Indítási küszöb (%%) – ez alá esve NYIT")
+    parser.add_argument("--stop",  type=float, default=STOP_PCT,  help="Leállítási küszöb (%%) – mind fölé érve ZÁR")
+    parser.add_argument("--dt",    type=float, default=INTERVAL_S, help="Mintavételi periódus (s)")
+    parser.add_argument("--iio",   type=str,   default=IIO_DEVICE_PATH, help="IIO eszköz elérési útja (ha üres, autodetekció)")
+    parser.add_argument("--oneshot", action="store_true", help="Egyszeri kiolvasás és kilépés (nem vezérel relét).")
+    args = parser.parse_args()
+
+    iio_dev = args.iio or autodetect_iio_device()
+    if not iio_dev or not os.path.isdir(iio_dev):
+        print("Nem találom az ADS IIO eszközt. Ellenőrizd, hogy az ADS1x15 driver és overlay aktív!", file=sys.stderr)
+        sys.exit(2)
+
+    setup_gpio()
+    watering = False
+
+    try:
+        while True:
+            ts = datetime.now().strftime("%H:%M:%S")
+            volts = []
+            pcts  = []
+            for idx, ch in enumerate(SOIL_CHANNELS):
+                raw, v = read_ads_channel(iio_dev, ch)
+                volts.append(v)
+                pct = v_to_percent(v, WET_V[idx], DRY_V[idx])
+                pcts.append(pct)
+            lower_active = is_active(PIN_LOWER, LOWER_ACTIVE_LOW)
+            upper_active = is_active(PIN_UPPER, UPPER_ACTIVE_LOW)
+
+            # Konzol kimenet
+            zones = " | ".join([f"Z{z}:{pcts[z]:5.1f}% ({volts[z]:.3f}V)" for z in range(len(SOIL_CHANNELS))])
+            msgs = []
+            if lower_active:
+                msgs.append("HORDÓ: TÖLTENI KELL")
+            if upper_active:
+                msgs.append("HORDÓ: SZIVATTYÚ KIKAPCSOLÁS KELL")
+            msg_str = (" ; ".join(msgs)) if msgs else "-"
+
+            # Vezérlés (hiszterézis)
+            any_below = any(p < args.start for p in pcts)
+            all_above = all(p >= args.stop for p in pcts)
+
+            if not args.oneshot:
+                if (not watering) and any_below:
+                    watering = True
+                    set_relay(True)
+                elif watering and all_above:
+                    watering = False
+                    set_relay(False)
+
+            state = "NYITVA" if watering else "ZÁRVA"
+            print(f"[{ts}] {zones}  |  SZELEP: {state}  |  {msg_str}")
+
+            if args.oneshot:
+                break
+            time.sleep(args.dt)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        set_relay(False)  # biztonságból zárjuk
+        GPIO.cleanup()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+### Használat
+
+1. Másold fájlba és futtathatóvá:
+
+```bash
+nano ontozo.py
+chmod +x ontozo.py
+```
+
+2. Futtatás (rootként ajánlott, hogy legyen GPIO hozzáférésed):
+
+```bash
+sudo ./ontozo.py
+```
+
+3. Opcionális paraméterek:
+
+* Egyszeri mérés (relé nélkül): `sudo ./ontozo.py --oneshot`
+* Küszöbök állítása: `sudo ./ontozo.py --start 30 --stop 45`
+* Időköz: `sudo ./ontozo.py --dt 5`
+
+4. **Kalibráció**
+   Száraz talaj – mérd a feszültséget (pl. `--oneshot`), írd be a zónához a `DRY_V`-be.
+   Vízbe dugott/erősen nedves talaj – írd be a `WET_V`-be.
+   Ha azt látod, hogy nedvesedésre csökken a feszültség, **cseréld fel** a két értéket (a kód automatikusan kezeli az irányt, csak a skálát add meg jól).
+
+5. **Úszókapcsolók huzalozás**
+   Tipikusan: egyik láb **GND**, másik **GPIO** (belső **PUD\_UP** aktív). Záráskor a GPIO **LOW** → ezért `*_ACTIVE_LOW=True`. Ha nálad fordított, állítsd `False`-ra.
+
+6. **Relé logika**
+   Ha a relémodulod **aktív LOW**, tedd `RELAY_ACTIVE_HIGH = False`-ra.
+
+---
+
+Ha kéred, adok hozzá **systemd szolgáltatás** egységfájlt is, vagy csinálok **naplófájlos** verziót és egyszerű CSV-logot a mérésekről.
+
+
+nagyon jo! orulok! de miert preferalod a python-t? en a c++ kodot jobban szeretnem, lehet?
+
+
+Érthető 👍 ha inkább **C++**-ban szeretnéd, meg tudjuk csinálni!
+Én Python-t ajánlottam először, mert:
+
+* Raspberry Pi-n a **GPIO és IIO fájlkezelés** gyorsan megoldható Pythonban.
+* Fejlesztési sebesség szempontjából egyszerűbb (gyors prototípus).
+* Sok példa és könyvtár van hozzá (pl. RPi.GPIO).
+
+De **C++-ban ugyanúgy** lehet – és Debian konzol programként még “natívabb” érzést ad.
+Én azt javaslom: **felhasználói térben, sysfs fájlok és GPIO chardev interfész** használatával.
+
+---
+
+### Példa C++ kód (egyszerű CLI, ugyanazt csinálja mint a Python)
+
+```cpp
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <thread>
+#include <csignal>
+#include <filesystem>
+#include <gpiod.h>   // libgpiod-dev kell
+using namespace std;
+
+static bool running = true;
+void sigint_handler(int) { running = false; }
+
+// ---------- Beállítások ----------
+const vector<int> SOIL_CHANNELS = {0,1,2,3};   // ADS1115 ch0..3
+const vector<double> WET_V  = {2.0,2.0,2.0,2.0};
+const vector<double> DRY_V  = {0.8,0.8,0.8,0.8};
+
+const double START_PCT = 30.0;
+const double STOP_PCT  = 45.0;
+const double INTERVAL_S = 5.0;
+
+// GPIO kiosztás (BCM)
+const int PIN_LOWER  = 17;
+const int PIN_UPPER  = 18;
+const int PIN_RELAY  = 27;
+
+const bool LOWER_ACTIVE_LOW = true;
+const bool UPPER_ACTIVE_LOW = true;
+const bool RELAY_ACTIVE_HIGH = true;
+// ---------------------------------
+
+string autodetect_iio() {
+    namespace fs = std::filesystem;
+    for (auto &d : fs::directory_iterator("/sys/bus/iio/devices")) {
+        string path = d.path();
+        ifstream f(path + "/name");
+        string name;
+        if (f && getline(f,name)) {
+            for (auto &c : name) c = tolower(c);
+            if (name.find("ads1115")!=string::npos || name.find("ads1015")!=string::npos)
+                return path;
+        }
+    }
+    // fallback: első iio device
+    for (auto &d : fs::directory_iterator("/sys/bus/iio/devices"))
+        return d.path();
+    return "";
+}
+
+pair<int,double> read_ads_channel(const string &iio_dev, int ch) {
+    string raw_path   = iio_dev + "/in_voltage" + to_string(ch) + "_raw";
+    string scale_path = iio_dev + "/in_voltage" + to_string(ch) + "_scale";
+    int raw=0; double scale=0;
+    ifstream f1(raw_path); f1>>raw;
+    ifstream f2(scale_path); f2>>scale;
+    return {raw, raw*scale};
+}
+
+double v_to_percent(double v, double wet, double dry) {
+    if (wet==dry) return 0;
+    double pct = 100.0 * (v-dry)/(wet-dry);
+    if (pct<0) pct=0; if (pct>100) pct=100;
+    return pct;
+}
+
+bool is_active(gpiod_line *line, bool active_low=true) {
+    int val = gpiod_line_get_value(line);
+    if (val<0) return false;
+    return active_low ? (val==0) : (val==1);
+}
+
+void set_relay(gpiod_line *line, bool on) {
+    if (RELAY_ACTIVE_HIGH)
+        gpiod_line_set_value(line, on?1:0);
+    else
+        gpiod_line_set_value(line, on?0:1);
+}
+
+int main() {
+    signal(SIGINT, sigint_handler);
+
+    string iio_dev = autodetect_iio();
+    if (iio_dev.empty()) {
+        cerr<<"Nem találom az ADS1115 IIO eszközt"<<endl;
+        return 1;
+    }
+
+    // libgpiod inicializálás
+    gpiod_chip *chip = gpiod_chip_open_by_number(0); // gpiochip0
+    if (!chip) { cerr<<"Nem nyílik meg gpiochip0"<<endl; return 2; }
+
+    gpiod_line *lower = gpiod_chip_get_line(chip, PIN_LOWER);
+    gpiod_line *upper = gpiod_chip_get_line(chip, PIN_UPPER);
+    gpiod_line *relay = gpiod_chip_get_line(chip, PIN_RELAY);
+
+    gpiod_line_request_input(lower, "ontozo");
+    gpiod_line_request_input(upper, "ontozo");
+    gpiod_line_request_output(relay, "ontozo", RELAY_ACTIVE_HIGH?0:1); // kezdetben kikapcs
+
+    bool watering=false;
+
+    while(running) {
+        vector<double> volts, pcts;
+        for (size_t i=0;i<SOIL_CHANNELS.size();++i) {
+            auto [raw,v] = read_ads_channel(iio_dev, SOIL_CHANNELS[i]);
+            volts.push_back(v);
+            pcts.push_back(v_to_percent(v, WET_V[i], DRY_V[i]));
+        }
+
+        bool lower_act = is_active(lower, LOWER_ACTIVE_LOW);
+        bool upper_act = is_active(upper, UPPER_ACTIVE_LOW);
+
+        bool any_below=false, all_above=true;
+        for (double p:pcts) {
+            if (p<START_PCT) any_below=true;
+            if (p<STOP_PCT) all_above=false;
+        }
+
+        if (!watering && any_below) {
+            watering=true; set_relay(relay,true);
+        } else if (watering && all_above) {
+            watering=false; set_relay(relay,false);
+        }
+
+        cout<<"["<<time(nullptr)<<"] ";
+        for (size_t i=0;i<pcts.size();++i)
+            cout<<"Z"<<i<<":"<<pcts[i]<<"%("<<volts[i]<<"V) ";
+        cout<<"| SZELEP:"<<(watering?"NYITVA":"ZARVA")<<" | ";
+        if (lower_act) cout<<"TÖLTENI KELL ";
+        if (upper_act) cout<<"SZIVATTYÚ KIKAPCSOLÁS KELL";
+        cout<<endl;
+
+        this_thread::sleep_for(chrono::milliseconds(int(INTERVAL_S*1000)));
+    }
+
+    set_relay(relay,false);
+    gpiod_chip_close(chip);
+    return 0;
+}
+```
+
+---
+
+### Fordítás
+
+Debian alatt kell a **libgpiod-dev**:
+
+```bash
+sudo apt install g++ libgpiod-dev
+g++ -std=c++17 ontozo.cpp -o ontozo
+```
+
+Futtatás rootként:
+
+```bash
+sudo ./ontozo
+```
+
+---
+
+👉 Ez a C++ verzió ugyanazt csinálja mint a Python, csak kicsit alacsonyabb szinten, és a **libgpiod** API-t használja a GPIO-hoz (a régi `/sys/class/gpio` már deprecated).
+Az **ADS1115** értékeket sysfs fájlon keresztül olvassa ki.
+
+---
+
+Szeretnéd, hogy adjak hozzá egy **systemd unit fájlt** is (hogy automatikusan induljon), vagy először csak a C++ kód tesztelését próbálod ki?
+
+
+
+
+jo lenne, ha csak orankent kb 10 meresbol atlagot csinalna, meresek kozott a hatterben aludna, log fajlt keszitene naponta egyet csv-t
+
+
+Szuper ötlet. Készítettem egy C++ verziót, ami **óránként** kb. **10 mérésből átlagol**, a mérések között **alszik**, és **naponként külön CSV logfájlt** ír. A vezérlés (szelep nyit/zár) az **órás átlag** alapján dönt, de a **felső úszó** riasztása azonnal felülír (azaz rögtön zár).
+
+---
+
+# ontozo\_hourly.cpp
+
+```cpp
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <thread>
+#include <csignal>
+#include <filesystem>
+#include <iomanip>
+#include <ctime>
+#include <gpiod.h>   // sudo apt install libgpiod-dev
+
+using namespace std;
+namespace fs = std::filesystem;
+
+static bool running = true;
+void sigint_handler(int){ running = false; }
+
+// ======= BEÁLLÍTÁSOK (igény szerint módosíthatók) =========================
+const vector<int> SOIL_CHANNELS = {0,1,2,3};   // ADS1115 ch0..3
+
+// Kalibráció (Volt): WET_V = „nagyon nedves”, DRY_V = „nagyon száraz”.
+// Ha nálad fordított az irány (nedvesedésre csökken a fesz), cseréld fel az értékeket.
+const vector<double> WET_V = {2.0,2.0,2.0,2.0};
+const vector<double> DRY_V = {0.8,0.8,0.8,0.8};
+
+// Hiszterézis küszöbök (%): START_PCT alatt indít, STOP_PCT felett áll le (átlag alapján).
+const double START_PCT = 30.0;
+const double STOP_PCT  = 45.0;
+
+// Óránként ennyi mintát gyűjtünk -> ezek átlaga alapján döntünk (10 -> ~6 percenkénti mérés)
+const int    SAMPLES_PER_HOUR = 10;
+
+// GPIO kiosztás (BCM)
+const int PIN_LOWER  = 17;   // alsó úszó (ha aktív: TÖLTENI KELL)
+const int PIN_UPPER  = 18;   // felső úszó (ha aktív: SZIVATTYÚ KIKAPCSOLÁS KELL -> azonnali ZÁR)
+const int PIN_RELAY  = 27;   // mágnesszelep relé
+
+// Úszók kapcsolási logikája (legtöbbször GND-re húznak záráskor -> aktív alacsony)
+const bool LOWER_ACTIVE_LOW = true;
+const bool UPPER_ACTIVE_LOW = true;
+
+// Relé logika: ha a modul aktív LOW, állítsd false-ra
+const bool RELAY_ACTIVE_HIGH = true;
+
+// Log könyvtár (naponként új csv): pl. /home/pi/ontozo/logs
+const string LOG_DIR = "/home/pi/ontozo/logs";
+// ========================================================================
+
+
+string autodetect_iio() {
+    for (auto &d : fs::directory_iterator("/sys/bus/iio/devices")) {
+        string path = d.path();
+        ifstream f(path + "/name");
+        string name;
+        if (f && getline(f,name)) {
+            for (auto &c : name) c = tolower(c);
+            if (name.find("ads1115")!=string::npos || name.find("ads1015")!=string::npos)
+                return path;
+        }
+    }
+    // fallback: első iio device
+    for (auto &d : fs::directory_iterator("/sys/bus/iio/devices"))
+        return d.path();
+    return "";
+}
+
+pair<int,double> read_ads_channel(const string &iio_dev, int ch) {
+    string raw_path   = iio_dev + "/in_voltage" + to_string(ch) + "_raw";
+    string scale_path = iio_dev + "/in_voltage" + to_string(ch) + "_scale";
+    int raw=0; double scale=0;
+    ifstream f1(raw_path); f1>>raw;
+    ifstream f2(scale_path); f2>>scale;
+    return {raw, raw*scale};
+}
+
+double v_to_percent(double v, double wet, double dry) {
+    if (wet==dry) return 0.0;
+    double pct = 100.0 * (v - dry) / (wet - dry); // kezeli az irányt is
+    if (pct < 0.0) pct = 0.0;
+    if (pct > 100.0) pct = 100.0;
+    return pct;
+}
+
+bool is_active(gpiod_line *line, bool active_low=true) {
+    int val = gpiod_line_get_value(line);
+    if (val < 0) return false; // hiba -> ne jelezz aktívnak
+    return active_low ? (val==0) : (val==1);
+}
+
+void set_relay(gpiod_line *line, bool on) {
+    if (RELAY_ACTIVE_HIGH)
+        gpiod_line_set_value(line, on?1:0);
+    else
+        gpiod_line_set_value(line, on?0:1);
+}
+
+string date_str(const std::tm &tm) {
+    char buf[16];
+    strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+    return string(buf);
+}
+
+string time_str(const std::tm &tm) {
+    char buf[16];
+    strftime(buf, sizeof(buf), "%H:%M:%S", &tm);
+    return string(buf);
+}
+
+ofstream open_daily_log(const string &dir, const std::tm &tm) {
+    fs::create_directories(dir);
+    string fname = dir + "/" + date_str(tm) + "_ontozo.csv";
+    bool new_file = !fs::exists(fname);
+    ofstream ofs(fname, ios::app);
+    if (!ofs) {
+        cerr << "Nem tudom nyitni a logot: " << fname << endl;
+        return ofs;
+    }
+    if (new_file) {
+        // fejléc: time, z0_v, z0_pct, z1_v, z1_pct, ..., lower, upper, valve
+        ofs << "time";
+        for (size_t i=0;i<SOIL_CHANNELS.size();++i) {
+            ofs << ",Z" << i << "_V" << ",Z" << i << "_pct";
+        }
+        ofs << ",lower_active,upper_active,valve_state\n";
+        ofs.flush();
+    }
+    return ofs;
+}
+
+int main() {
+    signal(SIGINT, sigint_handler);
+    signal(SIGTERM, sigint_handler);
+
+    string iio_dev = autodetect_iio();
+    if (iio_dev.empty()) {
+        cerr<<"Nem találom az ADS1115 IIO eszközt.\n";
+        return 1;
+    }
+
+    // libgpiod inicializálás
+    gpiod_chip *chip = gpiod_chip_open_by_number(0); // gpiochip0
+    if (!chip) { cerr<<"Nem nyílik meg gpiochip0\n"; return 2; }
+
+    gpiod_line *lower = gpiod_chip_get_line(chip, PIN_LOWER);
+    gpiod_line *upper = gpiod_chip_get_line(chip, PIN_UPPER);
+    gpiod_line *relay = gpiod_chip_get_line(chip, PIN_RELAY);
+
+    if (gpiod_line_request_input(lower, "ontozo") < 0 ||
+        gpiod_line_request_input(upper, "ontozo") < 0) {
+        cerr << "GPIO input request hiba\n";
+        return 3;
+    }
+    // kezdetben kikapcsolt relé
+    if (gpiod_line_request_output(relay, "ontozo", RELAY_ACTIVE_HIGH?0:1) < 0) {
+        cerr << "GPIO output request hiba\n";
+        return 4;
+    }
+
+    bool watering = false;                 // aktuális szelepállapot
+    const int sleep_ms = int(3600.0 / SAMPLES_PER_HOUR * 1000.0); // két minta között
+
+    // napló megnyitása
+    auto now = chrono::system_clock::now();
+    time_t tt = chrono::system_clock::to_time_t(now);
+    std::tm tm_now = *std::localtime(&tt);
+    string current_day = date_str(tm_now);
+    ofstream log = open_daily_log(LOG_DIR, tm_now);
+
+    // Óránkénti ciklus: folyamatosan gyűjtünk SAMPLES_PER_HOUR mintát,
+    // a végén átlagszámítás -> döntés -> log-sor
+    vector<vector<double>> volts_acc(SOIL_CHANNELS.size(), vector<double>());
+    vector<vector<double>> pct_acc  (SOIL_CHANNELS.size(), vector<double>());
+
+    int sample_in_hour = 0;
+
+    while (running) {
+        // új nap esetén váltunk fájlt
+        now = chrono::system_clock::now();
+        tt = chrono::system_clock::to_time_t(now);
+        tm_now = *std::localtime(&tt);
+        string day = date_str(tm_now);
+        if (day != current_day) {
+            if (log.is_open()) log.close();
+            log = open_daily_log(LOG_DIR, tm_now);
+            current_day = day;
+        }
+
+        // 1) mintavétel
+        vector<double> volts, pcts;
+        for (size_t i=0;i<SOIL_CHANNELS.size();++i) {
+            auto [raw, v] = read_ads_channel(iio_dev, SOIL_CHANNELS[i]);
+            volts.push_back(v);
+            pcts.push_back(v_to_percent(v, WET_V[i], DRY_V[i]));
+            volts_acc[i].push_back(v);
+            pct_acc[i].push_back(pcts[i]);
+        }
+
+        bool lower_act = is_active(lower, LOWER_ACTIVE_LOW);
+        bool upper_act = is_active(upper, UPPER_ACTIVE_LOW);
+
+        // 2) biztonsági azonnali zárás felső úszóra
+        if (upper_act && watering) {
+            watering = false;
+            set_relay(relay, false);
+        }
+
+        sample_in_hour++;
+
+        // 3) ha megvan az órás adag (pl. 10 minta) -> átlagolás + hiszterézises döntés
+        if (sample_in_hour >= SAMPLES_PER_HOUR) {
+            // átlag %
+            vector<double> avg_pct(SOIL_CHANNELS.size(), 0.0);
+            vector<double> avg_v  (SOIL_CHANNELS.size(), 0.0);
+            for (size_t i=0;i<SOIL_CHANNELS.size();++i) {
+                double sumv=0, sump=0;
+                for (double x : volts_acc[i]) sumv += x;
+                for (double x : pct_acc[i])   sump += x;
+                avg_v[i]   = sumv / max<size_t>(1, volts_acc[i].size());
+                avg_pct[i] = sump / max<size_t>(1, pct_acc[i].size());
+            }
+
+            // vezérlés (hiszterézis) – órás átlag alapján
+            bool any_below=false, all_above=true;
+            for (double p : avg_pct) {
+                if (p < START_PCT) any_below = true;
+                if (p < STOP_PCT)  all_above = false;
+            }
+            if (!watering && any_below && !upper_act) { // felső úszó aktív mellett ne nyissunk
+                watering = true;
+                set_relay(relay, true);
+            } else if (watering && all_above) {
+                watering = false;
+                set_relay(relay, false);
+            }
+
+            // 4) napló: órás sor (idő + zóna átlagok + úszók + szelep)
+            if (log) {
+                log << time_str(tm_now);
+                for (size_t i=0;i<SOIL_CHANNELS.size();++i) {
+                    log << "," << fixed << setprecision(3) << avg_v[i]
+                        << "," << fixed << setprecision(1) << avg_pct[i];
+                }
+                log << "," << (lower_act?1:0)
+                    << "," << (upper_act?1:0)
+                    << "," << (watering?1:0)
+                    << "\n";
+                log.flush();
+            }
+
+            // reset a következő órára
+            for (auto &v : volts_acc) v.clear();
+            for (auto &v : pct_acc)   v.clear();
+            sample_in_hour = 0;
+        }
+
+        // 5) alvás a következő mintáig
+        // ha közel leállítás (SIGINT/SIGTERM), rövidítve ébredünk
+        for (int i=0;i<sleep_ms/100; ++i) {
+            if (!running) break;
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+    }
+
+    // kilépés előtt szelep zár
+    set_relay(relay, false);
+    gpiod_chip_close(chip);
+    if (log.is_open()) log.close();
+    return 0;
+}
+```
+
+---
+
+## Fordítás és futtatás
+
+Telepítsd a függőséget, fordítsd le:
+
+```bash
+sudo apt update
+sudo apt install -y g++ libgpiod-dev
+g++ -std=c++17 ontozo_hourly.cpp -o ontozo_hourly
+```
+
+Ajánlott saját mappa és log könyvtár:
+
+```bash
+mkdir -p ~/ontozo/logs
+mv ontozo_hourly ~/ontozo/
+```
+
+Futtatás (GPIO miatt rootként):
+
+```bash
+sudo ~/ontozo/ontozo_hourly
+```
+
+A logok itt lesznek (alapból):
+`/home/pi/ontozo/logs/2025-08-26_ontozo.csv` stb. (dátum szerint).
+Fejléc:
+`time,Z0_V,Z0_pct,Z1_V,Z1_pct,Z2_V,Z2_pct,Z3_V,Z3_pct,lower_active,upper_active,valve_state`
+
+---
+
+## Opcionális: systemd szolgáltatás
+
+`/etc/systemd/system/ontozo.service`:
+
+```ini
+[Unit]
+Description=Ontozo vezerlo (ADS1115 + libgpiod, orankenti atlagolas)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+ExecStart=/home/pi/ontozo/ontozo_hourly
+Restart=always
+RestartSec=5
+# GPIO-hoz lehet, hogy root kell. Ha igen:
+# User=root
+# Group=root
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Majd:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ontozo.service
+sudo systemctl status ontozo.service
+```
+
+Ha root kell a GPIO-hoz, állítsd a szolgáltatásban `User=root`-ra.
+(Ha szeretnéd, adhatok egy **udev+gpio** jogosultság-variánst is, hogy ne kelljen root.)
+
+---
+
+## Finomhangolás tippek
+
+* **Mintaszám/sűrűség:** `SAMPLES_PER_HOUR` növelésével simább átlag, de több ébresztés.
+* **Küszöbök:** `START_PCT`, `STOP_PCT` finomhangolja a hiszterézist.
+* **Kalibráció:** töltsd ki a saját `WET_V` / `DRY_V` értékeidet csatornánként a szenzoraid alapján.
+* **Azonnali vészleállás:** felső úszó aktív → azonnali szelepzár, függetlenül az átlagtól.
+
+Ha szeretnéd, csinálok **parancssori opciós** verziót (pl. `--log-dir`, `--samples-per-hour`, `--start`, `--stop`), vagy kiegészítem **CSV-ben a nyers RAW** értékekkel is.
+
+
+
+

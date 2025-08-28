@@ -1,0 +1,227 @@
+
+
+hahah :D, mukodik! a total szaraz: 3000korul van, a viz: 670 korul van, tehat, ha a ch1-en egy kaktusz van, akkor annak milyen ertek kellhet? imre@rpiz2w2:~/ballonwheel/MESH/safranyHope/soil/bin $ sudo ./soil_samplev2.sh 
+[DEBUG] Measuring channel 0 (10 samples)...
+[DEBUG] ch=0 raw=54 scale=3.000000000
+[DEBUG] Sample 1 for ch0 = 162.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 2 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 3 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 4 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 5 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 6 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 7 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 8 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 9 for ch0 = 3234.000000
+[DEBUG] ch=0 raw=1078 scale=3.000000000
+[DEBUG] Sample 10 for ch0 = 3234.000000
+[DEBUG] Avg for ch0 = 2926.800000
+[DEBUG] Measuring channel 1 (10 samples)...
+[DEBUG] ch=1 raw=1078 scale=3.000000000
+[DEBUG] Sample 1 for ch1 = 3234.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 2 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 3 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 4 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 5 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 6 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 7 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 8 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 9 for ch1 = 1536.000000
+[DEBUG] ch=1 raw=512 scale=3.000000000
+[DEBUG] Sample 10 for ch1 = 1536.000000
+[DEBUG] Avg for ch1 = 1705.800000
+
+
+hah, király! 👍 A logból úgy tűnik, hogy a driver **scale=3.000000** (≈ 3 mV/LSB), tehát az értékeid nagyjából **millivoltban** értendők:
+
+* teljesen száraz \~**3000 mV**
+* “vízben” \~**670 mV**
+
+Ez pont az a karakterisztika, amit sok analóg talajnedvesség szenzor ad: **száraz → nagy fesz**, **nedves → kicsi fesz**.
+
+# Gyors kalibráció (a te számaidra)
+
+Használjunk 2 pontos kalibrációt csatornánként:
+
+* `DRY_mV = 3000`
+* `WET_mV = 670`
+* Terjedelem: `SPAN = DRY_mV - WET_mV = 2330`
+
+Definiáljunk “nedvesség %-ot” így (0% = száraz, 100% = nagyon nedves):
+
+```
+moist% = clamp( (DRY_mV - V) / SPAN * 100 , 0..100 )
+```
+
+ahol `V` az aktuális mért millivolt.
+
+# Kaktusz (ch1) – javasolt küszöbök + hiszterézis
+
+Kaktusznál inkább **nagyon száraz** talaj kell, így alacsony küszöbökkel dolgozunk:
+
+* **Öntözés indítás**: ha `moist% < ~12%`  → ez kb. **V ≥ 2720 mV**
+* **Öntözés leállítás**: ha `moist% ≥ ~28%` → ez kb. **V ≤ 2350 mV**
+
+Számolás:
+
+* 12%: `V_start = DRY - 0.12*SPAN = 3000 - 0.12*2330 ≈ 2720 mV`
+* 28%: `V_stop  = DRY - 0.28*SPAN = 3000 - 0.28*2330 ≈ 2350 mV`
+
+Így nem fog “cicergeni” (be-ki kapcsolgatni), mert van **hiszterézis** (2720 ↔ 2350 mV).
+
+# Bash beillesztés (ch1-hez)
+
+Dobj be egy kis segédfüggvényt a skriptbe, és a döntést is logold:
+
+```bash
+# kalibráció – csatornánként érdemes külön fájlban tartani
+DRY_1=3000
+WET_1=670
+SPAN_1=$((DRY_1 - WET_1))  # 2330
+
+moist_pct_ch1() {
+  local v_mV="$1"
+  python3 - <<PY
+dry=$DRY_1; wet=$WET_1; span=$SPAN_1; v=$v_mV
+pct = max(0.0, min(100.0, (dry - v) / span * 100.0))
+print(f"{pct:.1f}")
+PY
+}
+
+decide_cactus_ch1() {
+  local v_mV="$1"
+  local start=2720  # ~12%
+  local stop=2350   # ~28%
+  if (( v_mV >= start )); then
+    echo "WATER_ON"   # túl száraz -> indíts
+  elif (( v_mV <= stop )); then
+    echo "WATER_OFF"  # elég nedves -> állj le
+  else
+    echo "KEEP_STATE" # hiszterézis zóna
+  fi
+}
+```
+
+Használat a mérés után:
+
+```bash
+v1_mV=$(printf "%.0f\n" "$v1")  # kerekíts mV-ra
+p1=$(moist_pct_ch1 "$v1_mV")
+act=$(decide_cactus_ch1 "$v1_mV")
+>&2 echo "[DEBUG] ch1 cactus: V=${v1_mV}mV  moist=${p1}%  action=${act}"
+```
+
+# Pár fontos megjegyzés
+
+* **Szenzoronként kalibrálj!** Ugyanazon típusnál is lehet eltérés. A fenti DRY/WET jó kiinduló, de érdemes **azonos cserép, azonos föld** mellett bemérni.
+* **Nedves ≠ vízben:** a 670 mV “vízben” érték alacsonyabb, mint a reális “nedves föld”. Emiatt a valós 100% földnedvesség közelebb lesz mondjuk 900–1200 mV-hoz. Ha van türelmed, adj meg egy **WET\_SOIL** pontot is, és arra kalibrálj.
+* **Szűrés:** jó ötlet a mostani 10 mintás átlag, plusz érdemes **mediánt** venni az esetleges tüskék ellen (ha kell, adok gyors median filtert Bash/Pythonba).
+* **Időtartam-feltétel:** praktikus, ha az “indítás/leállítás” feltétel **N egymást követő cikluson** is fennáll (pl. 5–10 perc), így a zaj nem billent át.
+
+Ha szeretnéd, átalakítom a teljes skriptet úgy, hogy **per-csatorna kalibrációs INI/CSV**-ből olvassa a `DRY/WET` értékeket és a küszöböket, és kinyom egy **WATER\_ON/OFF** döntést GPIO-ra (mágnesszelep).
+
+
+
+
+vitorla viragra ugyanezt, kerlek ch0-n : imre@rpiz2w2:~/ballonwheel/MESH/safranyHope/soil/bin $ sudo ./soil_samplev2.sh 
+[DEBUG] Measuring channel 0 (10 samples)...
+[DEBUG] ch=0 raw=54 scale=3.000000000
+[DEBUG] Sample 1 for ch0 = 162.000000
+[DEBUG] ch=0 raw=229 scale=3.000000000
+[DEBUG] Sample 2 for ch0 = 687.000000
+[DEBUG] ch=0 raw=242 scale=3.000000000
+[DEBUG] Sample 3 for ch0 = 726.000000
+[DEBUG] ch=0 raw=251 scale=3.000000000
+[DEBUG] Sample 4 for ch0 = 753.000000
+[DEBUG] ch=0 raw=259 scale=3.000000000
+[DEBUG] Sample 5 for ch0 = 777.000000
+[DEBUG] ch=0 raw=265 scale=3.000000000
+[DEBUG] Sample 6 for ch0 = 795.000000
+[DEBUG] ch=0 raw=271 scale=3.000000000
+[DEBUG] Sample 7 for ch0 = 813.000000
+[DEBUG] ch=0 raw=276 scale=3.000000000
+[DEBUG] Sample 8 for ch0 = 828.000000
+[DEBUG] ch=0 raw=280 scale=3.000000000
+[DEBUG] Sample 9 for ch0 = 840.000000
+[DEBUG] ch=0 raw=284 scale=3.000000000
+[DEBUG] Sample 10 for ch0 = 852.000000
+[DEBUG] Avg for ch0 = 723.300000
+
+
+
+
+szupi! a ch0 átlag **\~723 mV**, ami a mi (durva) DRY=3000 / WET=670 skálán **nagyon nedves** (kb. 98%).
+A **vitorlavirág** (Spathiphyllum) szereti a folyamatosan **enyhén nedves** közeget, de a „tocsogós” állapot gyökérrothadást okozhat. Állítsunk be konzervatív hiszterézist:
+
+* **Öntözés indítás (szárazodik):** `V_start ≈ 2115 mV` (≈ 38% nedvesség)
+* **Öntözés leállítás (elég nedves):** `V_stop  ≈ 1510 mV` (≈ 64% nedvesség)
+
+A mostani **723 mV** ez alá esik → **OFF** (ne öntözz).
+
+### Bash kiegészítés ch0-ra (vitorlavirág)
+
+Dobd ezeket a függvényeket a scriptedbe (a ch1-kaktusz mellé), és hívd meg a mérés után:
+
+```bash
+# --- ch0: vitorlavirág kalibráció ---
+DRY_0=3000
+WET_0=670
+SPAN_0=$((DRY_0 - WET_0))  # 2330
+
+moist_pct_ch0() {
+  local v_mV="$1"
+  python3 - <<PY
+dry=$DRY_0; wet=$WET_0; span=$SPAN_0; v=$v_mV
+pct = max(0.0, min(100.0, (dry - v) / span * 100.0))
+print(f"{pct:.1f}")
+PY
+}
+
+# vitorlavirág: enyhén nedves tartományt célzunk
+decide_spathiphyllum_ch0() {
+  local v_mV="$1"
+  local start=2115   # ~38% -> szárazodik, induljon az öntözés
+  local stop=1510    # ~64% -> már elég nedves, álljon le
+  if (( v_mV >= start )); then
+    echo "WATER_ON"
+  elif (( v_mV <= stop )); then
+    echo "WATER_OFF"
+  else
+    echo "KEEP_STATE"  # hiszterézis sáv
+  fi
+}
+```
+
+Használat a mérések után:
+
+```bash
+v0_mV=$(printf "%.0f\n" "$v0")
+p0=$(moist_pct_ch0 "$v0_mV")
+act0=$(decide_spathiphyllum_ch0 "$v0_mV")
+>&2 echo "[DEBUG] ch0 vitorlavirag: V=${v0_mV}mV  moist=${p0}%  action=${act0}"
+```
+
+#### Tipp (később finomhangolás)
+
+A WET=670 mV „vízben” pont nagyon alacsony; a **“jó nedves föld”** sokszor inkább **900–1200 mV** körül van. Ha lesz kedved, mérj egy **WET\_SOIL** pontot (pl. alapos öntözés után 30–60 perccel), és arra hangoljuk a százalékot/küszöböket még pontosabbra.
+
+
+
+
+
+

@@ -1,0 +1,524 @@
+jo ez joez, de inkabb nem egy monolit programban gondolkodok, 
+hanem egy lego szeru darabokbl epitkezni; tehat hasznalni a kernelben levo ads1015-ot az ads1115-hez, 
+elegendo csak bash szkript es letrlni log fajlba; egy masik szkript pedig idonkent feltolti szerverre: itt jon a kerdes: 
+lesz vps s 5db raspberrry pi zero2w, ebbol az egyik a szerver, ahol egy nagyon egyszeru adatbazist kellene kezelni; 
+jo lenne a tuya homeroket is bele integralni....hogyan lehet ezt, mik a lehetosegek?
+
+
+
+
+
+
+
+Szuper irány: “lego-szerű” kis komponensek, semmi monolit. Alább egy bevált, nagyon könnyű architektúra, konkrét parancsokkal és mintaszkriptekkel.
+
+# 1) ADS1115 olvasás a kernel IIO-val (ads1015 driver)
+
+A `ads1015` kernelmodul támogatja az ADS1115-öt is, tehát jó vagy.
+
+**/boot/firmware/config.txt** (Raspberry Pi OS/Debian Bookworm-on hasonló):
+
+```
+dtoverlay=ads1015,addr=0x48,chan0_cfg=0,chan1_cfg=0,chan2_cfg=0,chan3_cfg=0
+```
+
+> (Ha több ADC vagy más cím: `addr=0x49` stb.)
+
+Újraindítás után ellenőrzés:
+
+```bash
+ls /sys/bus/iio/devices/iio:device*/name
+# várhatóan: ti-ads1015
+```
+
+**Olvasás (nyers + scale):**
+
+```bash
+D=/sys/bus/iio/devices/iio:device0
+cat $D/in_voltage0_raw
+cat $D/in_voltage0_scale   # volt/LSB
+```
+
+Feszültség \[V] = `raw * scale`. (Az ADS1115-nél a felbontás és a gain beállítások a driver csatorna configtól is függenek; a fenti overlay csatornánként “single-ended” default.)
+
+# 2) Óránkénti mérés: 10 minta átlag, CSV log naponta
+
+## 2.1 Mintaszkript – mérés és logolás
+
+`/usr/local/bin/soil_sample.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+D="/sys/bus/iio/devices/iio:device0"
+OUTDIR="/var/log/soil"
+mkdir -p "$OUTDIR"
+CSV="$OUTDIR/$(date +%F).csv"
+
+# ha még nincs fejléc:
+[ -s "$CSV" ] || echo "timestamp,volt0,volt1,volt2,volt3" >> "$CSV"
+
+read_v() {
+  local ch="$1"
+  local raw scale
+  raw=$(cat "$D/in_voltage${ch}_raw")
+  scale=$(cat "$D/in_voltage${ch}_scale")
+  python3 - <<PY
+r=$raw
+s=$scale
+print(f"{r*s:.6f}")
+PY
+}
+
+avg_channel() {
+  local ch="$1" n=10 sum=0
+  for _ in $(seq 1 $n); do
+    v=$(read_v "$ch")
+    # bc helyett python:
+    sum=$(python3 - <<PY
+a=$sum
+b=$v
+print(a+b)
+PY
+)
+    sleep 2
+  done
+  python3 - <<PY
+print(f"{ $sum / 10 :.6f}")
+PY
+}
+
+ts="$(date -Is)"
+v0=$(avg_channel 0)
+v1=$(avg_channel 1)
+v2=$(avg_channel 2)
+v3=$(avg_channel 3)
+
+echo "$ts,$v0,$v1,$v2,$v3" >> "$CSV"
+```
+
+Jogosítás:
+
+```bash
+sudo chmod +x /usr/local/bin/soil_sample.sh
+```
+
+## 2.2 systemd timer óránként
+
+`/etc/systemd/system/soil-sample.service`:
+
+```ini
+[Unit]
+Description=Soil ADC hourly sampler
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/soil_sample.sh
+```
+
+`/etc/systemd/system/soil-sample.timer`:
+
+```ini
+[Unit]
+Description=Run soil sampler hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+Aktiválás:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now soil-sample.timer
+```
+
+# 3) Feltöltés a “központi” szerverre (VPS vagy a 6. RPi)
+
+Három minimalista opció—válaszd, ami szimpatikus:
+
+## A) Egyszerű rsync/scp (CSV fájlok szinkronja)
+
+Előny: csak SSH kell.
+A terepi Pi-ken:
+
+```bash
+# SSH kulcs + known_hosts rendben
+/usr/bin/rsync -a --partial --inplace /var/log/soil/ user@vps:/srv/soil_logs/$(hostname)/
+```
+
+Timer:
+`/etc/systemd/system/soil-upload.service`:
+
+```ini
+[Unit]
+Description=Upload soil logs
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rsync -a --partial --inplace /var/log/soil/ user@vps:/srv/soil_logs/%H/
+```
+
+`/etc/systemd/system/soil-upload.timer`:
+
+```ini
+[Timer]
+OnCalendar=*:15
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+> Így negyedóránként tolod fel, akár reverse-SSH tunnelen át is.
+
+## B) MQTT (Mosquitto) – “lego-busz” minden szenzornak
+
+Előny: nagyon laza csatolás, Tuya/Tasmota/OpenBeken könnyen illeszthető.
+
+* VPS/“szerver” RPi: `mosquitto` broker.
+* Minden terepi Pi publikál:
+
+```bash
+topic="sites/$(hostname)/soil"
+payload=$(tail -n1 /var/log/soil/$(date +%F).csv)
+mosquitto_pub -h vps -t "$topic" -m "$payload"
+```
+
+* Szerveren egy kis fogyasztó ír SQLite-ba (lásd lent).
+
+## C) Egyszerű HTTP ingest (curl POST)
+
+* Szerveren mini HTTP végpont (pl. Python Flask vagy cgi-bin bash), ami a kapott sort hozzáfűzi egy központi CSV-hez vagy ír SQLite-ba.
+* Terepi oldalon:
+
+```bash
+curl -fsS -X POST https://vps/ingest \
+  -H 'Content-Type: text/csv' \
+  --data-binary @<(tail -n1 /var/log/soil/$(date +%F).csv)
+```
+
+# 4) Központi, “nagyon egyszerű” adatbázis
+
+A legkisebb súly: **SQLite** (egy fájl, egyszerű, megbízható).
+**Séma példa:**
+
+```sql
+CREATE TABLE IF NOT EXISTS soil (
+  site TEXT,
+  ts   TEXT,   -- ISO8601
+  v0   REAL, v1 REAL, v2 REAL, v3 REAL
+);
+CREATE INDEX IF NOT EXISTS soil_ts ON soil(ts);
+CREATE INDEX IF NOT EXISTS soil_site ON soil(site);
+```
+
+## 4.1 MQTT → SQLite kis “cső”
+
+`/usr/local/bin/mqtt_to_sqlite.sh` (szerver):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+DB="/srv/soil.db"
+BROKER="localhost"
+TOPIC="sites/+/soil"
+
+sqlite3 "$DB" 'CREATE TABLE IF NOT EXISTS soil (site TEXT, ts TEXT, v0 REAL, v1 REAL, v2 REAL, v3 REAL);'
+
+mosquitto_sub -h "$BROKER" -t "$TOPIC" -v | while IFS= read -r line; do
+  # line: "sites/host1/soil timestamp,v0,v1,v2,v3"
+  topic="${line%% *}"
+  data="${line#* }"
+  site=$(echo "$topic" | awk -F'/' '{print $2}')
+  IFS=',' read -r ts v0 v1 v2 v3 <<< "$data"
+  sqlite3 "$DB" "INSERT INTO soil VALUES ('$site','$ts',$v0,$v1,$v2,$v3);"
+done
+```
+
+Szolgáltatásként futtasd (systemd service), és kész.
+
+## 4.2 rsync CSV → SQLite import
+
+Ha rsync-elsz CSV-ket, akkor egy cron/systemd job a szerveren beolvassa:
+
+```bash
+for d in /srv/soil_logs/*; do
+  site=$(basename "$d")
+  for f in "$d"/*.csv; do
+    tail -n +2 "$f" | while IFS=',' read -r ts v0 v1 v2 v3; do
+      sqlite3 /srv/soil.db "INSERT INTO soil VALUES ('$site','$ts',$v0,$v1,$v2,$v3);"
+    done
+  done
+done
+```
+
+# 5) Tuya hőmérők integrálása (helyi, egyszerűen)
+
+Attól függ, milyen Tuya eszközök (Wi-Fi vs Zigbee). Minimal invazív utak:
+
+## 5.1 Ha Wi-Fi Tuya és nem akarsz HA-t:
+
+* **TinyTuya** (Python) – helyi LAN lekérdezéshez szükség van a **Device ID + Local Key** adatokra. Ezeket egyszer megszerzed (Tuya IoT platform vagy telefon backup trükkök), utána LAN-on tudsz olvasni cloud nélkül.
+* Mintaszkript (5 percenként query → MQTT vagy közvetlen SQLite):
+
+  * `tinytuya` kiolvassa a `temperature`, `humidity` DP-ket,
+  * `mosquitto_pub` a `sites/<host>/tuya/<dev>` topikra küldi.
+
+## 5.2 Ha Zigbee Tuya:
+
+* **zigbee2mqtt** + koordinator dongle → az eszközök MQTT-re kirakják az állapotot. Innentől ugyanaz a pipeline mehet a SQLite felé (mint a soilnál).
+
+## 5.3 Ha már amúgy is OpenBeken/Tasmota érdekel:
+
+* Flash után natív **MQTT** publikáció lesz, semmi extra kliens nem kell. Ez hosszú távon a legkisebb karbantartás.
+
+**Példa MQTT → SQLite Tuya táblára:**
+
+```sql
+CREATE TABLE IF NOT EXISTS tuya (
+  site TEXT,
+  dev  TEXT,
+  ts   TEXT,
+  temp REAL,
+  hum  REAL,
+  batt REAL
+);
+```
+
+Kollektor scriptben a JSON-t feldarabolod és INSERT.
+
+# 6) Reverse SSH / hálózat
+
+* Minden terepi Pi csinálhat **autossh** reverse tunnel-t a VPS-re, így a VPS-ről elérhető az összes Pi (akár rsync, akár MQTT-hez nem kell, mert az broker-központú).
+* Biztonság: csak kulcsos SSH, `AllowUsers`, fail2ban a VPS-en, Mosquitto-hoz user/jelszó vagy mTLS.
+
+# 7) Vizualizáció (opcionális, pehelysúly)
+
+* **gnuplot** + statikus PNG-k cronból (nagyon “Unix-os”),
+* vagy **Grafana** (van SQLite datasource plugin is, de ez extra),
+* vagy egy kis Python script `matplotlib`-pel, ami óránként PNG-t frissít, és nginx kiszolgálja.
+
+# 8) Összefoglaló döntési fa
+
+* **Legkevesebb mozgórész:** CSV + rsync → SQLite import a szerveren.
+* **Legmodulárisabb/lego:** MQTT (Mosquitto), minden producer (ADS1115, Tuya) publikál, szerveren 1 kis “collector” ír SQLite-ba.
+* **Cloud nélkül Tuya:** TinyTuya (Wi-Fi) vagy zigbee2mqtt (Zigbee).
+* **Hosszú távon legkevesebb gond Tuya-val:** OpenBeken/Tasmota + MQTT.
+
+---
+
+Ha szeretnéd, adok **kész**:
+
+* `tinytuya` alapú Tuya-puller szkriptet (MQTT-re vagy SQLite-ba),
+* `mosquitto` + `mqtt_to_sqlite.service` systemd unitokat,
+* és egy minimál Flask ingest példát a C) opcióhoz.
+
+
+
+
+
+
+5.3-at nem ertem teljesen
+
+
+
+Oké, bontsuk le a 5.3-at „lépésről-lépésre”, hogy érthető és reprodukálható legyen. A cél: Tuya **Wi-Fi** eszközre (CB2S/CB3S – BK7231N/T vagy TYWE2S/3S – ESP8266) **OpenBeken** (BK7231) vagy **Tasmota** (ESP8266) kerül, majd **MQTT-n** küldi a hőmérséklet/páratartalom adatot a központi brokerre → onnan megy SQLite-ba, ahogy írtam.
+
+# 0) Gyors döntési fa
+
+* Ha a panelen ilyen modul van: **CB2S / CB3S / WB2S / WB3S / BK7231** → **OpenBeken**.
+* Ha a panelen: **TYWE2S / TYWE3S / ESP-xx** → **Tasmota**.
+* Ha **Zigbee** (TS0201 stb.) → ez nem ide tartozik (zigbee2mqtt kell).
+
+# 1) Biztonság, szerszámok
+
+* **230 V!** Csak áramtalanítva nyiss meg bármit.
+* Kell: kis csavarhúzó, forrasztópáka (vagy pogo pin), USB-TTL átalakító **3.3 V** (soha ne 5 V!), pár jumper vezeték.
+
+# 2) Soros (UART) pontok megtalálása
+
+A legtöbb Tuya Wi-Fi modulon 4–5 pad:
+
+* **3V3**, **GND**, **TX**, **RX** (néha **IO0/BOOT** vagy **RST** is).
+  A panelen gyakran feliratozva van (GND, RX, TX, 3V3). Ha kétséges, fotó és megnézzük együtt.
+
+Kapcsolás USB-TTL ↔ modul:
+
+* USB-TTL **TX → RX** (modul),
+* USB-TTL **RX → TX** (modul),
+* **GND ↔ GND**,
+* **3V3 ↔ 3V3** (csak ha a modulról le van választva a hálózati táp!).
+  **Soha** ne legyen egyszerre hálózati táp és USB-TTL!
+
+# 3A) OpenBeken (BK7231) flash (CB2S/CB3S/WBxS)
+
+1. Helyezd **bootloader módba** (BK7231):
+
+   * Sok eszközön elég **RST** lenyom → bekapcs → elenged; ha nem, akkor az adott padot (BOOT) GND-re húzni indításkor.
+2. PC-n (Linux) telepítsd a flasher scriptet (ha nincs): `python3 -m pip install hid-download` (vagy gyártó eszköze).
+3. Írd fel a megfelelő **OpenBeken** bin fájlt (BK7231T vagy BK7231N variáns!). Parancs jellemzően:
+
+   ```
+   hid_download_py --chip BK7231T --port /dev/ttyUSB0 --baud 115200 --write openbk7231t_1.XX.X.bin
+   ```
+
+   (BK7231N esetén `--chip BK7231N` és a hozzá való bin.)
+4. Újraindítás után a modul **Wi-Fi AP-t** hoz létre: `OpenBK_XXXX`.
+5. Csatlakozz rá, böngésző: `http://192.168.4.1` → állítsd be a **Wi-Fi**-t (SSID, jelszó), majd **MQTT**-t:
+
+   * Host: a VPS/RPi szerver IP/host
+   * Port: 1883
+   * Client/Topic prefix pl.: `sites/<hely>/tuya/<eszkoz>`
+   * User/Pass ha van Mosquitto auth
+6. **Template / Pin roles**: eszköztípustól függ.
+
+   * Sok Tuya hőmérő I²C szenzort használ (**SHT3x, AHT10/20, BME280**).
+   * Állíts be két lábat I²C-nek (SDA/SCL), mentsd, eszköz újraindul → **Driver autodetect** gyakran felismeri a szenzort.
+   * A **Web UI → Logs**-ban látod, ha megtalálta: onnantól a **Main** oldalon megjelenik `Temperature`, `Humidity`.
+7. MQTT-n megjelenő üzenetek: pl.
+
+   * Topic: `sites/tisza/tuya/nappali/tele/SENSOR` (vagy amit a beállításnál választottál)
+   * Payload (JSON): `{"Temperature": 24.5, "Humidity": 51.2, "Battery": 93}`
+     (A pontos topic naming OpenBekenben testre szabható; az a lényeg, hogy stabil, gépbarát legyen.)
+
+# 3B) Tasmota (ESP8266 – TYWE2S/3S) röviden
+
+1. **esptool.py**-val soros flash:
+
+   ```
+   esptool.py --port /dev/ttyUSB0 erase_flash
+   esptool.py --port /dev/ttyUSB0 write_flash -fm dout 0x0 tasmota.bin
+   ```
+2. AP: `tasmota-XXXX` → `192.168.4.1` → Wi-Fi, majd MQTT.
+3. Eszköz „Module/Template” a szenzorhoz (I²C SDA/SCL, BME280/SHT3x).
+4. Tasmota telemetria: `tele/<dev>/SENSOR` JSON (temp, hum, battery).
+
+# 4) Broker (Mosquitto) és gyors teszt
+
+Szerveren fut a **mosquitto**. Teszteld:
+
+```bash
+mosquitto_sub -h <broker> -t 'sites/#' -v
+```
+
+Ha látsz JSON telemetriát, kész is a „lego” fele.
+
+# 5) Bedrótozás a meglévő SQLite csőbe
+
+A korábbi `mqtt_to_sqlite.sh`-t kicsit bővítsd, hogy a Tuya/OpenBeken JSON-t is beolvassa:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+DB="/srv/soil.db"
+BROKER="localhost"
+# soil és tuya
+TOPICS=("sites/+/soil" "sites/+/tuya/#")
+
+sqlite3 "$DB" 'CREATE TABLE IF NOT EXISTS tuya (site TEXT, dev TEXT, ts TEXT, temp REAL, hum REAL, batt REAL);'
+
+mosquitto_sub -h "$BROKER" -v -t "${TOPICS[0]}" -t "${TOPICS[1]}" | \
+while IFS= read -r line; do
+  topic="${line%% *}"
+  data="${line#* }"
+  IFS='/' read -r _ sites site kind dev rest <<< "$topic"
+
+  if [[ "$kind" == "soil" ]]; then
+    # régi CSV sor (timestamp,v0,v1,v2,v3) – ezt már megcsináltuk korábban
+    :
+  else
+    # Tuya/OpenBeken JSON
+    ts=$(date -Is)
+    temp=$(echo "$data" | jq -r '.Temperature // .temperature // empty')
+    hum=$(echo  "$data" | jq -r '.Humidity // .humidity // empty')
+    batt=$(echo "$data" | jq -r '.Battery // .battery // empty')
+    dev="${dev:-unknown}"
+
+    # Csak akkor írjunk, ha van legalább hőmérséklet v. páratartalom
+    if [[ -n "${temp:-}" || -n "${hum:-}" ]]; then
+      sqlite3 "$DB" "INSERT INTO tuya VALUES ('$site','$dev','$ts',${temp:-NULL},${hum:-NULL},${batt:-NULL});"
+    fi
+  fi
+done
+```
+
+> Kell `jq` a JSON-hoz: `sudo apt-get install jq`.
+
+# 6) Tipikus buktatók és tippek
+
+* **3.3 V szint**: USB-TTL is 3.3 V-os legyen. 5 V kinyírhatja a modult.
+* **Mains**: Soha ne legyen a hálózati táp csatlakoztatva, miközben a soros programozót rádugod.
+* **BK7231 T vs N**: mindig a megfelelő OpenBeken bin-t használd.
+* **I²C lábak**: ha nem jön szenzor, lehet, hogy felcserélted SDA/SCL-t, vagy más pinek kellenek.
+* **MQTT auth**: Mosquitto-ban user/pass, esetleg mTLS; a terepi eszközöknek csak publish joga legyen.
+* **Topic séma**: előre döntsd el (`sites/<site>/tuya/<dev>/tele`), hogy a collector script egyszerű legyen.
+
+---
+
+Ha megírod, **melyik konkrét Tuya hőmérő** (fotó a panelről is oké: modul felirata), akkor adok **konkrét pin-kiosztást**, a pontos **OpenBeken bin** linknevét és a kész **MQTT/Template** beállításokat hozzá.
+
+
+
+
+
+
+
+
+most az nem vilagos, hogy muszaj FLASH-helni masik kodot?
+
+
+
+
+
+Nem, **nem muszáj** flashelni másik firmware-t.
+Két fő út van:
+
+---
+
+## 1) Meghagyod a gyári Tuya firmware-t
+
+* **Előny**: nincs szétszedés, forrasztás, villogtatás.
+* **Hátrány**: a Tuya alapból **cloudra** dolgozik → a mobilappal és a Tuya szerverekkel beszél.
+* Ha **csak a saját LAN-on** akarod használni, akkor kell egy kis trükk:
+
+  * **TinyTuya** (Python könyvtár): lekérdezi az eszközt a helyi hálón, ha megszerzed az eszköz **Device ID + LocalKey** párosát.
+    Ezeket vagy a Tuya IoT Console-ból, vagy pl. az app backupjából lehet kinyerni.
+  * Akkor nem kell semmit flashelni, a Pi-dről tudsz óránként scriptből adatot kérni, és azt beírod a SQLite/MQTT rendszeredbe.
+* Példa:
+
+  ```python
+  import tinytuya
+  d = tinytuya.OutletDevice('DEVICE_ID', '192.168.1.55', 'LOCAL_KEY')
+  d.set_version(3.3)
+  data = d.status()
+  print(data)
+  ```
+
+  A `data` JSON-ban ott a hőmérséklet/páratartalom is, attól függően milyen DP-t ad az eszköz.
+
+---
+
+## 2) Átflasheled OpenBeken/Tasmotára
+
+* **Előny**: nincs cloud, **közvetlen MQTT** támogatás, hosszú távon “lego-szerűbb”.
+* **Hátrány**: szétszedés, forrasztás, új firmware írás → kicsit több munka, és ha félremegy, “téglásíthatod” az eszközt.
+
+---
+
+### Gyakorlati döntési fa
+
+* Ha gyorsan akarsz integrálni, és nem baj, hogy kicsit bonyolult a LocalKey megszerzése → **TinyTuya út**, nincs flash.
+* Ha biztosan hosszú távon stabil, cloud-független rendszert akarsz, és nem zavar a hardveres munka → **OpenBeken/Tasmota flash**.
+
+---
+
+Szeretnéd, hogy írjak egy **TinyTuya + SQLite/MQTT példát** (flash nélkül), ami ugyanabba a “lego” adatgyűjtő pipeline-ba illeszthető, mint a talajnedvesség?
+
+
+
+

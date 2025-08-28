@@ -1,0 +1,56 @@
+
+
+
+Értem 👍 — teljesen jogos, hogy inkább a **saját repo**-dban tartanád a kódot, nem akarod a `/usr/local/bin`-t teleszórni.
+
+A `/usr/local/bin/…` azért volt jó példának, mert ott szokás a *globálisan elérhető* (PATH-ban lévő) saját scripteket tárolni. De ha te verziókövetésben dolgozol (git), akkor érdemes a struktúrát úgy kialakítani, hogy:
+
+### Javasolt repo-struktúra
+
+```
+~/repos/irrigation/
+ ├── bin/
+ │    └── soil_sample.sh
+ ├── systemd/
+ │    ├── soil-sample.service
+ │    └── soil-sample.timer
+ ├── data/
+ │    └── (ide írod a logokat / csv-ket)
+ └── README.md
+```
+
+### Hogyan illeszd be a systemd-hez?
+
+A systemd unitban ne közvetlen `/usr/local/bin/soil_sample.sh`-re hivatkozz, hanem a saját repódra:
+
+`soil-sample.service`:
+
+```ini
+[Unit]
+Description=Soil ADC hourly sampler
+
+[Service]
+Type=oneshot
+ExecStart=/home/imre/repos/irrigation/bin/soil_sample.sh
+WorkingDirectory=/home/imre/repos/irrigation
+```
+
+Majd a unit fájlokat **symlinkeld** az `/etc/systemd/system/` alá:
+
+```bash
+sudo ln -s /home/imre/repos/irrigation/systemd/soil-sample.service /etc/systemd/system/
+sudo ln -s /home/imre/repos/irrigation/systemd/soil-sample.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now soil-sample.timer
+```
+
+### Előnyök
+
+* Minden kódod **git alatt** van, verziózható.
+* Ha több Pi-re telepítenéd, egyszerűen `git pull` és `systemctl daemon-reload`.
+* Nem keveredik a “saját” kódod a rendszer globális `/usr/local/bin` szintjén.
+
+---
+
+👉 Kérdés: szeretnéd, hogy csináljak neked egy **példa-repo layoutot** (git init, bin/, systemd/, data/), kész `Makefile`-lal, ami telepíti a symlinkeket?
+

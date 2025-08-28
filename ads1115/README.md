@@ -3,6 +3,12 @@ ADC 16bit 860sps i2c 4singleEnded 3.3V
 
 https://www.ti.com/lit/ds/symlink/ads1115.pdf
 
+bekotes:
+SD kartya felul es "eszaki" iranyba nez, akkor bal felso csati az 1. lab e mellette a 2.
+3.3 1 2 5V 
+SDA 3 4 5V
+SCL 5 6 GND
+
 A cel, hogy kiprobaljam a soros(i2c) ADC illesztesi lehetosegeket es, 
 
 hogy milyen olvasasi sebesseg erheto el konnyen, egyszeruen..
