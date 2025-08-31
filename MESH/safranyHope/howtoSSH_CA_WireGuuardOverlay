@@ -1,0 +1,472 @@
+
+
+
+
+
+Szuper – akkor álljunk át “SSH CA + WireGuard overlay” architektúrára. Alább egy teljes, lépésről-lépésre kivitelezhető terv Debian/RPi Zero 2 W + egy VPS (pl. Rackhost) környezetre, 10 gépre (rpiz2w1…rpiz2w10). Minden parancs rootként (vagy sudo-val).
+
+# 0) Célkép
+
+* **WireGuard**: teljes-mesh a VPS-en át (hub-and-spoke). Privát háló: `10.7.0.0/24`.
+
+  * VPS (hub): `10.7.0.1`
+  * kliensek: `10.7.0.11…10.7.0.20`
+* **SSH CA**:
+
+  * Saját **User CA** aláíró kulcs → user kulcsok hitelesítése (principalokkal).
+  * Saját **Host CA** aláíró kulcs → host kulcsok hitelesítése (@cert.pub).
+  * **KRL** (Key Revocation List) visszavonásokhoz.
+  * A klienseken az `/etc/ssh/ssh_known_hosts` a Host CA-t fogadja el, a szervereken az `/etc/ssh/sshd_config` a User CA-t.
+
+---
+
+# 1) Előkészítés: CA kulcsok és trust-repo
+
+Válassz ki egy **offline** (vagy jól védett) admin gépet “CA-hostnak”.
+
+```bash
+# 1.1: könyvtárstruktúra
+mkdir -p ~/ssh-ca/{user_ca,host_ca,krl,dist}
+chmod 700 ~/ssh-ca
+
+# 1.2: CA kulcsok
+ssh-keygen -t ed25519 -f ~/ssh-ca/user_ca/ca -N "" -C "user-ca@yourdomain"
+ssh-keygen -t ed25519 -f ~/ssh-ca/host_ca/ca -N "" -C "host-ca@yourdomain"
+
+# 1.3: kezdeti üres KRL
+ssh-keygen -k -f ~/ssh-ca/krl/cluster.krl
+```
+
+Készíts egy **git bare** repót a VPS-en (Trust Bundle terítéséhez):
+
+```bash
+# VPS-en
+mkdir -p /opt/ssh-trust && cd /opt/ssh-trust
+git init --bare
+```
+
+CA-hoston egy munka-repo:
+
+```bash
+# CA-hoston
+mkdir -p ~/trust-bundle && cd ~/trust-bundle
+git init
+mkdir -p etc/ssh
+# terítendő fájlok:
+# - etc/ssh/trusted_user_ca.pub
+# - etc/ssh/trusted_host_ca.pub
+# - etc/ssh/cluster.krl
+# - etc/ssh/ssh_known_hosts (Host CA bejegyzéssel)
+cp ~/ssh-ca/user_ca/ca.pub etc/ssh/trusted_user_ca.pub
+cp ~/ssh-ca/host_ca/ca.pub etc/ssh/trusted_host_ca.pub
+cp ~/ssh-ca/krl/cluster.krl etc/ssh/cluster.krl
+# ssh_known_hosts (Host CA formátum):
+echo "@cert-authority * $(cat ~/ssh-ca/host_ca/ca.pub)" > etc/ssh/ssh_known_hosts
+
+git add .
+git commit -m "init trust bundle"
+git remote add origin ssh://root@<VPS_IP>/opt/ssh-trust
+git push -u origin master
+```
+
+---
+
+# 2) WireGuard overlay
+
+## 2.1 VPS (hub) telepítés
+
+```bash
+apt-get update && apt-get install -y wireguard qrencode
+wg genkey | tee /etc/wireguard/server.key | wg pubkey > /etc/wireguard/server.key.pub
+chmod 600 /etc/wireguard/server.key
+```
+
+`/etc/wireguard/wg0.conf`:
+
+```ini
+[Interface]
+Address = 10.7.0.1/24
+ListenPort = 51820
+PrivateKey = <cat /etc/wireguard/server.key>
+# NAT (ha kell kifelé)
+PostUp = iptables -t nat -A POSTROUTING -s 10.7.0.0/24 -o eth0 -j MASQUERADE
+PostDown = iptables -t nat -D POSTROUTING -s 10.7.0.0/24 -o eth0 -j MASQUERADE
+```
+
+Engedélyezés:
+
+```bash
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/^#\?net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+systemctl enable wg-quick@wg0
+systemctl start wg-quick@wg0
+```
+
+## 2.2 Kliensek (rpiz2w1…10)
+
+Minden kliencen:
+
+```bash
+apt-get update && apt-get install -y wireguard
+wg genkey | tee /etc/wireguard/client.key | wg pubkey > /etc/wireguard/client.key.pub
+chmod 600 /etc/wireguard/client.key
+```
+
+Válassz IP-t: rpiz2w1 → `10.7.0.11`, rpiz2w2 → `10.7.0.12`, … rpiz2w10 → `10.7.0.20`.
+
+`/etc/wireguard/wg0.conf` (példa rpiz2w1-hez):
+
+```ini
+[Interface]
+Address = 10.7.0.11/24
+PrivateKey = <cat /etc/wireguard/client.key>
+DNS = 1.1.1.1
+# opcionális: Keepalive a NAT mögött
+# PostUp/Down nem kell klienshez általában
+
+[Peer]
+PublicKey = <VPS /etc/wireguard/server.key.pub tartalma>
+Endpoint = <VPS_PUBLIC_IP>:51820
+AllowedIPs = 10.7.0.0/24
+PersistentKeepalive = 25
+```
+
+A VPS-en minden klienshez add hozzá a peert:
+
+```bash
+# VPS-en, ismételd mind a 10 kliensre
+wg set wg0 peer <CLIENT_PUBKEY> allowed-ips 10.7.0.11/32
+# majd mentéshez:
+wg-quick save wg0
+```
+
+Klienseken induljon:
+
+```bash
+systemctl enable wg-quick@wg0
+systemctl start wg-quick@wg0
+```
+
+Teszt:
+
+```bash
+# kliensen
+ping -c2 10.7.0.1
+# másik kliens:
+ping -c2 10.7.0.12
+```
+
+---
+
+# 3) SSH Host kulcsok tanúsítványozása (Host CA)
+
+Minden gépen legyen **Host key** (van alapból), és generálunk **host certet** a CA-hoston.
+
+## 3.1 Host kulcs begyűjtése
+
+Gépen:
+
+```bash
+# tipikus host public key-k:
+ls /etc/ssh/ssh_host_*_key.pub
+# pl.:
+cat /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+Másold vissza a CA-hostra, vagy használd `ssh-keyscan -T 5 <host>` a host pubkulcs lekérésére.
+
+## 3.2 Aláírás Host CA-val
+
+CA-hoston (példa rpiz2w1):
+
+```bash
+ssh-keygen -s ~/ssh-ca/host_ca/ca \
+  -I rpiz2w1-host-2025 \
+  -h \
+  -n rpiz2w1,10.7.0.11 \
+  -V +365d \
+  -z 1001 \
+  /path/to/ssh_host_ed25519_key.pub
+# eredmény: ssh_host_ed25519_key-cert.pub
+```
+
+Tedd vissza a cél gépre: `/etc/ssh/ssh_host_ed25519_key-cert.pub`
+
+## 3.3 sshd\_config beállítása host tanúsítványra
+
+Minden gépen az `/etc/ssh/sshd_config`-ban (vagy drop-in):
+
+```conf
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
+# KRL (felhasználói kulcsok visszavonásához a szerveren is megadhatod, lásd később)
+RevokedKeys /etc/ssh/cluster.krl
+```
+
+Majd:
+
+```bash
+systemctl reload ssh
+```
+
+---
+
+# 4) User CA használata (felhasználói kulcsok tanúsítványozása)
+
+## 4.1 Felhasználói kulcs
+
+Az egyes felhasználók saját gépükön:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "imre@rpiz2w2"
+```
+
+A `~/.ssh/id_ed25519.pub`-ot elküldik a **CA-hostnak**.
+
+## 4.2 Aláírás User CA-val principalokkal
+
+Vezessünk **principalokat** (szerepköröket): pl. `admin`, `ops`, `svc`.
+Gép-szintű korlátozásra hostnév principal is adható (pl. `rpiz2w1`).
+
+CA-hoston (példa: admin jog az egész klaszterre, 90 nap érvényesség):
+
+```bash
+ssh-keygen -s ~/ssh-ca/user_ca/ca \
+  -I imre-admin-2025Q3 \
+  -n admin \
+  -V +90d \
+  -z 5001 \
+  /path/to/imre_id_ed25519.pub
+# kapod: imre_id_ed25519-cert.pub
+```
+
+Korlátozott user csak 1-2 hoston:
+
+```bash
+ssh-keygen -s ~/ssh-ca/user_ca/ca \
+  -I svc-reporter \
+  -n svc,rpiz2w3,rpiz2w5 \
+  -V +30d \
+  -z 5002 \
+  /path/to/svc_id_ed25519.pub
+```
+
+## 4.3 Szerver oldali SSHD beállítás: TrustedUserCAKeys + principalok
+
+Minden **szerveren**:
+
+1. A **Trust Bundle** lehúzása (git-ből):
+
+```bash
+apt-get install -y git
+git clone ssh://root@<VPS_IP>/opt/ssh-trust /opt/ssh-trust-work
+rsync -a /opt/ssh-trust-work/etc/ssh/ /etc/ssh/
+# ismételhető pull: cd /opt/ssh-trust-work && git pull && rsync -a etc/ssh/ /etc/ssh/
+```
+
+2. `sshd_config`:
+
+```conf
+# a már meglévők mellett:
+TrustedUserCAKeys /etc/ssh/trusted_user_ca.pub
+AuthorizedPrincipalsFile /etc/ssh/authorized_principals/%u
+RevokedKeys /etc/ssh/cluster.krl
+
+# javasolt szigorítások:
+PubkeyAuthentication yes
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
+UsePAM yes
+```
+
+3. Principalok kiosztása felhasználónként:
+
+```bash
+mkdir -p /etc/ssh/authorized_principals
+# pl. felhasználó: imre → admin jog az összes hoston
+echo "admin" > /etc/ssh/authorized_principals/imre
+chown -R root:root /etc/ssh/authorized_principals
+chmod 755 /etc/ssh
+chmod 755 /etc/ssh/authorized_principals
+chmod 644 /etc/ssh/authorized_principals/imre
+
+systemctl reload ssh
+```
+
+## 4.4 Kliens oldali SSH config (Host CA elfogadása)
+
+Minden kliensen (és az admin gépen) a `~/.ssh/config`:
+
+```sshconfig
+Host *.wg
+    User imre
+    IdentityFile ~/.ssh/id_ed25519
+    # Host CA elfogadása (trust bundle-ből jön globális szinten is)
+    GlobalKnownHostsFile /etc/ssh/ssh_known_hosts
+    StrictHostKeyChecking=yes
+
+# Példa hostok:
+Host rpiz2w1.wg
+    HostName 10.7.0.11
+Host rpiz2w2.wg
+    HostName 10.7.0.12
+```
+
+A gépeken az `/etc/ssh/ssh_known_hosts` már tartalmazza:
+
+```
+@cert-authority * ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... host-ca@yourdomain
+```
+
+Ettől kezdve a **host key checking** a Host CA alapján megy, nem kell egyenként known\_hosts-ot kezelni.
+
+---
+
+# 5) Visszavonás (KRL), rotáció
+
+## 5.1 Kulcs visszavonása
+
+CA-hoston add hozzá a visszavonandó kulcs pubját a KRL-hez:
+
+```bash
+# például user kulcs (vagy cert serial alapján)
+ssh-keygen -k -f ~/ssh-ca/krl/cluster.krl -u -s ~/ssh-ca/user_ca/ca /path/to/revoke_this_key.pub
+```
+
+Majd frissítsd a trust bundle-t:
+
+```bash
+cp ~/ssh-ca/krl/cluster.krl ~/trust-bundle/etc/ssh/cluster.krl
+cd ~/trust-bundle
+git add etc/ssh/cluster.krl
+git commit -m "revoke key X"
+git push
+```
+
+A szervereken futtasd időnként (cron) vagy manuálisan:
+
+```bash
+cd /opt/ssh-trust-work && git pull && rsync -a etc/ssh/ /etc/ssh/ && systemctl reload ssh
+```
+
+## 5.2 Tanúsítvány-rotáció
+
+* **Rövid lejárat** (30–90 nap) → elveszett kulcsok kockázata csökken.
+* Újrakiadás: ugyanígy `ssh-keygen -s … -V +90d -z <új serial>` és a user lecseréli a `*-cert.pub` fájlt.
+
+---
+
+# 6) Migráció a meglévő kulcsokról
+
+1. **Első kör**: a szervereken engedélyezve marad a sima `PubkeyAuthentication`, a User CA mellé.
+2. Kiadod a tanúsítványokat (user + host).
+3. Mindenhol kipróbáljátok a CA-s belépést:
+
+   ```bash
+   ssh -i ~/.ssh/id_ed25519 imre@rpiz2w3.wg
+   ```
+4. Ha minden rendben, **tiltsd le a plain pubkey-t** és kényszerítsd a principal-alapú CA hitelesítést (opcionális, haladó: `AuthorizedKeysFile none` + `AuthenticationMethods publickey` és csak CA-s certet fogadunk `TrustedUserCAKeys` alapján).
+
+---
+
+# 7) Automatikus terítés (egy egyszerű bootstrap)
+
+Készíts egy rövid bootstrap scriptet az új gépekre:
+
+```bash
+cat >/usr/local/sbin/bootstrap-trust.sh <<'EOF'
+#!/bin/sh
+set -e
+apt-get update
+apt-get install -y git
+if [ ! -d /opt/ssh-trust-work ]; then
+  git clone ssh://root@<VPS_IP>/opt/ssh-trust /opt/ssh-trust-work
+else
+  cd /opt/ssh-trust-work && git pull
+fi
+rsync -a /opt/ssh-trust-work/etc/ssh/ /etc/ssh/
+# biztosítsuk, hogy a host cert be van állítva (ha már legeneráltad és feltöltötted)
+systemctl reload ssh || systemctl restart ssh
+EOF
+chmod +x /usr/local/sbin/bootstrap-trust.sh
+/usr/local/sbin/bootstrap-trust.sh
+```
+
+Ezt később cronból is futtathatod (pl. óránként `git pull` + `rsync` + `reload`).
+
+---
+
+# 8) Tűzfal & biztonság
+
+* VPS-en engedd a `51820/udp` WireGuard-ot és **zárd** az SSH publikus portot IP-re szűkítve, vagy tedd SSH-t csak a WG IP-kre (pl. `sshd_config` `ListenAddress 10.7.0.1`).
+* Klienseken SSH csak a WG interfészen (pl. `ListenAddress 10.7.0.11`).
+* Fail2ban (opcionális), `PasswordAuthentication no`, `PermitRootLogin prohibit-password` (vagy `no` ha már van admin user).
+* CA privát kulcsokat **offline** mentsd, titkos archiválás (age/pgp), több példányban.
+
+---
+
+# 9) Gyors parancs-gyűjtemény
+
+* **Új kliens WireGuard peer a VPS-re**:
+
+  ```bash
+  wg set wg0 peer <CLIENT_PUB> allowed-ips 10.7.0.X/32 && wg-quick save wg0
+  ```
+* **Host cert kiadás**:
+
+  ```bash
+  ssh-keygen -s ~/ssh-ca/host_ca/ca -I <host>-host-<date> -h -n <host>,<ip> -V +365d -z <serial> /path/ssh_host_ed25519_key.pub
+  ```
+* **User cert kiadás**:
+
+  ```bash
+  ssh-keygen -s ~/ssh-ca/user_ca/ca -I <user>-<role>-<date> -n <principal1,principal2> -V +90d -z <serial> /path/user_id_ed25519.pub
+  ```
+* **KRL frissítés**:
+
+  ```bash
+  ssh-keygen -k -f ~/ssh-ca/krl/cluster.krl -u -s ~/ssh-ca/user_ca/ca /path/revoked.pub
+  ```
+
+---
+
+# 10) Javasolt kiosztás (példa a 10 gépre)
+
+| Host     | WG IP     | Principals (hostcert -n)  |
+| -------- | --------- | ------------------------- |
+| rpiz2w1  | 10.7.0.11 | `rpiz2w1,10.7.0.11`       |
+| rpiz2w2  | 10.7.0.12 | `rpiz2w2,10.7.0.12`       |
+| …        | …         | …                         |
+| rpiz2w10 | 10.7.0.20 | `rpiz2w10,10.7.0.20`      |
+| VPS      | 10.7.0.1  | `vps,10.7.0.1,<vps_fqdn>` |
+
+Felhasználókhoz:
+
+* `imre` → principal: `admin`
+* szolgáltatás user → principal: `svc` (+ esetleg adott hostnevek, ha korlátozni akarod)
+
+---
+
+# 11) GitOps jellegű kezelés
+
+* **Trust Bundle** (CA pubok, KRL, ssh\_known\_hosts) egy git repóban → minden hoston pull + rsync.
+* CA privát kulcs **nincs** a repo-ban, csak az offline CA-hoston.
+
+---
+
+# 12) Tipikus hibák
+
+* **“unknown certificate”**: a szerveren nincs `TrustedUserCAKeys` jó helyre mutatva, vagy a user cert lejárt.
+* **Host key mismatch**: a kliensen nincs @cert-authority bejegyzés (`/etc/ssh/ssh_known_hosts`).
+* **WG nem jön fel**: port 51820/udp nincs nyitva, vagy NAT/endpoint IP téves.
+* **Principals reject**: a szerveren az `/etc/ssh/authorized_principals/<user>` nem tartalmazza a user certben lévő principal(oka)t.
+
+---
+
+Ha szeretnéd, adok hozzá **konkrét fájlokat** a 10 hostodra (kész `wg0.conf`-ok, `sshd_config` drop-inek, és egy kis `Makefile` a host/user cert kiadáshoz). Szólj, és legenerálom az alap sablonokat az általad használt pontos hostnevekkel/IP-kkel.
+
+
+
+
+

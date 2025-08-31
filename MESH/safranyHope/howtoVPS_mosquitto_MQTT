@@ -1,6 +1,154 @@
 
-jah, nem mondtam, h VPS-t hasznalok: #2 #4 #5 vannak tiszafureden es #3 #1 #6 vannak ohegyen, reverse ssh-t szeretne'k hasznalni es a VPS csak kozvetit, hogyan jutok el ide? valtozk valami a fentiekbol?
 
+
+
+attekintes:
+Tök jogos a zavar — tisztázzuk röviden:
+
+## Fogalmak (itt nálunk)
+
+* **MQTT broker = szerver**: a **Mosquitto démon** (service) fut **#3-as RPi-n**. Ő a központ.
+* **MQTT kliens = publisher/subscriber**: az **#1, #2, #4, #5, #6** gépek (és akár #3 is mint mérő) csak **mosquitto-clients**-et használnak (`mosquitto_pub`, `mosquitto_sub`). NEM fut rajtuk Mosquitto démon.
+* **SSH -R (reverse)**: #3 felhúz egy visszacsatornát a VPS-re → a VPS **loopback** portja (127.0.0.1:31883) **átmutat** #3:1883-ra (a brokerre).
+* **SSH -L (local forward)**: a kliensek (#1,2,4,5,6) a saját gépükön nyitnak **127.0.0.1:18883**-at, ami a VPS 127.0.0.1:31883-ára megy → onnan #3:1883-ra.
+
+ASCII vázlat:
+
+```
+#3 (broker: mosquitto:1883)
+   └─SSH -R→ VPS:127.0.0.1:31883  (csak loopbackon hallgat)
+
+#1,#2,#4,#5,#6 (kliens gépek)
+   └─SSH -L→ 127.0.0.1:18883 → VPS:127.0.0.1:31883 → #3:1883
+                  ^ ezen a helyi por ton pub/sub-olnak a kliensek
+```
+
+A korábbi unit neve “autossh-**broker-forward**.service” félreérthető volt (mintha a broker futna a kliensen). Hívd inkább:
+
+* **#3-on**: `autossh-mqtt-reverse.service`  (mert -R)
+* **klienseken**: `autossh-mqtt-forward.service` (mert -L)
+
+## Mit hol telepítesz?
+
+* **#3 (szerver)**: `mosquitto` + `mosquitto-clients` + ACL/jelszó, és **reverse tunnel** (-R).
+* **VPS**: csak **SSH** (AllowTcpForwarding yes). Nem fut mosquitto.
+* **#1,#2,#4,#5,#6 (kliensek)**: **csak** `mosquitto-clients` + **local forward** (-L). NINCS mosquitto démon.
+
+## Példák (végleges, érthető nevekkel)
+
+### #3 (broker gép, Óhegy)
+
+Mosquitto + reverse tunnel:
+
+```ini
+# /etc/systemd/system/autossh-mqtt-reverse.service
+[Unit]
+Description=Reverse SSH: VPS:127.0.0.1:31883 -> rpi3:1883
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=AUTOSSH_GATETIME=0
+User=imre
+ExecStart=/usr/bin/autossh -M 0 -N \
+  -o ExitOnForwardFailure=yes \
+  -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+  -R 127.0.0.1:31883:localhost:1883 \
+  relay@<VPS_HOST_OR_IP>
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Indítás:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now autossh-mqtt-reverse.service
+# VPS-en ellenőrzés:
+ssh relay@<VPS> "ss -ltnp | grep 31883"
+```
+
+### Kliens gépek (#1, #2, #4, #5, #6)
+
+Local forward (helyi 18883 → VPS:31883):
+
+```ini
+# /etc/systemd/system/autossh-mqtt-forward.service
+[Unit]
+Description=Local SSH tunnel to MQTT broker via VPS (127.0.0.1:18883 -> VPS:127.0.0.1:31883 -> rpi3:1883)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=AUTOSSH_GATETIME=0
+User=imre
+ExecStart=/usr/bin/autossh -M 0 -N \
+  -o ExitOnForwardFailure=yes \
+  -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+  -L 127.0.0.1:18883:127.0.0.1:31883 \
+  relay@<VPS_HOST_OR_IP>
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Indítás + teszt:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now autossh-mqtt-forward.service
+ss -ltnp | grep 18883   # LISTEN-nek kell lennie
+
+# innentől a KLIENS ezen a gépen így éri el a BROKERT:
+mosquitto_pub -h 127.0.0.1 -p 18883 -u rpi1 -P '<jelszo>' \
+  -t 'sites/tisza/rpi1/test' -m 'hello'
+```
+
+### Publish script (klienseken)
+
+```bash
+BROKER_HOST="127.0.0.1"
+BROKER_PORT=18883
+USER="$(hostname)"               # pl. rpi1
+PASS_FILE="/etc/soil_mqtt_pass"  # ide tetted a jelszót
+mosquitto_pub -h "$BROKER_HOST" -p "$BROKER_PORT" \
+  -u "$USER" -P "$(cat "$PASS_FILE")" \
+  -t "sites/tisza/${USER}/soil" -m "$line" -r
+```
+
+### Collector (#3-on)
+
+A collector a **helyi** brokerre csatlakozik (1883), külön `collector` userrel:
+
+```bash
+mosquitto_sub -h localhost -p 1883 -u collector -P "$(cat /etc/mqtt_collector_pass)" \
+  -v -t "sites/tisza/+/soil" -t "sites/tisza/+/tuya/#" | while read -r line; do
+  ...
+done
+```
+
+## Gyorsteszt-sorrend (három lépés)
+
+1. **#3 → VPS reverse** él?
+   `ssh relay@<VPS> "ss -ltnp | grep 31883"`
+2. **Kliens #X → VPS local forward** él?
+   `ss -ltnp | grep 18883`
+3. **Pub/Sub megy a kliensen 127.0.0.1:18883-ra?**
+   `mosquitto_pub …` majd `mosquitto_sub …` ugyanarra a prefixre.
+
+Így a „broker” szó mindig a #3-on futó **Mosquitto szervert** jelenti; a klienseken csak **tunnel** és **mosquitto-clients** van. Ha szeretnéd, átnevezem neked az összes korábbi unit-mintát ezekre a tiszta nevekre egyben.
+
+
+
+
+***********
+
+jah, nem mondtam, h VPS-t hasznalok: #2 #4 #5 vannak tiszafureden es #3 #1 #6 vannak ohegyen, reverse ssh-t szeretne'k hasznalni es a VPS csak kozvetit, hogyan jutok el ide? valtozk valami a fentiekbol?
 
 
 
