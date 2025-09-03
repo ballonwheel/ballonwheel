@@ -1,0 +1,7 @@
+
+
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+ssh-copy-id -i ~/.ssh/id_ed25519.pub relay@<VPS_HOSTNAME_VAGY_IP>
+ssh-keyscan -H <VPS_HOSTNAME_VAGY_IP> >> ~/.ssh/known_hosts
+sudo apt-get install -y autossh
+

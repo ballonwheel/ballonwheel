@@ -125,4 +125,53 @@ Would you like a script that sets up a hardened SSH config with custom port, key
 
 
 
+ez miert is nem erzekeny adat? (csak a privat kulcs az erzekeny, ami a generalo gepen van, aki be akar lepni) ; az ssh egy iranyu? ha vki lecsereli a sszervert az adott ip cimen es tudja a pu kulcsot, akkor ne mtud visszajonni a gepemre,
+
+
+Röviden:
+
+* **A publikus kulcs nem érzékeny**: az SSH pont úgy van tervezve, hogy a publikus felet bárki láthatja. A szerver ezt csak **ellenőrzésre** használja (aláírást ellenőriz), belépni **csak a privát kulccsal** lehet (azzal készül az aláírás). A publikus kulcs ismeretéből a privát nem számolható vissza (pl. Ed25519, RSA 2048+ esetén gyakorlatilag nem).
+
+* **SSH nem “egyirányú”**: két külön hitelesítés van:
+
+  1. **Szerver → kliens**: a kliens a szerver **host kulcsát** ellenőrzi (fingerprint/known\_hosts).
+  2. **Kliens → szerver**: a kliens a **privát kulcsával** bizonyít (a szerver az ehhez tartozó **publikus kulccsal** ellenőriz).
+
+* **Mi van, ha valaki “lecseréli” a szervert azon az IP-n és ismeri a publikus kulcsodat?**
+
+  * **Nem tud bejutni a gépedre** csak attól, hogy ismeri a publikus kulcsodat. Ahhoz a **privát** kulcsod kellene.
+  * Amit viszont el tud érni, ha te óvatlan vagy: **MITM/fake szerver**. Ha elfogadod a **rossz host key-t**, a támadó *szerverként* beszél veled. Ekkor:
+
+    * Ha jelszót használsz, **lehalászhatja**.
+    * Ha **Agent forwarding** be van kapcsolva, az üresjáratban a támadó **felhasználhatja az agentedet** más szerverek felé *amíg a kapcsolat él* (privát kulcsot nem lop el, de aláírást kérhet).
+  * Ezek megelőzhetők: mindig ellenőrizd a host fingerprintet, **ne** használj általánosan agent forwardot.
+
+* **Miért oké GitHubról behúzni a kulcsot (`ssh-import-id gh:felhasznalo`)?**
+  Mert ez is **publikus kulcs** (GitHub `.keys` végponton). Biztonságilag rendben van. Egyetlen “kockázat”: **privát szféra/nyomkövethetőség** — ha **ugyanazt a kulcsot** használod mindenhol, adminok látják, hogy ugyanaz a “személy” lép be több gépre. Ha ez gond, használj **külön kulcspárokat** (gépenként/szerep szerint), és a .pub végén a comment legyen semleges.
+
+### Gyors best practice-ok
+
+* **Ed25519** kulcs, **jelszóval (passphrase)** védve.
+* **Host key ellenőrzés**: első csatlakozás előtt kérj fingerprintet az admintól, és hasonlítsd:
+
+  ```bash
+  # szerveren (admin futtatja):
+  ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub
+  ```
+* `~/.ssh/config`:
+
+  ```sshconfig
+  Host szerver
+    HostName example.com
+    User imre
+    IdentitiesOnly yes
+    ForwardAgent no
+    StrictHostKeyChecking yes
+  ```
+* Agent forwardot csak célzottan, ideiglenesen: `ssh -A` helyett inkább **tunnel/Jumphost** vagy `ProxyJump`.
+
+**Összegzés:** a **publikus** kulcs nem titok; nyugodtan megosztható, akár GitHubon is. A veszélyt nem ez, hanem a **rossz szerver host key elfogadása** és az **agent forwarding** indokolatlan használata jelenti.
+
+
+
 

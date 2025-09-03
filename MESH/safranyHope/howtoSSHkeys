@@ -1,0 +1,57 @@
+
+
+
+
+
+Igen — **CLI-ről a GitHub-ra** így (nem a `git`, hanem a **GitHub CLI `gh`** kell hozzá):
+
+### 1) Kulcspár (ha még nincs)
+
+```bash
+ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519_rpiz2w2 -C "imre@rpiz2w2 2025-08"
+```
+
+### 2) Jelentkezz be a GitHub CLI-val
+
+```bash
+gh auth login
+# GitHub.com → SSH → (kövesd a promptot)
+```
+
+### 3) Publikus kulcs feltöltése GitHubra (profilodhoz)
+
+```bash
+gh ssh-key add ~/.ssh/id_ed25519_rpiz2w2.pub -t "rpiz2w2"
+```
+
+### 4) Ellenőrzés
+
+```bash
+gh ssh-key list
+curl -s https://github.com/<GitHubFelhasznalo>.keys
+```
+
+Ha az utóbbi visszaadja a kulcsod sorát, a kolléga már tudja használni:
+
+```bash
+ssh-import-id gh:<GitHubFelhasznalo>
+# vagy:
+curl -fsSL https://github.com/<GitHubFelhasznalo>.keys >> ~/.ssh/authorized_keys
+```
+
+---
+
+## Ha nincs `gh`, csak “nyers” CLI:
+
+Használhatod a GitHub API-t **curl**-lal és egy **PAT**-tel (Personal Access Token – minimum “admin\:public\_key” scope):
+
+```bash
+KEY="$(cat ~/.ssh/id_ed25519_rpiz2w2.pub)"
+TITLE="rpiz2w2"
+curl -u "<GitHubFelhasznalo>:<PAT>" \
+  -H "Accept: application/vnd.github+json" \
+  https://api.github.com/user/keys \
+  -d "{\"title\":\"$TITLE\",\"key\":\"$KEY\"}"
+```
+
+Ennyi. Fontos: **csak a `.pub`** fájlt töltsd fel, a privát kulcsot soha.

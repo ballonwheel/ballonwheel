@@ -1,5 +1,6 @@
 Tobb helyszinen Rasp pi zero2w, debian, cli, vpn szolgaltatok, hogy ne kelljen publikus ip
 
+(kozben jobb tippet lasd lejebb: ha 10 gep mindenki el akar erni mindenkit, akkor a CA-t javasolja, lasd lentebb)
 
 Értem 👍 több helyszínen szeretnél **Raspberry Pi Zero 2 W** gépeket futtatni (Debian CLI), és az a cél, hogy **ne kelljen publikus IP-címet kérni/nyitni**, hanem VPN-en keresztül tudd őket elérni.
 
@@ -667,6 +668,145 @@ apt install logwatch -y
 Kérdés: szeretnéd, hogy írjak egy **egyszerű parancs-sorrendet (script-szerűen)**, amit copy-paste módszerrel végigfuttathatsz Rackhost VPS-en, és ezzel meglesz a fenti hardening alapbeállítás?
 
 
+
+
+***************************************************
+**************************************************
+Röviden: 10 gépnél a legkevesebb szívással és a legjobb skálázhatósággal az **OpenSSH-tanúsítványok (SSH CA)** + egy **VPN overlay** (én ma már WireGuardot ajánlok) a nyerő.
+
+* **SSH CA** → nem kell minden gép minden pub kulcsát minden másikra másolni (N² káosz). Egyetlen “hitelesítő kulcsból” (CA) aláírod a felhasználói és a gép- (host-) kulcsokat, és minden gép csak a CA-t bízza meg.
+* **VPN** (WireGuard / Tailscale / Headscale / OpenVPN) → minden gép privát IP-t kap; az SSH csak ezen a belső hálón hallgasson.
+* **Reverse SSH** csak akkor kell, ha nincs VPN és NAT mögül egy *központi* szervert akarsz elérni – “mindenki-mindenkivel” topológiához nem jó, nagyon gyorsan kezelhetetlenné válik.
+
+---
+
+## Ajánlott architektúra (gyakorlati)
+
+1. **Hálózat:**
+
+* Tegyél fel **WireGuard**-ot (vagy Tailscale/Headscale). Legyen egy központi hub (akár a Rackhost VPS), minden Pi/PC rácsatlakozik.
+* Adj privát /32 IP-t mindenkinek (pl. `10.66.0.0/24`).
+* Az SSH csak ezen az interfészen figyeljen: `sshd_config` → `ListenAddress 10.66.0.X`.
+
+2. **Kulcskezelés SSH CA-val:**
+   A. **CA kulcsok létrehozása** (egy *offline* admin gépen):
+
+```bash
+mkdir -m 700 ~/ssh-ca
+ssh-keygen -t ed25519 -f ~/ssh-ca/user_ca -C "user-ca"
+ssh-keygen -t ed25519 -f ~/ssh-ca/host_ca -C "host-ca"
+```
+
+B. **A user CA megbíztatása** (minden szerveren):
+
+* Másold fel a CA publikus kulcsát: `/etc/ssh/user_ca.pub`.
+* `sshd_config` kiegészítés:
+
+```
+PubkeyAuthentication yes
+PasswordAuthentication no
+TrustedUserCAKeys /etc/ssh/user_ca.pub
+# opcionális: csak a WG interfészen:
+ListenAddress 10.66.0.X
+```
+
+* `systemctl restart sshd`
+
+C. **Felhasználói kulcsok és tanúsítványok**
+Minden gépen (vagy minden felhasználónál) saját pár:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -C "imre@host1"
+```
+
+Ezt az **id\_ed25519.pub** kulcsot **az admin** aláírja (offline gépén):
+
+```bash
+ssh-keygen -s ~/ssh-ca/user_ca \
+  -I imre-2025Q3 \
+  -n imre \
+  -V +52w \
+  ~/.ssh/id_ed25519.pub
+```
+
+Visszakapod az `id_ed25519-cert.pub` fájlt → tedd a kulcs mellé. **Kész**: nem kell `authorized_keys`-t másolgatni a szerverekre; a szerver a CA-t bízza meg, a kliens meg a saját tanúsítványát viszi.
+
+D. **Host (szerver) kulcsok aláírása** (szép, de opcionális – megszünteti a “TOFU/known\_hosts” mizériát):
+A szerver publikus hostkulcsa tipikusan itt: `/etc/ssh/ssh_host_ed25519_key.pub`. Ezt hozd el aláírásra, majd:
+
+```bash
+ssh-keygen -s ~/ssh-ca/host_ca \
+  -I host1-cert \
+  -h \
+  -n host1,host1.wg,10.66.0.11 \
+  -V +52w \
+  /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+A szerveren `sshd_config`:
+
+```
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
+```
+
+Kliensoldalon a host-CA megbíztatása (egyszer, minden kliensen):
+
+```bash
+echo '@cert-authority *.wg ssh-ed25519 AAAAC3... host-ca' >> ~/.ssh/known_hosts
+```
+
+Így a kliens a host-tanúsítványt a CA alapján fogadja el (nincs több “Are you sure you want to continue connecting?”).
+
+---
+
+## Ha nem akarsz SSH CA-t
+
+Kis létszámnál működik az **Ansible + authorized\_keys** is:
+
+* Egy git repo-ban tartsd a publikus kulcsokat (pl. `authorized_keys.d/`).
+* Ansible playbook minden szerveren frissíti a `/home/imre/.ssh/authorized_keys`-t.
+  Ez egyszerű, de amint nő a gép/felhasználó szám, macerásabb (N²).
+
+Minimál play (részlet):
+
+```yaml
+- hosts: all
+  become: true
+  tasks:
+    - name: ensure imre user exists
+      user: name=imre create_home=yes
+    - name: install authorized_keys
+      authorized_key:
+        user: imre
+        key: "{{ lookup('file', item) }}"
+      loop: "{{ lookup('fileglob', 'authorized_keys.d/*.pub', wantlist=True) }}"
+    - name: harden sshd
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+      notify: restart ssh
+  handlers:
+    - name: restart ssh
+      service: name=ssh state=restarted
+```
+
+---
+
+## OpenVPN vagy reverse SSH?
+
+* **Reverse SSH**: egy-két gép távoli elérésére, NAT mögül **egyirányú** kapcsolat. “Mindenki-mindenkivel” célra nehézkes, port-forward erdő, jogosultság-káosz.
+* **OpenVPN**: stabil, régi motoros, de nehezebb konfigurálni, több overhead.
+* **WireGuard** (ajánlott): egyszerűbb, gyorsabb, kevesebb sor, könnyű kulcskezelés. Tailscale/Headscale még tovább könnyíti (automata NAT-áttörés, ACL-ek).
+
+**Összefoglaló javaslatom:**
+
+* **WireGuard hub-and-spoke** (VPS a hub), az SSH csak a WG IP-ken hallgasson.
+* **OpenSSH CA** a kulcsdisztribúció helyett → felhasználói és host tanúsítványok, érvényességi idővel (pl. 3–12 hónap), gyors visszavonás (CA rotáció).
+* (Opcionális) **Ansible** a CA pub kulcs és sshd beállítások szétküldésére.
+
+Ha szeretnéd, adok konkrét **wg0.conf** sablont a hubhoz és a kliensekhez, plusz egy rövid “aláírom a hostkulcsokat és visszamásolom” scriptet is.
 
 
 

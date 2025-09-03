@@ -1,0 +1,230 @@
+
+
+
+
+
+1
+ssh -v -i .ssh/blabla -N -R 2201:localhost:22user@myvps.example.com
+(service-ben kell majd nyitni autossh-val, de legeloszor kezzel, h ellenorizd+ha key van, akkor knowhost fingerprint chk)
+----------
+sudo tee /etc/systemd/system/autossh-reverse.service >/dev/null <<'EOF'
+[Unit]
+Description=Reverse SSH tunnel to VPS (2201 -> local 22)
+After=network-online.target ssh.service
+Wants=network-online.target
+
+[Service]
+User=imre
+Environment=HOME=/home/imre
+Environment=AUTOSSH_GATETIME=0
+WorkingDirectory=/home/imre
+# Fail early, ha a kulcs nem olvasható:
+ExecStartPre=/usr/bin/test -r /home/imre/.ssh/id_ed25519_rpiz2w3_250829
+ExecStart=/usr/bin/autossh -M 0 -N \
+  -F /dev/null \
+  -o BatchMode=yes \
+  -o IdentitiesOnly=yes \
+  -o ExitOnForwardFailure=yes \
+  -o ServerAliveInterval=30 \
+  -o ServerAliveCountMax=3 \
+  -o StrictHostKeyChecking=accept-new \
+  -i /home/imre/.ssh/id_ed25519_rpiz2w3_250829 \
+  -R 127.0.0.1:2201:127.0.0.1:22 \
+  relay@91.214.112.84
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=multi-user.target
+EOF
+------------
+
+sudo systemctl daemon-reload
+sudo systemctl enable autossh-reverse.service
+systemctl status autossh-reverse.service
+journalctl -b -u autossh-reverse.service -n 50 --no-pagersudo chmod 700 /home/imre/.ssh
+
+relay@h112-84:~$ ss -ltn 
+
+sudo chmod 600 /home/imre/.ssh/id_ed25519_rpiz2w3_250829
+sudo touch /home/imre/.ssh/known_hosts
+sudo chown -R imre:imre /home/imre/.ssh
+sudo chmod 600 /home/imre/.ssh/known_hosts
+  
+
+2
+ssh -v -i .ssh/blabla -N -R 2202:localhost:22user@myvps.example.com 3ssh -v -i .ssh/blabla -N -R 2203:localhost:22user@myvps.example.com vpsss -ltnp vps->1ssh -p 2201 user@localhost 1->2ssh -p 2202user@myvps.example.comEz így “by design” akad el. A 2202-es reverse portot loopbackra kötöttük a VPS-en (-R 127.0.0.1:2202:127.0.0.1:22), ezért kívülről nem elérhető. Így nem fog menni ez: ssh -o ProxyCommand='ssh -i ~/.ssh/id_ed25519_rpiz2w3_250829 -o IdentitiesOnly=yes -W %h:%p relay@91.214.112.84' -p 2202 imre@127.0.0.1 "hostname -s; whoami" 
+
+ akarhonnan ->1ssh -p 2201jancsi@myvps.example.comtehat uganugy, de kell a GatewayPorts yeses a tunel letrehozasanal kell a ssh -N -R 0.0.0.0:2201:localhost:22user@myvps.example.com  *************************************Minden PC reverse tunnel-t nyit a VPS felé, pl. így:ssh -N -R <PORT_ON_VPS>:localhost:22user@myvps.example.comEz azt jelenti: a VPS <PORT_ON_VPS> portjára érkező kérések továbbítódnak a lokális localhost:22 portjára (azaz a PC SSH szerveréhez).#2ssh -v -i .ssh/blabla -N -R 2202:localhost:22 user@myvps.example.com #331883 #11 VPS18883? (autossh az auto reconnect-hez) ------------- Hozzáférés a PC-khez a VPS-en keresztülssh -p 2202user@myvps.example.comHa már felálltak a tunnel-ek, egy másik gépről így kapcsolódhatsz pl. a PC2-höz: Belépés a PC-re a VPS-rőlMiután a tunnel aktív, a VPS-en egyszerűen ezt írod:ssh -p 2201 user@localhostEz csak akkor működik: Ha a tunnel valóban aktív (ellenőrizheted: netstat -tuln | grep 2201 a VPS-en)(ss -ltnp)Ha a VPS SSH szerverének sshd_config fájljában ez szerepel:GatewayPorts yesDe ez csak akkor kell, ha nem localhost-on, hanem kívülről (pl. egy másik gépről) is akarod elérni. A localhost-os eléréshez ez nem szükséges.  notes:Ha más gépről is be akarsz lépni (nem csak a VPS-ről) Ha szeretnéd, hogy akár egy harmadik gépről is beléphess a PC1-re a VPS-en keresztül, akkor: A PC1 így hozzon létre tunnel-t:ssh -N -R 0.0.0.0:2201:localhost:22user@myvps.example.comGatewayPorts yessudo systemctl restart sshTűzfalon (pl. UFW vagy iptables) engedélyezd a 2201-es portot.Ezután egy külső gépről (pl. laptop) így léphetsz be a PC1-re:ssh -p 2201jancsi@myvps.example.com ----------sudo apt install autosshautossh -M 0 -N -R 2201:localhost:22user@myvps.example.com   ******************************679  sudo /usr/bin/autossh -M 0 -N   -i /home/imre/.ssh/id_ed25519_rpiz2w2_250829   -o ExitOnForwardFailure=yes   -o ServerAliveInterval=30 -o ServerAliveCountMax=3   -L 127.0.0.1:18883:127.0.0.1:31883   relay@91.214.112.84
+  680  sudo systemctl daemon-reload 
+  681  sudo systemctl enable --now autossh-mqtt-forward.service
+  682  sudo systemctl status autossh-mqtt-forward.service --no-pager 
+journalctl -b -u autossh-reverse.service -n 50 --no-pager
+  683  sudo reboot now
+  684  ss -ltnp
+
+
+ssh-keygen -t ed25519 -a 100 -C "$(whoami)@$(hostname) $(date +%Y-%m)" -f ~/.ssh/id_ed25519
+# Enter-ekkel elfogadhatod az alapértelmezést
+ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 2222 user@remote.hostssh-keyscan -H <VPS_HOST_OR_IP> >> ~/.ssh/known_hosts# 1) SSH kulcs (ha még nincs)
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
+
+# 2) Másold fel a VPS-re (relay userre)
+ssh-copy-id -i ~/.ssh/id_ed25519.pub relay@<VPS_HOST_OR_IP>
+
+# 3) Rögzítsd a host key-t, hogy autossh ne akadjon meg
+ssh-keyscan -H <VPS_HOST_OR_IP> >> ~/.ssh/known_hosts
+
+# 4) autossh telepítés
+sudo apt-get update && sudo apt-get install -y autossh mosquitto-clients
+sudo systemctl reload ssh
+
+
+
+
+**************************************************
+**************************************************
+
+
+Igen, megoldható — tisztán a mostani „VPS-es kapu + reverse SSH” topológiában is. A trükk: **minden RPi a saját 22-es SSH portját “felakasztja” a VPS loopbackjára egy egyedi portra**. Így bármelyik gépről be tudsz ugrani a másikra `ssh -J relay@VPS imre@localhost -p <egyedi_port>` formában.
+
+## Porttérkép a VPS-en (loopbackon, nem publikus)
+
+Javaslat (konzisztens és könnyen megjegyezhető):
+
+* `#1 → VPS:127.0.0.1:12101`
+* `#2 → VPS:127.0.0.1:12102`
+* `#3 → VPS:127.0.0.1:12103`  *(#3 már csinál egy 31883-at az MQTT-nek — ez mellé jön az SSH is)*
+* `#4 → 12104`, `#5 → 12105`, `#6 → 12106`
+
+> Maradjon **127.0.0.1**-re kötve (loopback), így kívülről nem látszik. Nem kell `GatewayPorts yes`.
+
+---
+
+## 1) Reverse SSH unit MINDEN RPi-n (a saját portjára)
+
+Példa **#2-re** (Tiszafüred):
+
+```ini
+# /etc/systemd/system/autossh-ssh-reverse.service
+[Unit]
+Description=Reverse SSH of this host's port 22 to VPS (loopback)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=AUTOSSH_GATETIME=0
+User=imre
+ExecStart=/usr/bin/autossh -M 0 -N \
+  -o ExitOnForwardFailure=yes \
+  -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+  -R 127.0.0.1:12102:localhost:22 \
+  relay@<VPS_HOST_OR_IP>
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**#3-on** ugyanez, csak a port `12103`:
+
+```ini
+# /etc/systemd/system/autossh-ssh-reverse.service
+...
+ExecStart=/usr/bin/autossh ... -R 127.0.0.1:12103:localhost:22 relay@<VPS>
+```
+
+Indítás mindkét gépen:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now autossh-ssh-reverse.service
+```
+
+Gyors ellenőrzés a **VPS-en**:
+
+```bash
+ssh relay@<VPS> "ss -ltnp | egrep '1210(2|3)'"
+# látnod kell a LISTEN sorokat a 12102 és 12103 portokra
+```
+
+> Előfeltétel a VPS-en: `AllowTcpForwarding yes` az sshd-ben (alapból szokott menni).
+
+---
+
+## 2) Beugrás #2 ⇄ #3 (ugrókapu a VPS)
+
+Mostantól bármelyik gépről (vagy a ThinkPadről) így ugrasz:
+
+* **#2 → #3:**
+
+  ```bash
+  ssh -J relay@<VPS> imre@localhost -p 12103
+  ```
+* **#3 → #2:**
+
+  ```bash
+  ssh -J relay@<VPS> imre@localhost -p 12102
+  ```
+
+Itt a `-J relay@<VPS>` a **ProxyJump**: az első hop a VPS, a második hop **onnan** megy a `localhost:1210x`-ra (ami a reverse tunnel). Nem kell külön terminált nyitva tartani; ez interaktív SSH session lesz.
+
+---
+
+## 3) Kényelmes aliasok (\~/.ssh/config)
+
+Bármely kliensen dobd be:
+
+```sshconfig
+Host vps
+  HostName <VPS_HOST_OR_IP>
+  User relay
+
+Host rpi2-via-vps
+  HostName localhost
+  Port 12102
+  User imre
+  ProxyJump vps
+
+Host rpi3-via-vps
+  HostName localhost
+  Port 12103
+  User imre
+  ProxyJump vps
+```
+
+Használat:
+
+```bash
+ssh rpi3-via-vps   # #2->#3
+ssh rpi2-via-vps   # #3->#2
+```
+
+> Első csatlakozáskor a host kulcs a `localhost:1210x` névhez kerül a known\_hosts-ba. Ez normális ebben a mintában.
+
+---
+
+## 4) Hibakeresés (3 gyors parancs)
+
+* Reverse él a VPS-en?
+  `ssh relay@<VPS> "ss -ltnp | grep 12103"`  (vagy 12102…)
+* Ugrás működik?
+  `ssh -v -J relay@<VPS> imre@localhost -p 12103`
+* Ha megszakad: nézd a szolgáltatás logját a forrásgépen:
+  `journalctl -u autossh-ssh-reverse.service -e --no-pager`
+
+---
+
+## 5) Biztonság
+
+* **Kulcsos SSH** minden gépen (jelszót tilts le, ha lehet).
+* A reverse bind **127.0.0.1**-re a VPS-en (nem publikus).
+* Opcionálisan korlátozhatod a VPS-en a `relay` usert:
+
+  * `~relay/.ssh/authorized_keys`-ben `command=""`, `permitopen="127.0.0.1:12103"` stb. (finomhangolás, ha kell, megírom).
+
+---
+
+Ennyi kell hozzá. Ha szeretnéd, adok kész **ansible** vagy kis **bash installer** szkriptet, ami a 6 gépre felteszi a megfelelő porttal ezt a reverse unitot.
