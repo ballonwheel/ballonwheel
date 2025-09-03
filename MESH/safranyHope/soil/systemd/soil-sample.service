@@ -1,8 +1,7 @@
 [Unit]
-Description=Soil ADC hourly sampler
+Description=Soil ADC sampler
 
 [Service]
 Type=oneshot
-ExecStart=/home/imre/ballonwheel/MESH/safranyHope/soil/bin/soil_sample.sh
 WorkingDirectory=/home/imre/ballonwheel/MESH/safranyHope/soil
-
+ExecStart=/home/imre/ballonwheel/MESH/safranyHope/soil/bin/soil_samplev2.sh

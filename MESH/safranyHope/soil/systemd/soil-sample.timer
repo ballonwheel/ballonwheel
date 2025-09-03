@@ -1,9 +1,14 @@
 [Unit]
-Description=Run soil sampler hourly
+Description=Run soil sampler every minute
 
 [Timer]
+# minden perc elején
+# OnCalendar=*-*-* *:*:00
 OnCalendar=hourly
+# OnCalendar=*-*-* *:00:00
 Persistent=true
+AccuracySec=10s
+Unit=soil-sample.service
 
 [Install]
 WantedBy=timers.target
