@@ -1,0 +1,69 @@
+öröm, hogy megy! :) itt egy gyors, lényegre törő magyarázó „szótár” + mit csináltak a parancsok:
+
+# Mi micsoda?
+
+* **shebang**
+  A fájl első sora (pl. `#!/usr/bin/env bash`), amivel a kernelnek megmondod, *melyik interpreterrel* futtassa a scriptet. Ha hiányzik vagy rossz, jöhet **Exec format error**, vagy más shell próbálja futtatni.
+
+* **dash**
+  A Debian/Ubuntu alap **/bin/sh** megvalósítása (Almquist shell). Kicsi és gyors, **csak POSIX** funkciók. Nem tudja a bash-extrákat (pl. `pipefail`, `[[ ... ]]`, tömbök, asszociatív tömbök stb.).
+
+* **bash**
+  Bővebb tudású shell. Sok „bash-izmus” csak ebben működik. Ha ilyet használsz, **tégy bash shebang-et**.
+
+* **`set -euo pipefail`** (bash)
+
+  * `-e`: lépj ki, ha egy parancs hibázik
+  * `-u`: lépj ki, ha nem létező változóra hivatkozol
+  * `-o pipefail`: egy **pipeline** (`cmd1 | cmd2 | ...`) hibakódja ne az utolsó parancstól jöjjön, hanem **bármelyik** hibáját jelezze.
+    Példa:
+
+    ```bash
+    false | true      # alapból sikeresnek látszik
+    set -o pipefail   # innentől ez is hibának számít
+    ```
+  * **dash nem tudja a `pipefail`-t**, ezért kaptad: `Illegal option -o pipefail`.
+
+* **BOM (Byte Order Mark)**
+  Néhány szerkesztő a fájl elejére teszi (UTF-8 BOM: `EF BB BF`). Scriptnél gond: a shebang elé kerülhet „láthatatlanul”, és az interpreter neve „szemetes” lesz (pl. `\xEF\xBB\xBF/usr/bin/env`). Jó **eltávolítani**.
+
+* **CRLF vs. LF**
+  Windows: CRLF (`\r\n`), Linux: LF (`\n`). Ha van `\r`, akkor ilyen hibák jönnek: `env^M: No such file or directory`. Jó **leszedni a CR-t**.
+
+# Mit csináltak a `sed` parancsok?
+
+```bash
+sed -i '1s|^.*$|#!/usr/bin/env bash|' file
+```
+
+* Az **1. sort** (a régit akármi volt) **kicseréli** erre: `#!/usr/bin/env bash`.
+
+```bash
+sed -i 's/\r$//' file
+```
+
+* **Eltávolítja a sorvégi `\r`** karaktert (CR) – azaz **CRLF → LF** konverzió.
+
+```bash
+sed -i '1s/^\xEF\xBB\xBF//' file
+```
+
+* Az 1. sor **elejéről levágja a BOM-ot** (UTF-8 BOM három byte).
+
+```bash
+chmod +x file
+```
+
+* **Végrehajthatóvá** teszi a scriptet.
+
+# Gyors szabályok a jövőre
+
+* Ha bash-izmusokat használsz (pl. `pipefail`, `[[ ... ]]`):
+  → **első sor legyen** `#!/usr/bin/env bash`
+* Ha POSIX-kompatibilis akarsz lenni:
+  → `#!/bin/sh` + kerüld a bash-izmusokat (nincs `pipefail`, nincs `[[ ]]`).
+* Minden scriptnél: **nincs BOM**, **nincs CRLF**.
+
+Ha szeretnéd, adok egy kis `make fix-shell` vagy `git hook` példát, ami commit előtt automatikusan rárakja a bash-shebang-et és kiszedi a CR/BOM-ot.
+
+

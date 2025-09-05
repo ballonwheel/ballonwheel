@@ -1,0 +1,12 @@
+
+[Unit]
+Description=Safrany gpio (oneshot)
+
+[Service]
+Type=oneshot
+ExecStart=/home/imre/ballonwheel/MESH/safranyHope/gpio/bin/gpio-service.sh
+
+WorkingDirectory=/home/imre/ballonwheel/MESH/safranyHope/gpio/bin
+
+
+

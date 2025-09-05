@@ -1,0 +1,12 @@
+[Unit]
+Description=Safrany RELAY apply timer
+
+[Timer]
+# Példa: 10 mp-enként fusson (nincs sleep a szkriptben)
+OnUnitActiveSec=10
+AccuracySec=1s
+Unit=safrany-gpio.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

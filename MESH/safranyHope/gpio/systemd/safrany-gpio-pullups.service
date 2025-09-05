@@ -1,0 +1,10 @@
+[Unit]
+Description=Enable pull-ups on GPIO17 and GPIO24
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/raspi-gpio set 17 ip pu
+ExecStart=/usr/bin/raspi-gpio set 24 ip pu
+
+[Install]
+WantedBy=multi-user.target

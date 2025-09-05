@@ -1,6 +1,41 @@
 
 
 
+gpio17 (11)
+gpio27 (13)
+GND    (39)
+#define GPIO_CLK  27
+#define GPIO_DATA 17
+
+Raspberry Pi Zero – GPIO header (top view)
+
+ 3V3         (1) o o (2)     5V
+ SDA1  GPIO2 (3) o o (4)     5V
+ SCL1  GPIO3 (5) o o (6)     GND
+ GPCLK0 GPIO4(7) o o (8)     GPIO14 TXD
+ GND         (9) o o (10)    GPIO15 RXD
+ GPIO17     (11) o o (12)    GPIO18 PCM_CLK
+ GPIO27     (13) o o (14)    GND
+ GPIO22     (15) o o (16)    GPIO23
+ 3V3        (17) o o (18)    GPIO24
+ MOSI  GPIO10(19) o o (20)   GND
+ MISO  GPIO9 (21) o o (22)   GPIO25
+ SCLK  GPIO11(23) o o (24)   GPIO8  CE0
+ GND        (25) o o (26)    GPIO7  CE1
+ ID_SD GPIO0(27) o o (28)    ID_SC GPIO1
+ GPIO5      (29) o o (30)    GND
+ GPIO6      (31) o o (32)    GPIO12 PWM0
+ GPIO13 PWM1(33) o o (34)    GND
+ GPIO19 PCM_FS(35) o o (36)  GPIO16
+ GPIO26     (37) o o (38)    GPIO20 PCM_DIN
+ GND        (39) o o (40)    GPIO21 PCM_DOUT
+```
+
+Gyors legenda:
+I²C: SDA1=GPIO2, SCL1=GPIO3 • UART: TXD=GPIO14, RXD=GPIO15 •
+SPI: MOSI=GPIO10, MISO=GPIO9, SCLK=GPIO11, CE0=GPIO8, CE1=GPIO7 •
+Táp: 3V3 a (1,17), 5V a (2,4), GND: (6,9,14,20,25,30,34,39).
+
 
 HOST
 imre@thinkpad:~/LEDline_tmp$ make -C ~/rpi-kernel-rt   ARCH=arm64   CROSS_COMPILE=aarch64-linux-gnu-   M=$(pwd)   modules
