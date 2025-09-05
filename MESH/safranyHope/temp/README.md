@@ -51,3 +51,8 @@ timestamp,dht_temp_c_avg,dht_rh_avg,cpu_temp_c_avg,sample_count,load1,load5,load
 2025-09-05 14:00:37,27.000,58.000,40.421,6,0.52,0.39,0.35,12%,96.75
 imre@raspberrypiZ2w3:~/ballonwheel/MESH/safranyHope/temp/systemd $ 
 
+
+ watch -n 2 'cat /sys/bus/iio/devices/iio:device0/in_temp_input; cat /sys/bus/iio/devices/iio:device0/in_humidityrelative_input'
+
+
+

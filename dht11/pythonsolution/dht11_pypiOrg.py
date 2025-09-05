@@ -1,6 +1,7 @@
 
 
 # imre@raspberrypiZ2w3:~/ballonwheel/dht11/pythonsolution $ sudo pip3 install RPi.GPIO
+# sudo apt-get install python3-pip -y
 # imre@raspberrypiZ2w3:~/ballonwheel/dht11/pythonsolution $ sudo pip3 install dht11
 
 
