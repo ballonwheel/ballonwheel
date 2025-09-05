@@ -1,0 +1,7 @@
+[Unit]
+Description=Safrany 10s sampler to RAM buffer (DHT11 + CPU temp)
+
+[Service]
+Type=oneshot
+ExecStart=/home/imre/ballonwheel/MESH/safranyHope/temp/bin/safrany_sample.sh
+

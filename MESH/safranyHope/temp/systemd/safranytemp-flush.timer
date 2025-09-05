@@ -1,0 +1,13 @@
+[Unit]
+Description=Run flush every 10 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=10min
+AccuracySec=3s
+Unit=safranytemp-flush.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

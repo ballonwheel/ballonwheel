@@ -1,0 +1,12 @@
+[Unit]
+Description=Run sampler every 10 seconds
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=10s
+AccuracySec=1s
+Unit=safranytemp-sample.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,8 @@
+[Unit]
+Description=Safrany 10min flush+aggregate to CSV
+
+[Service]
+Type=oneshot
+TimeoutStartSec=2min
+ExecStart=/home/imre/ballonwheel/MESH/safranyHope/temp/bin/safrany_flush_10min.sh
+

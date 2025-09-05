@@ -6,6 +6,8 @@ heartbeat
 				
 temp service
     tempambient, temp cpu, cpuload, diskfree
+	lasd ~ballonwheel/dht11
+	/boot/config
 
 gpio service
     pullup, input service
@@ -16,7 +18,9 @@ gpio service
 soil service
     adc0123
 				--> cat / var/log/soil/??
-
+	lasd ~ballonwheel/ads1115
+	/boot/config.txt
+	
 
 | Funkció                 |   BCM GPIO |  Fejléc tű | Megjegyzés                                                 |
 | ----------------------- | ---------: | ---------: | ---------------------------------------------------------- |
