@@ -1,0 +1,896 @@
+Persze 😊 — itt van néhány **C++ középhaladó szintű tesztkérdés** (vegyesen elméleti és kódalapú), amiket gyakran használnak állásinterjúkon vagy vizsgákon.
+
+---
+
+## 🧠 **Elméleti kérdések**
+
+1. Mi a különbség a **shallow copy** és a **deep copy** között?
+2. Miért fontos a **Rule of Three / Rule of Five** a C++-ban?
+3. Mit jelent az, hogy egy függvény **const** tagfüggvény?
+4. Mikor használod a **virtual destructor**-t, és miért szükséges öröklődésnél?
+5. Mi a különbség a **stack** és a **heap** között C++-ban?
+6. Mi az a **RAII** elv, és hogyan segít az erőforrás-kezelésben?
+7. Mi történik, ha egy **pure virtual** függvényt nem implementálunk a leszármazott osztályban?
+8. Mi az a **move semantics**, és hogyan különbözik a copy semantics-től?
+9. Mi a különbség a **std::shared_ptr**, **std::unique_ptr**, és **std::weak_ptr** között?
+10. Mit jelent az, hogy egy függvény **templated**? Hogyan működik a **template specialization**?
+
+---
+
+## 💻 **Kód-alapú kérdések**
+
+### 1. Kimenet meghatározása
+
+```cpp
+#include <iostream>
+using namespace std;
+
+void func(int a, int b = 5) {
+    cout << a + b << endl;
+}
+
+int main() {
+    func(3);
+    func(3, 10);
+}
+```
+
+👉 Mi lesz a kimenet?
+
+---
+
+### 2. Konstruktor hívási sorrend
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    Base() { cout << "Base "; }
+};
+
+class Derived : public Base {
+public:
+    Derived() { cout << "Derived "; }
+};
+
+int main() {
+    Derived d;
+}
+```
+
+👉 Mit ír ki a program?
+
+---
+
+### 3. Virtuális függvény
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class A {
+public:
+    virtual void show() { cout << "A"; }
+};
+
+class B : public A {
+public:
+    void show() override { cout << "B"; }
+};
+
+int main() {
+    A* obj = new B();
+    obj->show();
+    delete obj;
+}
+```
+
+👉 Mi a kimenet, és miért?
+
+---
+
+### 4. Move konstruktor használata
+
+```cpp
+#include <iostream>
+#include <utility>
+using namespace std;
+
+class Example {
+public:
+    Example() { cout << "Default "; }
+    Example(const Example&) { cout << "Copy "; }
+    Example(Example&&) { cout << "Move "; }
+};
+
+Example makeExample() {
+    Example e;
+    return e;
+}
+
+int main() {
+    Example ex = makeExample();
+}
+```
+
+👉 Mi a kimenet C++11 és újabb szabvány szerint?
+
+---
+
+### 5. Smart pointer használat
+
+Írj egy kódrészletet, ami egy `std::unique_ptr`-t használ dinamikus objektum kezelésére, és átadja egy függvénynek **érték szerint** úgy, hogy ne történjen másolás!
+
+---
+
+Szeretnéd, hogy adjak **megoldásokat és magyarázatokat** is ezekhez a kérdésekhez (pl. egy gyakorló teszt formájában)?
+
+
+************************
+Szuper 😊 — akkor nézzük a **C++ középhaladó tesztkérdéseket megoldásokkal és magyarázattal**!
+
+---
+
+## 🧠 **1. Elméleti kérdések – válaszok és magyarázat**
+
+### 1️⃣ Shallow copy vs Deep copy
+
+* **Shallow copy:** csak a mutatók értékét másolja → két objektum ugyanarra az adatra mutat.
+* **Deep copy:** új memóriaterületet foglal, és **lemásolja az adatokat** is.
+  🧩 *Ha dinamikus memóriát használsz, deep copy szükséges, különben duplán törölhetsz (dangling pointer).*
+
+---
+
+### 2️⃣ Rule of Three / Five
+
+* Ha egy osztály **erőforrást kezel** (pl. `new`-vel foglal memóriát), akkor implementálnod kell:
+
+  * destruktor (`~ClassName()`),
+  * copy constructor,
+  * copy assignment operator.
+* **Rule of Five (C++11+):** ehhez hozzáadódik:
+
+  * move constructor,
+  * move assignment operator.
+
+---
+
+### 3️⃣ `const` tagfüggvény
+
+```cpp
+class A {
+    int x;
+public:
+    int getX() const { return x; } // Nem módosíthatja az objektumot
+};
+```
+
+👉 A `const` tagfüggvény **nem módosíthatja a tagváltozókat**, és csak `const` függvényeket hívhat.
+
+---
+
+### 4️⃣ Virtuális destruktor
+
+Ha egy **alaposztály mutatón keresztül törölsz** egy leszármazott objektumot, **a destruktor is virtuális** kell legyen:
+
+```cpp
+class Base {
+public:
+    virtual ~Base() {}
+};
+```
+
+Ellenkező esetben **undefined behavior** történik (nem hívódik meg a derived destruktor).
+
+---
+
+### 5️⃣ Stack vs Heap
+
+* **Stack:** automatikus memória (lokális változók), gyors, de korlátozott méretű.
+* **Heap:** dinamikus memória (`new`/`delete` vagy `malloc/free`), nagyobb, de lassabb.
+
+---
+
+### 6️⃣ RAII (Resource Acquisition Is Initialization)
+
+* Lényege: egy objektum **élettartamához kötjük az erőforrást**.
+* Pl. `std::lock_guard`, `std::unique_ptr`.
+  🧩 A destruktor automatikusan felszabadítja az erőforrást.
+
+---
+
+### 7️⃣ Pure virtual függvény
+
+```cpp
+class Base {
+    virtual void foo() = 0;
+};
+```
+
+Az ilyen osztály **absztrakt**, nem példányosítható.
+Ha a leszármazott nem valósítja meg, **ő is absztrakt** marad.
+
+---
+
+### 8️⃣ Move semantics
+
+Ahelyett, hogy adatot **másolnánk**, átvesszük annak **tulajdonjogát** (pl. ideiglenes objektumoknál).
+
+```cpp
+Example(Example&& other) noexcept { ptr = other.ptr; other.ptr = nullptr; }
+```
+
+→ gyorsabb, mint a copy.
+
+---
+
+### 9️⃣ Smart pointerek
+
+| Típus             | Leírás                                                 |
+| ----------------- | ------------------------------------------------------ |
+| `std::unique_ptr` | Egyedüli tulajdonos, **nem másolható**, de move-olható |
+| `std::shared_ptr` | Több tulajdonos, **referenciaszámláló**                |
+| `std::weak_ptr`   | Nem tulajdonos, hivatkozik shared_ptr objektumra       |
+
+---
+
+### 🔟 Template specialization
+
+```cpp
+template<typename T>
+void print(T x) { cout << x; }
+
+template<>
+void print<int>(int x) { cout << "int: " << x; }
+```
+
+→ Külön viselkedés biztosítható bizonyos típusokra.
+
+---
+
+## 💻 **2. Kód-alapú kérdések – megoldások**
+
+---
+
+### ➤ **1. Default argumentumok**
+
+```cpp
+void func(int a, int b = 5) {
+    cout << a + b << endl;
+}
+
+int main() {
+    func(3);
+    func(3, 10);
+}
+```
+
+🟢 **Kimenet:**
+
+```
+8
+13
+```
+
+Magyarázat: az első hívásnál `b` = 5 (default), a másodiknál `b` = 10.
+
+---
+
+### ➤ **2. Konstruktor hívási sorrend**
+
+```cpp
+class Base {
+public:
+    Base() { cout << "Base "; }
+};
+
+class Derived : public Base {
+public:
+    Derived() { cout << "Derived "; }
+};
+
+int main() { Derived d; }
+```
+
+🟢 **Kimenet:**
+
+```
+Base Derived
+```
+
+Magyarázat: az alaposztály konstruktora mindig előbb fut.
+
+---
+
+### ➤ **3. Virtuális függvény**
+
+```cpp
+class A { public: virtual void show() { cout << "A"; } };
+class B : public A { public: void show() override { cout << "B"; } };
+
+int main() {
+    A* obj = new B();
+    obj->show();
+    delete obj;
+}
+```
+
+🟢 **Kimenet:**
+
+```
+B
+```
+
+Magyarázat: a `show()` virtuális, ezért **runtime polymorphism** alapján a `B` verzió hívódik.
+
+---
+
+### ➤ **4. Move konstruktor**
+
+```cpp
+class Example {
+public:
+    Example() { cout << "Default "; }
+    Example(const Example&) { cout << "Copy "; }
+    Example(Example&&) { cout << "Move "; }
+};
+
+Example makeExample() {
+    Example e;
+    return e;
+}
+
+int main() {
+    Example ex = makeExample();
+}
+```
+
+🟢 **Kimenet (C++17+):**
+
+```
+Default
+```
+
+🟡 **C++11/14 esetén:**
+
+```
+Default Move
+```
+
+Magyarázat: C++17-ben **Return Value Optimization (RVO)** garantált, így nincs másolás/move.
+
+---
+
+### ➤ **5. `unique_ptr` átadása függvénynek**
+
+```cpp
+#include <iostream>
+#include <memory>
+using namespace std;
+
+void printUnique(unique_ptr<int> p) {
+    cout << *p << endl;
+}
+
+int main() {
+    unique_ptr<int> ptr = make_unique<int>(42);
+    printUnique(move(ptr)); // move: átadja a tulajdont
+}
+```
+
+🧩 `std::move()` biztosítja, hogy **ne másolat**, hanem **tulajdon-átruházás** történjen.
+
+---
+
+Szeretnéd, hogy készítsek ezekből egy **gyakorló tesztet** (pl. 10 kérdéses kvíz, ahol te válaszolsz és én értékelek)?
+👉 Ez jó gyakorlás szokott lenni interjúk vagy vizsgák előtt.
+
+
+
+
+************************
+
+Nagyon jó választás 💪 — az **embedded (beágyazott rendszerek) C++** világban teljesen más jellegű, gyakran *trükkös, hardverközeli* kérdéseket szoktak feltenni, mint a klasszikus szoftverfejlesztésben.
+
+Az alábbiak **középhaladó–haladó szintű, beágyazott C++** kérdések **megoldásokkal és magyarázattal**, amiket interjúkon, teszteken vagy beágyazott fejlesztői pozíciókon gyakran használnak.
+
+---
+
+## ⚙️ 1. `volatile` kulcsszó
+
+### ❓ Kérdés:
+
+Miért fontos a `volatile` kulcsszó beágyazott rendszereknél, és mi történik, ha elhagyod?
+
+### 💡 Válasz:
+
+A `volatile` azt mondja a fordítónak, hogy **az adott változó értéke bármikor megváltozhat külső hatásra** (pl. megszakítás, periféria-regiszter).
+Ezért **nem optimalizálható ki** vagy **nem cache-elhető**.
+
+```cpp
+volatile uint8_t status_reg = 0x00;
+
+while ((status_reg & 0x01) == 0) {
+    // várakozás egy hardverflag-re
+}
+```
+
+🔴 Ha a `volatile` hiányzik, a fordító a `status_reg` olvasását optimalizálhatja → **végtelen ciklus**.
+
+---
+
+## ⚙️ 2. `const` és `#define` különbség (Flash vs RAM)
+
+### ❓ Kérdés:
+
+Miért előnyös `const` változókat használni `#define` helyett beágyazott környezetben?
+
+### 💡 Válasz:
+
+* A `#define` **nem típusos** → nem védi a fordító a hibás használattól.
+* A `const` változó **típusos**, és **flash-be (ROM)** kerül, ha nem írható.
+
+```cpp
+#define BUFFER_SIZE 256
+const uint16_t bufferSize = 256;
+```
+
+🧩 A `const` változó gyakran **nem foglal RAM-ot**, mert a programmemóriában marad, így memóriát spórol.
+
+---
+
+## ⚙️ 3. Memory alignment és padding
+
+### ❓ Kérdés:
+
+Miért különbözik az alábbi két struktúra mérete?
+
+```cpp
+struct A {
+    uint8_t a;
+    uint32_t b;
+    uint8_t c;
+};
+
+struct B {
+    uint32_t b;
+    uint8_t a;
+    uint8_t c;
+};
+```
+
+### 💡 Válasz:
+
+A **strukturális igazítás (alignment)** miatt.
+
+* `struct A` mérete **12 byte** (fordító paddingot ad közé).
+* `struct B` mérete **8 byte**, mert a tagok természetes határon kezdődnek.
+
+🧩 Beágyazott rendszernél gyakran használnak:
+
+```cpp
+#pragma pack(push, 1)
+struct A { ... };
+#pragma pack(pop)
+```
+
+vagy GCC esetén:
+
+```cpp
+struct __attribute__((packed)) A { ... };
+```
+
+→ így megszüntethető a padding, ha memóriatérképet kell pontosan illeszteni.
+
+---
+
+## ⚙️ 4. ISR-ben (Interrupt Service Routine) globális változó használata
+
+### ❓ Kérdés:
+
+Miért kell `volatile` és/vagy `atomic` típusokat használni, ha egy változót megszakítás és főprogram is módosít?
+
+### 💡 Válasz:
+
+Az **optimalizálás és a nem-atomikus hozzáférés** miatt.
+
+```cpp
+volatile uint8_t counter = 0;
+
+ISR(TIMER1_COMPA_vect) {
+    counter++;
+}
+
+int main() {
+    while (counter < 100) { /* ... */ }
+}
+```
+
+🧩 `volatile` megakadályozza a kód optimalizálását,
+de **nem teszi atomi**vá → több byte-os típusnál (`uint16_t` vagy nagyobb) akár hibás értéket is olvashatunk.
+→ **Megoldás:** `std::atomic<uint16_t>` (ha van STL), vagy megszakítás letiltás olvasás idejére.
+
+---
+
+## ⚙️ 5. Endianness
+
+### ❓ Kérdés:
+
+Mit ír ki az alábbi kód kis-endian rendszeren?
+
+```cpp
+uint32_t x = 0x12345678;
+uint8_t* p = reinterpret_cast<uint8_t*>(&x);
+printf("%02X %02X %02X %02X\n", p[0], p[1], p[2], p[3]);
+```
+
+### 💡 Válasz:
+
+Kis-endian rendszeren:
+
+```
+78 56 34 12
+```
+
+🧩 Mert a **legkisebb helyiértékű bájt** kerül az alacsonyabb memóriacímre.
+
+---
+
+## ⚙️ 6. Bitfield trükkök
+
+### ❓ Kérdés:
+
+Hogyan lehet egy regisztert bitmezőkkel leírni olvasható módon?
+
+### 💡 Válasz:
+
+```cpp
+struct __attribute__((packed)) ControlReg {
+    uint8_t enable : 1;
+    uint8_t mode   : 3;
+    uint8_t speed  : 2;
+    uint8_t unused : 2;
+};
+
+volatile ControlReg* ctrl = reinterpret_cast<ControlReg*>(0x4000);
+ctrl->enable = 1;
+ctrl->mode = 5;
+```
+
+🧩 Nagyon olvasható, de **nem hordozható** (endianness + compiler-bitfield elrendezés eltérhet).
+Biztonságosabb: **bitmask-ekkel** dolgozni.
+
+---
+
+## ⚙️ 7. `static` kulcsszó beágyazott C++-ban
+
+### ❓ Kérdés:
+
+Mi a különbség a `static` változó jelentése között:
+
+* függvényen belül
+* fájlszinten
+* osztályszinten
+
+### 💡 Válasz:
+
+| Kontextus        | Jelentés                                                         |
+| ---------------- | ---------------------------------------------------------------- |
+| Függvényen belül | Megőrzi az értékét hívások között, **nem kerül stack-re**        |
+| Fájlszinten      | Láthatóság **csak azon fordítási egységben**                     |
+| Osztályban       | Közös **minden példány** számára (nem kell példány az eléréshez) |
+
+🧩 Beágyazottban gyakori, hogy **ISR-ben használt számlálók static-ként** vannak deklarálva, hogy megőrizzék állapotukat.
+
+---
+
+## ⚙️ 8. Reentrancia és nem reentráns függvények
+
+### ❓ Kérdés:
+
+Mit jelent, ha egy függvény **nem reentráns**, és miért veszélyes ISR-ben hívni?
+
+### 💡 Válasz:
+
+* **Nem reentráns**: a függvény **osztott erőforrást** használ (`static` változó, globális adat, nem védett buffer).
+* Ha megszakítás alatt újra meghívják → **adatverseny** vagy **adatvesztés**.
+
+🧩 Példa:
+
+```cpp
+char* itoa_nonreentrant(int value) {
+    static char buf[10];
+    // ...
+    return buf;
+}
+```
+
+Ha ISR és főprogram egyszerre hívja → ugyanazt a buffert írják felül.
+
+---
+
+## ⚙️ 9. Bare-metal vs RTOS C++ inicializáció
+
+### ❓ Kérdés:
+
+Miért kell figyelni a **globális konstruktorok futási sorrendjére** bare-metal C++ programban?
+
+### 💡 Válasz:
+
+A startup szekvenciában a **C++ globális objektumok konstruktorai** csak akkor futnak le, ha a `crt0` (C runtime startup) helyesen hívja meg az `_init_array` szekciót.
+Ha ez kimarad, **globális C++ objektumok sosem inicializálódnak**, ami **nagyon trükkös bug**.
+
+---
+
+## ⚙️ 10. "Integer promotion" csapda
+
+### ❓ Kérdés:
+
+Mit ír ki az alábbi kód?
+
+```cpp
+uint8_t a = 200;
+uint8_t b = 100;
+uint8_t c = a + b;
+printf("%u\n", c);
+```
+
+### 💡 Válasz:
+
+Kimenet:
+
+```
+44
+```
+
+🧩 Mert a művelet `int` típusban történik, de az eredményt visszaöntjük `uint8_t`-ba:
+
+```
+200 + 100 = 300 → 300 % 256 = 44
+```
+
+Ez **integer overflow** 8 bites típusra.
+
+---
+
+Szeretnéd, hogy készítsek **10 új, nehezebb – trükkös, "valós hardverhez közeli"** beágyazott C++ kvízkérdést (pl. DMA, ISR, RTOS, cache-invalidation témákkal)?
+👉 Azok már *senior szintű* beágyazott interjúkra is jók lennének.
+
+
+*********************************
+
+Kiváló 😎 — akkor jöjjön a **második szint: haladó, beágyazott C++ kvíz**
+👉 Ezeket a kérdéseket gyakran **senior firmware fejlesztő** vagy **embedded system engineer** interjúkon teszik fel, és mindegyikhez adok **választ + magyarázatot + trükköt**.
+
+---
+
+## ⚙️ **1. DMA és cache szinkronizáció**
+
+### ❓ Kérdés:
+
+Miért hibás viselkedést okozhat, ha DMA ír egy memóriaterületre, amit előzőleg a CPU cache-be töltött?
+
+### 💡 Válasz:
+
+Mert a CPU cache **nem tud a DMA által írt adatról** → a CPU a **régi cache-elt adatot** olvassa vissza.
+
+🧩 **Megoldás:**
+
+* **Cache invalidálás** DMA írás előtt,
+* **Cache flush (clean)** DMA olvasás előtt.
+
+Pl. ARM Cortex-M7-en:
+
+```cpp
+SCB_CleanDCache_by_Addr((uint32_t*)buf, len);
+SCB_InvalidateDCache_by_Addr((uint32_t*)buf, len);
+```
+
+---
+
+## ⚙️ **2. Interrupt prioritás és "priority inversion"**
+
+### ❓ Kérdés:
+
+Mi az a *priority inversion*, és hogyan kerülhető el RTOS-ban?
+
+### 💡 Válasz:
+
+Ha egy **alacsony prioritású feladat** fog egy erőforrást (pl. mutexet),
+és **magas prioritású feladat** vár rá → a rendszer **blokkolódik**, amíg egy közepes prioritású task fut.
+
+🧩 **Megoldás:** RTOS-okban (pl. FreeRTOS) → **priority inheritance**:
+a mutex tulajdonosa ideiglenesen megkapja a várakozó magasabb prioritást.
+
+---
+
+## ⚙️ **3. ISR és RTOS API hívás**
+
+### ❓ Kérdés:
+
+Miért tilos RTOS API függvényeket közvetlenül megszakításból hívni?
+
+### 💡 Válasz:
+
+Az RTOS API függvények (pl. `vTaskDelay`, `xQueueSend`) nem **ISR-safe**,
+mert **blokkolhatnak** vagy **schedulinget** váltanak → megszakításban ez **nem engedett**.
+
+🧩 **Megoldás:** használj “FromISR” verziókat:
+
+```cpp
+xQueueSendFromISR(queue, &data, &xHigherPriorityTaskWoken);
+```
+
+---
+
+## ⚙️ **4. Memory barrier és volatile különbség**
+
+### ❓ Kérdés:
+
+Mi a különbség a `volatile` és a *memory barrier* között?
+
+### 💡 Válasz:
+
+* `volatile` → a fordítót utasítja, hogy **ne optimalizálja el** a memóriaműveletet.
+* *Memory barrier (fence)* → a processzort utasítja, hogy **ne rendezze át** a műveletek sorrendjét.
+
+🧩 Példa (ARM):
+
+```cpp
+__DSB();  // Data Synchronization Barrier
+__ISB();  // Instruction Synchronization Barrier
+```
+
+---
+
+## ⚙️ **5. Inline assembly veszélyei**
+
+### ❓ Kérdés:
+
+Mi a fő kockázat, ha C++ kódban inline assembly-t (`asm`) használsz beágyazott környezetben?
+
+### 💡 Válasz:
+
+* **Fordítóoptimalizálás** tönkreteheti az utasítás-sorrendet,
+* nem garantált a **regiszterhasználat** konzisztenciája,
+* C++ ABI (pl. kivételkezelés) sérülhet.
+
+🧩 Mindig használd a `volatile` kulcsszót az `asm`-nél, ha a műveletnek mellékhatása van:
+
+```cpp
+asm volatile("nop");
+```
+
+---
+
+## ⚙️ **6. ISR stack mérete**
+
+### ❓ Kérdés:
+
+Miért fontos külön ISR stack méretet beállítani egy bare-metal vagy RTOS rendszerben?
+
+### 💡 Válasz:
+
+Mert megszakítás közben a CPU a **stacket** használja a regiszterek mentéséhez és lokális változókhoz.
+Ha túl kicsi, → **stack overflow**, ami nehezen detektálható bugokat okoz.
+
+🧩 RTOS-ban gyakori:
+
+```cpp
+xTaskCreate(isrHandler, "ISR", 256, nullptr, 5, nullptr);
+```
+
+vagy bare-metalben: `MSP` (Main Stack Pointer) és `PSP` (Process Stack Pointer) külön van kezelve.
+
+---
+
+## ⚙️ **7. Deadlock két megszakítás között**
+
+### ❓ Kérdés:
+
+Lehetséges-e deadlock két külön megszakítás között?
+
+### 💡 Válasz:
+
+Igen, ha **különböző prioritású ISR-ek** ugyanazt az erőforrást próbálják zárolni (pl. globális flag, spinlock).
+A magasabb prioritású ISR megszakítja az alacsonyabbat → **nem szabadul fel a lock**.
+
+🧩 **Megoldás:** ISR-ben **ne használj lockokat** — inkább flag-et állíts, és a főprogram dolgozza fel.
+
+---
+
+## ⚙️ **8. C++ exceptions embedded környezetben**
+
+### ❓ Kérdés:
+
+Miért nem használják általában a C++ `throw`/`try-catch` kivételeket beágyazott rendszerekben?
+
+### 💡 Válasz:
+
+* Kódméretet drasztikusan növeli (stack-unwinding mechanizmus).
+* Lassú és nem determinisztikus.
+* Sok beágyazott fordítóban (pl. ARM-GCC, IAR) alapból **le van tiltva** (`-fno-exceptions`).
+
+🧩 Alternatíva: **hibakód visszatérés** (`enum class ErrorCode`) vagy **assert** makrók.
+
+---
+
+## ⚙️ **9. Hardverregiszterek C++-ban**
+
+### ❓ Kérdés:
+
+Miért használnak sokszor `reinterpret_cast<volatile uint32_t*>` formát a perifériák eléréséhez?
+
+### 💡 Válasz:
+
+Mert a periféria regiszterei **fix memóriacímeken** vannak elérhetők, és közvetlenül oda kell írni.
+
+```cpp
+#define GPIOA_ODR 0x48000014
+*(volatile uint32_t*)GPIOA_ODR = 0x01;
+```
+
+🧩 A `volatile` biztosítja, hogy a fordító ne optimalizálja ki a műveletet (ez **I/O access**, nem memória).
+
+---
+
+## ⚙️ **10. “Undefined behavior” az időzítővel**
+
+### ❓ Kérdés:
+
+Mi történik az alábbi kóddal egy 16 bites időzítőn, ha a `counter` 65535-ről átfut 0-ra?
+
+```cpp
+uint16_t start = counter;
+while ((uint16_t)(counter - start) < 500) { /* várakozás */ }
+```
+
+### 💡 Válasz:
+
+Ez **teljesen helyes**, ha a típus **unsigned**.
+
+🧩 Mivel `uint16_t` túlcsordulás **modulo 2¹⁶** szerint működik,
+így `(counter - start)` helyesen “wrap-around”-ol.
+Ha `int16_t` lenne, **undefined behavior** lenne!
+
+---
+
+## ⚙️ **+1. Extra trükkös: ISR-ben `new` operátor**
+
+### ❓ Kérdés:
+
+Miért kerülendő a `new` (vagy `malloc`) használata ISR-ben?
+
+### 💡 Válasz:
+
+* Heap hozzáférés **nem reentráns** → megszakíthat másik `malloc`-ot.
+* Időigény nem determinisztikus → ISR futási ideje kiszámíthatatlanná válik.
+* Fragmentációt okoz.
+
+🧩 ISR-ben soha ne allokálj memóriát — használj **statikus buffer**-t vagy **ring buffert**.
+
+---
+
+## 🧩 Összegzés
+
+| Téma      | Kulcsfogalom           | Tipikus hiba                   |
+| --------- | ---------------------- | ------------------------------ |
+| DMA       | Cache flush/invalidate | Régi adat olvasása             |
+| ISR       | RTOS API               | Nem ISR-safe hívás             |
+| Memory    | `volatile` ≠ barrier   | Rossz szinkronizáció           |
+| Stack     | ISR stack méret        | Stack overflow                 |
+| Exception | `throw`                | Nondeterminisztikus viselkedés |
+
+---
+
+Szeretnéd, hogy a következő lépésben készítsek **10 “csak egy helyes válasz” típusú multiple choice kvízt** ezekből a haladó beágyazott C++ témákból (pontozással és magyarázattal)?
+👉 Az már valódi *interjú-szimuláció* lenne.
+
+
+
+
+
+
+

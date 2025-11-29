@@ -1,0 +1,140 @@
+Got it! Let’s go step by step for running **CAN on a Raspberry Pi Zero 2 W with Debian**, including the hardware and software stack.
+
+---
+
+## 1. **Hardware Needed**
+
+The Pi Zero 2 W **does not have a built-in CAN controller**. So you need **both a CAN controller and a transceiver**:
+
+| Component                                  | Purpose                                                                      |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| **MCP2515 (SPI CAN controller)**           | Provides the CAN protocol handling. Communicates with Pi via SPI.            |
+| **TJA1050 / SN65HVD230 (CAN transceiver)** | Converts logic-level SPI signals to CAN differential signals (CAN_H, CAN_L). |
+| **Twisted pair cable**                     | Connect devices on the CAN bus.                                              |
+| **120 Ω terminator resistors**             | One at each end of the CAN bus.                                              |
+
+**Optional / easier solution:**
+
+* **PiCAN2 / PiCAN3 HAT**: HAT for Pi with MCP2515 + TJA1050 built-in. Simplifies wiring and gives proper termination.
+
+---
+
+## 2. **Physical connections**
+
+If using MCP2515 + transceiver:
+
+```
+Pi Zero 2 W SPI pins:
+MOSI -> MCP2515 MOSI
+MISO -> MCP2515 MISO
+SCLK -> MCP2515 SCK
+CE0  -> MCP2515 CS
+GND  -> MCP2515 GND
+3.3V -> MCP2515 VCC
+
+MCP2515 -> Transceiver -> CAN bus (CAN_H / CAN_L)
+```
+
+---
+
+## 3. **Linux Kernel / Driver Support**
+
+* Debian (Raspberry Pi OS / Debian Bullseye/Bookworm) supports **MCP2515** via SPI.
+* Steps:
+
+1. Enable SPI:
+
+```bash
+sudo raspi-config
+# Interface Options -> SPI -> Enable
+```
+
+2. Load MCP2515 and CAN driver modules:
+
+```bash
+sudo modprobe mcp251x
+sudo modprobe can
+sudo modprobe can_raw
+```
+
+3. Configure device tree overlay in `/boot/config.txt`:
+
+```text
+dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25,spimaxfrequency=1000000
+dtoverlay=spi-bcm2835
+```
+
+* `oscillator` = 16 MHz for MCP2515
+* `interrupt` = GPIO pin connected to INT of MCP2515
+
+4. Bring up CAN interface:
+
+```bash
+sudo ip link set can0 up type can bitrate 500000
+ifconfig can0
+```
+
+---
+
+## 4. **Testing CAN**
+
+* Install utilities:
+
+```bash
+sudo apt install can-utils
+```
+
+* Send a message:
+
+```bash
+cansend can0 123#DEADBEEF
+```
+
+* Listen:
+
+```bash
+candump can0
+```
+
+---
+
+## 5. **CAN Stack in Linux**
+
+On Linux, CAN is implemented via the **SocketCAN framework**:
+
+* **SocketCAN** → provides **socket API** similar to TCP/UDP.
+* Use **raw sockets** or **higher-level libraries**:
+
+```cpp
+#include <linux/can.h>
+#include <linux/can/raw.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <cstring>
+```
+
+* Embedded C++ can use **struct CANMessage** that maps to `struct can_frame`:
+
+```cpp
+struct can_frame frame;
+frame.can_id  = 0x123;
+frame.can_dlc = 8;
+memcpy(frame.data, myData, 8);
+write(sock, &frame, sizeof(frame));
+```
+
+---
+
+✅ **Summary / minimal setup**
+
+1. **Hardware**: Pi Zero 2 W + MCP2515 + TJA1050 OR PiCAN2 HAT + twisted pair + terminators.
+2. **Enable SPI** on Pi.
+3. **Device tree overlay** for MCP2515.
+4. **Load CAN kernel modules** (`mcp251x`, `can`, `can_raw`).
+5. **SocketCAN API** or `can-utils` for testing.
+
+---
+
+If you want, I can draw a **diagram showing Pi Zero 2 W, MCP2515, transceiver, and CAN bus wiring** — it’s extremely helpful for setting up embedded CAN quickly.
+
+Do you want me to do that?

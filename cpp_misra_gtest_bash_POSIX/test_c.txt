@@ -1,0 +1,311 @@
+Remek döntés 👌 — most akkor jöjjön a **beágyazott C** (nem C++) témájú, **trükkös, valós fejlesztési helyzetekből vett** kérdésgyűjtemény — megoldásokkal és részletes magyarázatokkal.
+
+Ezek kifejezetten **bare-metal / RTOS-os C fejlesztői interjúkra** valók, és lefedik a hardverközeli, időzítős, megszakításos, memória-kezelős trükköket is.
+
+---
+
+## ⚙️ **1. Volatile és optimalizálás**
+
+### ❓ Kérdés:
+
+Miért hibás az alábbi kód?
+
+```c
+uint8_t flag = 0;
+
+void ISR_Handler(void) {
+    flag = 1;
+}
+
+int main(void) {
+    while (flag == 0) {
+        // várakozunk, amíg a megszakítás be nem állítja
+    }
+}
+```
+
+### 💡 Válasz:
+
+Mert a `flag` nem `volatile`, ezért a fordító optimalizálhatja a ciklust → **végtelen ciklus** lesz.
+
+```c
+volatile uint8_t flag = 0;
+```
+
+🔍 *Megjegyzés:* A `volatile` **nem tesz thread-safe-é**, csak megakadályozza a kódoptimalizálást.
+
+---
+
+## ⚙️ **2. Integer overflow időzítő számolásnál**
+
+### ❓ Kérdés:
+
+Mi történik ezzel a kóddal 16 bites időzítő esetén?
+
+```c
+uint16_t start = TIMER;
+while (TIMER - start < 500);
+```
+
+### 💡 Válasz:
+
+Ez **helyesen kezeli a túlcsordulást**, mert az `unsigned` típus modulo 2¹⁶ szerint számol.
+
+🧩 Ha `int16_t` típus lenne, **undefined behavior** lenne (negatív értékkel hibázna).
+
+---
+
+## ⚙️ **3. Memory-mapped regiszter elérés**
+
+### ❓ Kérdés:
+
+Miért szükséges a `volatile` a hardverregiszter elérésnél?
+
+```c
+#define GPIOA_ODR (*(uint32_t*)0x48000014)
+
+int main(void) {
+    GPIOA_ODR = 1;
+}
+```
+
+### 💡 Válasz:
+
+A fordító optimalizálhatja, hogy **nem történik változás**, és **kihagyhatja az írást**.
+A helyes forma:
+
+```c
+#define GPIOA_ODR (*(volatile uint32_t*)0x48000014)
+```
+
+🧩 `volatile` biztosítja, hogy **minden hozzáférés valóban megtörténjen**, mert ez **I/O művelet**, nem RAM.
+
+---
+
+## ⚙️ **4. Bitmask helyes használata**
+
+### ❓ Kérdés:
+
+Mi a különbség az alábbi két sor között?
+
+```c
+reg = reg | 0x02;   // 1️⃣
+reg |= 0x02;        // 2️⃣
+```
+
+### 💡 Válasz:
+
+Semmi funkcionális különbség.
+De ha **hardware regisztert** írsz, az 1️⃣ változatban a `reg` kétszer olvasódhat: egyszer bal, egyszer jobb oldalon → **side effect**!
+
+🧩 Például ha `reg` volatile, az 1️⃣ forma **két busz-hozzáférést** okoz, ami bizonyos perifériáknál hibás lehet.
+Ezért mindig a rövidebb formát használd:
+
+```c
+reg |= 0x02;
+```
+
+---
+
+## ⚙️ **5. Struct padding probléma**
+
+### ❓ Kérdés:
+
+Miért különbözik a két struktúra mérete?
+
+```c
+struct A {
+    uint8_t  a;
+    uint32_t b;
+    uint8_t  c;
+};
+
+struct B {
+    uint32_t b;
+    uint8_t  a;
+    uint8_t  c;
+};
+```
+
+### 💡 Válasz:
+
+Mert a fordító **alignment paddingot** tesz be.
+
+* `sizeof(struct A)` → 12 byte
+* `sizeof(struct B)` → 8 byte
+
+🧩 Hardverregiszter térképekhez mindig:
+
+```c
+#pragma pack(push, 1)
+struct A { ... };
+#pragma pack(pop)
+```
+
+vagy GCC:
+
+```c
+struct __attribute__((packed)) A { ... };
+```
+
+---
+
+## ⚙️ **6. Bitfield csapda**
+
+### ❓ Kérdés:
+
+Miért nem hordozható az alábbi bitmező?
+
+```c
+struct {
+    uint8_t enable : 1;
+    uint8_t mode   : 3;
+    uint8_t speed  : 2;
+} ctrl;
+```
+
+### 💡 Válasz:
+
+Mert a bitmezők **bitenkénti sorrendje (endianness)** és **irányuk (balról-jobbra vagy jobbról-balra)** fordítófüggő.
+
+🧩 A helyes, hordozható megoldás: **bitmask**.
+
+```c
+#define CTRL_ENABLE  (1 << 0)
+#define CTRL_MODE(x) ((x & 0x07) << 1)
+```
+
+---
+
+## ⚙️ **7. ISR és globális változó**
+
+### ❓ Kérdés:
+
+Mi a probléma, ha megszakítás és a főprogram is ugyanazt a változót módosítja?
+
+```c
+volatile uint16_t counter = 0;
+
+ISR(TIMER0) {
+    counter++;
+}
+```
+
+És közben:
+
+```c
+if (counter > 500) ...
+```
+
+### 💡 Válasz:
+
+A `counter++` nem **atomi művelet** → két utasításból áll (read–modify–write).
+Ha közben főprogram is olvassa, **adatverseny** lehetséges.
+
+🧩 **Megoldás:**
+
+* 16 bites változónál: olvasás előtt **tiltsd le a megszakítást**, vagy
+* használj **lokális másolatot**:
+
+```c
+uint16_t temp;
+cli();
+temp = counter;
+sei();
+```
+
+---
+
+## ⚙️ **8. Stack overflow detektálása**
+
+### ❓ Kérdés:
+
+Hogyan lehet egy bare-metal rendszerben észrevenni, hogy stack overflow történt?
+
+### 💡 Válasz:
+
+* A stack elejét (vagy végét) **ismert mintával feltöltöd** (pl. 0xA5).
+* Futás közben ellenőrzöd, hogy a minta **érintetlen maradt-e**.
+
+🧩 RTOS-okban (pl. FreeRTOS): van beépített stack guard, pl. `configCHECK_FOR_STACK_OVERFLOW`.
+
+---
+
+## ⚙️ **9. Delay loop problémák**
+
+### ❓ Kérdés:
+
+Miért nem ajánlott “üres ciklussal” delay-t csinálni?
+
+```c
+for (volatile int i = 0; i < 100000; i++);
+```
+
+### 💡 Válasz:
+
+* A futási idő **fordító-, optimalizáció- és órajel-függő**.
+* Egy másik buildben teljesen más időtartam lesz.
+* Ha megszakítások is futnak, a ciklus **nem determinisztikus**.
+
+🧩 Használj **hardver időzítőt** vagy **SysTick** alapú delay-t.
+
+---
+
+## ⚙️ **10. Memory corruption trükkös bug**
+
+### ❓ Kérdés:
+
+Mi történik ezzel a kóddal?
+
+```c
+uint8_t buf[8];
+strcpy(buf, "Hello world!");
+```
+
+### 💡 Válasz:
+
+`strcpy` nem ellenőrzi a célméretet → túlcsordulás, **stack corruption**.
+Ez embedded környezetben **instabil működést vagy resetet** okozhat.
+
+🧩 Mindig használj:
+
+```c
+strncpy(buf, "Hello world!", sizeof(buf) - 1);
+buf[sizeof(buf) - 1] = '\0';
+```
+
+---
+
+## ⚙️ **+1. Bonusz: ISR-ben malloc**
+
+### ❓ Kérdés:
+
+Miért nem használható `malloc()` ISR-ből?
+
+### 💡 Válasz:
+
+* Heap műveletek **nem reentránsak**
+* Nem determinisztikus futási idő
+* Fragmentálja a memóriát
+
+🧩 ISR-ben: **soha ne allokálj** → használj **statikus vagy előre lefoglalt buffert**.
+
+---
+
+## 🧠 Összefoglaló táblázat
+
+| Téma                | Kulcsszó                 | Tipikus hiba                  |
+| ------------------- | ------------------------ | ----------------------------- |
+| `volatile`          | optimalizálás elkerülése | kihagyott I/O olvasás         |
+| unsigned aritmetika | timer wraparound         | signed overflow               |
+| struct alignment    | padding                  | hibás hardverregiszter-térkép |
+| ISR                 | nem atomi művelet        | adatverseny                   |
+| delay               | üres ciklus              | időzítés bizonytalan          |
+
+---
+
+Szeretnéd, hogy a következő körben készítsek **10 kérdéses beágyazott C feleletválasztós (kvíz) tesztet**, ahol te válaszolhatsz és én értékelem?
+👉 Olyan formátumban, mint egy interjú/tesztlap (A–B–C opciókkal és pontozással).
+
+
+

@@ -1,0 +1,135 @@
+
+
+
+https://edube.org
+
+object programming. 
+procedural programming.
+
+The object approach suggests a completely different way of thinking. 
+The data and the code are enclosed together 
+in the same world, 
+divided into classes. 
+Every class is like a recipe that can be used when you want to create a useful object (yes, this is where the name of the approach came from). 
+You may produce as many objects as you need to solve your problem. 
+Every object has a set of traits (they’re called properties) and 
+is able to perform a set of activities (which are called methods).
+
+
+Objects are incarnations of ideas expressed in classes, much like a piece of cheesecake on your plate is an incarnation of an idea expressed in the recipe printed in an old cookbook. 
+
+•	a noun, you probably define the object’s name
+•	adjective, you probably define the object’s property
+•	a verb, you probably define the object’s activity
+
+
+inheritance
+Any object bound to a specific level of a class hierarchy inherits all the traits (as well as requirements and qualities) defined inside any of the superclasses.
+
+every existing object may be equipped with three groups of attributes
+a noun, you probably define the object’s name
+adjective, you probably define the object’s property
+a verb, you probably define the object’s activity
+"Max is a large cat who sleeps all day"
+Object name = Max
+Home class = Cat
+Property = Size (large)
+Activity = Sleep (all day)
+
+
+
+stack, lifo
+lilo?
+
+A class is an aggregate consisting of variables (also called fields or properties) and functions (sometimes called methods). Both variables and functions are class components.
+
+
+THIS pointer
+class Class {
+public:
+    void setVal(int value) { 
+            Class::value = value;
+    }
+    int getVal(void);
+private:
+    int value;
+};
+class Class {
+public:
+    Class(void) { this -> value = -1; } //constructor
+    Class(int val) { this -> value = val; } //constructor overload
+    void setVal(int value) { 
+           this -> value = value;
+    }
+     void setVal(void) { value = -2; } //func overload
+     int getVal(void);
+    ~Class(void) { //destructor
+	delete [] value;
+	cout << "Deletion done." << endl;
+    }
+private:
+     int value;
+};
+int Class::getVal(void) { //outside def "::"
+      return value;
+}
+Class object1, object2(100);
+cout << object1.getVal() << endl;
+cout << object2.getVal() << endl;
+int main(void) {
+	Class1 object11(100), object12 = object11; // object copy
+	Class2 object21(200), object22 = object21;
+	cout << object12.value << endl;
+	cout << object22.value << endl;
+	return 0;
+}
+
+
+
+
+There’s another important fact worth mentioning: the constructors aren’t real functions. They don’t have any return type – not even void. You need to take this into consideration when declaring or defining a new constructor.
+
+class Stack {
+    private:
+            int stackstore[100];
+            int SP;
+    public:
+        Stack(void) { SP = 0; }
+            void push(int value);
+            int pop(void) {
+                 return stackstore[--SP];
+     }
+};
+
+void Stack::push(int value) {
+            stackstore[SP++] = value;
+}
+
+A class is an aggregate consisting of variables (also called fields or properties) and functions (sometimes called methods). Both variables and functions are class components.
+
+•	(*p).C // p is explicitly dereferenced in order to access the C component
+•	p->C // p is implicitly dereferenced in order to access the C component
+
+
+
+#include <iostream>
+using namespace std;
+class Class1 {
+public:
+	Class1(int val) { this -> value = val; } //konstruktor
+	Class1(Class1 const &source) { value = source.value + 100; }
+	int value;
+};
+class Class2 {
+public:
+	Class2(int val) { this -> value = val; }
+	int value;
+};
+int main(void) {
+	Class1 object11(100), object12 = object11;
+	Class2 object21(200), object22 = object21;
+	cout << object12.value << endl;
+	cout << object22.value << endl;
+	return 0;
+}
+
