@@ -6,7 +6,7 @@ A rendszer osszeallitas:
 https://github.com/ballonwheel/ballonwheel/blob/main/images/setup.jpg
 
 A rendszer a Kando Konferencian szerepelt 2023ban:
-https://konf2023.kvk.uni-obuda.hu/publikacio
+https://konf2023.kvk.uni-obuda.hu/absztraktok
 
 A rendszer videoja mukodes kozben:
 http://dobany.hu/VID_20230913_210931.3gp
