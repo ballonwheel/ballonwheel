@@ -1,0 +1,4 @@
+Wed 25 Oct 18:37:03 BST 2023
+./run.sh: line 10: cpufreq-set: command not found
+pid 97973's current affinity list: 0-3
+pid 97973's new affinity list: 3

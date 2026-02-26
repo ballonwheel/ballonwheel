@@ -1,0 +1,90 @@
+Symbolic pkg v3.1.1: Python communication link active, SymPy v1.13.dev.
+vbc_m = (sym 3×1 matrix)
+  ⎡ω₂⋅(rb + rw)⎤
+  ⎢            ⎥
+  ⎢     0      ⎥
+  ⎢            ⎥
+  ⎣     0      ⎦
+vp_m = (sym 3×1 matrix)
+  ⎡omegaw⋅rw⎤
+  ⎢         ⎥
+  ⎢    0    ⎥
+  ⎢         ⎥
+  ⎣    0    ⎦
+omegab_m = (sym 3×1 matrix)
+  ⎡  0   ⎤
+  ⎢      ⎥
+  ⎢  0   ⎥
+  ⎢      ⎥
+  ⎣omegab⎦
+rb_m = (sym 3×1 matrix)
+  ⎡0 ⎤
+  ⎢  ⎥
+  ⎢rb⎥
+  ⎢  ⎥
+  ⎣0 ⎦
+acp = (sym)
+    2          
+  ω₂ ⋅(rb + rw)
+ans = (sym)
+                            2          
+  -N + g⋅mb⋅cos(fi₂) = mb⋅ω₂ ⋅(rb + rw)
+atg = (sym) β₂⋅(rb + rw)
+Mm = (sym)
+  km⋅(Ua - ku⋅omegaw)
+  ───────────────────
+          Ra         
+Ms = (sym) omegaw⋅rv
+kzzz = (sym 3×1 matrix)
+  ⎡-omegab⋅rb + omegaw⋅rw⎤
+  ⎢                      ⎥
+  ⎢          0           ⎥
+  ⎢                      ⎥
+  ⎣          0           ⎦
+sol_omegab = (sym)
+  -ω₂⋅rb - ω₂⋅rw + omegaw⋅rw
+  ──────────────────────────
+              rb            
+betab = (sym)
+  -β₂⋅rb - β₂⋅rw + betaw⋅rw
+  ─────────────────────────
+             rb            
+sol_s = (sym)
+  -β₂⋅rb⋅thetab - β₂⋅rw⋅thetab + betaw⋅rw⋅thetab
+  ──────────────────────────────────────────────
+                         2                      
+                       rb                       
+equs = (sym 2×1 matrix)
+  ⎡                      -β₂⋅rb⋅thetab - β₂⋅rw⋅thetab + betaw⋅rw⋅thetab          ↪
+  ⎢               g⋅mb + ────────────────────────────────────────────── = β₂⋅mb⋅ ↪
+  ⎢                                             2                                ↪
+  ⎢                                           rb                                 ↪
+  ⎢                                                                              ↪
+  ⎢             rw⋅(-β₂⋅rb⋅thetab - β₂⋅rw⋅thetab + betaw⋅rw⋅thetab)   km⋅(Ua - k ↪
+  ⎢-omegaw⋅rv - ─────────────────────────────────────────────────── + ────────── ↪
+  ⎢                                       2                                   Ra ↪
+  ⎣                                     rb                                       ↪
+  
+  ↪                         ⎤
+  ↪ (rb + rw)               ⎥
+  ↪                         ⎥
+  ↪                         ⎥
+  ↪                         ⎥
+  ↪ u⋅omegaw)               ⎥
+  ↪ ───────── = betaw⋅thetaw⎥
+  ↪                         ⎥
+  ↪                         ⎦
+equs_sol =
+  scalar structure containing the fields:
+    beta2 =
+      <class sym>
+    betaw =
+      <class sym>
+
+equs_sol =
+  scalar structure containing the fields:
+    beta2 =
+      <class sym>
+    betaw =
+      <class sym>
+
