@@ -3,7 +3,7 @@ Golyó a keréken
 Ver2026Feb26a
 
 A rendszer osszeallitas: 
-https://github.com/ballonwheel/ballonwheel/images/setup
+https://github.com/ballonwheel/ballonwheel/images/setup.jpg
 
 A rendszer a Kando Konferencian szerepelt 2023ban:
 https://konf2023.kvk.uni-obuda.hu/publikacio
